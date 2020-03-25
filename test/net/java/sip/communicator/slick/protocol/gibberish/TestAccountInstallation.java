@@ -196,7 +196,7 @@ public class TestAccountInstallation
         assertNotNull(
             "The system property named "
             + accountPrefix + ProtocolProviderFactory.USER_ID
-            +" has to tontain a valid gibberish address that could be used "
+            +" has to contain a valid gibberish address that could be used "
             +"during SIP Communicator's tests."
             , userID);
 

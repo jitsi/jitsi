@@ -217,7 +217,7 @@ public class TestAccountInstallation
         assertNotNull(
             "The system property named "
             + accountPrefix + ProtocolProviderFactory.USER_ID
-            +" has to tontain a valid Jabber address that could be used during "
+            +" has to contain a valid Jabber address that could be used during "
             +"SIP Communicator's tests."
             , userID);
 
