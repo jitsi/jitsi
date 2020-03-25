@@ -293,7 +293,7 @@ public class ContactGroupIcqImpl
 
     /**
      * Indicates whether some other object is "equal to" this group. A group is
-     * considered equal to another group if it hase the same sets of (equal)
+     * considered equal to another group if it has the same sets of (equal)
      * contacts.
      * <p>
      *
@@ -477,7 +477,7 @@ public class ContactGroupIcqImpl
      * Specifies whether or not this contact group is to be considered resolved
      * against the server. Note that no actions are to be undertaken against
      * group buddies in this method.
-     * @param resolved true if this group hase been resolved against the server
+     * @param resolved true if this group has been resolved against the server
      * and false otherwise.
      */
     void setResolved(boolean resolved)
