@@ -307,17 +307,17 @@ public class TestXCapParse extends TestCase
                 "The actions we set is not read properly",
                 actions.getAny().size() == 0);
         // transformations
-        TransformationsType transfomations = rule.getTransformations();
+        TransformationsType transformations = rule.getTransformations();
         assertNull(
-                "The transfomations we set is not read properly",
-                transfomations.getDevicePermission());
+                "The transformations we set is not read properly",
+                transformations.getDevicePermission());
         assertNotNull(
-                "The transfomations we set is not read properly",
-                transfomations.getServicePermission());
+                "The transformations we set is not read properly",
+                transformations.getServicePermission());
 
         // service-permission
         ProvideServicePermissionType servicePermission =
-                transfomations.getServicePermission();
+                transformations.getServicePermission();
         assertNull(
                 "The servicePermission we set is not read properly",
                 servicePermission.getAllServices());
@@ -346,7 +346,7 @@ public class TestXCapParse extends TestCase
                 servicePermission.getAny().size() == 0);
         // person-permission
         ProvidePersonPermissionType personPermission =
-                transfomations.getPersonPermission();
+                transformations.getPersonPermission();
         assertNotNull(
                 "The servicePermission we set is not read properly",
                 personPermission.getAllPersons());

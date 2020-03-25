@@ -356,7 +356,7 @@ public final class CommonPolicyParser
         // transformations
         if (rule.getTransformations() != null)
         {
-            element.appendChild(PresRulesParser.elementFromTransfomations(document,
+            element.appendChild(PresRulesParser.elementFromTransformations(document,
                     rule.getTransformations()));
         }
         return element;

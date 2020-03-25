@@ -158,23 +158,23 @@ public final class PresRulesParser
     }
 
     /**
-     * Creates transfomations object from the element.
+     * Creates transformations object from the element.
      *
      * @param element the element to analyze.
-     * @return the transfomations object.
+     * @return the transformations object.
      * @throws Exception if there is some error during parsing.
      */
     public static TransformationsType transformationsFromElement(
             Element element)
             throws Exception
     {
-        TransformationsType transfomations = new TransformationsType();
+        TransformationsType transformations = new TransformationsType();
         if (!CommonPolicyParser.NAMESPACE
                 .equals(getNamespaceUri(element)) ||
                 !CommonPolicyParser.TRANSFORMATIONS_ELEMENT
                         .equals(element.getLocalName()))
         {
-            throw new Exception("transfomations element is invalid");
+            throw new Exception("transformations element is invalid");
         }
         // Process attributes
         NamedNodeMap attributes = element.getAttributes();
@@ -184,13 +184,13 @@ public final class PresRulesParser
             String namespaceUri = getNamespaceUri(attribute);
             if (namespaceUri == null)
             {
-                throw new Exception("transfomations element is invalid");
+                throw new Exception("transformations element is invalid");
             }
             if (isStandartXmlNamespace(namespaceUri))
             {
                 continue;
             }
-            throw new Exception("transfomations element is invalid");
+            throw new Exception("transformations element is invalid");
         }
         // Process elements
         NodeList childNodes = element.getChildNodes();
@@ -206,39 +206,39 @@ public final class PresRulesParser
             String namespaceUri = getNamespaceUri(childElement);
             if (CommonPolicyParser.NAMESPACE.equals(namespaceUri))
             {
-                throw new Exception("transfomations element is invalid");
+                throw new Exception("transformations element is invalid");
             }
             else if (NAMESPACE.equals(namespaceUri))
             {
                 if (PROVIDE_DEVICES_ELEMENT.equals(localName))
                 {
-                    transfomations.setDevicePermission(
+                    transformations.setDevicePermission(
                             devicePermissionFromElement(childElement));
                 }
                 else if (PROVIDE_SERVICES_ELEMENT.equals(localName))
                 {
-                    transfomations.setServicePermission(
+                    transformations.setServicePermission(
                             servicePermissionFromElement(childElement));
                 }
                 else if (PROVIDE_PERSONS_ELEMENT.equals(localName))
                 {
-                    transfomations.setPersonPermission(
+                    transformations.setPersonPermission(
                             personPermissionFromElement(childElement));
                 }
                 else
                 {
                     // There are a lot of elements without good examples, so
                     // just put them in any elements as temporary solution.
-                    transfomations.getAny().add(childElement);
+                    transformations.getAny().add(childElement);
                 }
             }
             else
             {
                 // any
-                transfomations.getAny().add(childElement);
+                transformations.getAny().add(childElement);
             }
         }
-        return transfomations;
+        return transformations;
     }
 
     /**
@@ -249,7 +249,7 @@ public final class PresRulesParser
      * @return the rule element.
      * @throws Exception if there is some error during creating.
      */
-    public static Element elementFromTransfomations(
+    public static Element elementFromTransformations(
             Document document, TransformationsType transformations)
             throws Exception
     {
