@@ -112,7 +112,7 @@ public final class XCapCapsParser
                         xCapCaps.setAuids(auidsFromElement(element));
                         auidsFound = true;
                     }
-                    // namspaces
+                    // namespaces
                     else if (NAMESPACES_ELEMENT.equals(localName))
                     {
                         xCapCaps.setNamespaces(namespacesFromElement(element));
