@@ -302,7 +302,7 @@ public class UserSearchActivator
 
     /**
      * Removes provider from the list of providers that support user search.
-     * @param provider the procider to be removed.
+     * @param provider the provider to be removed.
      */
     private static void removeSupportedProvider(
         ProtocolProviderService provider)

@@ -28,7 +28,7 @@ import net.java.sip.communicator.util.*;
 
 /**
  * Keeps a list of all calls currently active and maintained by this protocol
- * povider. Offers methods for finding a call by its ID, peer dialog
+ * provider. Offers methods for finding a call by its ID, peer dialog
  * and others.
  *
  * @author Emil Ivov
