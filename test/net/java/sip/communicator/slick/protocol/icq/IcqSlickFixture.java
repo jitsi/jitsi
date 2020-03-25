@@ -179,7 +179,7 @@ public class IcqSlickFixture extends TestCase
     //registered as listener in TestProtocolProviderServiceIcqImpl
     // as soon tested account has been registered
     //There is only one offline message send. And this message is the first message
-    // received after the successful regitration, so this listener is removed
+    // received after the successful registration, so this listener is removed
     // after receiving one message. This message is tested in TestOperationSetBasicInstantMessaging
     // whether it is the one that has been send
     static class OfflineMsgCollector implements MessageListener

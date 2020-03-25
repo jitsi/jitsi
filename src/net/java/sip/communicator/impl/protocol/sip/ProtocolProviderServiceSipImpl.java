@@ -2333,7 +2333,7 @@ public class ProtocolProviderServiceSipImpl
         implements RegistrationStateChangeListener
     {
         /**
-         * The list where we store <tt>RegistationState</tt>s received while
+         * The list where we store <tt>RegistrationState</tt>s received while
          * waiting.
          */
         public List<RegistrationState> collectedNewStates =

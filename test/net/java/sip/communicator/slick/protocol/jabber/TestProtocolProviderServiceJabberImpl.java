@@ -41,19 +41,19 @@ public class TestProtocolProviderServiceJabberImpl
     private JabberSlickFixture fixture = new JabberSlickFixture();
 
     /**
-     * An event adapter that would collect registation state change events
+     * An event adapter that would collect registration state change events
      */
     public RegistrationEventCollector regEvtCollector1
         = new RegistrationEventCollector();
 
     /**
-     * An event adapter that would collect registation state change events
+     * An event adapter that would collect registration state change events
      */
     public RegistrationEventCollector regEvtCollector2
         = new RegistrationEventCollector();
 
     /**
-     * An event adapter that would collect registation state change events
+     * An event adapter that would collect registration state change events
      */
     public RegistrationEventCollector regEvtCollector3
         = new RegistrationEventCollector();

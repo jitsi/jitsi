@@ -56,7 +56,7 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
     private Object registrationLock = new Object();
 
     /**
-     * An event adapter that would collect registation state change events
+     * An event adapter that would collect registration state change events
      */
     public RegistrationEventCollector regEvtCollector
         = new RegistrationEventCollector();
@@ -276,7 +276,7 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
         /**
          * The method would simply register all received events so that they
          * could be available for later inspection by the unit tests. In the
-         * case where a registraiton event notifying us of a completed
+         * case where a registration event notifying us of a completed
          * registration is seen, the method would call notifyAll() on the
          * registrationLock.
          *
