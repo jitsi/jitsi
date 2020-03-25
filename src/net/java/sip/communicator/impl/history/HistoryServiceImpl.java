@@ -310,7 +310,7 @@ public class HistoryServiceImpl
     }
 
     /**
-     * Returns whether caching of readed documents is enabled or desibled.
+     * Returns whether caching of readed documents is enabled or disabled.
      * @return boolean
      */
     protected boolean isCacheEnabled()
