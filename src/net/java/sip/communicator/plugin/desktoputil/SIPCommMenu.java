@@ -65,9 +65,9 @@ public class SIPCommMenu
 
     /**
      * Creates an instance of <tt>SIPCommMenu</tt> by specifying the
-     * initialy selected item.
+     * initially selected item.
      *
-     * @param text The item that is initialy selected.
+     * @param text The item that is initially selected.
      */
     public SIPCommMenu(String text)
     {
