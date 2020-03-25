@@ -1312,7 +1312,7 @@ public class ServerStoredContactListSipImpl
             }
         }
         // Save all others
-        // TODO: process externals and enrty-refs after OpenXCAP fixes
+        // TODO: process externals and entry-refs after OpenXCAP fixes
         clientGroup.getList().getExternals().addAll(serverGroup.getExternals());
         clientGroup.getList().getEntryRefs().addAll(serverGroup.getEntryRefs());
         clientGroup.getList().getAny().addAll(serverGroup.getAny());

@@ -486,33 +486,33 @@ public class TestXCapParse extends TestCase
         assertNull(
                 "The lists[1]entry[1] display-name we set is not read properly",
                 lis1Entry1.getDisplayName().getLang());
-        String enty1ExtAttribute = lis1Entry1.getAnyAttributes().get(
+        String entry1ExtAttribute = lis1Entry1.getAnyAttributes().get(
                 new QName("extension", "uri", "ext"));
         assertNotNull(
                 "The lists[1]entry[1]ext:uri attribute we set is not read " +
                         "properly",
-                enty1ExtAttribute);
+                entry1ExtAttribute);
         assertEquals(
                 "The lists[1]entry[1]ext:uri attribute we set is not read " +
                         "properly",
-                enty1ExtAttribute, "sip:user1@example.com");
-        Element enty1ExtElement = lis1Entry1.getAny().get(0);
+                entry1ExtAttribute, "sip:user1@example.com");
+        Element entry1ExtElement = lis1Entry1.getAny().get(0);
         assertEquals(
                 "The lists[1]entry[1]ext:entry element we set is not read " +
                         "properly",
-                enty1ExtElement.getLocalName(), "display-name");
+                entry1ExtElement.getLocalName(), "display-name");
         assertEquals(
                 "The lists[1]entry[1]ext:display-name element we set is not " +
                         "read properly",
-                XMLUtils.getNamespaceUri(enty1ExtElement), "extension");
+                XMLUtils.getNamespaceUri(entry1ExtElement), "extension");
         assertEquals(
                 "The lists[1]entry[1]ext:display-name element we set is not " +
                         "read properly",
-                enty1ExtElement.getPrefix(), "ext");
+                entry1ExtElement.getPrefix(), "ext");
         assertEquals(
                 "The lists[1]entry[1]ext:display-name element we set is not " +
                         "read properly",
-                enty1ExtElement.getTextContent(), "Ext:Entry1");
+                entry1ExtElement.getTextContent(), "Ext:Entry1");
 
         EntryType lis1Entry2 = list1.getEntries().get(1);
         assertNotNull(
