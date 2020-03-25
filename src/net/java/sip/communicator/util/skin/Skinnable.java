@@ -29,7 +29,7 @@ public interface Skinnable
     /**
      * Loads the skin for this skinnable. This method is meant to be used by
      * user interface components interested in being skinnable. This is where
-     * all images, forgrounds and backgrounds should be loaded in order new
+     * all images, foregrounds and backgrounds should be loaded in order new
      * skin to take effect.
      */
     public void loadSkin();
