@@ -509,18 +509,18 @@ public class FullUserInfoCmd
 //        for (int i = 0; i < interestsCount; i++)
 //        {
 //            // per interest
-//            int categoty = LEBinaryTools.getUShort(block, offset);
+//            int category = LEBinaryTools.getUShort(block, offset);
 //            offset += 2;
 //
 //            offset = readStrings(block, tmp, offset);
 //
-//            if(categoty != 0)
+//            if(category != 0)
 //            {
 //                // as the categories are between 100 and 150 we shift them
 //                // because their string representations are stored in array
-//                categoty = categoty - 99;
+//                category = category - 99;
 //            }
-//            infoData.add(new InterestDetail(tmp[0], interestsCategories[categoty]));
+//            infoData.add(new InterestDetail(tmp[0], interestsCategories[category]));
 //        }
     }
 
