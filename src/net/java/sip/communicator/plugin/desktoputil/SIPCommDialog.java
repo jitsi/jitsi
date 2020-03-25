@@ -358,7 +358,7 @@ public class SIPCommDialog
             } else if (x > virtualBounds.x)
             {
                 // window is too far to the right
-                // can only occour, when screen resolution is
+                // can only occur, when screen resolution is
                 // changed or displayed are disconnected
 
                 // move the window in the bounds to the very right
@@ -379,7 +379,7 @@ public class SIPCommDialog
             } else if (y > virtualBounds.y)
             {
                 // window is too far to the bottom
-                // can only occour, when screen resolution is
+                // can only occur, when screen resolution is
                 // changed or displayed are disconnected
 
                 // move the window in the bounds to the very bottom
