@@ -389,7 +389,7 @@ public class ProtocolProviderServiceJabberImpl
     private SmackServiceNode jingleNodesServiceNode = null;
 
     /**
-     * Synchronization object to monitore jingle nodes auto discovery.
+     * Synchronization object to monitor jingle nodes auto discovery.
      */
     private final Object jingleNodesSyncRoot = new Object();
 
