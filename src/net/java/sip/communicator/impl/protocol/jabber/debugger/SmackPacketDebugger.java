@@ -128,7 +128,7 @@ public class SmackPacketDebugger
 
                     if(packet instanceof Message)
                     {
-                        packetBytes = cloneAnonyMessage(packet)
+                        packetBytes = cloneAnonymousMessage(packet)
                             .toXML().toString().getBytes("UTF-8");
                     }
                     else
@@ -160,7 +160,7 @@ public class SmackPacketDebugger
      * @param packet
      * @return
      */
-    private Message cloneAnonyMessage(Stanza packet)
+    private Message cloneAnonymousMessage(Stanza packet)
     {
         Message oldMsg = (Message)packet;
 
@@ -249,7 +249,7 @@ public class SmackPacketDebugger
 
                     if(packet instanceof Message)
                     {
-                        packetBytes = cloneAnonyMessage(packet)
+                        packetBytes = cloneAnonymousMessage(packet)
                             .toXML().toString().getBytes("UTF-8");
                     }
                     else

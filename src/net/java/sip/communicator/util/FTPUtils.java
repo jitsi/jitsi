@@ -213,12 +213,12 @@ public class FTPUtils
 
         if(user == null)
         {
-            user ="anonymus";
+            user ="anonymous";
         }
 
         if(pass == null)
         {
-            pass ="anonymus";
+            pass ="anonymous";
         }
 
         path = url.getPath();
