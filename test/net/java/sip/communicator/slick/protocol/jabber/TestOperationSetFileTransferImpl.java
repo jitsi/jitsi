@@ -251,13 +251,13 @@ public class TestOperationSetFileTransferImpl
      * @return
      */
     @Override
-    public boolean enableTestReceiverCancelsWhileTransfering()
+    public boolean enableTestReceiverCancelsWhileTransferring()
     {
         return false;
     }
 
     @Override
-    public boolean enableTestSenderCancelsWhileTransfering()
+    public boolean enableTestSenderCancelsWhileTransferring()
     {
         return true;
     }

@@ -593,13 +593,13 @@ public class OperationSetFileTransferJabberImpl
 
             if (jabberTransfer.getError() != null)
             {
-                logger.error("An error occurred while transfering file: "
+                logger.error("An error occurred while transferring file: "
                     +  jabberTransfer.getError().getMessage());
             }
 
             if (jabberTransfer.getException() != null)
             {
-                logger.error("An exception occurred while transfering file: ",
+                logger.error("An exception occurred while transferring file: ",
                     jabberTransfer.getException());
 
                 if(jabberTransfer.getException() instanceof XMPPErrorException)

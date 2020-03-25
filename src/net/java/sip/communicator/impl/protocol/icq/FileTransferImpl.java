@@ -135,7 +135,7 @@ public class FileTransferImpl
         {
             if (state==FileTransferState.CONNECTING)
             {
-                // this both are hacks that detects cancels while transfering
+                // this both are hacks that detects cancels while transferring
                 // as only connection is closed from other side
                 // we detect it by receiving ConnectionTimedOutEvent
                 if(transfer instanceof OutgoingFileTransferImpl)

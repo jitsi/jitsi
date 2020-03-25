@@ -68,7 +68,7 @@ public interface FileTransfer
     public File getLocalFile();
 
     /**
-     * Returns the contact that we are transfering files with.
+     * Returns the contact that we are transferring files with.
      * @return the contact.
      */
     public Contact getContact();

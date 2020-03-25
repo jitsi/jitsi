@@ -500,14 +500,14 @@ public abstract class TestOperationSetFileTransfer
      *
      * @throws Exception
      */
-    public void testReceiverCancelsWhileTransfering()
+    public void testReceiverCancelsWhileTransferring()
         throws Exception
     {
-        if(!enableTestReceiverCancelsWhileTransfering())
+        if(!enableTestReceiverCancelsWhileTransferring())
             return;
 
         logger.trace("Start test : receiver will cancel " +
-            "fileTransfer whil transfering.");
+            "fileTransfer whil transferring.");
 
         File fileToTransfer = getTempFileToTransfer(12345678);
 
@@ -662,14 +662,14 @@ public abstract class TestOperationSetFileTransfer
      *
      * @throws Exception
      */
-    public void testSenderCancelsWhileTransfering()
+    public void testSenderCancelsWhileTransferring()
         throws Exception
     {
-        if(!enableTestSenderCancelsWhileTransfering())
+        if(!enableTestSenderCancelsWhileTransferring())
             return;
 
         logger.trace("Start test : Sender will cancel fileTransfer" +
-            " while transfering.");
+            " while transferring.");
 
         File fileToTransfer = getTempFileToTransfer(12345678);
 
@@ -825,8 +825,8 @@ public abstract class TestOperationSetFileTransfer
     public abstract boolean enableTestSendAndReceive();
     public abstract boolean enableTestSenderCancelBeforeAccepted();
     public abstract boolean enableTestReceiverDecline();
-    public abstract boolean enableTestReceiverCancelsWhileTransfering();
-    public abstract boolean enableTestSenderCancelsWhileTransfering();
+    public abstract boolean enableTestReceiverCancelsWhileTransferring();
+    public abstract boolean enableTestSenderCancelsWhileTransferring();
     public abstract void stop() throws Exception;
 
     /**
