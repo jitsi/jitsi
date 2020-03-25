@@ -243,7 +243,7 @@
     </cc>
   </target>
 
-  <!-- compile hwaddressretrieverr library for Windows-->
+  <!-- compile hwaddressretriever library for Windows-->
   <target name="hwaddressretriever-windows" description="Build hwaddressretriever shared library for Windows" if="is.running.windows"
     depends="init-native">
     <cc outtype="shared" name="msvc" outfile="${native_install_dir}/hwaddressretriever" objdir="${obj}">
