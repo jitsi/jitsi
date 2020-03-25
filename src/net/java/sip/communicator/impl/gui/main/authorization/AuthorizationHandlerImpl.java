@@ -32,7 +32,7 @@ import javax.swing.*;
  * that would like to add us to their contact list or simply track our presence
  * status, or whenever a subscription request has failed for a particular
  * contact because we need to first generate an authorization request demanding
- * permission to subscibe.
+ * permission to subscribe.
  *
  * @author Yana Stamcheva
  * @author Damian Minkov

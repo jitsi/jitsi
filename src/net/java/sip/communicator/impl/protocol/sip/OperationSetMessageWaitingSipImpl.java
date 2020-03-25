@@ -614,7 +614,7 @@ public class OperationSetMessageWaitingSipImpl
                 ResponseEvent responseEvent, int statusCode)
         {
             if(logger.isDebugEnabled())
-                logger.debug("Cannot subscripe to presence watcher info!");
+                logger.debug("Cannot subscribe to presence watcher info!");
         }
 
         /**

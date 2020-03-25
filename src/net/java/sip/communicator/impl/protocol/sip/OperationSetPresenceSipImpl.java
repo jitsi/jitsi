@@ -3196,7 +3196,7 @@ public class OperationSetPresenceSipImpl
                 return;
             }
 
-            // Subcribe to each contact in the list
+            // Subscribe to each contact in the list
             for (ContactSipImpl contact : ssContactList
                     .getAllContacts(ssContactList.getRootGroup()))
             {
@@ -3729,7 +3729,7 @@ public class OperationSetPresenceSipImpl
                 ResponseEvent responseEvent, int statusCode)
         {
             if(logger.isDebugEnabled())
-                logger.debug("Cannot subscripe to presence watcher info!");
+                logger.debug("Cannot subscribe to presence watcher info!");
         }
 
         /**

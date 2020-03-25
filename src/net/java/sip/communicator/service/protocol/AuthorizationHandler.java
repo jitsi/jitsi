@@ -23,7 +23,7 @@ package net.java.sip.communicator.service.protocol;
  * add us to their contact list or simply track oour presence status, or
  * whenever a subscription request has failed for a particular contact because
  * we need to first generate an authorization request demanding permission to
- * subscibe.
+ * subscribe.
  * <p>
  * The <tt>AuthorizationHandler</tt> is to be implemented by the User Interface
  * as all its methods would require user intervention.
