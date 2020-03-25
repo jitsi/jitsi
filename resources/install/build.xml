@@ -2513,7 +2513,7 @@
         <antcall target="-deb-package.install-file-update-splash"/>
     </target>
 
-    <!-- updates the startup scritp only if called from deb target -->
+    <!-- updates the startup script only if called from deb target -->
     <target name="-deb-sh-file-update"
             unless="debianize.src.pkg">
         <replace file="${debianize.dir}/sh/${package.name}"
