@@ -183,7 +183,7 @@ public class ContactListModel
 
     /**
      * If the given object is instance of MetaContact or MetaContactGroup
-     * returns the index of this meta contact or group, otherwiser returns -1.
+     * returns the index of this meta contact or group, otherwise returns -1.
      *
      * @param o the object, which index we search
      * @return the index of the given object if it founds it, otherwise -1
