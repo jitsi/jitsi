@@ -218,8 +218,8 @@ public class RequestAuthorizationDialog
     }
 
     /**
-     * The text entered as a resuest reason.
-     * @return the text entered as a resuest reason
+     * The text entered as a request reason.
+     * @return the text entered as a request reason
      */
     public String getRequestReason()
     {

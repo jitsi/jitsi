@@ -497,11 +497,11 @@ public class TestOperationSetPresence
             assertTrue("Response not received!",
                        authEventCollector.isAuthorizationResponseReceived);
 
-            boolean isAcceptedAuthReuest =
+            boolean isAcceptedAuthRequest =
                 authEventCollector.response.getResponseCode().equals(AuthorizationResponse.ACCEPT);
             assertEquals("Response is not as the sent one",
                          IcqSlickFixture.testerAgent.getAuthCmdFactory().ACCEPT,
-                         isAcceptedAuthReuest);
+                         isAcceptedAuthRequest);
             assertNotNull("We didn't receive any reason! ",
                        authEventCollector.authorizationResponseString);
 
@@ -1365,11 +1365,11 @@ public class TestOperationSetPresence
                      IcqSlickFixture.testerAgent.getAuthCmdFactory().responseReasonStr,
                      firstRequestResponse);
 
-        boolean isAcceptedAuthReuest =
+        boolean isAcceptedAuthRequest =
                 authEventCollector.responseToRequest.getResponseCode().equals(AuthorizationResponse.ACCEPT);
         assertEquals("Agent received Response is not as the sent one",
                      IcqSlickFixture.testerAgent.getAuthCmdFactory().isRequestAccepted,
-                     isAcceptedAuthReuest);
+                     isAcceptedAuthRequest);
 
         // delete us from his list
         // be sure buddy is not already in the list
@@ -1426,10 +1426,10 @@ public class TestOperationSetPresence
                      IcqSlickFixture.testerAgent.getAuthCmdFactory().responseReasonStr,
                      secondRequestResponse);
 
-        isAcceptedAuthReuest =
+        isAcceptedAuthRequest =
                 authEventCollector.responseToRequest.getResponseCode().equals(AuthorizationResponse.ACCEPT);
         assertEquals("Agent received Response is not as the sent one",
                      IcqSlickFixture.testerAgent.getAuthCmdFactory().isRequestAccepted,
-             isAcceptedAuthReuest);
+             isAcceptedAuthRequest);
     }
 }
