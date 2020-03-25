@@ -352,7 +352,7 @@ public class SingleWindowContainer
     }
 
     /**
-     * Opens the specified <tt>ChatPanel</tt> and optinally brings it to the
+     * Opens the specified <tt>ChatPanel</tt> and optionally brings it to the
      * front.
      *
      * @param chatPanel the <tt>ChatPanel</tt> to be opened
