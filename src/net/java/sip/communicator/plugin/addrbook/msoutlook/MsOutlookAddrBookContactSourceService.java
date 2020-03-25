@@ -470,7 +470,7 @@ public class MsOutlookAddrBookContactSourceService
         }
 
         /**
-         * Dispatchs the collected notifications.
+         * Dispatches the collected notifications.
          */
         public void run()
         {
