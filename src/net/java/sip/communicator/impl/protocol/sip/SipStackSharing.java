@@ -1347,7 +1347,7 @@ public class SipStackSharing
     /**
      * If a tcp(tls) provider stays unregistering for a long time after
      * connection changed most probably it won't get registered after
-     * unregistering fails, cause underlying listening point are conncted
+     * unregistering fails, cause underlying listening point are connected
      * to wrong interfaces. So we will replace them.
      */
     private class ResetListeningPoint

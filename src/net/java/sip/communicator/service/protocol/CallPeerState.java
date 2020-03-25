@@ -21,7 +21,7 @@ package net.java.sip.communicator.service.protocol;
  * The CallPeerState class reflects the current state of a call
  * peer. In other words when you start calling your grand mother she will
  * be in a INITIATING_CALL state, when her phone rings her state will change to
- * ALERTING_REMOTE_SIDE, and when she replies she will enter a CONNCECTED state.
+ * ALERTING_REMOTE_SIDE, and when she replies she will enter a CONNECTED state.
  *
  * <p>Though not mandatory CallPeerState would generally have one of the
  * following life cycles
