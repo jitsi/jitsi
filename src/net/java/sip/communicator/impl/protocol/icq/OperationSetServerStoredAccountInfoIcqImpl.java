@@ -1180,7 +1180,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
         new Locale("bh"), // LC_BHOJPURI  Bhojpuri
         new Locale("bg"), // LC_BULGARIAN Bulgarian
         new Locale("my"), // LC_BURMESE   Burmese
-        new Locale("zh", "hk"), // LC_CONTONESE Cantonese official in Hong Kong SAR and Macau SAR
+        new Locale("zh", "hk"), // LC_CANTONESE Cantonese official in Hong Kong SAR and Macau SAR
         new Locale("ca"), // LC_CATALAN   Catalan
         Locale.CHINA, // LC_CHINESE Chinese zh
         new Locale("hr"), // LC_CROATIAN    Croatian
