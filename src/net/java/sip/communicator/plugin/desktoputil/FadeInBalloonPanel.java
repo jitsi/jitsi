@@ -25,7 +25,7 @@ import javax.swing.*;
 import org.jvnet.lafwidget.animation.*;
 
 /**
- * The <tt>FadeInBaloonPanel</tt> is a semi-transparent "balloon" panel, which
+ * The <tt>FadeInBalloonPanel</tt> is a semi-transparent "balloon" panel, which
  * could be shown in a glass pane for example. You can define a begin point,
  * where the balloon triangle would show.
  *
