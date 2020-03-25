@@ -86,7 +86,7 @@ typedef
 #endif
 
 #ifndef BZ_NO_STDIO
-/* Need a definitition for FILE */
+/* Need a definition for FILE */
 #include <stdio.h>
 #endif
 
