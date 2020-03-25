@@ -28,7 +28,7 @@ import net.java.sip.communicator.service.protocol.*;
  * subgroups. A contact list on the other hand may not directly contain buddies.
  *
  *
- * The reason for having an abstract class is only - being able to esily
+ * The reason for having an abstract class is only - being able to easily
  * recognize our own (ICQ) contacts.
  * @author Emil Ivov
  */
