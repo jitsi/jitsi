@@ -184,7 +184,7 @@ public abstract class ServerStoredContactList
      * contact list as a standard contact but when an event is received from the
      * server concerning this contact, then it will be reused and only its
      * isResolved field would be updated instead of creating the whole contact
-     * again. If creation is successfull event will be fired.
+     * again. If creation is successful event will be fired.
      *
      * @param parentGroup the group where the unersolved contact is to be
      *                    created.
@@ -577,7 +577,7 @@ public abstract class ServerStoredContactList
 
     /**
      * Creates contact for the specified address and inside the
-     * specified group . If creation is successfull event will be fired.
+     * specified group . If creation is successful event will be fired.
      *
      * @param parentGroup the group where the unersolved contact is to be
      *                    created.
@@ -600,7 +600,7 @@ public abstract class ServerStoredContactList
 
     /**
      * Creates contact for the specified address and inside the
-     * specified group . If creation is successfull event will be fired.
+     * specified group . If creation is successful event will be fired.
      *
      * @param parentGroup the group where the unersolved contact is to be
      *                    created.

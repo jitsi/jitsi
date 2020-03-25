@@ -163,7 +163,7 @@ public class DnsUtilActivator
     /**
      * Checks settings and if needed load forwarding of dns to the server
      * that is specified.
-     * @return whether loading was successfull or <tt>false</tt> if it is not or
+     * @return whether loading was successful or <tt>false</tt> if it is not or
      * was not enabled.
      */
     private static boolean loadDNSProxyForward()

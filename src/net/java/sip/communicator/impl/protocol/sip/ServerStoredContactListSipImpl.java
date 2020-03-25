@@ -114,7 +114,7 @@ public class ServerStoredContactListSipImpl
 
     /**
      * Creates contact for the specified address and inside the
-     * specified group . If creation is successfull event will be fired.
+     * specified group . If creation is successful event will be fired.
      *
      * @param parentGroup the group where the unersolved contact is to be
      *                    created.
@@ -241,7 +241,7 @@ public class ServerStoredContactListSipImpl
     }
 
     /**
-     * Removes a contact. If creation is successfull event will be fired.
+     * Removes a contact. If creation is successful event will be fired.
      *
      * @param contact contact to be removed.
      * @throws OperationFailedException with code NETWORK_FAILURE if the
