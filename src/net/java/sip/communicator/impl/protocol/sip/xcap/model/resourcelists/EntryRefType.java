@@ -70,7 +70,7 @@ public class EntryRefType
         if (ref == null || ref.trim().length() == 0)
         {
             throw new IllegalArgumentException("The ref attribute cannot be " +
-                    "null or empry");
+                    "null or empty");
         }
         this.ref = ref;
     }

@@ -266,7 +266,7 @@ public abstract class ServerStoredContactList
         if (groupName == null || groupName.length() == 0)
         {
             throw new IllegalArgumentException(
-                    "Creating group name cannot be null or empry");
+                    "Creating group name cannot be null or empty");
         }
         if (logger.isTraceEnabled())
         {

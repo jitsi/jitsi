@@ -107,7 +107,7 @@ public class XCapResourceId
      *
      * @param resourceId the XCAP resource identifier as single string.
      * @return the XCAP resource identifier.
-     * @throws IllegalArgumentException if resourceId is null or emty or has
+     * @throws IllegalArgumentException if resourceId is null or empty or has
      *                                  invalid format.
      */
     public static XCapResourceId create(String resourceId)

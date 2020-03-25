@@ -70,7 +70,7 @@ public class EntryType
         if (uri == null || uri.trim().length() == 0)
         {
             throw new IllegalArgumentException("The uri attribute cannot be " +
-                    "null or empry");
+                    "null or empty");
         }
         this.uri = uri;
     }
