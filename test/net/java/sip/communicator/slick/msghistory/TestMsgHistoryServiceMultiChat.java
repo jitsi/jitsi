@@ -327,7 +327,7 @@ public class TestMsgHistoryServiceMultiChat
         assertTrue("Messages too few - findByEndDate", msgs.size() >= 3);
 
         /**
-         * This must find also many messages but atleast one
+         * This must find also many messages but at least one
          */
         rs = msgHistoryService.findByKeywords(
             room,

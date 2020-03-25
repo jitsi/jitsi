@@ -413,7 +413,7 @@ public class TestMetaHistoryService
         assertTrue("Messages too few - findByEndDate", msgs.size() >= 3);
 
         /**
-         * This must find also many messages but atleast one
+         * This must find also many messages but at least one
          */
         rs = metaHistoryService.findByKeywords(
             new String[]{MessageHistoryService.class.getName()},
@@ -719,7 +719,7 @@ public class TestMetaHistoryService
                     new String[]{FileHistoryService.class.getName()},
                     testMetaContact,
                     "t3"));
-        assertTrue("Filetransfers must be atleast 1", rs.size() > 0);
+        assertTrue("Filetransfers must be at least 1", rs.size() > 0);
 
         it = rs.iterator();
         assertTrue("Filetransfers not found",
@@ -738,7 +738,7 @@ public class TestMetaHistoryService
                     new String[]{FileHistoryService.class.getName()},
                     testMetaContact,
                     new String[]{"t3"}));
-        assertTrue("Filetransfers must be atleast 1", rs.size() > 0);
+        assertTrue("Filetransfers must be at least 1", rs.size() > 0);
 
         it = rs.iterator();
         assertTrue("Filetransfers not found",
@@ -836,7 +836,7 @@ public class TestMetaHistoryService
                 CallHistoryService.class.getName()},
             testMetaContact, controlDate1);
 
-        assertTrue("Records must be atleast", rs.size() >= 6);
+        assertTrue("Records must be at least", rs.size() >= 6);
 
         rs = metaHistoryService.findByPeriod(
             new String[]{
@@ -878,7 +878,7 @@ public class TestMetaHistoryService
                 CallHistoryService.class.getName()},
             testMetaContact,
             "T1");
-        assertTrue("Records must be atleast 2", rs.size() >= 2);
+        assertTrue("Records must be at least 2", rs.size() >= 2);
 
         rs = metaHistoryService.findByKeyword(
             new String[]{
@@ -896,7 +896,7 @@ public class TestMetaHistoryService
                 CallHistoryService.class.getName()},
             testMetaContact,
             new String[]{"t4", "participant_address_4", "word4"});
-        assertTrue("Records must be atleast 1", rs.size() >= 1);
+        assertTrue("Records must be at least 1", rs.size() >= 1);
 
         rs = metaHistoryService.findByKeywords(
             new String[]{
