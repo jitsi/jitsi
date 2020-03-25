@@ -318,7 +318,7 @@ public class OperationSetTypingNotificationsSipImpl
             }
 
             // when a task is canceled it cannot be
-            // rescheduled, we will create new task each time we shedule
+            // rescheduled, we will create new task each time we schedule
             task = new TypingTask(from, true);
             typingTasks.add(task);
 
