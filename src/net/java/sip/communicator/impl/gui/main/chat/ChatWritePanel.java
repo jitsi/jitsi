@@ -1178,7 +1178,7 @@ public class ChatWritePanel
         // If this contact supports several resources, then schedule the timer:
         // - If the resource is outdated, then trigger the timer now (to try to
         // switch to the bare ID if now available).
-        // - If the new reousrce transport is really effective (i.e. we have
+        // - If the new resource transport is really effective (i.e. we have
         // received a message from this resource).
         if(timeout != -1
                 && (isMessageOrFileTransferReceived || isOutdatedResource))

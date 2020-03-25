@@ -163,7 +163,7 @@ public class KeybindingsConfigPanel
         /**
          * Gets the internationalized string corresponding to a specific key
          * given in its plugin-specific format. The key is translated to the
-         * global format of the ReouseceManagementService and the translated key
+         * global format of the ResourceManagementService and the translated key
          * is used to retrieve the string from the resource files.
          *
          * @param key the key of the string to be retrieved given in its

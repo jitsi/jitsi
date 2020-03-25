@@ -75,7 +75,7 @@ public class SkinResourcePack
     /**
      * Buffer for resource files found.
      */
-    private static Hashtable<String, Iterator<String>> ressourcesFiles
+    private static Hashtable<String, Iterator<String>> resourcesFiles
         = new Hashtable<String, Iterator<String>>();
 
     /**
@@ -457,7 +457,7 @@ public class SkinResourcePack
                                                         String pattern)
     {
         Iterator<String> bufferedResult
-            = ressourcesFiles.get(path + "/" + pattern);
+            = resourcesFiles.get(path + "/" + pattern);
         if (bufferedResult != null) {
             return bufferedResult;
         }
@@ -488,7 +488,7 @@ public class SkinResourcePack
         }
 
         Iterator<String> result = propertiesList.iterator();
-        ressourcesFiles.put(path + pattern, result);
+        resourcesFiles.put(path + pattern, result);
 
         return result;
     }

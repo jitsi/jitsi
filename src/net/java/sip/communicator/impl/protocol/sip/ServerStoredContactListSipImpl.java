@@ -200,7 +200,7 @@ public class ServerStoredContactListSipImpl
         parentGroup.addContact(newContact);
         if (newContact.isPersistent())
         {
-            // Update resoure-lists
+            // Update resource-lists
             try
             {
                 updateResourceLists();
@@ -285,7 +285,7 @@ public class ServerStoredContactListSipImpl
                 logger.error("Error while removing XCAP contact", e);
             }
 
-            // Update resoure-lists
+            // Update resource-lists
             try
             {
                 updateResourceLists();

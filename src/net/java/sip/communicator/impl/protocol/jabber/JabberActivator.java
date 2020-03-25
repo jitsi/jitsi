@@ -101,7 +101,7 @@ public class JabberActivator
     private static UIService uiService = null;
 
     /**
-     * A reference to the currently valid <tt>ResoucreManagementService</tt>
+     * A reference to the currently valid <tt>ResourceManagementService</tt>
      * instance.
      */
     private static ResourceManagementService resourcesService = null;

@@ -37,8 +37,8 @@ public class DefaultResourcePackActivator
 
     static BundleContext bundleContext;
 
-    // buffer for ressource files found
-    private static Hashtable<String, Iterator<String>> ressourcesFiles =
+    // buffer for resource files found
+    private static Hashtable<String, Iterator<String>> resourcesFiles =
         new Hashtable<String, Iterator<String>>();
 
     public void start(BundleContext bc) throws Exception
@@ -117,7 +117,7 @@ public class DefaultResourcePackActivator
     protected static Iterator<String> findResourcePaths(  String path,
                                                             String pattern)
     {
-        Iterator<String> bufferedResult = ressourcesFiles.get(path + pattern);
+        Iterator<String> bufferedResult = resourcesFiles.get(path + pattern);
         if (bufferedResult != null) {
             return bufferedResult;
         }
@@ -148,7 +148,7 @@ public class DefaultResourcePackActivator
         }
 
         Iterator<String> result = propertiesList.iterator();
-        ressourcesFiles.put(path + pattern, result);
+        resourcesFiles.put(path + pattern, result);
 
         return result;
     }

@@ -1722,7 +1722,7 @@
             <arg value="${macosx.sign.keychain}"/>
         </exec>
 
-        <!-- force codesigning of growl framework as it has reosource 1
+        <!-- force codesigning of growl framework as it has resource 1
         signiture and will cause Jitsi.app to fail verifying
         Also sign the other frameworks and plugins (jre if exists).
          -->
