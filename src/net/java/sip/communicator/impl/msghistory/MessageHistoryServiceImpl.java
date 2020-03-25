@@ -1396,7 +1396,7 @@ public class MessageHistoryServiceImpl
             Message message, Date messageTimestamp)
     {
         try {
-            // mising from, strange messages, most probably a history
+            // missing from, strange messages, most probably a history
             // coming from server and probably already written
             if(from == null)
                 return;
