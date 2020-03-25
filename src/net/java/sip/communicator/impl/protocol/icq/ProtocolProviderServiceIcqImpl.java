@@ -733,7 +733,7 @@ public class ProtocolProviderServiceIcqImpl
             {
                 // we need a Service here. no metter which
                 // I've choose BosService
-                // we just need the oscar conenction from the service
+                // we just need the oscar connection from the service
                 Service service = aimConnection.getBosService();
                 if(service != null)
                 {

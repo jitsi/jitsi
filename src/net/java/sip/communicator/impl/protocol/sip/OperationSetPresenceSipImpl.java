@@ -3231,7 +3231,7 @@ public class OperationSetPresenceSipImpl
         {
             if (logger.isDebugEnabled())
             {
-                logger.debug("Enter connction failed state");
+                logger.debug("Enter connection failed state");
             }
             // Destroy XCAP contacts
             ssContactList.destroy();
