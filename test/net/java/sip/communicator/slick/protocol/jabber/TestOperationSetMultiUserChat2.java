@@ -272,7 +272,7 @@ public class TestOperationSetMultiUserChat2
     }
 
     /**
-     * utiliy method to know if a given nickname is on a
+     * utility method to know if a given nickname is on a
      * <tt>ChatRoomMember</tt> list
      *
      * @param name the name we are looking for
