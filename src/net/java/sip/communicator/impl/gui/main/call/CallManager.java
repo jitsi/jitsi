@@ -2321,7 +2321,7 @@ public class CallManager
      * @param device the <tt>MediaDevice</tt>, which audio formats we're
      * looking for
      * @param protocolProvider the provider to check.
-     * @return list of supported/enabled auido formats or empty list
+     * @return list of supported/enabled audio formats or empty list
      * otherwise.
      */
     private static List<MediaFormat> getAudioFormats(

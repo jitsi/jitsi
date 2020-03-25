@@ -99,7 +99,7 @@ public class MediaAwareCallConference
     private RTPTranslator videoRTPTranslator;
 
     /**
-     * The <tt>RTPTranslator</tt> which forwards autio RTP and RTCP traffic
+     * The <tt>RTPTranslator</tt> which forwards audio RTP and RTCP traffic
      * between the <tt>CallPeer</tt>s of the <tt>Call</tt>s participating in
      * this telephony conference when the local peer is acting as a conference
      * focus.
