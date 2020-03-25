@@ -420,7 +420,7 @@ public class CredentialsStorageServiceImpl
          * XXX The method #createCrypto() is synchronized in order to not ask
          * for the master password more than once. Without the synchronization,
          * it is possible to have the master password prompt shown twice in a
-         * row during application startup when unencypted passwords are to be
+         * row during application startup when unencrypted passwords are to be
          * migrated with the master password already set and the accounts start
          * loading.
          */
