@@ -166,7 +166,7 @@ public class TestXCapParse extends TestCase
      * Creates a test suite containing tests of this class in a specific order.
      * We'll first execute tests beginning with the "test" prefix and then go to
      * ordered tests. We first execute tests for reading info, then writing.
-     * Then the ordered tests - error handling and finaly for removing details
+     * Then the ordered tests - error handling and finally for removing details
      *
      * @return Test a testsuite containing all tests to execute.
      */
