@@ -3003,7 +3003,7 @@ public class MetaContactListServiceImpl
      * @param sourceContact the contact that this event is about.
      * @param parentGroup the group that the source contact belongs or belonged
      * to.
-     * @param eventID the id indicating the exavt type of the event to fire.
+     * @param eventID the id indicating the exact type of the event to fire.
      */
     private synchronized void fireMetaContactEvent(MetaContact sourceContact,
                                       MetaContactGroup parentGroup,

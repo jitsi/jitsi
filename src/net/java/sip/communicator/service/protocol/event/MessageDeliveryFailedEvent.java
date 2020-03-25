@@ -138,7 +138,7 @@ public class MessageDeliveryFailedEvent
       * @param source the <tt>Message</tt> whose delivery this event represents.
       * @param to the <tt>Contact</tt> that this message was sent to.
       * @param errorCode an errorCode indicating the reason of the failure.
-      * @param timestamp the exacte Date when it was determined that delivery
+      * @param timestamp the exact Date when it was determined that delivery
       * had failed.
       */
      public MessageDeliveryFailedEvent(Message source,
