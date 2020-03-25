@@ -618,7 +618,7 @@ public class TestOperationSetServerStoredInfo
     /**
      * Removing details from the account info operation set and checking
      * if they are removed from the implementation and from the server.
-     * After removing detail - the next retreiving of the info updates all the
+     * After removing detail - the next retrieving of the info updates all the
      * details from the server
      */
     public void removingItems()
@@ -678,7 +678,7 @@ public class TestOperationSetServerStoredInfo
         catch (OperationFailedException ex)
         {
             throw new RuntimeException(
-                    "Error setting or retreiving detail! Network Failure!", ex);
+                    "Error setting or retrieving detail! Network Failure!", ex);
         }
     }
 

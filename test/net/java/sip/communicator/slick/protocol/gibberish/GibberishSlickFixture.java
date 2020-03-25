@@ -103,7 +103,7 @@ public class GibberishSlickFixture
      * Initializes protocol provider references and whatever else there is to
      * initialize.
      *
-     * @throws java.lang.Exception in case we meet problems while retriving
+     * @throws java.lang.Exception in case we meet problems while retrieving
      * protocol providers through OSGI
      */
     @Override

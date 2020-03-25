@@ -94,7 +94,7 @@ public class ServerStoredContactListJabberImpl
         = new Vector<>();
 
     /**
-     *  Thread retreiving images for contacts
+     *  Thread retrieving images for contacts
      */
     private ImageRetriever imageRetriever = null;
 

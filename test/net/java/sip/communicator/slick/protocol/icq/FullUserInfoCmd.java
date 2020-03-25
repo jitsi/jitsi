@@ -26,7 +26,7 @@ import net.kano.joscar.snac.*;
 import net.kano.joscar.tlv.*;
 
 /**
- * Command for retreiving user info and setting user info,
+ * Command for retrieving user info and setting user info,
  * user info which is stored on the server
  *
  * @author Damian Minkov

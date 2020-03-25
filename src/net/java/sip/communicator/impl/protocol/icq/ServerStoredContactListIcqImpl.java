@@ -131,7 +131,7 @@ public class ServerStoredContactListIcqImpl
         this.rootGroup = new RootContactGroupIcqImpl(this.icqProvider);
 
         // waiting for the first contact to come
-        // to start retreiving the missing nicknames
+        // to start retrieving the missing nicknames
         if(icqProvider.USING_ICQ)
         {
             nickRetriever = new NickRetriever();
@@ -1281,7 +1281,7 @@ public class ServerStoredContactListIcqImpl
     }
 
     /**
-     * Thread retreiving nickname and firing event for the change
+     * Thread retrieving nickname and firing event for the change
      */
     private class NickRetriever
         extends Thread
