@@ -164,7 +164,7 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
         IcqSlickFixture.offlineMsgCollector.register(opSetBasicIM);
 
         //give time for the AIM server to notify everyone of our arrival
-        //simply waitinf is really not a reliable way of doing things but I
+        //simply waiting is really not a reliable way of doing things but I
         //can't think of anything better
         Object lock = new Object();
         synchronized(lock)
