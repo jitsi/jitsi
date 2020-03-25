@@ -40,7 +40,7 @@ public interface GeolocationService
 
     /**
      * Registers a listener that would get notifications any time the provider
-     * geolocation was succesfully refreshed.
+     * geolocation was successfully refreshed.
      *
      * @param listener the <tt>ProviderGeolocationPresenceListener</tt> to
      * register
@@ -49,7 +49,7 @@ public interface GeolocationService
 
     /**
      * Remove a listener that would get notifications any time the provider
-     * geolocation was succesfully refreshed.
+     * geolocation was successfully refreshed.
      *
      * @param listener the <tt>ProviderGeolocationPresenceListener</tt> to
      * remove

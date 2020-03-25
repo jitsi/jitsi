@@ -75,7 +75,7 @@ public class LoginByPasswordStrategy
     /**
      * Determines whether the strategy is ready to perform the login.
      *
-     * @return True when the password was sucessfully loaded.
+     * @return True when the password was successfully loaded.
      */
     public boolean loginPreparationSuccessful()
     {
