@@ -257,18 +257,18 @@ public class OperationSetUserSearchJabberImpl
         }
 
         Column jidColumn = null;
-        for (Column tmpCollumn : columns)
+        for (Column tmpColumn : columns)
         {
-            if(tmpCollumn.getType().equals(FormField.Type.jid_single))
+            if(tmpColumn.getType().equals(FormField.Type.jid_single))
             {
-                jidColumn = tmpCollumn;
+                jidColumn = tmpColumn;
                 break;
             }
         }
 
         if(jidColumn == null)
         {
-            logger.error("No jid collumn provided by the server.");
+            logger.error("No jid column provided by the server.");
             return null;
         }
         List<String> result = new ArrayList<>();
