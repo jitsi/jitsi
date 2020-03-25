@@ -29,7 +29,7 @@ MsOutlookAddrBookClientClassFactory::MsOutlookAddrBookClientClassFactory():
 }
 
 /**
- * Deletest this instance of MsOutlookAddrBookClientClassFactory.
+ * Deletes this instance of MsOutlookAddrBookClientClassFactory.
  */
 MsOutlookAddrBookClientClassFactory::~MsOutlookAddrBookClientClassFactory()
 {
