@@ -749,14 +749,14 @@ public class SipMessageFactory
         {
             // Shouldn't happen
             ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "Error occurred while constructing the CSeqHeadder",
+                "Error occurred while constructing the CSeqHeader",
                 OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
         catch (ParseException exc)
         {
             // shouldn't happen
             ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "Error while constructing a CSeqHeadder",
+                "Error while constructing a CSeqHeader",
                 OperationFailedException.INTERNAL_ERROR, exc, logger);
         }
 

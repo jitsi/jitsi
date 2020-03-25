@@ -356,10 +356,10 @@ public class OperationSetBasicInstantMessagingSipImpl
             //Shouldn't happen
             logger.error(
                 "An unexpected error occurred while"
-                + "constructing the CSeqHeadder", ex);
+                + "constructing the CSeqHeader", ex);
             throw new OperationFailedException(
                 "An unexpected error occurred while"
-                + "constructing the CSeqHeadder"
+                + "constructing the CSeqHeader"
                 , OperationFailedException.INTERNAL_ERROR
                 , ex);
         }
@@ -368,10 +368,10 @@ public class OperationSetBasicInstantMessagingSipImpl
             //shouldn't happen
             logger.error(
                 "An unexpected error occurred while"
-                + "constructing the CSeqHeadder", exc);
+                + "constructing the CSeqHeader", exc);
             throw new OperationFailedException(
                 "An unexpected error occurred while"
-                + "constructing the CSeqHeadder"
+                + "constructing the CSeqHeader"
                 , OperationFailedException.INTERNAL_ERROR
                 , exc);
         }
