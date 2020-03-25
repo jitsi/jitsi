@@ -536,7 +536,7 @@ public class ServerStoredContactListXivoImpl
             }
             else if (classField.equals("phones"))
             {
-                phonesRecieved(incomingObject);
+                phonesReceived(incomingObject);
                 return;
             }
             else if (classField.equals("disconn"))
@@ -723,7 +723,7 @@ public class ServerStoredContactListXivoImpl
      * parses received phones list and creates/resolves groups and contacts
      * @param objReceived the obj with data.
      */
-    private void phonesRecieved(JSONObject objReceived)
+    private void phonesReceived(JSONObject objReceived)
     {
         try
         {

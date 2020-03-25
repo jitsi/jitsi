@@ -545,7 +545,7 @@ public abstract class AbstractCallPeer<T extends Call,
         {
             CallPeerSecurityListener listener = listeners.next();
 
-            listener.securityMessageRecieved(evt);
+            listener.securityMessageReceived(evt);
         }
     }
 

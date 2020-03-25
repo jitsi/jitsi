@@ -184,7 +184,7 @@ public class IncomingFileTransferRequestJabberImpl
 
             fileTransferOpSet.fireFileTransferCreated(event);
 
-            jabberTransfer.recieveFile(file);
+            jabberTransfer.receiveFile(file);
 
             new OperationSetFileTransferJabberImpl
                 .FileTransferProgressThread(

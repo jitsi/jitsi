@@ -1640,7 +1640,7 @@ public class NotificationManager
      * Processes the received security message.
      * @param ev the event we received
      */
-    public void securityMessageRecieved(CallPeerSecurityMessageEvent ev)
+    public void securityMessageReceived(CallPeerSecurityMessageEvent ev)
     {
         try
         {

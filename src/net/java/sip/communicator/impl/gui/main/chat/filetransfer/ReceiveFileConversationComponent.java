@@ -101,7 +101,7 @@ public class ReceiveFileConversationComponent
         titleLabel.setText(
             dateString
             + resources.getI18NString(
-            "service.gui.FILE_TRANSFER_REQUEST_RECIEVED",
+            "service.gui.FILE_TRANSFER_REQUEST_RECEIVED",
             new String[]{fileTransferRequest.getSender().getDisplayName()}));
 
         String fileName

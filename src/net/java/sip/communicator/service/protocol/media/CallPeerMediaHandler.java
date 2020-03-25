@@ -1356,7 +1356,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
 
     /**
      * Checks whether <tt>dev</tt> can be used for a call, using
-     * <tt>sendPreset</tt> and <tt>reveicePreset</tt>
+     * <tt>sendPreset</tt> and <tt>receivePreset</tt>
      *
      * @return <tt>true</tt> if the device is not null, and it has at least
      * one enabled format. Otherwise <tt>false</tt>

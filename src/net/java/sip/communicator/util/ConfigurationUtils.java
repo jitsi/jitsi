@@ -369,7 +369,7 @@ public class ConfigurationUtils
      * The name of the property, whether to show addresses in call history
      * tooltip.
      */
-    private static final String HIDE_DOMAIN_IN_RECEIEVE_CALL_DIALOG_PROPERTY
+    private static final String HIDE_DOMAIN_IN_RECEIVE_CALL_DIALOG_PROPERTY
         = "net.java.sip.communicator.impl.gui.main.call." +
             "HIDE_DOMAIN_IN_RECEIVE_CALL_DIALOG_ENABLED";
 
@@ -959,7 +959,7 @@ public class ConfigurationUtils
             isHideAddressInCallHistoryTooltipEnabled);
 
         isHideDomainInReceivedCallDialogEnabled = configService.getBoolean(
-            HIDE_DOMAIN_IN_RECEIEVE_CALL_DIALOG_PROPERTY,
+            HIDE_DOMAIN_IN_RECEIVE_CALL_DIALOG_PROPERTY,
             isHideDomainInReceivedCallDialogEnabled);
 
         String hideExtendedAwayStatusProperty

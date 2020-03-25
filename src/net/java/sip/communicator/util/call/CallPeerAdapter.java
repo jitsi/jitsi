@@ -171,7 +171,7 @@ public class CallPeerAdapter
      *
      * <tt>CallPeerAdapter</tt> does nothing.
      */
-    public void securityMessageRecieved(CallPeerSecurityMessageEvent ev)
+    public void securityMessageReceived(CallPeerSecurityMessageEvent ev)
     {
     }
 

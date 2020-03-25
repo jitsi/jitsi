@@ -141,11 +141,11 @@ public class TestAccountUninstallation
 
         assertNotNull(
                     "No event was dispatched"
-                    ,regEvtCollector.stateRecieved);
+                    ,regEvtCollector.stateReceived);
 
         assertEquals(
                     "Event is not UNREGISTERED event"
-                    , regEvtCollector.stateRecieved
+                    , regEvtCollector.stateReceived
                     , RegistrationState.UNREGISTERED);
 
         assertEquals(
@@ -350,7 +350,7 @@ public class TestAccountUninstallation
      */
     public class RegistrationEventCollector implements RegistrationStateChangeListener
     {
-        RegistrationState stateRecieved = null;
+        RegistrationState stateReceived = null;
         int eventReason = -1;
 
         /**
@@ -370,7 +370,7 @@ public class TestAccountUninstallation
             if(evt.getNewState().equals( RegistrationState.UNREGISTERED))
             {
                 logger.debug("Connection FAILED!");
-                stateRecieved = evt.getNewState();
+                stateReceived = evt.getNewState();
                 eventReason = evt.getReasonCode();
 
                 synchronized(registrationLock)

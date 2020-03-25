@@ -70,7 +70,7 @@ public interface CallPeerSecurityListener
      *
      * @param event the security message event.
      */
-    public void securityMessageRecieved(
+    public void securityMessageReceived(
         CallPeerSecurityMessageEvent event);
 
     /**
