@@ -529,7 +529,7 @@ public class TestOperationSetPresence
             synchronized(unsubscribeEvtCollector){
                 operationSetPresence.unsubscribe(c);
                 logger.debug("Waiting to be removed...");
-                unsubscribeEvtCollector.waitForUnsubscribre(20000);
+                unsubscribeEvtCollector.waitForUnsubscribe(20000);
 
                 logger.debug("Received unsubscribed ok or we lost patients!");
 
@@ -1275,7 +1275,7 @@ public class TestOperationSetPresence
     private static class UnsubscribeWait
         extends SubscriptionAdapter
     {
-        public void waitForUnsubscribre(long waitFor)
+        public void waitForUnsubscribe(long waitFor)
         {
             synchronized(this)
             {

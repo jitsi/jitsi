@@ -37,7 +37,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  * <tt>ServerStoredGroupChangeListener</tt> interfaces.
  * <p>
  * The interfaces defines extended subscription methods that include an extra
- * <tt>parentGroup</tt> parameter. Simple subscribe and usubscribe operations
+ * <tt>parentGroup</tt> parameter. Simple subscribe and unsubscribe operations
  * defined by the parent <tt>OperationSetPresence</tt> operation set, will still
  * work, adding contacts to a default, root group. to be used by GUI and other
  * plugins the same way that they would use a
