@@ -109,13 +109,13 @@ public class RenameContactDialog
 
         TransparentPanel allButtonsPanel
                 = new TransparentPanel(new BorderLayout());
-        TransparentPanel firstButonPanel =
+        TransparentPanel firstButtonPanel =
                     new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
-        firstButonPanel.add(clearButton);
+        firstButtonPanel.add(clearButton);
 
         // add it only if we have one MetaContact
         if(metaContact.getContactCount() == 1)
-            allButtonsPanel.add(firstButonPanel, BorderLayout.WEST);
+            allButtonsPanel.add(firstButtonPanel, BorderLayout.WEST);
 
         allButtonsPanel.add(buttonsPanel, BorderLayout.CENTER);
 

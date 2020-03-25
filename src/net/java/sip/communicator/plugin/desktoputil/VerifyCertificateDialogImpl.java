@@ -181,12 +181,12 @@ class VerifyCertificateDialogImpl
                 actionShowCertificate();
             }
         });
-        TransparentPanel firstButonPanel =
+        TransparentPanel firstButtonPanel =
             new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
-        firstButonPanel.add(certButton);
-        southPanel.add(firstButonPanel, BorderLayout.WEST);
+        firstButtonPanel.add(certButton);
+        southPanel.add(firstButtonPanel, BorderLayout.WEST);
 
-        TransparentPanel secondButonPanel =
+        TransparentPanel secondButtonPanel =
             new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton cancelButton = new JButton(
             R.getI18NString("service.gui.CANCEL"));
@@ -208,9 +208,9 @@ class VerifyCertificateDialogImpl
                 actionContinue();
             }
         });
-        secondButonPanel.add(continueButton);
-        secondButonPanel.add(cancelButton);
-        southPanel.add(secondButonPanel, BorderLayout.EAST);
+        secondButtonPanel.add(continueButton);
+        secondButtonPanel.add(cancelButton);
+        southPanel.add(secondButtonPanel, BorderLayout.EAST);
 
         this.getContentPane().add(contentPane, BorderLayout.CENTER);
 
