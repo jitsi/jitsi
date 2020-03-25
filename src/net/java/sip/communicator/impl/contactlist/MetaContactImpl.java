@@ -270,7 +270,7 @@ public class MetaContactImpl
 
     /**
      * Returns a contact encapsulated by this meta contact, having the specified
-     * contactAddress and coming from a provider with a mathing
+     * contactAddress and coming from a provider with a matching
      * <tt>accountID</tt>. The method returns null if no such contact exists.
      * <p>
      * @param contactAddress the address of the contact who we're looking for.
