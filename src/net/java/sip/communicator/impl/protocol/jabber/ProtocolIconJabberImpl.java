@@ -174,7 +174,7 @@ public class ProtocolIconJabberImpl
     }
 
     /**
-     * Get the <tt>ResourceMaangementService</tt> registered.
+     * Get the <tt>ResourceManagementService</tt> registered.
      *
      * @return <tt>ResourceManagementService</tt> registered
      */
