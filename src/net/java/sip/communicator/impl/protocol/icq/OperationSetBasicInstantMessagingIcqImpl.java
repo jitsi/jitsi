@@ -482,7 +482,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
                                      IcbmBuddyInfo info)
         {
             if (logger.isDebugEnabled())
-                logger.debug("buddy info pudated for " + buddy
+                logger.debug("buddy info updated for " + buddy
                                 + " new info is: " + info);
         }
 
