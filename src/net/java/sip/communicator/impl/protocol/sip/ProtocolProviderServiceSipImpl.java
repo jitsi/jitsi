@@ -1963,7 +1963,7 @@ public class ProtocolProviderServiceSipImpl
             Class<? extends MethodProcessor> methodProcessorClass
                 = methodProcessor.getClass();
             /*
-             * EventPackageSupport and its extenders provide a generic mechanizm
+             * EventPackageSupport and its extenders provide a generic mechanism
              * for building support for a specific event package so allow them
              * to register multiple instances of one and the same class as long
              * as they are handling different event packages.

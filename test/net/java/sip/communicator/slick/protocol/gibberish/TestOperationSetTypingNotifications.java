@@ -279,7 +279,7 @@ public class TestOperationSetTypingNotifications
     }
 
     /**
-     * Simply collects allre received events and provides a mechanisim for
+     * Simply collects allre received events and provides a mechanism for
      * waiting for the next event.
      */
     private class TypingEventCollector implements TypingNotificationsListener
