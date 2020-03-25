@@ -995,7 +995,7 @@ public class UIServiceImpl
          * be used for dialogs. And win.messagebox.font will be the font for
          * windows but the L&F will use it for OptionPane which in turn should
          * rather use the font for dialogs. So swap the meanings of the two to
-         * get standard fonts in the windows while compromizing that dialogs may
+         * get standard fonts in the windows while accepting that dialogs may
          * appear in it as well (if the dialogs are created as non-OptionPanes
          * and in this case SIP Communicator will behave as Mozilla Firfox and
          * Eclipse with respect to using the window font for the dialogs).
