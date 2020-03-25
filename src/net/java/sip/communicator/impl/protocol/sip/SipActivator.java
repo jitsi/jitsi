@@ -58,7 +58,7 @@ public class SipActivator
 
     /**
      * The resource service. Used for checking for default values
-     * and loding status icons.
+     * and loading status icons.
      */
     private static ResourceManagementService resources        = null;
 
