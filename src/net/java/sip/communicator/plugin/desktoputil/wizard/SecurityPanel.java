@@ -74,7 +74,7 @@ public class SecurityPanel
      * Boolean used to display or not the SAVP options (only useful for SIP, not
      * for XMPP).
      */
-    private boolean displaySavpOtions;
+    private boolean displaySavpOptions;
 
     private static class SavpOption
     {
@@ -234,7 +234,7 @@ public class SecurityPanel
         super(new BorderLayout(10, 10));
 
         this.regform = regform;
-        this.displaySavpOtions = displaySavpOptions;
+        this.displaySavpOptions = displaySavpOptions;
         initComponents();
     }
 
@@ -401,13 +401,13 @@ public class SecurityPanel
         lblSavpOption.setBorder(new EmptyBorder(5, 5, 5, 0));
         lblSavpOption.setText( UtilActivator.getResources().getI18NString(
             "plugin.sipaccregwizz.SAVP_OPTION"));
-        if(this.displaySavpOtions)
+        if(this.displaySavpOptions)
         {
             c.gridy++;
             pnlAdvancedSettings.add(lblSavpOption, c);
         }
         c.gridx = 1;
-        if(this.displaySavpOtions)
+        if(this.displaySavpOptions)
         {
             pnlAdvancedSettings.add(new JSeparator(), c);
         }
@@ -420,7 +420,7 @@ public class SecurityPanel
         c.gridx = 0;
         c.gridwidth = 2;
         c.insets = new Insets(0, 20, 0, 0);
-        if(this.displaySavpOtions)
+        if(this.displaySavpOptions)
         {
             c.gridy++;
             pnlAdvancedSettings.add(cboSavpOption, c);
