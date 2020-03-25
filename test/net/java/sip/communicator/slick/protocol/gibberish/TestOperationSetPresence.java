@@ -573,7 +573,7 @@ public class TestOperationSetPresence
                 .removeContactPresenceStatusListener(contactPresEvtCollector);
         }
 
-        assertEquals("Presence Notifications were received after unsubscibing."
+        assertEquals("Presence Notifications were received after unsubscribing."
                      , 0, contactPresEvtCollector.collectedEvents.size());
     }
 
