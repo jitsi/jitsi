@@ -325,7 +325,7 @@ public class SdpUtils
          * later time when we do automatic generation of payloadType in
          * DynamicPayloadTypeRegistry. If the remote peer tries to remap a
          * payloadType in its answer to a different MediaFormat than the one
-         * we've specified in our offer, then the dynamic paylaod type registry
+         * we've specified in our offer, then the dynamic payload type registry
          * will keep the original value for receiving and also add an overriding
          * value for the new one. The overriding value will be streamed to our
          * peer.
