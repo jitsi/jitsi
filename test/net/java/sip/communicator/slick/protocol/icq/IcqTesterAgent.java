@@ -189,7 +189,7 @@ public class IcqTesterAgent
             logger.debug("Will add group " + groupName);
 
             //first clear any previously registered groups and then add the
-            //layout listenet to the buddy list.
+            //layout listener to the buddy list.
             evtCollector.addedGroups.removeAllElements();
             joustSimBuddyList.addLayoutListener(evtCollector);
 

@@ -340,7 +340,7 @@ public class CallConference
      * responsibility of tracking the <tt>Call</tt>s that get added/removed
      * to/from this telephony conference.
      *
-     * @param listener the <tt>CallChangeListner</tt> to be added to the
+     * @param listener the <tt>CallChangeListener</tt> to be added to the
      * <tt>Call</tt>s participating in this telephony conference
      * @throws NullPointerException if <tt>listener</tt> is <tt>null</tt>
      */

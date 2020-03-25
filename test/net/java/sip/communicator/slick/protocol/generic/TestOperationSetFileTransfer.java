@@ -113,31 +113,31 @@ public abstract class TestOperationSetFileTransfer
         FileTransferStatusEventCollector senderStatusListener =
             new FileTransferStatusEventCollector("Sender");
 
-        FileTransferEventCollector senderFTListerner =
+        FileTransferEventCollector senderFTListener =
             new FileTransferEventCollector("Sender", senderStatusListener);
-        ftOpSet1.addFileTransferListener(senderFTListerner);
+        ftOpSet1.addFileTransferListener(senderFTListener);
 
         FileTransferStatusEventCollector receiverStatusListener =
             new FileTransferStatusEventCollector("Receiver");
-        FileTransferEventCollector receiverFTListerner =
+        FileTransferEventCollector receiverFTListener =
             new FileTransferEventCollector("Receiver", receiverStatusListener);
-        ftOpSet2.addFileTransferListener(receiverFTListerner);
+        ftOpSet2.addFileTransferListener(receiverFTListener);
 
         try
         {
             ftOpSet1.sendFile(getContact1(), fileToTransfer);
 
-            senderFTListerner.waitForEvent(2000);
-            receiverFTListerner.waitForEvent(8000);
+            senderFTListener.waitForEvent(2000);
+            receiverFTListener.waitForEvent(8000);
             senderStatusListener.waitForEvent(2000);
 
             // sender
             assertEquals("A file transfer created must be received on send side"
-                         , 1, senderFTListerner.collectedEvents.size());
+                         , 1, senderFTListener.collectedEvents.size());
 
             FileTransferCreatedEvent fileTransferCreatedEvent
                 = (FileTransferCreatedEvent)
-                    senderFTListerner.collectedEvents.get(0);
+                    senderFTListener.collectedEvents.get(0);
 
             assertEquals("FileTransfer file"
                          ,fileTransferCreatedEvent.
@@ -158,11 +158,11 @@ public abstract class TestOperationSetFileTransfer
             // receiver
             assertEquals("A file transfer request must be " +
                         "received on the receiver side"
-                         , 1, receiverFTListerner.collectedEvents.size());
+                         , 1, receiverFTListener.collectedEvents.size());
 
             FileTransferRequestEvent fileTransferRequestEvent
                 = (FileTransferRequestEvent)
-                    receiverFTListerner.collectedEvents.get(0);
+                    receiverFTListener.collectedEvents.get(0);
 
             IncomingFileTransferRequest req =
                 fileTransferRequestEvent.getRequest();
@@ -176,23 +176,23 @@ public abstract class TestOperationSetFileTransfer
 
             // now we will accept the file
             // but let first clear the event listeners
-            senderFTListerner.clear();
-            receiverFTListerner.clear();
+            senderFTListener.clear();
+            receiverFTListener.clear();
             senderStatusListener.clear();
 
             File receiveFile = getFileService().getTemporaryFile();
             req.acceptFile(receiveFile);
 
-            senderFTListerner.waitForEvent(4000);
-            receiverFTListerner.waitForEvent(4000);
+            senderFTListener.waitForEvent(4000);
+            receiverFTListener.waitForEvent(4000);
 
             //receiver
             assertEquals("A file transfer created must be " +
                         "received on receiver side"
-                         , 1, receiverFTListerner.collectedEvents.size());
+                         , 1, receiverFTListener.collectedEvents.size());
 
             fileTransferCreatedEvent = (FileTransferCreatedEvent)
-                receiverFTListerner.collectedEvents.get(0);
+                receiverFTListener.collectedEvents.get(0);
 
             assertEquals("FileTransfer file"
                          ,fileTransferCreatedEvent.
@@ -247,8 +247,8 @@ public abstract class TestOperationSetFileTransfer
         }
         finally
         {
-            ftOpSet1.removeFileTransferListener(senderFTListerner);
-            ftOpSet2.addFileTransferListener(receiverFTListerner);
+            ftOpSet1.removeFileTransferListener(senderFTListener);
+            ftOpSet2.addFileTransferListener(receiverFTListener);
         }
     }
 
@@ -275,29 +275,29 @@ public abstract class TestOperationSetFileTransfer
         FileTransferStatusEventCollector senderStatusListener =
             new FileTransferStatusEventCollector("Sender");
 
-        FileTransferEventCollector senderFTListerner =
+        FileTransferEventCollector senderFTListener =
             new FileTransferEventCollector("Sender", senderStatusListener);
-        ftOpSet1.addFileTransferListener(senderFTListerner);
+        ftOpSet1.addFileTransferListener(senderFTListener);
 
-        FileTransferEventCollector receiverFTListerner =
+        FileTransferEventCollector receiverFTListener =
             new FileTransferEventCollector("Receiver", null);
-        ftOpSet2.addFileTransferListener(receiverFTListerner);
+        ftOpSet2.addFileTransferListener(receiverFTListener);
 
         try
         {
             FileTransfer ft1 = ftOpSet1.sendFile(getContact1(), fileToTransfer);
 
-            senderFTListerner.waitForEvent(2000);
-            receiverFTListerner.waitForEvent(2000);
+            senderFTListener.waitForEvent(2000);
+            receiverFTListener.waitForEvent(2000);
             senderStatusListener.waitForEvent(2000);
 
             // sender
             assertEquals("A file transfer created must be received on send side"
-                         , 1, senderFTListerner.collectedEvents.size());
+                         , 1, senderFTListener.collectedEvents.size());
 
             FileTransferCreatedEvent fileTransferCreatedEvent
                 = (FileTransferCreatedEvent)
-                    senderFTListerner.collectedEvents.get(0);
+                    senderFTListener.collectedEvents.get(0);
 
             assertEquals("FileTransfer file"
                          ,fileTransferCreatedEvent.
@@ -318,11 +318,11 @@ public abstract class TestOperationSetFileTransfer
             // receiver
             assertEquals("A file transfer request must be received " +
                         "on the receiver side"
-                         , 1, receiverFTListerner.collectedEvents.size());
+                         , 1, receiverFTListener.collectedEvents.size());
 
             FileTransferRequestEvent fileTransferRequestEvent
                 = (FileTransferRequestEvent)
-                    receiverFTListerner.collectedEvents.get(0);
+                    receiverFTListener.collectedEvents.get(0);
 
             IncomingFileTransferRequest req =
                 fileTransferRequestEvent.getRequest();
@@ -336,14 +336,14 @@ public abstract class TestOperationSetFileTransfer
 
             // now we will cancel the file
             // but let first clear the event listeners
-            senderFTListerner.clear();
-            receiverFTListerner.clear();
+            senderFTListener.clear();
+            receiverFTListener.clear();
             senderStatusListener.clear();
 
             // now cancel
             ft1.cancel();
 
-            receiverFTListerner.waitForEvent(6000);
+            receiverFTListener.waitForEvent(6000);
             senderStatusListener.waitForEvent(6000);
 
             // sender
@@ -361,18 +361,18 @@ public abstract class TestOperationSetFileTransfer
             // the receiver must receive event refused
             assertEquals("A file transfer cancel must be " +
                         "received on receiver side"
-                         , 1, receiverFTListerner.collectedEvents.size());
+                         , 1, receiverFTListener.collectedEvents.size());
 
             fileTransferRequestEvent = (FileTransferRequestEvent)
-                receiverFTListerner.collectedEvents.get(0);
+                receiverFTListener.collectedEvents.get(0);
 
             assertTrue("FileTransfer must be canceled"
-                         ,receiverFTListerner.isCanceled());
+                         ,receiverFTListener.isCanceled());
         }
         finally
         {
-            ftOpSet1.removeFileTransferListener(senderFTListerner);
-            ftOpSet2.addFileTransferListener(receiverFTListerner);
+            ftOpSet1.removeFileTransferListener(senderFTListener);
+            ftOpSet2.addFileTransferListener(receiverFTListener);
         }
     }
 
@@ -392,29 +392,29 @@ public abstract class TestOperationSetFileTransfer
         FileTransferStatusEventCollector senderStatusListener =
             new FileTransferStatusEventCollector("Sender");
 
-        FileTransferEventCollector senderFTListerner =
+        FileTransferEventCollector senderFTListener =
             new FileTransferEventCollector("Sender", senderStatusListener);
-        ftOpSet1.addFileTransferListener(senderFTListerner);
+        ftOpSet1.addFileTransferListener(senderFTListener);
 
-        FileTransferEventCollector receiverFTListerner =
+        FileTransferEventCollector receiverFTListener =
             new FileTransferEventCollector("Receiver", null);
-        ftOpSet2.addFileTransferListener(receiverFTListerner);
+        ftOpSet2.addFileTransferListener(receiverFTListener);
 
         try
         {
             ftOpSet1.sendFile(getContact1(), fileToTransfer);
 
-            senderFTListerner.waitForEvent(2000);
-            receiverFTListerner.waitForEvent(6000);
+            senderFTListener.waitForEvent(2000);
+            receiverFTListener.waitForEvent(6000);
             senderStatusListener.waitForEvent(2000);
 
             // sender
             assertEquals("A file transfer created must be received on send side"
-                         , 1, senderFTListerner.collectedEvents.size());
+                         , 1, senderFTListener.collectedEvents.size());
 
             FileTransferCreatedEvent fileTransferCreatedEvent
                 = (FileTransferCreatedEvent)
-                senderFTListerner.collectedEvents.get(0);
+                senderFTListener.collectedEvents.get(0);
 
             assertEquals("FileTransfer file"
                          ,fileTransferCreatedEvent.
@@ -435,11 +435,11 @@ public abstract class TestOperationSetFileTransfer
             // receiver
             assertEquals("A file transfer request must be " +
                         "received on the receiver side"
-                         , 1, receiverFTListerner.collectedEvents.size());
+                         , 1, receiverFTListener.collectedEvents.size());
 
             FileTransferRequestEvent fileTransferRequestEvent
                 = (FileTransferRequestEvent)
-                    receiverFTListerner.collectedEvents.get(0);
+                    receiverFTListener.collectedEvents.get(0);
 
             IncomingFileTransferRequest req =
                 fileTransferRequestEvent.getRequest();
@@ -453,25 +453,25 @@ public abstract class TestOperationSetFileTransfer
 
             // now we will decline the file
             // but let first clear the event listeners
-            senderFTListerner.clear();
-            receiverFTListerner.clear();
+            senderFTListener.clear();
+            receiverFTListener.clear();
             senderStatusListener.clear();
 
             req.rejectFile();
 
             senderStatusListener.waitForEvent(4000);
-            receiverFTListerner.waitForEvent(4000);
+            receiverFTListener.waitForEvent(4000);
 
             // receiver
             assertEquals("A file transfer rejected must be " +
                         "received on receiver side"
-                         , 1, receiverFTListerner.collectedEvents.size());
+                         , 1, receiverFTListener.collectedEvents.size());
 
             fileTransferRequestEvent = (FileTransferRequestEvent)
-                receiverFTListerner.collectedEvents.get(0);
+                receiverFTListener.collectedEvents.get(0);
 
             assertTrue("FileTransfer must be rejected"
-                         ,receiverFTListerner.isRejected());
+                         ,receiverFTListener.isRejected());
 
             // sender
             assertEquals("A file transfer status changed - " +
@@ -489,8 +489,8 @@ public abstract class TestOperationSetFileTransfer
         }
         finally
         {
-            ftOpSet1.removeFileTransferListener(senderFTListerner);
-            ftOpSet2.addFileTransferListener(receiverFTListerner);
+            ftOpSet1.removeFileTransferListener(senderFTListener);
+            ftOpSet2.addFileTransferListener(receiverFTListener);
         }
     }
 
@@ -517,34 +517,34 @@ public abstract class TestOperationSetFileTransfer
         FileTransferStatusEventCollector senderStatusListener =
             new FileTransferStatusEventCollector("Sender");
 
-        FileTransferEventCollector senderFTListerner =
+        FileTransferEventCollector senderFTListener =
             new FileTransferEventCollector("Sender", senderStatusListener);
 
-        ftOpSet1.addFileTransferListener(senderFTListerner);
+        ftOpSet1.addFileTransferListener(senderFTListener);
 
         FileTransferStatusEventCollector receiverStatusListener =
             new FileTransferStatusEventCollector("Receiver");
 
-        FileTransferEventCollector receiverFTListerner =
+        FileTransferEventCollector receiverFTListener =
             new FileTransferEventCollector("Receiver", receiverStatusListener);
 
-        ftOpSet2.addFileTransferListener(receiverFTListerner);
+        ftOpSet2.addFileTransferListener(receiverFTListener);
 
         try
         {
             ftOpSet1.sendFile(getContact1(), fileToTransfer);
 
-            senderFTListerner.waitForEvent(4000);
-            receiverFTListerner.waitForEvent(4000);
+            senderFTListener.waitForEvent(4000);
+            receiverFTListener.waitForEvent(4000);
             senderStatusListener.waitForEvent(4000);
 
             // sender
             assertEquals("A file transfer created must be received on send side"
-                         , 1, senderFTListerner.collectedEvents.size());
+                         , 1, senderFTListener.collectedEvents.size());
 
             FileTransferCreatedEvent fileTransferCreatedEvent
                 = (FileTransferCreatedEvent)
-                    senderFTListerner.collectedEvents.get(0);
+                    senderFTListener.collectedEvents.get(0);
 
             assertEquals("FileTransfer file"
                          ,fileTransferCreatedEvent.
@@ -565,11 +565,11 @@ public abstract class TestOperationSetFileTransfer
             // receiver
             assertEquals("A file transfer request must be " +
                         "received on the receiver side"
-                         , 1, receiverFTListerner.collectedEvents.size());
+                         , 1, receiverFTListener.collectedEvents.size());
 
             FileTransferRequestEvent fileTransferRequestEvent
                 = (FileTransferRequestEvent)
-                    receiverFTListerner.collectedEvents.get(0);
+                    receiverFTListener.collectedEvents.get(0);
 
             IncomingFileTransferRequest req =
                 fileTransferRequestEvent.getRequest();
@@ -583,8 +583,8 @@ public abstract class TestOperationSetFileTransfer
 
             // now we will accept the file
             // but let first clear the event listeners
-            senderFTListerner.clear();
-            receiverFTListerner.clear();
+            senderFTListener.clear();
+            receiverFTListener.clear();
             senderStatusListener.clear();
 
             File receiveFile = getFileService().getTemporaryFile();
@@ -627,15 +627,15 @@ public abstract class TestOperationSetFileTransfer
                          ,FileTransferStatusChangeEvent.CANCELED
                          ,stat3.getNewStatus());
 
-            receiverFTListerner.waitForEvent(14000);
+            receiverFTListener.waitForEvent(14000);
 
             //receiver
             assertEquals("A file transfer created must be " +
                         "received on receiver side"
-                         , 1, receiverFTListerner.collectedEvents.size());
+                         , 1, receiverFTListener.collectedEvents.size());
 
             fileTransferCreatedEvent = (FileTransferCreatedEvent)
-                receiverFTListerner.collectedEvents.get(0);
+                receiverFTListener.collectedEvents.get(0);
 
             assertEquals("FileTransfer file"
                          ,fileTransferCreatedEvent.
@@ -651,8 +651,8 @@ public abstract class TestOperationSetFileTransfer
         }
         finally
         {
-            ftOpSet1.removeFileTransferListener(senderFTListerner);
-            ftOpSet2.addFileTransferListener(receiverFTListerner);
+            ftOpSet1.removeFileTransferListener(senderFTListener);
+            ftOpSet2.addFileTransferListener(receiverFTListener);
         }
     }
 
@@ -679,29 +679,29 @@ public abstract class TestOperationSetFileTransfer
         FileTransferStatusEventCollector senderStatusListener =
             new FileTransferStatusEventCollector("Sender");
 
-        FileTransferEventCollector senderFTListerner =
+        FileTransferEventCollector senderFTListener =
             new FileTransferEventCollector("Sender", senderStatusListener);
-        ftOpSet1.addFileTransferListener(senderFTListerner);
+        ftOpSet1.addFileTransferListener(senderFTListener);
 
-        FileTransferEventCollector receiverFTListerner =
+        FileTransferEventCollector receiverFTListener =
             new FileTransferEventCollector("Receiver", null);
-        ftOpSet2.addFileTransferListener(receiverFTListerner);
+        ftOpSet2.addFileTransferListener(receiverFTListener);
 
         try
         {
             FileTransfer ft1 = ftOpSet1.sendFile(getContact1(), fileToTransfer);
 
-            senderFTListerner.waitForEvent(4000);
-            receiverFTListerner.waitForEvent(4000);
+            senderFTListener.waitForEvent(4000);
+            receiverFTListener.waitForEvent(4000);
             senderStatusListener.waitForEvent(4000);
 
             // sender
             assertEquals("A file transfer created must be received on send side"
-                         , 1, senderFTListerner.collectedEvents.size());
+                         , 1, senderFTListener.collectedEvents.size());
 
             FileTransferCreatedEvent fileTransferCreatedEvent
                 = (FileTransferCreatedEvent)
-                    senderFTListerner.collectedEvents.get(0);
+                    senderFTListener.collectedEvents.get(0);
 
             assertEquals("FileTransfer file"
                          ,fileTransferCreatedEvent.
@@ -722,11 +722,11 @@ public abstract class TestOperationSetFileTransfer
             // receiver
             assertEquals("A file transfer request must be " +
                         "received on the receiver side"
-                         , 1, receiverFTListerner.collectedEvents.size());
+                         , 1, receiverFTListener.collectedEvents.size());
 
             FileTransferRequestEvent fileTransferRequestEvent
                 = (FileTransferRequestEvent)
-                    receiverFTListerner.collectedEvents.get(0);
+                    receiverFTListener.collectedEvents.get(0);
 
             IncomingFileTransferRequest req =
                 fileTransferRequestEvent.getRequest();
@@ -740,8 +740,8 @@ public abstract class TestOperationSetFileTransfer
 
             // now we will accept the file
             // but let first clear the event listeners
-            senderFTListerner.clear();
-            receiverFTListerner.clear();
+            senderFTListener.clear();
+            receiverFTListener.clear();
             senderStatusListener.clear();
 
             File receiveFile = getFileService().getTemporaryFile();
@@ -775,13 +775,13 @@ public abstract class TestOperationSetFileTransfer
                          ,stat2.getNewStatus());
 
             //receiver
-            receiverFTListerner.waitForEvent(4000);
+            receiverFTListener.waitForEvent(4000);
             assertEquals("A file transfer created must be received on " +
                         "receiver side"
-                         , 1, receiverFTListerner.collectedEvents.size());
+                         , 1, receiverFTListener.collectedEvents.size());
 
             fileTransferCreatedEvent = (FileTransferCreatedEvent)
-                receiverFTListerner.collectedEvents.get(0);
+                receiverFTListener.collectedEvents.get(0);
 
             assertEquals("FileTransfer file"
                          ,fileTransferCreatedEvent.
@@ -795,8 +795,8 @@ public abstract class TestOperationSetFileTransfer
         }
         finally
         {
-            ftOpSet1.removeFileTransferListener(senderFTListerner);
-            ftOpSet2.addFileTransferListener(receiverFTListerner);
+            ftOpSet1.removeFileTransferListener(senderFTListener);
+            ftOpSet2.addFileTransferListener(receiverFTListener);
         }
     }
 
