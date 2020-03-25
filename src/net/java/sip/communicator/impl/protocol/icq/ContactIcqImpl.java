@@ -210,10 +210,10 @@ public class ContactIcqImpl
 
     /**
      * Returns a reference to the contact group that this contact is currently
-     * a child of or null if the underlying protocol does not suppord persistent
+     * a child of or null if the underlying protocol does not support persistent
      * presence.
      * @return a reference to the contact group that this contact is currently
-     * a child of or null if the underlying protocol does not suppord persistent
+     * a child of or null if the underlying protocol does not support persistent
      * presence.
      */
     public ContactGroup getParentContactGroup()

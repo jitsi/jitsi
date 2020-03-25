@@ -56,7 +56,7 @@ accounts.icq.CONTACT_LIST=
 
 #Indicates whether the servers that the sip accounts belong to, preserve caller
 #and callee info such as addresses or display names. some servers override these
-#(e.g. for NAT supprt) and the tests should not assert it in such cases
+#(e.g. for NAT support) and the tests should not assert it in such cases
 accounts.sip.PRESERVE_PEER_INFO=false
 
 # The user id needed to log onto the server specified in the SERVER_ADDRESS
