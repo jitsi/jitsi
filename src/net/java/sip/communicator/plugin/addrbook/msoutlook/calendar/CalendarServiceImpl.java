@@ -479,8 +479,8 @@ public class CalendarServiceImpl implements CalendarService
             catch(IndexOutOfBoundsException e)
             {
                 logger.error(
-                    "Error parsing reccuring pattern." + e.getMessage(),e);
-                logger.error("Reccuring data:\n" + bytesToHex(recurringData));
+                    "Error parsing recurring pattern." + e.getMessage(),e);
+                logger.error("Recurring data:\n" + bytesToHex(recurringData));
                 return;
             }
         }
