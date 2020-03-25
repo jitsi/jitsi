@@ -236,7 +236,7 @@ public class OperationSetTypingNotificationsIcqImpl
                 sourceContact, typingStateToInt(typingInfo.getTypingState()));
         }
 
-        //the follwoing methods only have dummy implementations here as they
+        //the following methods only have dummy implementations here as they
         //do not interest us. complete implementatios are provider in the
         //basic instant messaging operation set.
         public void buddyInfoUpdated(IcbmService service, Screenname buddy,

@@ -3309,7 +3309,7 @@ public class MetaContactListServiceImpl
                             + contactDescriptor
                             + " accountID=" + accountID
                             + ". The contact was also present in the "
-                            + "folloing meta contact:" + mc);
+                            + "following meta contact:" + mc);
                 continue;
             }
 
