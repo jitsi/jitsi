@@ -54,8 +54,8 @@ public class WizardEvent
     }
 
     /**
-     * Returns the event code of this event : SUCCESS or ERRROR.
-     * @return the event code of this event : SUCCESS or ERRROR
+     * Returns the event code of this event : SUCCESS or ERROR.
+     * @return the event code of this event : SUCCESS or ERROR
      */
     public int getEventCode()
     {
