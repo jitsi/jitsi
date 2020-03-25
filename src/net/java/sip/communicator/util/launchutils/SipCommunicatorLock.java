@@ -525,12 +525,12 @@ public class SipCommunicatorLock extends Thread
         {
             NetworkInterface iface = ifaces.nextElement();
 
-            Enumeration<InetAddress> addreses = iface.getInetAddresses();
+            Enumeration<InetAddress> addresses = iface.getInetAddresses();
 
             // loop iface addresses
-            while (addreses.hasMoreElements())
+            while (addresses.hasMoreElements())
             {
-                InetAddress addr = addreses.nextElement();
+                InetAddress addr = addresses.nextElement();
 
                 if (addr.getHostAddress().equals(addressStr))
                     return addr;
