@@ -27,7 +27,7 @@ import org.osgi.framework.*;
 
 /**
  * Provides utility code, such as locating and obtaining references towards
- * base services that anyother service would need.
+ * base services that any other service would need.
  *
  * @author Emil Ivov
  */
