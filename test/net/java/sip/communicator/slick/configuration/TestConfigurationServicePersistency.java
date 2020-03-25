@@ -323,7 +323,7 @@ public class TestConfigurationServicePersistency extends TestCase
         //reload the conf
         configurationService.reloadConfiguration();
 
-        //Now reload the file and make sure it containts the updated values.
+        //Now reload the file and make sure it contains the updated values.
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
         Document document = builder.parse(confFile);
