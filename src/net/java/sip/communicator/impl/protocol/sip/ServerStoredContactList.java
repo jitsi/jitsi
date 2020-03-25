@@ -186,7 +186,7 @@ public abstract class ServerStoredContactList
      * isResolved field would be updated instead of creating the whole contact
      * again. If creation is successful event will be fired.
      *
-     * @param parentGroup the group where the unersolved contact is to be
+     * @param parentGroup the group where the unresolved contact is to be
      *                    created.
      * @param contactId   the sip id of the contact to create.
      * @param persistentData a String returned Contact's getPersistentData()
@@ -579,7 +579,7 @@ public abstract class ServerStoredContactList
      * Creates contact for the specified address and inside the
      * specified group . If creation is successful event will be fired.
      *
-     * @param parentGroup the group where the unersolved contact is to be
+     * @param parentGroup the group where the unresolved contact is to be
      *                    created.
      * @param contactId   the sip id of the contact to create.
      * @param persistent  specify whether created contact is persistent ot not.
@@ -602,7 +602,7 @@ public abstract class ServerStoredContactList
      * Creates contact for the specified address and inside the
      * specified group . If creation is successful event will be fired.
      *
-     * @param parentGroup the group where the unersolved contact is to be
+     * @param parentGroup the group where the unresolved contact is to be
      *                    created.
      * @param contactId   the sip id of the contact to create.
      * @param displayName the display name of the contact to create

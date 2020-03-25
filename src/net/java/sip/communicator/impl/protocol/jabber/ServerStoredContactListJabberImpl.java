@@ -658,7 +658,7 @@ public class ServerStoredContactListJabberImpl
      * isResolved field would be updated instead of creating the whole contact
      * again.
      *
-     * @param parentGroup the group where the unersolved contact is to be
+     * @param parentGroup the group where the unresolved contact is to be
      * created
      * @param id the Address of the contact to create.
      * @return the newly created unresolved <tt>ContactImpl</tt>
