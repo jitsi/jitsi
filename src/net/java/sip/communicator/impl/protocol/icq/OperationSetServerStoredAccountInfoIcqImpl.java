@@ -285,7 +285,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
      * @param detail the detail that we'd like registered on the server.
      * <p>
      * @throws IllegalArgumentException if such a detail already exists and its
-     * max instances number has been atteined or if the underlying
+     * max instances number has been attained or if the underlying
      * implementation does not support setting details of the corresponding
      * class.
      * @throws OperationFailedException with code Network Failure if putting the

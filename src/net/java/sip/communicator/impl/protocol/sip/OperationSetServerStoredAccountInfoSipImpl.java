@@ -251,7 +251,7 @@ public class OperationSetServerStoredAccountInfoSipImpl
      * @param detail the detail that we'd like registered on the server.
      * @throws IllegalArgumentException       if such a detail already exists
      *                                        and its max instances number has
-     *                                        been atteined or if the underlying
+     *                                        been attained or if the underlying
      *                                        implementation does not support
      *                                        setting details of the
      *                                        corresponding class.
@@ -280,7 +280,7 @@ public class OperationSetServerStoredAccountInfoSipImpl
      * @param fireChangeEvents whether to fire change events.
      * @throws IllegalArgumentException       if such a detail already exists
      *                                        and its max instances number has
-     *                                        been atteined or if the underlying
+     *                                        been attained or if the underlying
      *                                        implementation does not support
      *                                        setting details of the
      *                                        corresponding class.
