@@ -158,7 +158,7 @@ public class HistoryID
 
     /**
      * An one-way function returning a "human readable" containing no special
-     * characters. All characters _, a-z, A-Z, 0-9 are kept unchainged. All
+     * characters. All characters _, a-z, A-Z, 0-9 are kept unchanged. All
      * other are replaced with _ and the word is postfixed with $HASHCODE, where
      * HASHCODE is the hexadecimal hash value of the original string. If there
      * are no special characters the word is not postfixed.
