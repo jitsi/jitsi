@@ -564,7 +564,7 @@ public class ChatAlerterActivator
 
     /**
      * Not used.
-     * @param event a CalldEvent instance describing the new outgoing call.
+     * @param event a CallEvent instance describing the new outgoing call.
      */
     public void outgoingCallCreated(CallEvent event)
     {}

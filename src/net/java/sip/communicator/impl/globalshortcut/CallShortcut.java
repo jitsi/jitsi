@@ -223,7 +223,7 @@ public class CallShortcut
      * outgoing call.
      * <p>
      *
-     * @param event a CalldEvent instance describing the new incoming call.
+     * @param event a CallEvent instance describing the new incoming call.
      */
     public void outgoingCallCreated(CallEvent event)
     {
