@@ -32,7 +32,7 @@ public class XCapResource
     private XCapResourceId id;
 
     /**
-     * XCAP resource content in UTF-8 enconding.
+     * XCAP resource content in UTF-8 encoding.
      */
     private String content;
 

@@ -210,7 +210,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * @param content content value
      * @param contentType the MIME-type for <tt>content</tt>
      * @param subject the Subject of the message that we'd like to create.
-     * @param encoding the enconding of the message that we will be sending.
+     * @param encoding the encoding of the message that we will be sending.
      *
      * @return the newly created message.
      */
