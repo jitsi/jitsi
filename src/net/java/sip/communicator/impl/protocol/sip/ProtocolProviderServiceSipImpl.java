@@ -358,7 +358,7 @@ public class ProtocolProviderServiceSipImpl
     }
 
     /**
-     * Register a new event taken in account by this provider. This is usefull
+     * Register a new event taken in account by this provider. This is useful
      * to generate the Allow-Events header of the OPTIONS responses and to
      * generate 489 responses.
      *

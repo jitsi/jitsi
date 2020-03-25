@@ -300,7 +300,7 @@ public class TestOperationSetBasicInstantMessaging
         assertEquals("message body", body, evt.getSourceMessage().getContent());
 
         //assert messageType == default type
-        // usefull for testing type splitting during the message creation
+        // useful for testing type splitting during the message creation
         assertEquals("message content type"
                 , OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE
                 , evt.getSourceMessage().getContentType());
