@@ -96,7 +96,7 @@ public class SkinResourcePack
     /**
      * A map of all skin settings resources.
      */
-    private Map<String, String> sttingsResources = null;
+    private Map<String, String> settingsResources = null;
 
     /**
      * Starts the bundle.
@@ -238,9 +238,9 @@ public class SkinResourcePack
      */
     public Map<String, String> getSettingsResources()
     {
-        if(sttingsResources != null)
+        if(settingsResources != null)
         {
-            return sttingsResources;
+            return settingsResources;
         }
 
         Map<String, String> resources = new TreeMap<String, String>();
@@ -259,7 +259,7 @@ public class SkinResourcePack
 
         this.initSettingsPluginResources(resources);
 
-        sttingsResources = resources;
+        settingsResources = resources;
 
         return resources;
     }
