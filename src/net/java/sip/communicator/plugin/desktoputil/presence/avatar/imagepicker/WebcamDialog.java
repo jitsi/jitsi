@@ -31,7 +31,7 @@ import org.jitsi.service.neomedia.*;
 import org.jitsi.utils.*;
 
 /**
- * A dialog showing the webcam and allowing the user to grap a snapshot
+ * A dialog showing the webcam and allowing the user to grab a snapshot
  *
  * @author Damien Roth
  * @author Damian Minkov
