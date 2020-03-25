@@ -219,7 +219,7 @@ public class NetworkEventDispatcher
     }
 
     /**
-     * Interrupts this dispatcher so that it would no longer disptach events.
+     * Interrupts this dispatcher so that it would no longer dispatch events.
      */
     public void stop()
     {
