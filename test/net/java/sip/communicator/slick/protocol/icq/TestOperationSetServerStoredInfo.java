@@ -254,13 +254,13 @@ public class TestOperationSetServerStoredInfo
                      , 3
                      , spokenLanguagesServer.size());
 
-        assertTrue("Must contain langiage " + spokenLanguages[lang1],
+        assertTrue("Must contain language " + spokenLanguages[lang1],
                    spokenLanguagesServer.contains(spokenLanguages[lang1]));
 
-        assertTrue("Must contain langiage " + spokenLanguages[lang2],
+        assertTrue("Must contain language " + spokenLanguages[lang2],
                    spokenLanguagesServer.contains(spokenLanguages[lang2]));
 
-        assertTrue("Must contain langiage " + spokenLanguages[lang3],
+        assertTrue("Must contain language " + spokenLanguages[lang3],
                    spokenLanguagesServer.contains(spokenLanguages[lang3]));
 
         // get home country code detail
