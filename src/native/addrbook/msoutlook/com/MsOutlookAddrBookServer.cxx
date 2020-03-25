@@ -28,7 +28,7 @@
 #include "../MsOutlookCalendar.h"
 #include "../MsOutlookUtils.h"
 /**
- * Instanciates a new MsOutlookAddrBookServer.
+ * Instantiates a new MsOutlookAddrBookServer.
  */
 MsOutlookAddrBookServer::MsOutlookAddrBookServer():
     _refCount(1)

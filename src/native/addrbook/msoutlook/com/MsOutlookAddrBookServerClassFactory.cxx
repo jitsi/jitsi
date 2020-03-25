@@ -20,7 +20,7 @@
 #include "MsOutlookAddrBookServer.h"
 
 /**
- * Instanciates a new MsOutlookAddrBookServerClassFactory.
+ * Instantiates a new MsOutlookAddrBookServerClassFactory.
  */
 MsOutlookAddrBookServerClassFactory::MsOutlookAddrBookServerClassFactory():
     ClassFactory(CLSID_MsOutlookAddrBookServer),
