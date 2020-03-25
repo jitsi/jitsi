@@ -1695,7 +1695,7 @@ public class ProtocolProviderServiceSipImpl
     }
 
     /**
-     * Reurns the currently valid sip security manager that everyone should
+     * Returns the currently valid sip security manager that everyone should
      * use to authenticate SIP Requests.
      * @return the currently valid instance of a SipSecurityManager that everyone
      * sould use to authenticate SIP Requests.

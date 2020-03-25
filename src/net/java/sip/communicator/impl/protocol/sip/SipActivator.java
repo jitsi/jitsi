@@ -207,7 +207,7 @@ public class SipActivator
     }
 
     /**
-     * Retrurns a reference to the protocol provider factory that we have
+     * Returns a reference to the protocol provider factory that we have
      * registered.
      * @return a reference to the <tt>ProtocolProviderFactorySipImpl</tt>
      * instance that we have registered from this package.

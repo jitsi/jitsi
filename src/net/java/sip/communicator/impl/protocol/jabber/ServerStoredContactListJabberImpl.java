@@ -336,7 +336,7 @@ public class ServerStoredContactListJabberImpl
     }
 
     /**
-     * Retrns a reference to the provider that created us.
+     * Returns a reference to the provider that created us.
      * @return a reference to a ProtocolProviderServiceImpl instance.
      */
     ProtocolProviderServiceJabberImpl getParentProvider()

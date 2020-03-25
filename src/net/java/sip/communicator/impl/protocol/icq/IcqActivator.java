@@ -111,7 +111,7 @@ public class IcqActivator
     }
 
     /**
-     * Retrurns a reference to the protocol provider factory that we have
+     * Returns a reference to the protocol provider factory that we have
      * registered for icq accounts.
      * @return a reference to the <tt>ProtocolProviderFactoryIcqImpl</tt>
      * instance that we have registered from this package.
@@ -122,7 +122,7 @@ public class IcqActivator
     }
 
     /**
-     * Retrurns a reference to the protocol provider factory that we have
+     * Returns a reference to the protocol provider factory that we have
      * registered for aim accounts.
      * @return a reference to the <tt>ProtocolProviderFactoryIcqImpl</tt>
      * instance that we have registered from this package.
