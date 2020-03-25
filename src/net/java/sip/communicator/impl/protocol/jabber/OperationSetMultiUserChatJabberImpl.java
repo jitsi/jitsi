@@ -601,14 +601,14 @@ public class OperationSetMultiUserChatJabberImpl
 
     /**
      * In case <tt>roomName</tt> does not represent a complete room id, the
-     * method returns a canonincal chat room name in the following form:
+     * method returns a canonical chat room name in the following form:
      * roomName@muc-servicename.jabserver.com. In case <tt>roomName</tt> is
      * already a canonical room name, the method simply returns it without
      * changing it.
      *
      * @param roomName the name of the room that we'd like to "canonize".
      *
-     * @return the canonincal name of the room (which might be equal to
+     * @return the canonical name of the room (which might be equal to
      * roomName in case it was already in a canonical format).
      *
      * @throws OperationFailedException if we fail retrieving the conference
