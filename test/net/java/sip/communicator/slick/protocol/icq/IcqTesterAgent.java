@@ -1190,9 +1190,9 @@ public class IcqTesterAgent
         conn.sendSnac(new OfflineSnacCmd(buddy, body));
     }
 
-    void sendAuthorizationReplay(String uin, String reasonStr, boolean isAccpeted)
+    void sendAuthorizationReplay(String uin, String reasonStr, boolean isAccepted)
     {
-        conn.sendSnac(new AuthReplyCmd(uin, reasonStr, isAccpeted));
+        conn.sendSnac(new AuthReplyCmd(uin, reasonStr, isAccepted));
     }
 
     private class OfflineSnacCmd  extends SendImIcbm
