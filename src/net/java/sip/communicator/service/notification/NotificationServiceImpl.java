@@ -355,7 +355,7 @@ class NotificationServiceImpl
      * @param message the message to use if and where appropriate (e.g. with
      * systray or log notification.)
      * @param icon the icon to show in the notification if and where appropriate
-     * @param extras additiona/extra {@link NotificationHandler}-specific data
+     * @param extras additional/extra {@link NotificationHandler}-specific data
      * to be provided to the firing of the specified notification(s). The
      * well-known keys are defined by the <tt>NotificationData</tt>
      * <tt>XXX_EXTRA</tt> constants.

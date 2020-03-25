@@ -45,7 +45,7 @@ public class Resources
      * Returns an internationalized string corresponding to the given key.
      *
      * @param key The key of the string.
-     * @param params additionnal parameters
+     * @param params additional parameters
      * @return An internationalized string corresponding to the given key.
      */
     public static String getString(String key, String[] params)
