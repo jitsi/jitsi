@@ -182,7 +182,7 @@ sed -i -e "s/\/launchutils.jar//" $RPM_BUILD_ROOT/usr/bin/jitsi
 * Fri Feb 23 2007 Pavel Tankov <tankov_pavel@yahoo.com>
 - Fixed to reflect the new guidelines for the layout
   on http://www.sip-communicator.org/index.php/Documentation/HowToBuildAnInstaller
-- Removed the folder /usr/share/sip-communicator/lib/os-cpecific
+- Removed the folder /usr/share/sip-communicator/lib/os-specific
   because it was not needed.
 - Added stuff from sc-bundles/os-specific/linux/ because it was missing.
 - This fix resulted in the systray icon showing now.

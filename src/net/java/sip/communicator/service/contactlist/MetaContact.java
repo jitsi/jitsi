@@ -89,7 +89,7 @@ public interface MetaContact
     public boolean containsContact(Contact protocolContact);
 
     /**
-     * Returns the number of protocol speciic <tt>Contact</tt>s that this
+     * Returns the number of protocol specific <tt>Contact</tt>s that this
      * <tt>MetaContact</tt> contains.
      * @return an int indicating the number of protocol specific contacts merged
      * in this <tt>MetaContact</tt>
