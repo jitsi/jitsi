@@ -745,6 +745,6 @@ public class TestConfigurationService extends TestCase
                      propertyChangeEvent.getNewValue());
 
         //fail("Testing failures! "
-        //+"Wanted to know whether cruisecontrol will notice the falure. emil.");
+        //+"Wanted to know whether cruisecontrol will notice the failure. emil.");
     }
 }
