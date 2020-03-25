@@ -255,7 +255,7 @@ public class OperationSetFileTransferIcqImpl
                         this,
                         incomingFileTransfer, sender, newDate);
 
-            // this handels when we receive request and before accept or decline
+            // this handles when we receive request and before accept or decline
             // it we receive cancel
             transfer.addEventListener(new RvConnectionEventListener() {
                 public void handleEventWithStateChange(
