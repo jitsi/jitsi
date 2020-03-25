@@ -983,7 +983,7 @@ public class OperationSetTelephonyConferencingSipImpl
              */
             synchronized (dialog)
             {
-                ClientTransaction transac = createNotify(dialog, notifyContent,
+                ClientTransaction transaction = createNotify(dialog, notifyContent,
                                 subscriptionState, reason);
 
                 callId = dialog.getCallId().getCallId();
@@ -995,7 +995,7 @@ public class OperationSetTelephonyConferencingSipImpl
                         logger.info("Sending conference-info NOTIFY (version "
                                 + newVersion +") to " + callPeer);
                     }
-                    dialog.sendRequest(transac);
+                    dialog.sendRequest(transaction);
 
                     // We save currentConfInfo, because it is of state "full",
                     // while diff could be a partial

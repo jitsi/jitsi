@@ -150,10 +150,10 @@ public class EventPackageSubscriber
          * http://snad.ncsl.nist.gov/proj/iptel/jain-sip-1.2/javadoc
          * /javax/sip/Dialog.html#createRequest(String).
          */
-        ClientTransaction transac = null;
+        ClientTransaction transaction = null;
         try
         {
-            transac = protocolProvider
+            transaction = protocolProvider
                     .getDefaultJainSipProvider().getNewClientTransaction(req);
         }
         catch (TransactionUnavailableException ex)
@@ -169,7 +169,7 @@ public class EventPackageSubscriber
 
         populateSubscribeRequest(req, subscription, expires);
 
-        return transac;
+        return transaction;
     }
 
     /**
@@ -841,10 +841,10 @@ public class EventPackageSubscriber
                      return false;
                  }
 
-                 ClientTransaction transac = null;
+                 ClientTransaction transaction = null;
                  try
                  {
-                     transac
+                     transaction
                          = protocolProvider
                              .getDefaultJainSipProvider()
                                  .getNewClientTransaction(request);
@@ -857,7 +857,7 @@ public class EventPackageSubscriber
 
                  try
                  {
-                     transac.sendRequest();
+                     transaction.sendRequest();
                  }
                  catch (SipException e)
                  {
@@ -1306,10 +1306,10 @@ public class EventPackageSubscriber
                 return;
             }
 
-            ClientTransaction transac = null;
+            ClientTransaction transaction = null;
             try
             {
-                transac
+                transaction
                     = createSubscription(
                             subscription,
                             dialog,
@@ -1323,7 +1323,7 @@ public class EventPackageSubscriber
 
             try
             {
-                dialog.sendRequest(transac);
+                dialog.sendRequest(transaction);
             }
             catch (SipException e)
             {

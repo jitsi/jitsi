@@ -648,10 +648,10 @@ public class OperationSetPresenceSipImpl
                 req = createPublish(this.subscriptionDuration, true);
             }
 
-            ClientTransaction transac = null;
+            ClientTransaction transaction = null;
             try
             {
-                transac = this.parentProvider
+                transaction = this.parentProvider
                     .getDefaultJainSipProvider().getNewClientTransaction(req);
             }
             catch (TransactionUnavailableException e)
@@ -664,7 +664,7 @@ public class OperationSetPresenceSipImpl
 
             try
             {
-                transac.sendRequest();
+                transaction.sendRequest();
             }
             catch (SipException e)
             {
@@ -1334,10 +1334,10 @@ public class OperationSetPresenceSipImpl
                     return false;
                 }
 
-                ClientTransaction transac = null;
+                ClientTransaction transaction = null;
                 try
                 {
-                    transac = this.parentProvider
+                    transaction = this.parentProvider
                         .getDefaultJainSipProvider()
                         .getNewClientTransaction(req);
                 }
@@ -1349,7 +1349,7 @@ public class OperationSetPresenceSipImpl
 
                 try
                 {
-                    transac.sendRequest();
+                    transaction.sendRequest();
                 }
                 catch (SipException e)
                 {
@@ -1376,10 +1376,10 @@ public class OperationSetPresenceSipImpl
                     return false;
                 }
 
-                ClientTransaction transac = null;
+                ClientTransaction transaction = null;
                 try
                 {
-                    transac = this.parentProvider
+                    transaction = this.parentProvider
                         .getDefaultJainSipProvider()
                         .getNewClientTransaction(req);
                 }
@@ -1391,7 +1391,7 @@ public class OperationSetPresenceSipImpl
 
                 try
                 {
-                    transac.sendRequest();
+                    transaction.sendRequest();
                 }
                 catch (SipException e)
                 {
@@ -3039,10 +3039,10 @@ public class OperationSetPresenceSipImpl
                  return;
              }
 
-             ClientTransaction transac = null;
+             ClientTransaction transaction = null;
              try
              {
-                 transac = parentProvider
+                 transaction = parentProvider
                      .getDefaultJainSipProvider().getNewClientTransaction(req);
              }
              catch (TransactionUnavailableException e)
@@ -3053,7 +3053,7 @@ public class OperationSetPresenceSipImpl
 
              try
              {
-                 transac.sendRequest();
+                 transaction.sendRequest();
              }
              catch (SipException e)
              {

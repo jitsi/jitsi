@@ -358,18 +358,18 @@ public class SipRegistrarConnection
     * notify listeners and (in the case of a new registration) schedule
     * reregistration.
     *
-    * @param clientTransatcion the ClientTransaction that we created when
+    * @param clientTransaction the ClientTransaction that we created when
     * sending the register request.
     * @param response the OK Response that we've just received.
     */
     @SuppressWarnings("unchecked") //legacy jain-sip code for handling multiple
                                    //headers of the same type
-    public void processOK(ClientTransaction clientTransatcion,
+    public void processOK(ClientTransaction clientTransaction,
                         Response          response)
     {
         //first extract the expires value that we requested
         int requestedExpiration = 0;
-        Request register = clientTransatcion.getRequest();
+        Request register = clientTransaction.getRequest();
 
         //first check for an expires param in the contact header
         ContactHeader contactHeader = (ContactHeader) register
@@ -822,11 +822,11 @@ public class SipRegistrarConnection
     /**
     * Handles a NOT_IMPLEMENTED response sent in reply of our register request.
     *
-    * @param transatcion the transaction that our initial register request
+    * @param transaction the transaction that our initial register request
     * belongs to.
     * @param response our initial register request.
     */
-    public void processNotImplemented(ClientTransaction transatcion,
+    public void processNotImplemented(ClientTransaction transaction,
                                     Response response)
     {
             setRegistrationState(
@@ -1216,7 +1216,7 @@ public class SipRegistrarConnection
 
     /**
     * Updates our local sequence counter based on the value in the CSeq header
-    * of the request that originated the <tt>lastClientTran</tt> transation.
+    * of the request that originated the <tt>lastClientTran</tt> transaction.
     * The method is used after running an authentication challenge through
     * the security manager. The Security manager would manually increment the
     * CSeq number of the request so we need to update our local counter or

@@ -212,10 +212,10 @@ public abstract class EventPackageNotifier
          * http://snad.ncsl.nist.gov/proj/iptel/jain-sip
          * -1.2/javadoc/javax/sip/Dialog.html#createRequest(java.lang.String)).
          */
-        ClientTransaction transac;
+        ClientTransaction transaction;
         try
         {
-            transac = protocolProvider.getDefaultJainSipProvider()
+            transaction = protocolProvider.getDefaultJainSipProvider()
                 .getNewClientTransaction(req);
         }
         catch (TransactionUnavailableException ex)
@@ -244,7 +244,7 @@ public abstract class EventPackageNotifier
                         e);
         }
 
-        return transac;
+        return transaction;
     }
 
     /**
@@ -372,14 +372,14 @@ public abstract class EventPackageNotifier
          */
         synchronized (dialog)
         {
-            ClientTransaction transac
+            ClientTransaction transaction
                 = createNotify(dialog, subscription, subscriptionState, reason);
 
             callId = dialog.getCallId().getCallId();
 
             try
             {
-                dialog.sendRequest(transac);
+                dialog.sendRequest(transaction);
             }
             catch (SipException sex)
             {
@@ -600,10 +600,10 @@ public abstract class EventPackageNotifier
                             + subscription+ ", we will remove the first subscription");
 
                 // terminate the subscription with a closing NOTIFY
-                ClientTransaction transac = null;
+                ClientTransaction transaction = null;
                 try
                 {
-                    transac = createNotify( dialog, subscription,
+                    transaction = createNotify( dialog, subscription,
                             SubscriptionStateHeader.TERMINATED,
                             SubscriptionStateHeader.REJECTED);
                 }
@@ -617,7 +617,7 @@ public abstract class EventPackageNotifier
 
                 try
                 {
-                    dialog.sendRequest(transac);
+                    dialog.sendRequest(transaction);
                 }
                 catch (Exception e)
                 {
@@ -688,10 +688,10 @@ public abstract class EventPackageNotifier
             }
 
             // then terminate the subscription with an ultimate NOTIFY
-            ClientTransaction transac = null;
+            ClientTransaction transaction = null;
             try
             {
-                transac = createNotify( dialog, subscription,
+                transaction = createNotify( dialog, subscription,
                         SubscriptionStateHeader.TERMINATED,
                         SubscriptionStateHeader.TIMEOUT);
             }
@@ -703,7 +703,7 @@ public abstract class EventPackageNotifier
 
             try
             {
-                dialog.sendRequest(transac);
+                dialog.sendRequest(transaction);
             }
             catch (Exception e)
             {
@@ -755,10 +755,10 @@ public abstract class EventPackageNotifier
         // send a NOTIFY
         synchronized (dialog)
         {
-            ClientTransaction transac;
+            ClientTransaction transaction;
             try
             {
-                transac = createNotify( dialog, subscription,
+                transaction = createNotify( dialog, subscription,
                         SubscriptionStateHeader.ACTIVE, null);
             }
             catch (OperationFailedException e)
@@ -769,7 +769,7 @@ public abstract class EventPackageNotifier
 
             try
             {
-                dialog.sendRequest(transac);
+                dialog.sendRequest(transaction);
             }
             catch (Exception e)
             {
