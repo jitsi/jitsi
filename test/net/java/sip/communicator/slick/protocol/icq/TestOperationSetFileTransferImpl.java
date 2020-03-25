@@ -434,7 +434,7 @@ public class TestOperationSetFileTransferImpl
     /**
      * Disabled cause when receiver declines a canceled event is fired.
      * But refused status changed must be fired.
-     * Its canceled cause its the same event comming from the stack
+     * Its canceled cause its the same event coming from the stack
      * as when while transfering one of the parties cancel the transfer.
      */
     @Override

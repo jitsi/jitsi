@@ -273,7 +273,7 @@ public class FirstWizardPage
     }
 
     /**
-     * Fills the UserID and Password fields in this panel with the data comming
+     * Fills the UserID and Password fields in this panel with the data coming
      * from the given protocolProvider.
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to load the
      * data from.

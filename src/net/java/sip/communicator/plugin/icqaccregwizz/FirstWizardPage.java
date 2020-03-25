@@ -292,7 +292,7 @@ public class FirstWizardPage
     }
 
     /**
-     * Fills the UIN and Password fields in this panel with the data comming
+     * Fills the UIN and Password fields in this panel with the data coming
      * from the given protocolProvider.
      *
      * @param protocolProvider The <tt>ProtocolProviderService</tt> to load
