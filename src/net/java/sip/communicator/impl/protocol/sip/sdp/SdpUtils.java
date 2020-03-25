@@ -1292,7 +1292,7 @@ public class SdpUtils
     }
 
     /**
-     * Tries to find an attribute with the specified <tt>attibuteName</tt>
+     * Tries to find an attribute with the specified <tt>attributeName</tt>
      * pertaining to the specified <tt>payloadType</tt> in the
      * <tt>mediaAttributes</tt> list and returns it if it exists.
      *
