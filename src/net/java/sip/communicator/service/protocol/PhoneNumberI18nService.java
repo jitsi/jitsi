@@ -29,7 +29,7 @@ public interface PhoneNumberI18nService
 {
     /**
      * Normalizes a <tt>String</tt> which may be a phone number or a identifier
-     * by removing useless characters and, if necessary, replacing the alpahe
+     * by removing useless characters and, if necessary, replacing the alphabet
      * characters in corresponding dial pad numbers.
      *
      * @param possibleNumber a <tt>String</tt> which may represents a phone
