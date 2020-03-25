@@ -1228,7 +1228,7 @@ public class LdapDirectoryImpl
                 this.fireLdapEvent(event,
                         pendingSearches.get(query).getCaller());
                 logger.trace("result event for query \"" +
-                        result.getQuery().toString() + "\" forwaded");
+                        result.getQuery().toString() + "\" forwarded");
             }
             break;
         case SEARCH_ERROR:
