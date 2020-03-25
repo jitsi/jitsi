@@ -35,7 +35,7 @@ public class MetaContactMovedEvent
     private static final long serialVersionUID = 0L;
 
     /**
-     * Createas an instance of this <tt>MetaContactMovedEvent</tt> using the
+     * Creates an instance of this <tt>MetaContactMovedEvent</tt> using the
      * specified arguments.
      * @param sourceContact a reference to the <tt>MetaContact</tt> that this
      * event is about.

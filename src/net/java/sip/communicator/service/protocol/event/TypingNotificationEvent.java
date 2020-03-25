@@ -40,7 +40,7 @@ public class TypingNotificationEvent
     private int typingState = OperationSetTypingNotifications.STATE_UNKNOWN;
 
     /**
-     * Creats a TypingNotificationEvent with the specified parameters.
+     * Creates a TypingNotificationEvent with the specified parameters.
      * <p>
      * @param sourceContact the <tt>Contact</tt> that has sen the notification.
      * @param state
