@@ -137,8 +137,8 @@ public class FullUserInfoCmd
                 : readUserAboutInfo(icqData, requestID);break;
             case 0x00F0 //USER_INFORMATION_INTERESTS
                 : readInterestsUserInfo(icqData, requestID);break;
-            case 0x00FA //USER_INFORMATION_AFFILATIONS
-                : readAffilationsUserInfo(icqData, requestID);break;
+            case 0x00FA //USER_INFORMATION_AFFILIATIONS
+                : readAffiliationsUserInfo(icqData, requestID);break;
         }
 
     }
@@ -529,7 +529,7 @@ public class FullUserInfoCmd
      * @param block ByteBlock data
      * @param requestID int the request id
      */
-    private void readAffilationsUserInfo(ByteBlock block, int requestID)
+    private void readAffiliationsUserInfo(ByteBlock block, int requestID)
     {
 //        Vector infoData = getInfoForRequest(requestID);
 //

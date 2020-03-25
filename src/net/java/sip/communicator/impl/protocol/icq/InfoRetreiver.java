@@ -259,7 +259,7 @@ public class InfoRetreiver
             {
                 if (logger.isTraceEnabled())
                     logger.trace("received affiliations info");
-                readAffilationsUserInfo((MetaAffiliationsInfoCmd)snac);
+                readAffiliationsUserInfo((MetaAffiliationsInfoCmd)snac);
 
                 result =
                     getInfoForRequest(((MetaAffiliationsInfoCmd)snac).getId());
@@ -646,7 +646,7 @@ public class InfoRetreiver
      * Not used for now
      * @param cmd MetaAffiliationsInfoCmd
      */
-    private void readAffilationsUserInfo(MetaAffiliationsInfoCmd cmd)
+    private void readAffiliationsUserInfo(MetaAffiliationsInfoCmd cmd)
     {
 //        Vector<GenericDetail> infoData = getInfoForRequest(cmd.getId());
     }
