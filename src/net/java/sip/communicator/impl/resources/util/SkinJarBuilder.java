@@ -396,7 +396,7 @@ public class SkinJarBuilder
 
     /**
      * Moves to top level directory for unziped files. (e.g.
-     * /dir/info.propreties will be changed to /info.properties.)
+     * /dir/info.properties will be changed to /info.properties.)
      * @param tmpDir Directory in which is the skin unzipped.
      * @return the top level directory
      */

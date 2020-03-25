@@ -222,7 +222,7 @@ public class TestConfigurationService extends TestCase
      * @throws PropertyVetoException in case someone wrongfully vetoes the
      * property change.
      */
-    public void testSystemPoperties() throws PropertyVetoException
+    public void testSystemProperties() throws PropertyVetoException
     {
         //first simply store and retrieve a system property
         String propertyName = "my.test.system.property";

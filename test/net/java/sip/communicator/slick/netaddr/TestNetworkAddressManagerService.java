@@ -297,15 +297,15 @@ public class TestNetworkAddressManagerService
         // set properties
         Boolean propertyIpV6Pref= new Boolean(false);
         Boolean propertyIpV4Stack = new Boolean(true);
-        String propertieStunValue="stun01.sipphone.com";
-        Integer propertieStunPort=new Integer(3478);
+        String propertiesStunValue="stun01.sipphone.com";
+        Integer propertiesStunPort=new Integer(3478);
         Boolean natBoolean = new Boolean(nat);
 
         try
         {
             configurationService.setProperty(propertyIpV4Stack, propertyIpV4Stack);
-            configurationService.setProperty(propertyStunName,propertieStunValue );
-            configurationService.setProperty(propertyStunPort,propertieStunPort );
+            configurationService.setProperty(propertyStunName,propertiesStunValue );
+            configurationService.setProperty(propertyStunPort,propertiesStunPort );
             configurationService.setProperty(propertyV6,propertyIpV6Pref );
             configurationService.setProperty(propertyNat, natBoolean);
         }
@@ -341,15 +341,15 @@ public class TestNetworkAddressManagerService
         // set properties
         Boolean propertyIpV6Pref= new Boolean(false);
         Boolean propertyIpV4Stack = new Boolean(true);
-        String propertieStunValue="stun01.sipphone.com";
-        Integer propertieStunPort=new Integer(3478);
+        String propertiesStunValue="stun01.sipphone.com";
+        Integer propertiesStunPort=new Integer(3478);
         Boolean natBoolean = new Boolean(nat);
 
         try
         {
             configurationService.setProperty(propertIpV4Stack, propertyIpV4Stack);
-            configurationService.setProperty(propertyStunName,propertieStunValue );
-            configurationService.setProperty(propertyStunPort,propertieStunPort );
+            configurationService.setProperty(propertyStunName,propertiesStunValue );
+            configurationService.setProperty(propertyStunPort,propertiesStunPort );
             configurationService.setProperty(propertyV6,propertyIpV6Pref );
             configurationService.setProperty(propertyNat, natBoolean);
         }
@@ -384,14 +384,14 @@ public class TestNetworkAddressManagerService
         // set properties
         Boolean propertyIpV6Pref= new Boolean(true);
         Boolean propertyIpV4Stack = new Boolean(false);
-        String propertieStunValue="stun01.sipphone.com";
-        Integer propertieStunPort=new Integer(3478);
+        String propertiesStunValue="stun01.sipphone.com";
+        Integer propertiesStunPort=new Integer(3478);
         Boolean natBoolean = new Boolean(nat);
         try
         {
             configurationService.setProperty(propertIpV4Stack, propertyIpV4Stack);
-            configurationService.setProperty(propertyStunName,propertieStunValue );
-            configurationService.setProperty(propertyStunPort,propertieStunPort );
+            configurationService.setProperty(propertyStunName,propertiesStunValue );
+            configurationService.setProperty(propertyStunPort,propertiesStunPort );
             configurationService.setProperty(propertyV6,propertyIpV6Pref );
             configurationService.setProperty(propertyNat, natBoolean);
         }
@@ -426,14 +426,14 @@ public class TestNetworkAddressManagerService
         // set properties
         Boolean propertyIpV6Pref= new Boolean(true);
         Boolean propertyIpV4Stack = new Boolean(false);
-        String propertieStunValue="stun01.sipphone.com";
-        Integer propertieStunPort=new Integer(3478);
+        String propertiesStunValue="stun01.sipphone.com";
+        Integer propertiesStunPort=new Integer(3478);
         Boolean natBoolean = new Boolean(nat);
         try
         {
             configurationService.setProperty(propertIpV4Stack, propertyIpV4Stack);
-            configurationService.setProperty(propertyStunName,propertieStunValue );
-            configurationService.setProperty(propertyStunPort,propertieStunPort );
+            configurationService.setProperty(propertyStunName,propertiesStunValue );
+            configurationService.setProperty(propertyStunPort,propertiesStunPort );
             configurationService.setProperty(propertyV6,propertyIpV6Pref );
             configurationService.setProperty(propertyNat, natBoolean);
         }
@@ -505,14 +505,14 @@ public class TestNetworkAddressManagerService
         // set properties
         Boolean propertyIpV6Pref= new Boolean(true);
         Boolean propertyIpV4Stack = new Boolean(false);
-        String propertieStunValue="stun01.sipphone.com";
-        Integer propertieStunPort=new Integer(3478);
+        String propertiesStunValue="stun01.sipphone.com";
+        Integer propertiesStunPort=new Integer(3478);
         Boolean natBoolean = new Boolean(nat);
         try
         {
             configurationService.setProperty(propertIpV4Stack, propertyIpV4Stack);
-            configurationService.setProperty(propertyStunName,propertieStunValue );
-            configurationService.setProperty(propertyStunPort,propertieStunPort );
+            configurationService.setProperty(propertyStunName,propertiesStunValue );
+            configurationService.setProperty(propertyStunPort,propertiesStunPort );
             configurationService.setProperty(propertyV6,propertyIpV6Pref );
             configurationService.setProperty(propertyNat, natBoolean);
         }
