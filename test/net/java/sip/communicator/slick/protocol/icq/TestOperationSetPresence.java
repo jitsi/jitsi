@@ -575,13 +575,13 @@ public class TestOperationSetPresence
                          IcqSlickFixture.testerAgent.getAuthCmdFactory().requestReasonStr
                 );
 
-            // wait for authorization process to be finnished
+            // wait for authorization process to be finished
             // the modification of buddy (server will inform us
             // that he removed - awaiting authorization flag)
             Object obj = new Object();
             synchronized(obj)
             {
-                logger.debug("wait for authorization process to be finnished");
+                logger.debug("wait for authorization process to be finished");
                 obj.wait(10000);
                 logger.debug("Stop waiting!");
             }
@@ -678,7 +678,7 @@ public class TestOperationSetPresence
 
         if(contactPresEvtCollector.collectedEvents.size() == 0)
         {
-            logger.info("PROBLEM. Authorisation process doesn't have finnished " +
+            logger.info("PROBLEM. Authorisation process doesn't have finished " +
                 "Server doesn't report us for changing authorization flag! Will try to authorize once again");
 
             IcqSlickFixture.testerAgent.sendAuthorizationReplay(
@@ -689,7 +689,7 @@ public class TestOperationSetPresence
             Object obj = new Object();
             synchronized(obj)
             {
-                logger.debug("wait for authorization process to be finnished for second time");
+                logger.debug("wait for authorization process to be finished for second time");
                 obj.wait(10000);
                 logger.debug("Stop waiting!");
             }
