@@ -569,7 +569,7 @@ public class UriHandlerSipImpl
 
         /**
          * Starts the registration process, ads this class as a registration
-         * listener and then tries to rehandle the uri this thread was initiaded
+         * listener and then tries to rehandle the uri this thread was initiated
          * with.
          */
         @Override
