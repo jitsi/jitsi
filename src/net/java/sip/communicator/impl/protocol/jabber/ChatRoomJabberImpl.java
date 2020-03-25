@@ -1558,7 +1558,7 @@ public class ChatRoomJabberImpl
 
     /**
      * Adds a listener that will be notified of changes in our role in the room
-     * such as us being granded operator.
+     * such as us being granted operator.
      *
      * @param listener a local user role listener.
      */
@@ -1575,7 +1575,7 @@ public class ChatRoomJabberImpl
 
     /**
      * Removes a listener that was being notified of changes in our role in this
-     * chat room such as us being granded operator.
+     * chat room such as us being granted operator.
      *
      * @param listener a local user role listener.
      */
@@ -1620,7 +1620,7 @@ public class ChatRoomJabberImpl
 
     /**
      * Adds a listener that will be notified of changes of a member role in the
-     * room such as being granded operator.
+     * room such as being granted operator.
      *
      * @param listener a member role listener.
      */
@@ -1636,7 +1636,7 @@ public class ChatRoomJabberImpl
 
     /**
      * Removes a listener that was being notified of changes of a member role in
-     * this chat room such as us being granded operator.
+     * this chat room such as us being granted operator.
      *
      * @param listener a member role listener.
      */
