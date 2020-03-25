@@ -48,7 +48,7 @@ public interface OperationSetInstantMessageTransform
     /**
      * Adds <tt>transformLayer</tt> to the layers currently used for message
      * transformation in this provider and assigns the specified
-     * <tt>priotity</tt> to it.
+     * <tt>priority</tt> to it.
      *
      * @param priority the priority/order index that we'd like to insert
      * <tt>transportLayer</tt> at.
