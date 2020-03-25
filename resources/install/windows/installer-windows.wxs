@@ -522,7 +522,7 @@
 <Property Id="IS_AUTOUPDATE" Value="0" Hidden="yes" />
 <Property Id="WixShellExecTarget" Value="[#@APP_LAUNCHER_NAME@.exe]" />
 <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
-<Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="!(loc.ExitDialogOptionaCheckBoxText)" />
+<Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="!(loc.ExitDialogOptionalCheckBoxText)" />
 <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
 
 <?include windows_shortcut_specification.wxi ?>
