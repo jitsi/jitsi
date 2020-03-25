@@ -1520,12 +1520,12 @@ public class ProtocolProviderServiceSipImpl
     }
 
     /**
-     * Returns null for a registraless account, a value for the contact address
+     * Returns null for a registrarless account, a value for the contact address
      * custom parameter otherwise. This will help the dispatching of incoming
      * requests between accounts with the same username. For address-of-record
      * user@example.com, the returned value woud be example_com.
      *
-     * @return null for a registraless account, a value for the
+     * @return null for a registrarless account, a value for the
      * "registering_acc" contact address parameter otherwise
      */
     public String getContactAddressCustomParamValue()
