@@ -20,7 +20,7 @@ package net.java.sip.communicator.plugin.busylampfield;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * The status to display for the contact srouces.
+ * The status to display for the contact sources.
  * @author Damian Minkov
  */
 public class BLFPresenceStatus
