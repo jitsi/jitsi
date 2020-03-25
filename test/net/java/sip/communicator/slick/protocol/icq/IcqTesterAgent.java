@@ -461,7 +461,7 @@ public class IcqTesterAgent
     /**
      * Converts the specified icqstatus to on of the ICQ_STATUS string fields
      * of this class
-     * @param icqStatus the icqStatus as retured in FullUserInfo by the joscar
+     * @param icqStatus the icqStatus as returned in FullUserInfo by the joscar
      *        stack
      * @param returnOnMinus1 specifies the value that should be returned if
      * icqStatus is on its default joust sim value "-1".

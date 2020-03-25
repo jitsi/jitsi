@@ -457,7 +457,7 @@ public class TestNetworkAddressManagerService
 
     /**
      * verify if the address returned by the service is valid by listing local
-     * interfaces and compare them to the address retruned
+     * interfaces and compare them to the address returned
      *
      * @param serviceAddress : address to check
      * @param ipv6version : if true verifie if this address is an ipv6 belong

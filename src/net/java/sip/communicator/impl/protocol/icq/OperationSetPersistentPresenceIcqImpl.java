@@ -243,7 +243,7 @@ public class OperationSetPersistentPresenceIcqImpl
      * Converts the specified icqstatus to one of the status fields of the
      * IcqStatusEnum class.
      *
-     * @param icqStatus the icqStatus as retured in FullUserInfo by the joscar
+     * @param icqStatus the icqStatus as returned in FullUserInfo by the joscar
      *        stack
      * @return a PresenceStatus instance representation of the "long" icqStatus
      * parameter. The returned result is one of the IcqStatusEnum fields.
@@ -322,7 +322,7 @@ public class OperationSetPersistentPresenceIcqImpl
      * Converts the specified IcqStatusEnum member to the corresponding ICQ
      * flag.
      *
-     * @param status the icqStatus as retured in FullUserInfo by the joscar
+     * @param status the icqStatus as returned in FullUserInfo by the joscar
      *        stack
      * @return a PresenceStatus instance representation of the "long" icqStatus
      * parameter. The returned result is one of the IcqStatusEnum fields.
