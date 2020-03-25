@@ -249,7 +249,7 @@ public class IcqTesterAgent
     /**
      * Sends to <tt>buddy</tt> a notification that our typing state has now
      * changed to indicated by <tt>notif</tt>.
-     * @param buddy the screenname of the budy that we'd like to notify.
+     * @param buddy the screenname of the buddy that we'd like to notify.
      * @param state the typing state that we'd like to send to the specified
      * buddy.
      */
@@ -299,7 +299,7 @@ public class IcqTesterAgent
 
     /**
      * Sends <tt>body</tt> to <tt>buddy</tt>  as an instant message
-     * @param buddy the screenname of the budy that we'd like to send our msg to.
+     * @param buddy the screenname of the buddy that we'd like to send our msg to.
      * @param body the content of the message to send.
      */
     public void sendMessage(String buddy, String body)
@@ -1182,7 +1182,7 @@ public class IcqTesterAgent
 
     /**
      * Sends <tt>body</tt> to <tt>buddy</tt>  as an offline instant message
-     * @param buddy the screenname of the budy that we'd like to send our msg to.
+     * @param buddy the screenname of the buddy that we'd like to send our msg to.
      * @param body the content of the message to send.
      */
     public void sendOfflineMessage(String buddy, String body)
