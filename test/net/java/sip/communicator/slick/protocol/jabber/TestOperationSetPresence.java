@@ -268,7 +268,7 @@ public class TestOperationSetPresence
      * Used by methods testing state transiotions
      *
      * @param newStatus the JabberStatusEnum field corresponding to the status
-     * that we'd like the opeation set to enter.
+     * that we'd like the operation set to enter.
      *
      * @throws Exception in case changing the state causes an exception
      */

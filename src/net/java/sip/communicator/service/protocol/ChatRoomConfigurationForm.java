@@ -48,7 +48,7 @@ public interface ChatRoomConfigurationForm
     /**
      * Submits the information in this configuration form to the server.
      *
-     * @throws OperationFailedException if the submit opeation do not succeed
+     * @throws OperationFailedException if the submit operation do not succeed
      * for some reason (e.g. a wrong value is provided for a property)
      */
     public void submit() throws OperationFailedException;

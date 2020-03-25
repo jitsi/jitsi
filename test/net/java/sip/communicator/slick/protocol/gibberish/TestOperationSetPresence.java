@@ -183,7 +183,7 @@ public class TestOperationSetPresence
     /**
      * Used by methods testing state transiotions
      *
-     * @param newStatus the status that we'd like the opeation set to enter.
+     * @param newStatus the status that we'd like the operation set to enter.
      *
      * @throws Exception in case changing the state causes an exception
      */

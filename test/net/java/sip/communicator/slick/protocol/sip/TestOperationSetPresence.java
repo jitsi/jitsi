@@ -180,7 +180,7 @@ public class TestOperationSetPresence
      * Used by methods testing state transitions
      *
      * @param newStatus the PresenceStatus field corresponding to the status
-     * that we'd like the opeation set to enter.
+     * that we'd like the operation set to enter.
      *
      * @throws Exception in case changing the state causes an exception
      */
