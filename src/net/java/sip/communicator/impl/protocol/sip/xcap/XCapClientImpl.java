@@ -405,7 +405,7 @@ public class XCapClientImpl extends BaseHttpXCapClient implements XCapClient
             int httpCode = response.getHttpCode();
             String contentType = response.getContentType();
             byte[] content = response.getContent();
-            // Analyze the responce
+            // Analyze the response
             if (httpCode != HttpStatus.SC_OK)
             {
                 if (httpCode == HttpStatus.SC_NOT_FOUND)
@@ -502,7 +502,7 @@ public class XCapClientImpl extends BaseHttpXCapClient implements XCapClient
         XCapHttpResponse response = this.get(imageUri);
         int httpCode = response.getHttpCode();
         byte[] content = response.getContent();
-        // Analyze the responce
+        // Analyze the response
         if (httpCode != HttpStatus.SC_OK)
         {
             String errorMessage = String.format(

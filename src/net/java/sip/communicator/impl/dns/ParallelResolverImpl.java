@@ -35,7 +35,7 @@ import org.xbill.DNS.*;
  * handle cases where DNS servers may return empty responses to some records.
  * <p>
  * We achieve this by entering a redundant mode whenever we detect an abnormal
- * delay (longer than <tt>DNS_PATIENCE</tt>)  while waiting for a DNS resonse,
+ * delay (longer than <tt>DNS_PATIENCE</tt>)  while waiting for a DNS response,
  * or when that response is not considered satisfying.
  * <p>
  * Once we enter redundant mode, we start duplicating all queries and sending

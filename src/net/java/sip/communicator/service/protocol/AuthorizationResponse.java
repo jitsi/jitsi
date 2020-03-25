@@ -88,7 +88,7 @@ public class AuthorizationResponse
     /**
      * Returns a String containing additional explanations (might also be empty)
      * of this response.
-     * @return the reason the source user has given to explain this resonse and
+     * @return the reason the source user has given to explain this response and
      * null or an empty string if no reason has been specified.
      */
     public String getReason()

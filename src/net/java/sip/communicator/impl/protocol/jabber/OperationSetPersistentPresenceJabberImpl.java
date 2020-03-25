@@ -1908,7 +1908,7 @@ public class OperationSetPersistentPresenceJabberImpl
                 }
                 catch (NotConnectedException | InterruptedException e)
                 {
-                    logger.error("Could not send presence repsonse", e);
+                    logger.error("Could not send presence response", e);
                 }
             }}).start();
         }
