@@ -115,7 +115,7 @@ public abstract class AbstractSystrayService
     }
 
     /**
-     * Implements <tt>SystraService#showPopupMessage()</tt>
+     * Implements <tt>SystrayService#showPopupMessage()</tt>
      *
      * @param popupMessage the message we will show
      */

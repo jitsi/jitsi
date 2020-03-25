@@ -178,7 +178,7 @@ public class GeneralConfigurationPanel
         if(!GeneralConfigPluginActivator.getConfigurationService()
                 .getBoolean(SYSTRAY_CONFIG_DISABLED_PROP, false))
         {
-            mainPanel.add(createSystrayeConfigPanel());
+            mainPanel.add(createSystrayConfigPanel());
             mainPanel.add(Box.createVerticalStrut(10));
         }
 
@@ -893,7 +893,7 @@ public class GeneralConfigurationPanel
      * Initializes the systray configuration panel.
      * @return the created component
      */
-    private Component createSystrayeConfigPanel()
+    private Component createSystrayConfigPanel()
     {
         JPanel panel = GeneralConfigPluginActivator.
             createConfigSectionComponent(
