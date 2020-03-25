@@ -542,7 +542,7 @@ public class TestOperationSetServerStoredInfo
 
     /**
      * Checking if the error handling works (all throw clauses in the methods)
-     * If max number of details is ok. Chacking of details classes.
+     * If max number of details is ok. Checking of details classes.
      */
     public void errorHandling()
     {
