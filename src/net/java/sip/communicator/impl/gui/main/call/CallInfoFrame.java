@@ -838,7 +838,7 @@ public class CallInfoFrame
      * Converts a video size Dimension into its String representation.
      *
      * @param videoSize The video size Dimension, containing the width and the
-     * hieght of the video.
+     * height of the video.
      *
      * @return The String representation of the video width and height, or a
      * String with "Not Available (N.A.)" if the videoSize is null.
