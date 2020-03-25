@@ -134,7 +134,7 @@ public class MetaHistoryServiceImpl
      * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param endDate Date the date of the last record to return
-     * @return Collection sorted result that conists of records returned from
+     * @return Collection sorted result that consists of records returned from
      *  the services we wrap
      * @throws RuntimeException
      */
@@ -199,7 +199,7 @@ public class MetaHistoryServiceImpl
      *  MetaContact or ChatRoom.
      * @param startDate Date the date of the first record to return
      * @param endDate Date the date of the last record to return
-     * @return Collection sorted result that conists of records returned from
+     * @return Collection sorted result that consists of records returned from
      *  the services we wrap
      * @throws RuntimeException
      */
@@ -269,7 +269,7 @@ public class MetaHistoryServiceImpl
      * @param startDate Date the date of the first record to return
      * @param endDate Date the date of the last record to return
      * @param keywords array of keywords
-     * @return Collection sorted result that conists of records returned from
+     * @return Collection sorted result that consists of records returned from
      *  the services we wrap
      * @throws RuntimeException
      */
@@ -291,7 +291,7 @@ public class MetaHistoryServiceImpl
      * @param endDate Date the date of the last record to return
      * @param keywords array of keywords
      * @param caseSensitive is keywords search case sensitive
-     * @return Collection sorted result that conists of records returned from
+     * @return Collection sorted result that consists of records returned from
      *  the services we wrap
      * @throws RuntimeException
      */
@@ -374,7 +374,7 @@ public class MetaHistoryServiceImpl
      * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param keyword keyword
-     * @return Collection sorted result that conists of records returned from
+     * @return Collection sorted result that consists of records returned from
      *  the services we wrap
      * @throws RuntimeException
      */
@@ -393,7 +393,7 @@ public class MetaHistoryServiceImpl
      *  MetaContact or ChatRoom.
      * @param keyword keyword
      * @param caseSensitive is keywords search case sensitive
-     * @return Collection sorted result that conists of records returned from
+     * @return Collection sorted result that consists of records returned from
      *  the services we wrap
      * @throws RuntimeException
      */
@@ -412,7 +412,7 @@ public class MetaHistoryServiceImpl
      * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param keywords keyword
-     * @return Collection sorted result that conists of records returned from
+     * @return Collection sorted result that consists of records returned from
      *  the services we wrap
      * @throws RuntimeException
      */
@@ -431,7 +431,7 @@ public class MetaHistoryServiceImpl
      *  MetaContact or ChatRoom.
      * @param keywords keyword
      * @param caseSensitive is keywords search case sensitive
-     * @return Collection sorted result that conists of records returned from
+     * @return Collection sorted result that consists of records returned from
      *  the services we wrap
      * @throws RuntimeException
      */
@@ -511,7 +511,7 @@ public class MetaHistoryServiceImpl
      * @param descriptor CallPeer address(String),
      *  MetaContact or ChatRoom.
      * @param count messages count
-     * @return Collection sorted result that conists of records returned from
+     * @return Collection sorted result that consists of records returned from
      *  the services we wrap
      * @throws RuntimeException
      */
@@ -587,7 +587,7 @@ public class MetaHistoryServiceImpl
      *  MetaContact or ChatRoom.
      * @param date messages after date
      * @param count messages count
-     * @return Collection sorted result that conists of records returned from
+     * @return Collection sorted result that consists of records returned from
      *  the services we wrap
      * @throws RuntimeException
      */
@@ -675,7 +675,7 @@ public class MetaHistoryServiceImpl
      *  MetaContact or ChatRoom.
      * @param date messages before date
      * @param count messages count
-     * @return Collection sorted result that conists of records returned from
+     * @return Collection sorted result that consists of records returned from
      *  the services we wrap
      * @throws RuntimeException
      */
