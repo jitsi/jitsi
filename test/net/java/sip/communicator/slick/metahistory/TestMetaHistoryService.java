@@ -170,7 +170,7 @@ public class TestMetaHistoryService
             (MetaHistoryService)MetaHistoryServiceLick.bc.
                 getService(metaHistoryServiceRef);
 
-        // fill in a contact to comunicate with
+        // fill in a contact to communicate with
         MockContactGroup root =
             (MockContactGroup)mockPresOpSet.getServerStoredContactListRoot();
 

@@ -155,7 +155,7 @@ public class TestMsgHistoryServiceMultiChat
             (HistoryService)MsgHistoryServiceLick.bc.
                 getService(historyServiceRef);
 
-        // fill in a contact to comunicate with
+        // fill in a contact to communicate with
         MockContactGroup root =
             (MockContactGroup)mockPresOpSet.getServerStoredContactListRoot();
 
