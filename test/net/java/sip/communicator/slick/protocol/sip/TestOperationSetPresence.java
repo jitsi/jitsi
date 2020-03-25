@@ -236,7 +236,7 @@ public class TestOperationSetPresence
             newStatus,
             this.operationSetPresence2.getPresenceStatus());
 
-        // Will wait for the status to be received before quering for it
+        // Will wait for the status to be received before querying for it
         Object lock = new Object();
         synchronized(lock)
         {

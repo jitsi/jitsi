@@ -106,7 +106,7 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
             i++;
             if (ERROR_SUCCESS != regEnumKeyEx)
 			{
-            	MsOutlookUtils_logInfo("Error quering the next Software\\Microsoft\\Office item.");
+            	MsOutlookUtils_logInfo("Error querying the next Software\\Microsoft\\Office item.");
                 continue;
 			}
 
