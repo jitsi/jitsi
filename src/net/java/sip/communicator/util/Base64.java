@@ -276,7 +276,7 @@ public class Base64
          * @param off offset
          * @param length length
          * @param out OutputStream
-         * @throws IOException if an exception occurs while wrinting to the
+         * @throws IOException if an exception occurs while writing to the
          * stream.
          */
         public int decode(
