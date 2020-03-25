@@ -33,7 +33,7 @@ public interface DesktopService
      * @param file the file to be opened
      *
      * @throws NullPointerException if file is null
-     * @throws IllegalArgumentException if the specified file dosen't exist
+     * @throws IllegalArgumentException if the specified file doesn't exist
      * @throws UnsupportedOperationException if the current platform does not
      * support the Desktop.Action.OPEN action
      * @throws IOException if the specified file has no associated application
@@ -57,7 +57,7 @@ public interface DesktopService
      * @param file the file to be opened
      *
      * @throws NullPointerException if file is null
-     * @throws IllegalArgumentException if the specified file dosen't exist
+     * @throws IllegalArgumentException if the specified file doesn't exist
      * @throws UnsupportedOperationException if the current platform does not
      * support the Desktop.Action.OPEN action
      * @throws IOException if the specified file has no associated application
@@ -80,7 +80,7 @@ public interface DesktopService
      * @param file the file to open for editing
      *
      * @throws NullPointerException if file is null
-     * @throws IllegalArgumentException if the specified file dosen't exist
+     * @throws IllegalArgumentException if the specified file doesn't exist
      * @throws UnsupportedOperationException if the current platform does not
      * support the Desktop.Action.OPEN action
      * @throws IOException if the specified file has no associated application
@@ -103,7 +103,7 @@ public interface DesktopService
      * @param uri the URI to be displayed in the user default browser
      *
      * @throws NullPointerException if file is null
-     * @throws IllegalArgumentException if the specified file dosen't exist
+     * @throws IllegalArgumentException if the specified file doesn't exist
      * @throws UnsupportedOperationException if the current platform does not
      * support the Desktop.Action.OPEN action
      * @throws IOException if the specified file has no associated application

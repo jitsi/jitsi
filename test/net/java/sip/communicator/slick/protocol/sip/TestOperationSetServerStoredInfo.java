@@ -93,7 +93,7 @@ public class TestOperationSetServerStoredInfo extends TestCase
                 .isDetailClassSupported(ServerStoredDetails.ImageDetail.class))
         {
             throw new NullPointerException(
-                    "OperationSet does't support avatars");
+                    "OperationSet doesn't support avatars");
         }
 
         // Connect to the XCAP server

@@ -524,7 +524,7 @@ public class TestOperationSetServerStoredInfo
                     spokenLanguages[
                         ((Integer) languageCodeIter.next()).intValue()]);
         }
-//        assertEquals("The number of spoken languages dowsn't match",
+//        assertEquals("The number of spoken languages doesn't match",
 //            newLanguages.length,
 //            languages.size());
 //
