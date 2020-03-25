@@ -237,7 +237,7 @@ public class OperationSetTypingNotificationsIcqImpl
         }
 
         //the following methods only have dummy implementations here as they
-        //do not interest us. complete implementatios are provider in the
+        //do not interest us. complete implementations are provider in the
         //basic instant messaging operation set.
         public void buddyInfoUpdated(IcbmService service, Screenname buddy,
                                      IcbmBuddyInfo info){}

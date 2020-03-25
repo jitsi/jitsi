@@ -28,7 +28,7 @@ import net.kano.joustsim.oscar.oscar.service.icbm.ft.events.*;
 import net.kano.joustsim.oscar.oscar.service.icbm.ft.state.*;
 
 /**
- * The Filetransfer imeplementation for ICQ.
+ * The Filetransfer implementation for ICQ.
  * @author Damian Minkov
  */
 public class FileTransferImpl
