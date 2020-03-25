@@ -229,7 +229,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
     }
 
     /**
-     * Determines wheter the protocol provider (or the protocol itself) support
+     * Determines whether the protocol provider (or the protocol itself) support
      * sending and receiving offline messages. Most often this method would
      * return true for protocols that support offline messages and false for
      * those that don't. It is however possible for a protocol to support these
@@ -248,7 +248,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
     }
 
     /**
-     * Determines wheter the protocol supports the supplied content type
+     * Determines whether the protocol supports the supplied content type
      *
      * @param contentType the type we want to check
      * @return <tt>true</tt> if the protocol supports it and

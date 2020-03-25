@@ -83,7 +83,7 @@ public class TestMetaContactGroup extends TestCase
     }
 
     /**
-     * Verifies whehter the returned number of contacts corresponds to the
+     * Verifies whether the returned number of contacts corresponds to the
      * children of the corresponding mock contact group.
      */
     public void testCountChildContacts()
@@ -94,7 +94,7 @@ public class TestMetaContactGroup extends TestCase
     }
 
     /**
-     * Verifies whehter the returned number of subgroups corresponds to the
+     * Verifies whether the returned number of subgroups corresponds to the
      * subgroups of the corresponding mock contact group.
      */
     public void testCountSubgroups()
