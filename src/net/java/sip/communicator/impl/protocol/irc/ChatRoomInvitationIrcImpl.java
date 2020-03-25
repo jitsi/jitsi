@@ -46,7 +46,7 @@ public class ChatRoomInvitationIrcImpl
     /**
      * The password of the chat room.
      */
-    private byte[] chatRoomPasword;
+    private byte[] chatRoomPassword;
 
     /**
      * Creates a <tt>ChatRoomInvitationIrcImpl</tt>, by specifying the
@@ -66,7 +66,7 @@ public class ChatRoomInvitationIrcImpl
         this.chatRoom = chatRoom;
         this.inviter = inviter;
         this.reason = reason;
-        this.chatRoomPasword = chatRoomPassword;
+        this.chatRoomPassword = chatRoomPassword;
     }
 
     /**
@@ -106,6 +106,6 @@ public class ChatRoomInvitationIrcImpl
      */
     public byte[] getChatRoomPassword()
     {
-        return chatRoomPasword;
+        return chatRoomPassword;
     }
 }
