@@ -76,7 +76,7 @@ public class ColibriStreamConnector
         {
             /*
              * Close the shared StreamConnector because it is clear that no
-             * TrasportManager is using it.
+             * TransportManager is using it.
              */
             super.close();
         }

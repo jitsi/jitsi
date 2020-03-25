@@ -40,7 +40,7 @@ public class SipRegistrarlessConnection
 
     /**
      * The transport that we should claim to be using in case some of the other
-     * components of the sip package would try to use it as the default transort
+     * components of the sip package would try to use it as the default transport
      * to connect with.
      */
     private String defaultTransport = null;
