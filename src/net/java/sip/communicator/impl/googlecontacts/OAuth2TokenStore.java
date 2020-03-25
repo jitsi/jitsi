@@ -134,7 +134,7 @@ public class OAuth2TokenStore
 
     /**
      * Get the credential from the store. In case a credential does not (yet)
-     * exist, acquire one preferrably from the password store. Optionally,
+     * exist, acquire one preferably from the password store. Optionally,
      * involve the user if a credential is not yet stored.
      * 
      * @param identity The identity of the API token.
