@@ -70,7 +70,7 @@ public class SoundFilter
     }
 
     /**
-     * Method which describes differents permits extensions and defines which
+     * Method which describes differents [sic] permits [sic] extensions and defines which
      * file or directory will be displayed in the filechoser.
      *
      * @param f file for the test
