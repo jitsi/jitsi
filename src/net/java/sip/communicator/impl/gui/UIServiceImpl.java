@@ -997,7 +997,7 @@ public class UIServiceImpl
          * rather use the font for dialogs. So swap the meanings of the two to
          * get standard fonts in the windows while accepting that dialogs may
          * appear in it as well (if the dialogs are created as non-OptionPanes
-         * and in this case SIP Communicator will behave as Mozilla Firfox and
+         * and in this case SIP Communicator will behave as Mozilla Firefox and
          * Eclipse with respect to using the window font for the dialogs).
          */
         Toolkit toolkit = Toolkit.getDefaultToolkit();
