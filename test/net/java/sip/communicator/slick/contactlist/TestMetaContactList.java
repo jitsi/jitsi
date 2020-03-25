@@ -508,7 +508,7 @@ public class TestMetaContactList
     {
         String newGroupName = "testGroupChangeEventHandling.NewContactGroup";
         String newInnerGroupName
-            = "testGroupChangeEventHandling.NewInnderContactGroup";
+            = "testGroupChangeEventHandling.NewInnerContactGroup";
         //add 2 nested groups and check for the event
         MclEventCollector mclEvtCollector = new MclEventCollector();
 
