@@ -386,7 +386,7 @@ public class PasswordChangeDialog
     }
 
     /**
-     * Sets the descriptional text that is displayed
+     * Sets the descriptive text that is displayed
      * @param infoText the new text to display.
      */
     protected void setInfoText(String infoText)
