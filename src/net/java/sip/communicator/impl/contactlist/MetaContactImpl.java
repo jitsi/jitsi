@@ -278,7 +278,7 @@ public class MetaContactImpl
      * looking for must belong to.
      * @return a reference to a <tt>Contact</tt>, encapsulated by this
      * MetaContact, carrying the specified address and originating from the
-     * ownerProvider carryign <tt>accountID</tt>.
+     * ownerProvider carrying <tt>accountID</tt>.
      */
     public Contact getContact(String contactAddress,
                               String accountID)
