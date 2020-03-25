@@ -124,7 +124,7 @@ public interface NetworkAddressManagerService
      * @param minPort the port number where we should first try to bind before
      * moving to the next one (i.e. <tt>minPort + 1</tt>)
      * @param maxPort the maximum port number where we should try binding
-     * before giving up and throwinG an exception.
+     * before giving up and throwing an exception.
      *
      * @return the newly created <tt>DatagramSocket</tt>.
      *
