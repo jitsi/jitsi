@@ -185,5 +185,5 @@ interface AppIndicator1 extends Library
     Pointer app_indicator_get_secondary_activate_target(AppIndicator self, Pointer widget);
 
     // Helpers
-    void app_indicator_build_menu_from_desktop(AppIndicator self, String desktop_file, String destkop_profile);
+    void app_indicator_build_menu_from_desktop(AppIndicator self, String desktop_file, String desktop_profile);
 }
