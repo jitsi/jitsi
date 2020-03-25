@@ -51,7 +51,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
     private ProtocolProviderServiceIcqImpl icqProvider = null;
 
     /**
-     * The registration listener that would get notified when the unerlying
+     * The registration listener that would get notified when the underlying
      * icq provider gets registered.
      */
     private RegistrationStateListener providerRegListener
