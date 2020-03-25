@@ -624,7 +624,7 @@ public class CallInfoFrame
         stringBuffer.append(
             getLineString(
                 resources.getI18NString(
-                    "service.gui.callinfo.BANDWITH"),
+                    "service.gui.callinfo.BANDWIDTH"),
                     "&darr; "
                     + (int) mediaStreamStats.getReceiveStats().getBitrate()/1024
                         + " Kbps "

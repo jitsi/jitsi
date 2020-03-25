@@ -748,14 +748,14 @@ public class MediaConfigurationImpl
             }
         });
 
-        int videoMaxBandwith = deviceConfig.getVideoRTPPacingThreshold();
+        int videoMaxBandwidth = deviceConfig.getVideoRTPPacingThreshold();
         // Accord the current value with the maximum allowed value. Fixes
         // existing configurations that have been set to a number larger than
         // the advised maximum value.
-        videoMaxBandwith = ((videoMaxBandwith > 999) ? 999 : videoMaxBandwith);
+        videoMaxBandwidth = ((videoMaxBandwidth > 999) ? 999 : videoMaxBandwidth);
 
         final JSpinner videoMaxBandwidth = new JSpinner(new SpinnerNumberModel(
-            videoMaxBandwith,
+            videoMaxBandwidth,
             1, 999, 1));
         videoMaxBandwidth.addChangeListener(new ChangeListener()
         {
