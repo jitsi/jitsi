@@ -223,7 +223,7 @@ public class MsOutlookAddrBookContactQuery
     public static final int PR_DISPLAY_NAME_PREFIX = 21;
 
     /**
-     * The index of the personnal home page
+     * The index of the personal home page
      */
     public static final int PR_PERSONAL_HOME_PAGE = 22;
 
