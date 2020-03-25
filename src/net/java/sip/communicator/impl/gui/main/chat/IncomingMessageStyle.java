@@ -158,9 +158,9 @@ public class IncomingMessageStyle
     }
 
     /**
-     * Creates the style of the table buuble bottom left corner.
+     * Creates the style of the table bubble bottom left corner.
      *
-     * @return the style of the table buuble bottom left corner
+     * @return the style of the table bubble bottom left corner
      */
     public static String createTableBubbleBlStyle()
     {
@@ -173,9 +173,9 @@ public class IncomingMessageStyle
     }
 
     /**
-     * Creates the style of the table buuble bottom right corner.
+     * Creates the style of the table bubble bottom right corner.
      *
-     * @return the style of the table buuble bottom right corner
+     * @return the style of the table bubble bottom right corner
      */
     public static String createTableBubbleBrStyle()
     {
@@ -189,9 +189,9 @@ public class IncomingMessageStyle
     }
 
     /**
-     * Creates the style of the table buuble top left corner.
+     * Creates the style of the table bubble top left corner.
      *
-     * @return the style of the table buuble top left corner
+     * @return the style of the table bubble top left corner
      */
     public static String createTableBubbleTlStyle()
     {
@@ -205,9 +205,9 @@ public class IncomingMessageStyle
     }
 
     /**
-     * Creates the style of the table buuble top right corner.
+     * Creates the style of the table bubble top right corner.
      *
-     * @return the style of the table buuble top right corner
+     * @return the style of the table bubble top right corner
      */
     public static String createTableBubbleTrStyle()
     {
