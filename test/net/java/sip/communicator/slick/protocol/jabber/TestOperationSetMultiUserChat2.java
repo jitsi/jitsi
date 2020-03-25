@@ -323,7 +323,7 @@ public class TestOperationSetMultiUserChat2
         suite.addTest(
             new TestOperationSetMultiUserChat2("testLeave"));
 
-        //@todo the following two must be tested, they regulary fail, so we are
+        //@todo the following two must be tested, they regularly fail, so we are
         //disabling them until fixed.
 //        suite.addTest(
 //            new TestOperationSetMultiUserChat2("testNickName"));
