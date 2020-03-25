@@ -373,7 +373,7 @@ public class MacOSXAddrBookContactQuery
     public static native long getContactPointer(String id);
 
     /**
-     * Initializes a new <tt>ContactDetail</tt> instance which is to reperesent
+     * Initializes a new <tt>ContactDetail</tt> instance which is to represent
      * a specific contact address that is the value of a specific
      * <tt>ABPerson</tt> property and, optionally, has a specific label.
      *
