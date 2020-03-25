@@ -1607,7 +1607,7 @@ public class OperationSetPersistentPresenceJabberImpl
                                             o1, parentProvider).getStatus();
                                 // We have run out of "logical" ways to order
                                 // the presences inside the TreeSet. We have
-                                // make sure we are consinstent with equals.
+                                // make sure we are consistent with equals.
                                 // We do this by comparing the unique resource
                                 // names. If this evaluates to 0 again, then we
                                 // can safely assume this presence object
