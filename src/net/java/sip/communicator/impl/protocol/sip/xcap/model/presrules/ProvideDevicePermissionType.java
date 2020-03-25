@@ -32,7 +32,7 @@ import org.w3c.dom.*;
 public class ProvideDevicePermissionType
 {
     /**
-     * The all-devides element.
+     * The all-devices element.
      */
     private AllDevicesType allDevices;
 
