@@ -109,7 +109,7 @@ public class SavedPasswordsDialog
     }
 
     /**
-     * Initialises the UI components.
+     * Initializes the UI components.
      */
     private void initComponents()
     {

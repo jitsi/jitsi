@@ -2136,7 +2136,7 @@ public class ContactListTreeCellRenderer
     }
 
     /**
-     * Inializes button tool tips.
+     * Initializes button tool tips.
      */
     private void initButtonToolTips()
     {

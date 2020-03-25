@@ -126,7 +126,7 @@ public class SpellCheckerConfigDialog
     }
 
     /**
-     * Initialises the UI components.
+     * Initializes the UI components.
      */
     private void initComponents(final Word clickWord)
     {

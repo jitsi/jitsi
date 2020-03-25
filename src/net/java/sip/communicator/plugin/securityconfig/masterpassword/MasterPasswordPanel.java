@@ -76,7 +76,7 @@ public class MasterPasswordPanel
     }
 
     /**
-     * Initialises the UI components.
+     * Initializes the UI components.
      */
     private void initComponents()
     {
