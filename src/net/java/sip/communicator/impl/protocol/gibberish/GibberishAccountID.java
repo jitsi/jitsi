@@ -31,7 +31,7 @@ public class GibberishAccountID
     /**
      * Creates an account id from the specified id and account properties.
      *
-     * @param userID the user identifier corresponding to thi account
+     * @param userID the user identifier corresponding to this account
      * @param accountProperties any other properties necessary for the account.
      */
     GibberishAccountID(String userID, Map<String, String> accountProperties)

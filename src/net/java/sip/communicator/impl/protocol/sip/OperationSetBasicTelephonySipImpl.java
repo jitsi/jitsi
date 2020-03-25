@@ -1347,7 +1347,7 @@ public class OperationSetBasicTelephonySipImpl
         if(callPeer == null)
         {
             // if we are missing transfer authority to inform user, just
-            // drop thi request cause possible attempt to compromise us.
+            // drop this request cause possible attempt to compromise us.
             if(transferAuthority == null)
             {
                 // ignore request and terminate transaction
