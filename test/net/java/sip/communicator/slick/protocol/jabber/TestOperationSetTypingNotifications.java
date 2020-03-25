@@ -220,9 +220,9 @@ public class TestOperationSetTypingNotifications
         TypingEventCollector evtCollector = new TypingEventCollector();
 
         // send message so request for receiving notifications also to be set
-        Contact notifingContact =
+        Contact notifyingContact =
             opSetPresence1.findContactByID(fixture.userID2);
-        opSetBasicIM1.sendInstantMessage(notifingContact,
+        opSetBasicIM1.sendInstantMessage(notifyingContact,
                                          opSetBasicIM1.createMessage("ping"));
 
         opSetTypingNotifs1.addTypingNotificationsListener(evtCollector);
