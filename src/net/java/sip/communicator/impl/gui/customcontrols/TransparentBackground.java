@@ -80,7 +80,7 @@ public class TransparentBackground extends JComponent {
 
     /**
      * Updates the background. Makes a new screen capture at the given
-     * coordiantes.
+     * coordinates.
      *
      * @param x The x coordinate.
      * @param y The y coordinate.

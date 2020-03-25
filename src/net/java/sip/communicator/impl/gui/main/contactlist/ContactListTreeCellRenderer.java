@@ -1273,7 +1273,7 @@ public class ContactListTreeCellRenderer
      * @param gridX the X grid of the first button
      * @param xBounds the x bounds of the first button
      *
-     * @return the new grid X coordiante after adding all the buttons
+     * @return the new grid X coordinate after adding all the buttons
      */
     private int initContactActionButtons(
         Collection<? extends JButton> contactActionButtons,
