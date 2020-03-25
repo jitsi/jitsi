@@ -23,7 +23,7 @@ import java.util.*;
  * The <tt>ProtocolIcon</tt> interface is meant to be implemented by protocol
  * implementations in order to export their icon. The <tt>Protocolicon</tt>
  * could support different sizes: 16x16, 32x32, etc.
- * The ICON_SIZE_XXX constats are meant to be used to specify the size of the
+ * The ICON_SIZE_XXX constants are meant to be used to specify the size of the
  * icon, in order to enable other bundles to obtain the exact image they need.
  *
  * @author Yana Stamcheva
