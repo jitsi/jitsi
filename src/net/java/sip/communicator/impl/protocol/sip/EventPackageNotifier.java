@@ -787,7 +787,7 @@ public abstract class EventPackageNotifier
     }
 
     /**
-     * Handles an incoming response to a request we'vre previously sent.
+     * Handles an incoming response to a request we've previously sent.
      *
      * @param responseEvent the event we need to handle
      * @return <tt>true</tt> in case we've handles and thus consumed the event;
