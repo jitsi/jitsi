@@ -21,7 +21,7 @@ import java.util.*;
 
 /**
  * This service is previewed for use by bundles that implement some kind of
- * user notification (e.g. playing sounds, poping systray tooltips, or
+ * user notification (e.g. playing sounds, popping systray tooltips, or
  * triggering commands.) In the case when such bundles would like to leave the
  * user the possibility to enable/disable or configure these notifications they
  * could register an event type in this Registry service.

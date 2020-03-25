@@ -448,7 +448,7 @@ public class LoggingConfigForm
     }
 
     /**
-     * Asks user for a location to save logs by poping up a file chooser.
+     * Asks user for a location to save logs by popping up a file chooser.
      * and archiving logs and saving them on the specified location.
      */
     private void collectLogs()
