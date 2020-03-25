@@ -51,7 +51,7 @@ public class SmileyActivator
     private static ResourceManagementService resourcesService;
 
     /**
-     * The smileyy service registration.
+     * The smiley service registration.
      */
     private ServiceRegistration smileyServReg = null;
 
