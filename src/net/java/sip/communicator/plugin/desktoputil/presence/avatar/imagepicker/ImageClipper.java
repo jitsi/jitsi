@@ -244,7 +244,7 @@ public class ImageClipper
                 this.imageRect.height);
         }
 
-        // Top horizontal non croppped part
+        // Top horizontal non cropped part
         height = this.cropZoneRect.y - this.imageRect.y;
         if (height > 0)
         {
@@ -252,7 +252,7 @@ public class ImageClipper
                     this.cropZoneRect.width, height);
         }
 
-        // Bottom horizontal non croppped part
+        // Bottom horizontal non cropped part
         height = (this.imageRect.y + this.imageRect.height)
             - (this.cropZoneRect.y + this.cropZoneRect.height);
         if (height > 0)
