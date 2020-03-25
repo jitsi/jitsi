@@ -1297,7 +1297,7 @@ public class MetaContactListServiceImpl
         {
             logger.error("Cannot move contact", ex);
 
-            // now move the contact to prevoius parent
+            // now move the contact to previous parent
             ((MetaContactGroupImpl)newMetaGroup).
                 removeMetaContact( (MetaContactImpl) metaContact);
 

@@ -81,7 +81,7 @@ public interface WizardPage
      * the <tt>WizardContainer</tt> to determine which is the page to display
      * when user clicks on the "Back" wizard button.
      *
-     * @return the identifier of the prevoious wizard page
+     * @return the identifier of the previous wizard page
      */
     public Object getBackPageIdentifier();
 
