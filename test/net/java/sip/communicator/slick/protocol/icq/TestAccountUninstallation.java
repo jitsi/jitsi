@@ -41,7 +41,7 @@ public class TestAccountUninstallation
     IcqSlickFixture fixture = new IcqSlickFixture();
 
     /**
-     * An event adapter that would collec registation state change events
+     * An event adapter that would collect registation state change events
      */
     public RegistrationEventCollector regEvtCollector
         = new RegistrationEventCollector();

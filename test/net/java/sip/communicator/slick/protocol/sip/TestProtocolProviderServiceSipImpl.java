@@ -40,13 +40,13 @@ public class TestProtocolProviderServiceSipImpl
     private SipSlickFixture fixture = new SipSlickFixture();
 
     /**
-     * An event adapter that would collec registation state change events
+     * An event adapter that would collect registation state change events
      */
     public RegistrationEventCollector regEvtCollector1
         = new RegistrationEventCollector();
 
     /**
-     * An event adapter that would collec registation state change events
+     * An event adapter that would collect registation state change events
      */
     public RegistrationEventCollector regEvtCollector2
         = new RegistrationEventCollector();

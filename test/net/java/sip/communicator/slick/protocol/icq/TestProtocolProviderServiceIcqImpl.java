@@ -56,7 +56,7 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
     private Object registrationLock = new Object();
 
     /**
-     * An event adapter that would collec registation state change events
+     * An event adapter that would collect registation state change events
      */
     public RegistrationEventCollector regEvtCollector
         = new RegistrationEventCollector();
