@@ -1928,7 +1928,7 @@ public class ServerStoredContactListJabberImpl
     }
 
     /**
-     * Query custom avatar services and returns the first found avtar.
+     * Query custom avatar services and returns the first found avatar.
      * @return the found avatar if any.
      */
     private byte[] searchForCustomAvatar(String address)
