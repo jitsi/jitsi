@@ -1321,7 +1321,7 @@ public class NetworkUtils
 
     /**
      * Sorts each priority of the SRV record list. Each priority is sorted with
-     * the probabilty given by the weight attribute.
+     * the probability given by the weight attribute.
      *
      * @param srvRecords The list of SRV records already sorted by priority.
      */
@@ -1345,7 +1345,7 @@ public class NetworkUtils
 
     /**
      * Sorts SRV record list for a given priority: this priority is sorted with
-     * the probabilty given by the weight attribute.
+     * the probability given by the weight attribute.
      *
      * @param srvRecords The list of SRV records already sorted by priority.
      * @param startIndex The first index (included) for the current priority.
