@@ -94,7 +94,7 @@ public class ContactListFileIO
 //"      </proto-groups>\n" +
 //"    </group>\n" +
 //"\n" +
-//"      <!-- Child contacts for this gorup-->\n" +
+//"      <!-- Child contacts for this group-->\n" +
 //"      <child-contacts>\n" +
 //"        <!-- META CONTACT -->\n" +
 //"        <meta-contact uid=\"thisisalongstringrepresentingametacontactuid\">\n" +
@@ -115,7 +115,7 @@ public class ContactListFileIO
 //"        </meta-contact>\n" +
 //"\n" +
 //"      </child-contacts>\n" +
-//"      <!-- Subgroups for this gorup-->\n" +
+//"      <!-- Subgroups for this group-->\n" +
 //"      <subgroups>\n" +
 //"        <group name=\"SubMetaGroup\" uid=\"taraliantsimaraliantsi\">\n" +
 //"          <proto-groups>\n" +

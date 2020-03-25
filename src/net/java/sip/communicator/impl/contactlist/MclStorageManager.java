@@ -1393,7 +1393,7 @@ public class MclStorageManager
         // for now and that's all.
         if (metaContactGroupNode == null)
         {
-            logger.error("Save after removing an MN group. Groupt not found: "
+            logger.error("Save after removing an MN group. Group not found: "
                 + evt.getSourceMetaContactGroup());
             return;
         }

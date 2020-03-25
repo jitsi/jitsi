@@ -443,7 +443,7 @@ public class ServerStoredContactListJabberImpl
      *
      * @param child the contact whose parent group we're looking for.
      * @return the <tt>ContactGroup</tt> containing the specified
-     * <tt>contact</tt> or <tt>null</tt> if no such groupo or contact
+     * <tt>contact</tt> or <tt>null</tt> if no such group or contact
      * exist.
      */
     public ContactGroup findContactGroup(ContactJabberImpl child)
