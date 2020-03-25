@@ -55,7 +55,7 @@ public class CallPeerGibberishImpl
      * A list of listeners registered for stream user sound level events.
      */
     private final List<ConferenceMembersSoundLevelListener>
-        confMemebrSoundLevelListeners
+        confMemberSoundLevelListeners
             = new Vector<ConferenceMembersSoundLevelListener>();
 
     /**
@@ -241,10 +241,10 @@ public class CallPeerGibberishImpl
     public void addConferenceMembersSoundLevelListener(
         ConferenceMembersSoundLevelListener listener)
     {
-        synchronized(confMemebrSoundLevelListeners)
+        synchronized(confMemberSoundLevelListeners)
         {
-            if (!confMemebrSoundLevelListeners.contains(listener))
-                confMemebrSoundLevelListeners.add(listener);
+            if (!confMemberSoundLevelListeners.contains(listener))
+                confMemberSoundLevelListeners.add(listener);
         }
     }
 
@@ -259,9 +259,9 @@ public class CallPeerGibberishImpl
     public void removeConferenceMembersSoundLevelListener(
         ConferenceMembersSoundLevelListener listener)
     {
-        synchronized(confMemebrSoundLevelListeners)
+        synchronized(confMemberSoundLevelListeners)
         {
-            confMemebrSoundLevelListeners.remove(listener);
+            confMemberSoundLevelListeners.remove(listener);
         }
     }
 
@@ -300,11 +300,11 @@ public class CallPeerGibberishImpl
 
         ConferenceMembersSoundLevelListener[] ls;
 
-        synchronized(confMemebrSoundLevelListeners)
+        synchronized(confMemberSoundLevelListeners)
         {
-            ls = confMemebrSoundLevelListeners.toArray(
+            ls = confMemberSoundLevelListeners.toArray(
                 new ConferenceMembersSoundLevelListener[
-                        confMemebrSoundLevelListeners.size()]);
+                        confMemberSoundLevelListeners.size()]);
         }
 
         for (ConferenceMembersSoundLevelListener listener : ls)
