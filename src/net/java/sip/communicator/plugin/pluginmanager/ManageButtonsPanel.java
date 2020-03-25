@@ -233,7 +233,7 @@ public class ManageButtonsPanel
                 }
             }
 
-            // update button deselects bundles, revert buttons to defautl state
+            // update button deselects bundles, revert buttons to default state
             defaultButtonState();
         }
     }

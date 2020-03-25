@@ -4268,7 +4268,7 @@ public class CallManager
 
             long startTime = System.currentTimeMillis();
 
-            // The detault timeout is set to 500ms.
+            // The default timeout is set to 500ms.
             long timeout = listener == null ? 500 : -1;
             boolean hasRunningResolver = true;
             // Loops until we found a valid display name and image,

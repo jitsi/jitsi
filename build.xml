@@ -2060,7 +2060,7 @@ javax.swing.event, javax.swing.border"/>
 
     <!--BUNDLE-DEFAULT-RESOURCES-->
     <target name="bundle-resources-defaultpack" depends="bundle-resources-skinpack">
-        <!-- Copy the default resources to english one, as our defualt
+        <!-- Copy the default resources to english one, as our default
             language is English and without the resource we cannot excplictly set it.-->
         <copy file="${sc.basedir}/resources/languages/resources.properties"
               tofile="${resources}/languages/resources_en.properties"/>

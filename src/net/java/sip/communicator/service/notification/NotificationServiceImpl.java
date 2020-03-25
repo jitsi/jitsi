@@ -625,15 +625,15 @@ class NotificationServiceImpl
                 if(!aType.equals(actionType))
                     continue;
 
-                Object isDefaultdObj =
+                Object isDefaultObj =
                     configService.getProperty(actionPropName + ".default");
 
                 // if setting is missing we accept it is true
                 // this way we override old saved settings
-                if(isDefaultdObj == null)
+                if(isDefaultObj == null)
                     return true;
                 else
-                    return Boolean.parseBoolean((String)isDefaultdObj);
+                    return Boolean.parseBoolean((String)isDefaultObj);
             }
         }
         return true;

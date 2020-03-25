@@ -32,7 +32,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.skin.*;
 
 /**
- * DeafultContactlist used to display <code>JList</code>s with contacts.
+ * DefaultContactlist used to display <code>JList</code>s with contacts.
  *
  * @author Damian Minkov
  * @author Yana Stamcheva

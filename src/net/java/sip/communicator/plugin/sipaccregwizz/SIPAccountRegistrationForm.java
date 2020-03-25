@@ -260,7 +260,7 @@ public class SIPAccountRegistrationForm
                 && registration.getDefaultDomain() != null)
             {
                 // we have only a username and we want to add
-                // a defautl domain
+                // a default domain
                 userID = userID + "@" + registration.getDefaultDomain();
                 setServerFieldAccordingToUIN(userID);
             }

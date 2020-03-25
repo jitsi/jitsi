@@ -238,7 +238,7 @@ public class PluginManagerPanel
             tableModel.update();
 
             // as this changes the selection to none, make the buttons
-            // at defautl state
+            // at default state
             buttonsPanel.defaultButtonState();
         }
     }
