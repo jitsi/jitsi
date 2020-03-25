@@ -367,7 +367,7 @@ public class ConferenceInfoDocument
     }
 
     /**
-     * Sets the <tt>state</tt> attribute of the <tt>users</tt> chuld of the
+     * Sets the <tt>state</tt> attribute of the <tt>users</tt> child of the
      * <tt>conference-info</tt> element.
      *
      * @param state the state to set
