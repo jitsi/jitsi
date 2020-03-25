@@ -53,7 +53,7 @@ public class BaseChatRoomSourceContact
     private ProtocolProviderService provider;
 
     /**
-     * Contsructs new chat room source contact.
+     * Constructs new chat room source contact.
      * @param chatRoomName the name of the chat room associated with the room.
      * @param chatRoomID the id of the chat room associated with the room.
      * @param query the query associated with the contact.

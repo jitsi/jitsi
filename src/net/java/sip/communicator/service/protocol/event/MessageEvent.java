@@ -32,7 +32,7 @@ public class MessageEvent
     private static final long serialVersionUID = 0L;
 
     /**
-     * Construcs a new <tt>MessageEvent</tt> instance.
+     * Constructs a new <tt>MessageEvent</tt> instance.
      *
      * @param source Object on which the Event initially occurred
      */
