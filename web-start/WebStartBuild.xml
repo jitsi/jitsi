@@ -174,7 +174,7 @@
 	</target>
 
 	<!-- compress libs -->
-	<target name="compress-libs" description="Comperss all jars within release folder." depends="sign-libs">
+	<target name="compress-libs" description="Compress all jars within release folder." depends="sign-libs">
 		<echo message="Compressing libs in ${release.dir}" />
 		<apply executable="${pack200.path}" parallel="false" dest="${release.dir}">
 			<!--<arg value="- -modification-time=latest"/>-->
