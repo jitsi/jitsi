@@ -1205,9 +1205,9 @@ public class ServerStoredContactListSipImpl
     /**
      * Resolves local group with server stored group.
      * <p/>
-     * If local group exsists GROUP_CREATED_RESOLVED will be fired.
+     * If local group exists GROUP_CREATED_RESOLVED will be fired.
      * <p/>
-     * If local group doesn't exsist GROUP_CREATED_EVENT will be fired.
+     * If local group doesn't exist GROUP_CREATED_EVENT will be fired.
      * <p/>
      * If server group doesn't represented GROUP_REMOVED_EVENT will be fired.
      *
