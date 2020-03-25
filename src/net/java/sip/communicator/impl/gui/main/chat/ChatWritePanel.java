@@ -1563,7 +1563,7 @@ public class ChatWritePanel
 
     /**
      * The task called when the current transport resource timed-out (no
-     * acitivty since a long time). Then this task resets the destination to the
+     * activity since a long time). Then this task resets the destination to the
      * bare id.
      */
     private class OutdatedResourceTimerTask
