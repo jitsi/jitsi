@@ -63,7 +63,7 @@ public interface AuthorizationHandler
      * authorization. The returned AuthorizationRequest object is to be created
      * by the implementation of this interface, and it should also contain a
      * reason phrase that will be sent to the remote user as well as an
-     * inidication of whether the specified contact should on its turn be
+     * indication of whether the specified contact should on its turn be
      * authorized to add us to their contact list. In case the user would prefer
      * to cancel the whole process, this method is to return null (this will
      * be interpreted the same way as a response withe  an IGNORED response
