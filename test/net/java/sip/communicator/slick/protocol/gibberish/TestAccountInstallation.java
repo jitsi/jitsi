@@ -124,7 +124,7 @@ public class TestAccountInstallation
 
 
         //try to install one of the accounts one more time and verify that an
-        //excepion is thrown.
+        //exception is thrown.
         try{
             gibberishProviderFactory.installAccount(
                 gibberishAccount1Properties.get(ProtocolProviderFactory.USER_ID)

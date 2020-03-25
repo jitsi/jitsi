@@ -416,7 +416,7 @@ public class TestAccountInstallation extends TestCase
         IcqSlickFixture.icqAccountID = icqProviderFactory.installAccount(
             uin, icqAccountProperties);
 
-        //try to install the account one more time and verify that an excepion
+        //try to install the account one more time and verify that an exception
         //is thrown.
         try{
             IcqSlickFixture.icqAccountID = icqProviderFactory.installAccount(
