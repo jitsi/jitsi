@@ -31,7 +31,7 @@ import org.osgi.framework.*;
 /**
  * Starts the connection info bundle.
  *
- * @author Adam Glodstein
+ * @author Adam Goldstein
  * @author Marin Dzhigarov
  */
 public class ConnectionInfoActivator
