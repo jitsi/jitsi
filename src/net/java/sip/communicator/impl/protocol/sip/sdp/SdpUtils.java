@@ -268,17 +268,17 @@ public class SdpUtils
             //number of channels (optional)
             if(tokenizer.hasMoreTokens())
             {
-                String nChansStr = tokenizer.nextToken();
+                String nChannelsStr = tokenizer.nextToken();
 
                 try
                 {
-                    numChannels = Integer.parseInt(nChansStr);
+                    numChannels = Integer.parseInt(nChannelsStr);
                 }
                 catch(NumberFormatException exc)
                 {
                     if (logger.isDebugEnabled())
                         logger.debug(
-                            nChansStr + " is not a valid number of channels.",
+                            nChannelsStr + " is not a valid number of channels.",
                             exc);
                 }
             }
