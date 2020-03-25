@@ -685,11 +685,11 @@ public class HistoryWindow
                     date = evt.getTimestamp();
                 }
 
-                long milisecondsPerDay = 24*60*60*1000;
+                long millisecondsPerDay = 24*60*60*1000;
                 for(Date date1 : datesDisplayed)
                 {
-                    if(Math.floor(date1.getTime()/milisecondsPerDay)
-                        == Math.floor(date.getTime()/milisecondsPerDay)
+                    if(Math.floor(date1.getTime()/millisecondsPerDay)
+                        == Math.floor(date.getTime()/millisecondsPerDay)
                         && !keywordDatesVector.contains(date1))
                     {
                         keywordDatesVector.add(date1);
@@ -913,10 +913,10 @@ public class HistoryWindow
             else if (lastDate == null
                 || GuiUtils.compareDatesOnly(lastDate, timestamp) < 0)
             {
-                long milisecondsPerDay = 24*60*60*1000;
+                long millisecondsPerDay = 24*60*60*1000;
 
                 Date date = new Date(timestamp.getTime()
-                    - timestamp.getTime() % milisecondsPerDay);
+                    - timestamp.getTime() % millisecondsPerDay);
 
                 datesDisplayed.add(date);
                 if(!datesPanel.containsDate(date))

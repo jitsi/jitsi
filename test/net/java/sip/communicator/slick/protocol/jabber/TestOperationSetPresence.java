@@ -751,9 +751,9 @@ public class TestOperationSetPresence
 
         /**
          * Blocks until at least one event is received or until waitFor
-         * miliseconds pass (whicever happens first).
+         * milliseconds pass (whicever happens first).
          *
-         * @param waitFor the number of miliseconds that we should be waiting
+         * @param waitFor the number of milliseconds that we should be waiting
          * for an event before simply bailing out.
          */
         public void waitForPresEvent(long waitFor)
@@ -767,9 +767,9 @@ public class TestOperationSetPresence
 
         /**
          * Blocks until at least one staus message event is received or until
-         * waitFor miliseconds pass (whichever happens first).
+         * waitFor milliseconds pass (whichever happens first).
          *
-         * @param waitFor the number of miliseconds that we should be waiting
+         * @param waitFor the number of milliseconds that we should be waiting
          * for a status message event before simply bailing out.
          */
         public void waitForStatMsgEvent(long waitFor)
@@ -810,9 +810,9 @@ public class TestOperationSetPresence
 
         /**
          * Blocks until at least one SubscriptionEvent is received or until
-         * waitFor miliseconds pass (whicever happens first).
+         * waitFor milliseconds pass (whicever happens first).
          *
-         * @param waitFor the number of miliseconds that we should be waiting
+         * @param waitFor the number of milliseconds that we should be waiting
          * for an SubscriptionEvent before simply bailing out.
          */
         public void waitForSubscriptionEvent(long waitFor)
@@ -825,9 +825,9 @@ public class TestOperationSetPresence
 
         /**
          * Blocks until at least one SubscriptionMovedEvent is received or until
-         * waitFor miliseconds pass (whicever happens first).
+         * waitFor milliseconds pass (whicever happens first).
          *
-         * @param waitFor the number of miliseconds that we should be waiting
+         * @param waitFor the number of milliseconds that we should be waiting
          * for an SubscriptionMovedEvent before simply bailing out.
          */
         public void waitForSubscriptionMovedEvent(long waitFor)
@@ -840,9 +840,9 @@ public class TestOperationSetPresence
 
         /**
          * Blocks until at least one ContactPropertyChangeEvent is received or
-         * until waitFor miliseconds pass (whicever happens first).
+         * until waitFor milliseconds pass (whicever happens first).
          *
-         * @param waitFor the number of miliseconds that we should be waiting
+         * @param waitFor the number of milliseconds that we should be waiting
          * for an ContactPropertyChangeEvent before simply bailing out.
          */
         public void waitForContactPropertyChangeEvent(long waitFor)
@@ -974,9 +974,9 @@ public class TestOperationSetPresence
 
         /**
          * Blocks until at least one event is received or until waitFor
-         * miliseconds pass (whicever happens first).
+         * milliseconds pass (whicever happens first).
          *
-         * @param waitFor the number of miliseconds that we should be waiting
+         * @param waitFor the number of milliseconds that we should be waiting
          * for an event before simply bailing out.
          */
         public void waitForEvent(long waitFor)
@@ -1019,10 +1019,10 @@ public class TestOperationSetPresence
 
     /**
      * Blocks until at least one event is received or until waitFor
-     * miliseconds pass (whicever happens first).
+     * milliseconds pass (whicever happens first).
      * Must be called by with a synchronized collectedEvents Object.
      *
-     * @param waitFor the number of miliseconds that we should be waiting
+     * @param waitFor the number of milliseconds that we should be waiting
      * for an event before simply bailing out.
      * @param collectedEvents the array used to collect the events. Must be
      * synchronized before calling this function.

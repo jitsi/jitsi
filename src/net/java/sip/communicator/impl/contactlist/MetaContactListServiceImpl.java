@@ -3464,7 +3464,7 @@ public class MetaContactListServiceImpl
 
         /**
          * Block the execution of the current thread until either a group
-         * created event is received or milis miliseconds pass.
+         * created event is received or millis milliseconds pass.
          * @param millis the number of millis that we should wait before we
          * determine failure.
          */
@@ -3614,8 +3614,8 @@ public class MetaContactListServiceImpl
 
         /**
          * Block the execution of the current thread until either a contact
-         * created event is received or milis miliseconds pass.
-         * @param millis the number of milis to wait upon determining a failure.
+         * created event is received or millis milliseconds pass.
+         * @param millis the number of millis to wait upon determining a failure.
          */
         public synchronized void waitForEvent(long millis)
         {

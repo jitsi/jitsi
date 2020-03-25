@@ -710,9 +710,9 @@ public class TestOperationSetPresence
 
         /**
          * Blocks until at least one event is received or until waitFor
-         * miliseconds pass (whicever happens first).
+         * milliseconds pass (whicever happens first).
          *
-         * @param waitFor the number of miliseconds that we should be waiting
+         * @param waitFor the number of milliseconds that we should be waiting
          * for an event before simply bailing out.
          */
         public void waitForPresEvent(long waitFor)
@@ -743,9 +743,9 @@ public class TestOperationSetPresence
 
         /**
          * Blocks until at least one staus message event is received or until
-         * waitFor miliseconds pass (whichever happens first).
+         * waitFor milliseconds pass (whichever happens first).
          *
-         * @param waitFor the number of miliseconds that we should be waiting
+         * @param waitFor the number of milliseconds that we should be waiting
          * for a status message event before simply bailing out.
          */
         public void waitForStatMsgEvent(long waitFor)
@@ -785,9 +785,9 @@ public class TestOperationSetPresence
 
         /**
          * Blocks until at least one event is received or until waitFor
-         * miliseconds pass (whicever happens first).
+         * milliseconds pass (whicever happens first).
          *
-         * @param waitFor the number of miliseconds that we should be waiting
+         * @param waitFor the number of milliseconds that we should be waiting
          * for an event before simply bailing out.
          */
         public void waitForEvent(long waitFor)
@@ -927,9 +927,9 @@ public class TestOperationSetPresence
 
         /**
          * Blocks until at least one event is received or until waitFor
-         * miliseconds pass (whicever happens first).
+         * milliseconds pass (whicever happens first).
          *
-         * @param waitFor the number of miliseconds that we should be waiting
+         * @param waitFor the number of milliseconds that we should be waiting
          * for an event before simply bailing out.
          */
         public void waitForEvent(long waitFor)

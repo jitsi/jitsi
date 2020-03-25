@@ -643,7 +643,7 @@ public abstract class FileTransferConversationComponent
      */
     private double calculateProgressSpeed(long transferredBytes)
     {
-        // Bytes per second = bytes / SPEED_CALCULATE_DELAY miliseconds * 1000.
+        // Bytes per second = bytes / SPEED_CALCULATE_DELAY milliseconds * 1000.
         return (transferredBytes - lastTransferredBytes)
                 / SPEED_CALCULATE_DELAY * 1000;
     }

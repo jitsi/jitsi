@@ -782,9 +782,9 @@ public class TestOperationSetBasicTelephonySipImpl
 
         /**
          * Blocks until at least one event is received or until waitFor
-         * miliseconds pass (whichever happens first).
+         * milliseconds pass (whichever happens first).
          *
-         * @param waitFor the number of miliseconds that we should be waiting
+         * @param waitFor the number of milliseconds that we should be waiting
          * for an event before simply bailing out.
          */
         public void waitForEvent(long waitFor)
@@ -918,9 +918,9 @@ public class TestOperationSetBasicTelephonySipImpl
 
         /**
          * Blocks until an event notifying us of the awaited state change is
-         * received or until waitFor miliseconds pass (whichever happens first).
+         * received or until waitFor milliseconds pass (whichever happens first).
          *
-         * @param waitFor the number of miliseconds that we should be waiting
+         * @param waitFor the number of milliseconds that we should be waiting
          * for an event before simply bailing out.
          */
         public void waitForEvent(long waitFor)
@@ -930,9 +930,9 @@ public class TestOperationSetBasicTelephonySipImpl
 
         /**
          * Blocks until an event notifying us of the awaited state change is
-         * received or until waitFor miliseconds pass (whichever happens first).
+         * received or until waitFor milliseconds pass (whichever happens first).
          *
-         * @param waitFor the number of miliseconds that we should be waiting
+         * @param waitFor the number of milliseconds that we should be waiting
          * for an event before simply bailing out.
          * @param exitIfAlreadyInState specifies whether the method is to return
          * if the call peer is already in such a state even if no event
@@ -1041,9 +1041,9 @@ public class TestOperationSetBasicTelephonySipImpl
 
         /**
          * Blocks until an event notifying us of the awaited state change is
-         * received or until waitFor miliseconds pass (whichever happens first).
+         * received or until waitFor milliseconds pass (whichever happens first).
          *
-         * @param waitFor the number of miliseconds that we should be waiting
+         * @param waitFor the number of milliseconds that we should be waiting
          * for an event before simply bailing out.
          */
         public void waitForEvent(long waitFor)

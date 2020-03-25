@@ -22,9 +22,9 @@ package net.java.sip.communicator.service.notification;
  * notification using device's vibrator.<br/><br/>
  *
  * Given array of <tt>long</tt> are
- * the duration for which to turn on or off the vibrator in miliseconds.
- * The first value indicates the number of miliseconds to wait before turning
- * the vibrator on. The next value indicates the number of miliseconds for which
+ * the duration for which to turn on or off the vibrator in milliseconds.
+ * The first value indicates the number of milliseconds to wait before turning
+ * the vibrator on. The next value indicates the number of milliseconds for which
  * to keep the vibrator on before turning it off and so on.<br/><br/>
  *
  * The <tt>repeat</tt> parameter is an index into the pattern at which it will
@@ -37,7 +37,7 @@ public class VibrateNotificationAction
     extends NotificationAction
 {
     /**
-     * The patter of off/on intervals in milis that will be played.
+     * The patter of off/on intervals in millis that will be played.
      */
     private final long[] pattern;
 
@@ -55,14 +55,14 @@ public class VibrateNotificationAction
      * Vibrate constantly for the specified period of time.
      *
      * @param descriptor string identifier of this action.
-     * @param milis the number of miliseconds to vibrate.
+     * @param millis the number of milliseconds to vibrate.
      */
-    public VibrateNotificationAction(String descriptor, long milis)
+    public VibrateNotificationAction(String descriptor, long millis)
     {
         super(NotificationAction.ACTION_VIBRATE);
         this.pattern = new long[2];
         pattern[0] = 0;
-        pattern[1] = milis;
+        pattern[1] = millis;
         repeat = -1;
         this.descriptor = descriptor;
     }

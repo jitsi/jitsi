@@ -317,9 +317,9 @@ public class TestOperationSetTypingNotifications
 
         /**
          * Blocks until at least one event is received or until waitFor
-         * miliseconds pass (whicever happens first).
+         * milliseconds pass (whicever happens first).
          *
-         * @param waitFor the number of miliseconds that we should be waiting
+         * @param waitFor the number of milliseconds that we should be waiting
          * for an event before simply bailing out.
          */
         public void waitForEvent(long waitFor)
@@ -371,9 +371,9 @@ public class TestOperationSetTypingNotifications
 //
 //        /**
 //         * Blocks until at least one event is received or until waitFor
-//         * miliseconds pass (whicever happens first).
+//         * milliseconds pass (whicever happens first).
 //         *
-//         * @param waitFor the number of miliseconds that we should be waiting
+//         * @param waitFor the number of milliseconds that we should be waiting
 //         * for an event before simply bailing out.
 //         */
 //        public void waitForEvent(long waitFor)

@@ -802,7 +802,7 @@ public class SipRegistrarConnection
     {
         ReRegisterTask reRegisterTask = new ReRegisterTask();
 
-        //java.util.Timer thinks in miliseconds and expires header contains
+        //java.util.Timer thinks in milliseconds and expires header contains
         //seconds
         //bug report and fix by Willem Romijn (romijn at lucent.com)
         //We keep a margin of 10% when sending re-registrations (1000

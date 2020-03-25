@@ -786,7 +786,7 @@ public abstract class ProtocolProviderFactory
      * In order to store all account properties, the method would create an
      * entry in the configuration service corresponding (beginning with) the
      * <tt>sourceFactory</tt>'s package name and add to it a unique identifier
-     * (e.g. the current miliseconds.)
+     * (e.g. the current milliseconds.)
      * </p>
      *
      * @param accountID the AccountID corresponding to the account that we would
@@ -806,7 +806,7 @@ public abstract class ProtocolProviderFactory
      * In order to store all account properties, the method would create an
      * entry in the configuration service corresponding (beginning with) the
      * <tt>sourceFactory</tt>'s package name and add to it a unique identifier
-     * (e.g. the current miliseconds.)
+     * (e.g. the current milliseconds.)
      * </p>
      *
      * @param accountID the AccountID corresponding to the account that we would
