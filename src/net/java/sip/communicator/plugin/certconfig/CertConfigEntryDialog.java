@@ -347,7 +347,7 @@ public class CertConfigEntryDialog
     }
 
     /**
-     * Opens a FileChoserDialog to let the user pick a keystore and tries to
+     * Opens a FileChooserDialog to let the user pick a keystore and tries to
      * auto-detect the keystore type using the file extension
      */
     private void browseKeyStore()
