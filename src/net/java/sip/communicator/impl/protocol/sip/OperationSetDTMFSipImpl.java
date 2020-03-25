@@ -173,7 +173,7 @@ public class OperationSetDTMFSipImpl
             }
 
             // If the account is configured to use RTP DTMF method and the call
-            // does not manage telephone events. Then, we log it for futur
+            // does not manage telephone events. Then, we log it for future
             // debugging.
             if(this.dtmfMethod == DTMFMethod.RTP_DTMF && !isRFC4733Active(cp))
             {

@@ -72,7 +72,7 @@ public class CallEvent
      * The conference of the call for this event. Must be set when creating this
      * event, because when a call ends, the call conference may be released just
      * after creating this event, but its reference will still be necessary in
-     * the futur for the UI (i.e to release the call panel),
+     * the future for the UI (i.e to release the call panel),
      */
     private final CallConference conference;
 
