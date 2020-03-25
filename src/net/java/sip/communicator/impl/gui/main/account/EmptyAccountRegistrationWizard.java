@@ -42,7 +42,7 @@ class EmptyAccountRegistrationWizard
 {
     /**
      * The only page we need in this wizard, containing a prompt for the user
-     * to select a wizrd.
+     * to select a wizard.
      */
     private EmptyAccountRegistrationWizardPage page
                 = new EmptyAccountRegistrationWizardPage(this);

@@ -429,7 +429,7 @@ public class Wizard
         if (oldPanelDescriptor != null)
             oldPanelDescriptor.pageHiding();
 
-        this.removeWizzardIcon();
+        this.removeWizardIcon();
 
         if (code == CANCEL_RETURN_CODE)
             this.fireWizardEvent(WizardEvent.CANCEL);
@@ -531,7 +531,7 @@ public class Wizard
         this.close(Wizard.CANCEL_RETURN_CODE);
     }
 
-    public void setWizzardIcon(BufferedImage wizardIcon)
+    public void setWizardIcon(BufferedImage wizardIcon)
     {
         wizardIconLabel = new JLabel();
         wizardIconLabel.setBorder(BorderFactory.createCompoundBorder(
@@ -543,7 +543,7 @@ public class Wizard
         this.wizardIconPanel.add(wizardIconLabel);
     }
 
-    public void removeWizzardIcon()
+    public void removeWizardIcon()
     {
         if (wizardIconLabel != null)
             this.wizardIconPanel.remove(wizardIconLabel);

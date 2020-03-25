@@ -195,7 +195,7 @@ public class AccountRegSummaryPage
                 this.wizardContainer.saveAccountWizard(protocolProvider, wizard);
 
             this.wizardContainer.unregisterWizardPages();
-            this.wizardContainer.removeWizzardIcon();
+            this.wizardContainer.removeWizardIcon();
         }
         catch (OperationFailedException e)
         {

@@ -75,7 +75,7 @@ public class ProtocolProviderFactoryIcqImpl
 
         accountProperties.put(USER_ID, userIDStr);
 
-        // we are installing new aim account from the wizzard, so mark it as aim
+        // we are installing new aim account from the wizard, so mark it as aim
         if(isAimFactory)
             accountProperties.put(IcqAccountID.IS_AIM, "true");
 

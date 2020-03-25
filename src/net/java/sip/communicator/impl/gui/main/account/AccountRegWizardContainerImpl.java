@@ -315,7 +315,7 @@ public class AccountRegWizardContainerImpl
         this.setCurrentPage(wizard.getFirstPageIdentifier());
 
         try {
-            this.setWizzardIcon(
+            this.setWizardIcon(
                 ImageIO.read(new ByteArrayInputStream(wizard.getPageImage())));
         }
         catch (IOException e1) {
