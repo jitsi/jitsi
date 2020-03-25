@@ -176,7 +176,7 @@ public class LdapTableModel
 
     /**
      * Sets a value in an editable cell, that is to say
-     * an enable/disable chekboxin colum 0
+     * an enable/disable checkbox in colum 0
      */
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex)
