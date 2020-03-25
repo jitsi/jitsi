@@ -154,9 +154,9 @@ public class ChatRoomMessageDeliveryFailedEvent
      }
 
      /**
-      * Returns an error code descibing the reason for the failure of the
+      * Returns an error code describing the reason for the failure of the
       * message delivery.
-      * @return an error code descibing the reason for the failure of the
+      * @return an error code describing the reason for the failure of the
       * message delivery.
       */
      public int getErrorCode()

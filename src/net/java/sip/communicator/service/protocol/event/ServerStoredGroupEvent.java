@@ -142,7 +142,7 @@ public class ServerStoredGroupEvent
 
     /**
      * Returns a String representation of this event.
-     * @return a String containing details describin this event.
+     * @return a String containing details describing this event.
      */
     @Override
     public String toString()
