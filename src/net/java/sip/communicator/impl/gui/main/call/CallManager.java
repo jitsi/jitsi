@@ -2637,7 +2637,7 @@ public class CallManager
      * @param stringContact the contact string to call
      *
      * @throws OperationFailedException thrown if the call operation fails
-     * @throws ParseException thrown if the contact string is malformated
+     * @throws ParseException thrown if the contact string is malformed
      */
     private static void internalCallVideo(
                                     ProtocolProviderService protocolProvider,
@@ -2677,7 +2677,7 @@ public class CallManager
      * @param uiContact the <tt>UIContactImpl</tt> we're calling
      *
      * @throws OperationFailedException thrown if the call operation fails
-     * @throws ParseException thrown if the contact string is malformated
+     * @throws ParseException thrown if the contact string is malformed
      */
     private static void internalCall(
                                 ProtocolProviderService protocolProvider,
