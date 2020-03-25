@@ -190,7 +190,7 @@ public class TestMetaContact extends TestCase
 
     /**
      * compare all neighbour contacts in <tt>group</tt> and its subgroups and
-     * try to determine whether they'reproperly ordered.
+     * try to determine whether they're properly ordered.
      *
      * @param group the <tt>MetaContactGroup</tt> to walk through
      */

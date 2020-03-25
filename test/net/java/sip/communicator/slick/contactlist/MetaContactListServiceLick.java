@@ -30,7 +30,7 @@ import org.osgi.framework.*;
 /**
  * Performs testing of the MetaContactListService. This SLICK would register
  * a mock protocol provider, manually fill in its protocol specific contact
- * list and then verify that it is proparly retrieved and manipulated by the
+ * list and then verify that it is properly retrieved and manipulated by the
  * tested implementation of the MetaContactListService implementation.
  *
  * @author Emil Ivov
