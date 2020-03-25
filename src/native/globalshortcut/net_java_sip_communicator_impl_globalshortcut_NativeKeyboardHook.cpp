@@ -72,7 +72,7 @@ class keystroke_special
 };
 /**
  * \class hotkey_release
- * \brief stores information about hotkey that will be realesed.
+ * \brief stores information about hotkey that will be released.
  */
 class hotkey_release
 {
