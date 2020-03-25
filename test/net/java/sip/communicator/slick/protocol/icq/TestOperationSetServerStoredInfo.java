@@ -562,7 +562,7 @@ public class TestOperationSetServerStoredInfo
             opSetServerStoredAccountInfo.addDetail(new ServerStoredDetails.
                 SpokenLanguageDetail(null));
 
-            fail("As there is already reched the max instances of languages. Exception must be thrown");
+            fail("As there is already reached the max instances of languages. Exception must be thrown");
         }
         catch (ArrayIndexOutOfBoundsException ex)
         {}
