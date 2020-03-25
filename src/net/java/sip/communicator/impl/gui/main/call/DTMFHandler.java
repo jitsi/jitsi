@@ -275,7 +275,7 @@ public class DTMFHandler
     private Thread dtmfToneNotificationThread;
 
     /**
-     * The <tt>KeyboadFocusManager</tt> to which this instance is added as a
+     * The <tt>KeyboardFocusManager</tt> to which this instance is added as a
      * <tt>KeyEventDispatcher</tt>.
      */
     private KeyboardFocusManager keyboardFocusManager;
