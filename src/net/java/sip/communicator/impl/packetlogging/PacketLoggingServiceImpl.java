@@ -146,7 +146,7 @@ public class PacketLoggingServiceImpl
             };
 
     /**
-     * Using this object to lock and protectd the two counters
+     * Using this object to lock and protected the two counters
      * used for tcp seq and ack numbers.
      */
     private Object tcpCounterLock = new Object();
