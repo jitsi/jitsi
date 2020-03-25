@@ -98,7 +98,7 @@ public class OperationSetDTMFSipImpl
             DTMFMethod cpDTMFMethod = dtmfMethod;
 
             // If "auto" DTMF mode selected, automatically selects RTP DTMF is
-            // telephon-event is available. Otherwise selects INBAND DMTF.
+            // telephone-event is available. Otherwise selects INBAND DMTF.
             if(this.dtmfMethod == DTMFMethod.AUTO_DTMF)
             {
                 if(isRFC4733Active(cp))
@@ -159,7 +159,7 @@ public class OperationSetDTMFSipImpl
             DTMFMethod cpDTMFMethod = dtmfMethod;
 
             // If "auto" DTMF mode selected, automatically selects RTP DTMF is
-            // telephon-event is available. Otherwise selects INBAND DMTF.
+            // telephone-event is available. Otherwise selects INBAND DMTF.
             if(this.dtmfMethod == DTMFMethod.AUTO_DTMF)
             {
                 if(isRFC4733Active(cp))
@@ -177,7 +177,7 @@ public class OperationSetDTMFSipImpl
             // debugging.
             if(this.dtmfMethod == DTMFMethod.RTP_DTMF && !isRFC4733Active(cp))
             {
-                logger.debug("RTP DTMF used without telephon-event capacities");
+                logger.debug("RTP DTMF used without telephone-event capacities");
             }
 
             ((AudioMediaStream)cp.getMediaHandler().getStream(MediaType.AUDIO))
