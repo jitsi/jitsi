@@ -653,7 +653,7 @@ public class GlobalStatusServiceImpl
 
     /**
      * Saves the last status for all accounts. This information is used
-     * on loging. Each time user logs in he's logged with the same status
+     * on logging. Each time user logs in he's logged with the same status
      * as he was the last time before closing the application.
      * @param protocolProvider the protocol provider to save status information
      * for
