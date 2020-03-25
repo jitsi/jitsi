@@ -406,7 +406,7 @@ public class ContactGroupIcqImpl
      * @param screenName the screenName (or icq UIN) for the contact we're
      * looking for.
      * @return the <tt>ContactIcqImpl</tt> corresponding to the specified
-     * screnname or null if no such contact existed.
+     * screenname or null if no such contact existed.
      */
     ContactIcqImpl findContact(String screenName)
     {

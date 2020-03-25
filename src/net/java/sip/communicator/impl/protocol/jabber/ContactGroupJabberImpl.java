@@ -373,7 +373,7 @@ public class ContactGroupJabberImpl
      *
      * @param id the id for the contact we're looking for.
      * @return the <tt>ContactJabberImpl</tt> corresponding to the specified
-     * screnname or null if no such contact existed.
+     * screenname or null if no such contact existed.
      */
     ContactJabberImpl findContact(Jid id)
     {
