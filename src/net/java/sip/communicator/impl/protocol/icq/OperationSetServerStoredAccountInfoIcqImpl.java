@@ -1722,7 +1722,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
 //        }
 //
 //        /**
-//         * Correspondig the type of ServerStoredDetails returns empty Tlv or Tlv
+//         * Corresponding the type of ServerStoredDetails returns empty Tlv or Tlv
 //         * with default value
 //         * @param detail GenericDetail
 //         * @return DetailTlv

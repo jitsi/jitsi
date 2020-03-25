@@ -29,7 +29,7 @@ import net.java.sip.communicator.util.*;
  * Test icq/aim specific behaviour for OSCAR (AIM/ICQ) implementations of the
  * protocol provider service. The class would basically test that registration
  * succeeds, that the provider registration state is updated accordingly and
- * that the corrsponding registration change events are generated and dispatched.
+ * that the corresponding registration change events are generated and dispatched.
  *
  * In the case of a registration failure we try to remain consistent and do
  * assertions accordingly.

@@ -145,7 +145,7 @@ public class DBStructSerializer {
     }
 
     /**
-     * This method parses a "structure" tag and returns the corresponging
+     * This method parses a "structure" tag and returns the corresponding
      * HistoryRecordStructure.
      *
      * @throws ParseException

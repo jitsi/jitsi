@@ -24,7 +24,7 @@ package net.java.sip.communicator.service.gui;
  * one field input or choice, or asking the user for certain confirmation.
  *
  * Three types of dialogs are differentiated: Message, Confirm and Input dialog.
- * Each of them has several show methods corresponging, allowing additional
+ * Each of them has several show methods corresponding, allowing additional
  * specific configuration, like specifying or not a title, confirmation option
  * or initial value.
  *
