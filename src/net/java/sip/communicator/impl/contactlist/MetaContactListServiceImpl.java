@@ -975,14 +975,14 @@ public class MetaContactListServiceImpl
         if(contact.getPersistableAddress() == null)
         {
            logger.info("Contact cannot be moved! This contact doesn't have " +
-                "persistant address.");
+                "persistent address.");
            return;
         }
 
         if(contact.getPersistableAddress() == null)
         {
             logger.info("Contact cannot be moved! This contact doesn't have " +
-                "persistant address.");
+                "persistent address.");
             return;
         }
 
@@ -1114,7 +1114,7 @@ public class MetaContactListServiceImpl
         if(contact.getPersistableAddress() == null)
         {
            logger.info("Contact cannot be moved! This contact doesn't have " +
-                "persistant address.");
+                "persistent address.");
            return;
         }
         

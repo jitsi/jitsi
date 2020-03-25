@@ -2119,7 +2119,7 @@ public class MclStorageManager
             return "StoredProtocoContactDescriptor[ "
                 + " contactAddress="
                 + contactAddress
-                + " persistenData="
+                + " persistentData="
                 + persistentData
                 + " parentProtoGroup="
                 + ((parentProtoGroup == null) ? "" : parentProtoGroup
