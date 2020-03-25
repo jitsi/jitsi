@@ -802,7 +802,7 @@ public abstract class AbstractStatusMessageMenu
      * Creates the appropriate menu item. Depending on the
      * menu.
      * @param text the menu item text.
-     * @param index the index to instert the item, -1 to add it at end.
+     * @param index the index to insert the item, -1 to add it at end.
      * @param selected whether the new item to be selected
      * @return the item.
      */

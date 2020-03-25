@@ -109,7 +109,7 @@ public class RootContactGroupIcqImpl
     }
 
     /**
-     * Removes all contact sub groups and reinsterts them as specified
+     * Removes all contact sub groups and reinserts them as specified
      * by the <tt>newOrder</tt> param. Contact groups not contained in the
      * newOrder list are left at the end of this group.
      *
