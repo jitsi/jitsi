@@ -321,7 +321,7 @@ public class HistoryImpl
     }
 
     /**
-     * Methods trying to fix histry xml files if corrupted
+     * Methods trying to fix history xml files if corrupted
      */
     /**
      * Returns the fixed document as xml Document
