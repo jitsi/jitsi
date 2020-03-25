@@ -24,7 +24,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  * and receive typing notifications to and from other <tt>Contact</tt>s.
  * <p>
  * An important thing of typing notifications is that they do not have the
- * purpose of being relibable.
+ * purpose of being reliable.
  * @author Emil Ivov
  */
 public interface OperationSetTypingNotifications
