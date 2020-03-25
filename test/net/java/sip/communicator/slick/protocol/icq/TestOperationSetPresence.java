@@ -243,7 +243,7 @@ public class TestOperationSetPresence
     }
 
     /**
-     * Used by methods testing state transiotions
+     * Used by methods testing state transitions
      *
      * @param newStatus the IcqStatusEnum field corresponding to the status
      * that we'd like the operation set to enter.
