@@ -44,7 +44,7 @@ accounts.icq.CONTACT_LIST=
 # list of icq accounts to notify during testing (optional)
 # accounts.reporting.ICQ_REPORT_LIST=
 
-# if for some reasone you want not to run online icq tests (e.g. because they
+# if for some reason you want not to run online icq tests (e.g. because they
 # take an awful lot to complete). set this property to true (optional)
 # accounts.icq.DISABLE_ONLINE_TESTING
 
