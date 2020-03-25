@@ -271,7 +271,7 @@ public class ChatRoomJabberImpl
     }
 
     /**
-     * Removes <tt>listener</tt> from the list of listeneres current
+     * Removes <tt>listener</tt> from the list of listeners current
      * registered for chat room modification events.
      *
      * @param listener the <tt>ChatRoomChangeListener</tt> to remove.
