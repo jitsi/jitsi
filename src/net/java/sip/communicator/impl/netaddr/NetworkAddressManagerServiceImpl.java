@@ -395,7 +395,7 @@ public class NetworkAddressManagerServiceImpl
         //there's no way of knowing whether a STUN_SERVER_PORT property change
         //will follow or not.
 
-        //Reinitializaion will therefore only happen if the reinitialize()
+        //Reinitialization will therefore only happen if the reinitialize()
         //method is called.
     }
 
