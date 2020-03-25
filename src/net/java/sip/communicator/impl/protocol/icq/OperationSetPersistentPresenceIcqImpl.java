@@ -72,7 +72,7 @@ public class OperationSetPersistentPresenceIcqImpl
         = new RegistrationStateListener();
 
     /**
-     * The listener that would receive joust sim status updates for budddies in
+     * The listener that would receive joust sim status updates for buddies in
      * our contact list
      */
     private JoustSimBuddyServiceListener joustSimBuddySerListener
