@@ -896,7 +896,7 @@ public class OperationSetPersistentPresenceGibberishImpl
         implements RegistrationStateChangeListener
     {
         /**
-         * The method is called by a ProtocolProvider implementation whenver
+         * The method is called by a ProtocolProvider implementation whenever
          * a change in the registration state of the corresponding provider had
          * occurred. The method is particularly interested in events stating
          * that the gibberish provider has unregistered so that it would fire

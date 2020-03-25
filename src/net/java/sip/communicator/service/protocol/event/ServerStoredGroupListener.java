@@ -29,7 +29,7 @@ public interface ServerStoredGroupListener
     extends EventListener
 {
     /**
-     * Called whnever an indication is received that a new server stored group
+     * Called whenever an indication is received that a new server stored group
      * is created.
      * @param evt a ServerStoredGroupEvent containing a reference to the
      * newly created group.
@@ -37,7 +37,7 @@ public interface ServerStoredGroupListener
     public void groupCreated(ServerStoredGroupEvent evt);
 
     /**
-     * Called whnever an indication is received that an existing server stored
+     * Called whenever an indication is received that an existing server stored
      * group has been removed.
      * @param evt a ServerStoredGroupEvent containing a reference to the
      * newly created group.

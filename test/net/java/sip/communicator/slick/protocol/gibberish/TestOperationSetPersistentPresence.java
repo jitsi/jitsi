@@ -510,7 +510,7 @@ public class TestOperationSetPersistentPresence
         }
 
         /**
-         * Called whnever an indication is received that a new server stored
+         * Called whenever an indication is received that a new server stored
          * group is created.
          * @param evt a ServerStoredGroupChangeEvent containing a reference to
          * the newly created group.
@@ -542,7 +542,7 @@ public class TestOperationSetPersistentPresence
         }
 
         /**
-         * Called whnever an indication is received that an existing server stored
+         * Called whenever an indication is received that an existing server stored
          * group has been removed.
          * @param evt a ServerStoredGroupChangeEvent containing a reference to the
          * newly created group.
@@ -558,7 +558,7 @@ public class TestOperationSetPersistentPresence
         }
 
         /**
-         * Called whnever an indication is received that an existing server
+         * Called whenever an indication is received that an existing server
          * stored group has been resolved.
          * @param evt a ServerStoredGroupChangeEvent containing a reference to
          * the resolved group.
