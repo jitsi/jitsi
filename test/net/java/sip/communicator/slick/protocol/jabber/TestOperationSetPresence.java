@@ -863,7 +863,7 @@ public class TestOperationSetPresence
             synchronized(this)
             {
                 logger.debug(
-                        "Collected SubscriptionEvnet("
+                        "Collected SubscriptionEvent("
                         + collectedSubscriptionEvents.size()
                         + ")= "
                         + evt);
