@@ -92,7 +92,7 @@ public class TestAccountInstallation
             SipSlickFixture.bc.getService(serRefs[0]);
 
         //make sure the account is empty
-        assertTrue("There was an account registered with the account mananger "
+        assertTrue("There was an account registered with the account manager "
                    +"before we've installed any",
                    sipProviderFactory.getRegisteredAccounts().size() == 0);
 

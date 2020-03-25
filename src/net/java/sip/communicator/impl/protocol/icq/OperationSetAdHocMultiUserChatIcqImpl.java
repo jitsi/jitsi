@@ -441,7 +441,7 @@ public class OperationSetAdHocMultiUserChatIcqImpl
                     (OperationSetPersistentPresenceIcqImpl) icqProvider
                         .getOperationSet(OperationSetPersistentPresence.class);
 
-                // add ChatRoomMangagerListener
+                // add ChatRoomManagerListener
                 icqProvider.getAimConnection().getChatRoomManager()
                     .addListener(new ChatRoomManagerListenerImpl());
             }
