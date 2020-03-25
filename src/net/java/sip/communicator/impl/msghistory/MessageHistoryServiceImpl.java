@@ -2500,7 +2500,7 @@ public class MessageHistoryServiceImpl
                 lastHistoryProgress = 0;
 
                 // this is the last one and the last event fire the max
-                // there will be looses in currentProgress due to the devision
+                // there will be looses in currentProgress due to the division
                 if((int)accumulatedRatio == raiser)
                     currentProgress = raiser *
                         MessageHistorySearchProgressListener
