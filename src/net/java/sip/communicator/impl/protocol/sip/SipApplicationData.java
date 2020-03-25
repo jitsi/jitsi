@@ -30,7 +30,7 @@ import net.java.sip.communicator.util.*;
  * setApplicationData() method (available for instance with Dialog-s and
  * Transaction-s). Allows several parts of SC code to interact independently
  * with setApplicationData(...)/getApplicationData() without stepping on
- * eachother's toes. Utility functions are provided to set/get data from
+ * each other's toes. Utility functions are provided to set/get data from
  * a supported object.
  *
  * @author Sebastien Mazy
