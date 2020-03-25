@@ -1153,7 +1153,7 @@ public class TestOperationSetMultiUserChat2
 
         // when an user is kicked or banned, the smack lib deliver corresponding
         // events to remaining room members but nothing to the kicked or banned
-        // user. altough, if we dont wait some amount of time, the banned user
+        // user. although, if we dont wait some amount of time, the banned user
         // could still been reported as joined on his side.
         opSet2RoomCollector.waitForEvent(2000);
 
@@ -1247,7 +1247,7 @@ public class TestOperationSetMultiUserChat2
 
         // when an user is kicked or banned, the smack lib deliver corresponding
         // events to remaining room members but nothing to the kicked or banned
-        // user. altough, if we dont wait some amount of time, the banned user
+        // user. although, if we dont wait some amount of time, the banned user
         // could stils been reported as joined on his side.
         opSet2RoomCollector.waitForEvent(2000);
 
