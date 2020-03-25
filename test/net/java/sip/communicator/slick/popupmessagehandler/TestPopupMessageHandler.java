@@ -114,7 +114,7 @@ public class TestPopupMessageHandler
                 handler1,
                 systrayService.setActivePopupMessageHandler(handler2));
 
-        // and now handler2 is our curretn hander
+        // and now handler2 is our current hander
         assertEquals(handler2, systrayService.getActivePopupMessageHandler());
     }
 
