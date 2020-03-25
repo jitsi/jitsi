@@ -89,7 +89,7 @@ public class NetworkUtils
     public static final int    MIN_PORT_NUMBER = 1024;
 
     /**
-     * The random port number generator that we use in getRandomPortNumer()
+     * The random port number generator that we use in getRandomPortNumber()
      */
     private static Random portNumberGenerator = new Random();
 

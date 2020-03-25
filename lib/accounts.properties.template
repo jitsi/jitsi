@@ -73,7 +73,7 @@ accounts.sip.account1.PASSWORD=
 # The address of the server that this account belongs to (Use '[', ']' for IPv6)
 accounts.sip.account1.SERVER_ADDRESS=
 
-# A port numer to use when connecting to the proxy specified in SERVER_ADDRESS
+# A port number to use when connecting to the proxy specified in SERVER_ADDRESS
 # (Optional)
 accounts.sip.account1.SERVER_PORT=
 
@@ -81,7 +81,7 @@ accounts.sip.account1.SERVER_PORT=
 # (Optional)
 accounts.sip.account1.PROXY_ADDRESS=
 
-# A port numer to use when connecting to the proxy specified in PROXY_ADDRESS
+# A port number to use when connecting to the proxy specified in PROXY_ADDRESS
 # (Optional)
 accounts.sip.account1.PROXY_PORT=
 
@@ -104,7 +104,7 @@ accounts.sip.account2.PASSWORD=
 # The address of the server that this account belongs to (Use '[', ']' for IPv6)
 accounts.sip.account2.SERVER_ADDRESS=
 
-# A port numer to use when connecting to the proxy specified in SERVER_ADDRESS
+# A port number to use when connecting to the proxy specified in SERVER_ADDRESS
 # (Optional)
 accounts.sip.account2.SERVER_PORT=
 
@@ -112,7 +112,7 @@ accounts.sip.account2.SERVER_PORT=
 # (Optional)
 accounts.sip.account2.PROXY_ADDRESS=
 
-# A port numer to use when connecting to the proxy specified in PROXY_ADDRESS
+# A port number to use when connecting to the proxy specified in PROXY_ADDRESS
 # (Optional)
 accounts.sip.account2.PROXY_PORT=
 

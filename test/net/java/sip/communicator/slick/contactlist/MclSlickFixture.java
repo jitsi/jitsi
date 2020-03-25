@@ -204,7 +204,7 @@ public class MclSlickFixture
         if( !ignoreEmptyMetaGroups)
         {
             assertEquals("Group " + expectedGroup.getGroupName()
-                         + ", numbber of subgroups: "
+                         + ", number of subgroups: "
                          , expectedGroup.countSubgroups()
                          , actualGroup.countSubgroups());
         }
@@ -218,7 +218,7 @@ public class MclSlickFixture
             }
 
             assertEquals("Group " + expectedGroup.getGroupName()
-                         + ", numbber of subgroups: "
+                         + ", number of subgroups: "
                          , expectedGroup.countSubgroups()
                          , actualGroup.countSubgroups() - emptyMetaGroups);
 
