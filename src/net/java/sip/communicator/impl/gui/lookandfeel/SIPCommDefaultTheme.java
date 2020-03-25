@@ -84,7 +84,7 @@ public class SIPCommDefaultTheme
 
     /**
      * Used for text hightlight color, window title background, scroll bar thumb
-     * hightlight, split pane devider focus color, Tree.line, Tree.hash,
+     * hightlight, split pane divider focus color, Tree.line, Tree.hash,
      * ToolBar.floatingForeground
      */
     private static ColorUIResource PRIMARY_CONTROL_COLOR
@@ -136,7 +136,7 @@ public class SIPCommDefaultTheme
     /**
      * Used to paint a focused split pane divider.
      */
-    private static ColorUIResource SPLIT_PANE_DEVIDER_FOCUS_COLOR
+    private static ColorUIResource SPLIT_PANE_DIVIDER_FOCUS_COLOR
         = new ColorUIResource(GuiActivator.getResources()
             .getColor("service.gui.SPLIT_PANE_DIVIDER_FOCUSED"));
 
@@ -480,7 +480,7 @@ public class SIPCommDefaultTheme
                 "Slider.focusGradient", sliderGradient,
 
                 "SplitPane.oneTouchButtonsOpaque", Boolean.FALSE,
-                "SplitPane.dividerFocusColor", SPLIT_PANE_DEVIDER_FOCUS_COLOR,
+                "SplitPane.dividerFocusColor", SPLIT_PANE_DIVIDER_FOCUS_COLOR,
                 "SplitPane.dividerSize", Integer.valueOf(5),
 
                 "ScrollBar.width", Integer.valueOf(12),
@@ -816,7 +816,7 @@ public class SIPCommDefaultTheme
             = new ColorUIResource(GuiActivator.getResources().
                 getColor("service.gui.SELECTION_BACKGROUND"));
 
-        SPLIT_PANE_DEVIDER_FOCUS_COLOR
+        SPLIT_PANE_DIVIDER_FOCUS_COLOR
             = new ColorUIResource(GuiActivator.getResources()
                 .getColor("service.gui.SPLIT_PANE_DIVIDER_FOCUSED"));
 
