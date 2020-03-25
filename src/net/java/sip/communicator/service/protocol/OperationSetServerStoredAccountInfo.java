@@ -41,7 +41,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  * existing detail types as fully as possible. Defining your own detail type
  * may lead to limited visualization of its value.
  * <p>
- * As mentioned earlier the operation set supports adding, removing or replaing
+ * As mentioned earlier the operation set supports adding, removing or replacing
  * various details. The exact set of details that can be manipulated through
  * this operation set depends on the implementation and can be retrieved through
  * the getSupportedDetailTypes() method. The maximum number of detail instances
