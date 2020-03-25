@@ -25,7 +25,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 /**
  * The Account Info Operation set is a means of accessing and modifying detailed
  * information on the user/account that is currently logged in through this
- * provider. This operation set is more or less reciproce to
+ * provider. This operation set is more or less equivalent to
  * OperationSetServerStoredContactInfo with the most essential difference being the
  * fact that the account info operation set allows you to modify data in
  * addition to reading it (quite natural given that it's your own info that

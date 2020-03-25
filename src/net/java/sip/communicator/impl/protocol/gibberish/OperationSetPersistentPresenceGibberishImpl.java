@@ -623,7 +623,7 @@ public class OperationSetPersistentPresenceGibberishImpl
             else
             {
                 //if we got here then "to" is simply someone in our contact
-                //list so let's just simulate a reciproce request and generate
+                //list so let's just simulate an equivalent request and generate
                 //a response accordingly.
 
                 //pretend that the remote contact is asking for authorization
