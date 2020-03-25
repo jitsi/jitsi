@@ -208,7 +208,7 @@
                 <Control Id="StartMenuShortcutCheckBox" Type="CheckBox" X="25" Y="65" Width="320" Height="15" Property="CREATE_START_MENU_SHORTCUT" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_CreateStartMenu)" />
                 <Control Id="DesktopShortcutCheckBox" Type="CheckBox" X="25" Y="80" Width="320" Height="15" Property="CREATE_DESKTOP_SHORTCUT" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_CreateDesktop)" />
 
-                <Control Id="VeriousGroup" Type="GroupBox" X="20" Y="105" Width="330" Height="75" Text="!(loc.ShortcutsAndRegistryDlg_VariousSettings)" />
+                <Control Id="VariousGroup" Type="GroupBox" X="20" Y="105" Width="330" Height="75" Text="!(loc.ShortcutsAndRegistryDlg_VariousSettings)" />
                 <Control Id="StartupShortcutCheckBox" Type="CheckBox" X="25" Y="120" Width="320" Height="15" Property="HAS_STARTUP_REGISTRY" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_CreateAutoStart)" />
                 <Control Id="DisableUpdatesCheckCheckBox" Type="CheckBox" X="25" Y="135" Width="320" Height="15" Property="CREATE_DISABLE_UPDATES_CHECK" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_DisableUpdates)" />
                 <Control Id="DefaultIMApplicationCheckBox" Type="CheckBox" X="25" Y="150" Width="320" Height="25" Property="SET_DEFAULT_IM_APP" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_DefaultIMApp)" />

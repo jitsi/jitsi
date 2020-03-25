@@ -32,7 +32,7 @@ import org.osgi.framework.*;
  * Tests call history.
  * First installs the MockProtocolProvider to be able to create som calls
  * The call history service stores them
- * and then tests the verious find methods - does they find the calls we have
+ * and then tests the various find methods - does they find the calls we have
  * already made
  *
  * @author Damian Minkov

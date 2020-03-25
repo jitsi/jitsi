@@ -36,7 +36,7 @@ import com.google.common.xml.*;
  * Tests message history.
  * First installs the MoxkProtocolProvider to be able to send some messages
  * The message history service stores them
- * and then tests the verious find methods - does they find the messages we have
+ * and then tests the various find methods - does they find the messages we have
  * already sent
  *
  * @author Damian Minkov
