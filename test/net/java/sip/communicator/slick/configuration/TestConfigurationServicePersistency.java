@@ -231,7 +231,7 @@ public class TestConfigurationServicePersistency extends TestCase
     /**
      * Tests whether a configuration is properly reloaded (i.e. values of
      * the properties are updated to match those present in the file, and
-     * any additional properties added since the previous load are clreared).
+     * any additional properties added since the previous load are cleared).
      *
      * @throws java.lang.Exception if an error occurs during testing.
      */
