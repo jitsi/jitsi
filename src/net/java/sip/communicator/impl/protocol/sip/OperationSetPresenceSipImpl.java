@@ -3750,7 +3750,7 @@ public class OperationSetPresenceSipImpl
                 ResponseEvent responseEvent, int statusCode)
         {
             if(logger.isDebugEnabled())
-                logger.debug("Subscriped to presence watcher info! status:"
+                logger.debug("Subscribed to presence watcher info! status:"
                         + statusCode);
         }
 
