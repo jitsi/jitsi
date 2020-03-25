@@ -98,7 +98,7 @@ public interface WizardPage
     public Object getWizardForm();
 
     /**
-     * Invoked when this <tt>WizardPage</tt> will be hidden eighter because
+     * Invoked when this <tt>WizardPage</tt> will be hidden either because
      * the user has clicked "Back" or "Next". This method should be invoked
      * from the <tt>WizardContainer</tt> implementation just before this page
      * is hidden when replacing it with the previous or the next one.
@@ -120,7 +120,7 @@ public interface WizardPage
     public void pageShown();
 
     /**
-     * Invoked when this <tt>WizardPage</tt> will be shown eighter because
+     * Invoked when this <tt>WizardPage</tt> will be shown either because
      * the user has clicked "Back" on the next wizard page or "Next" on the
      * previous one. This method should be invoked from the
      * <tt>WizardContainer</tt> implementation just before this page
