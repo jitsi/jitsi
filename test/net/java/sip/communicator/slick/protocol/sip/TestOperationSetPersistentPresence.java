@@ -173,7 +173,7 @@ public class TestOperationSetPersistentPresence
 
             // When sending the offline message
             // the sever creates a group NotInContactList,
-            // beacuse the buddy we are sending message to is not in
+            // because the buddy we are sending message to is not in
             // the contactlist. So this group must be ignored
             if(!group.getGroupName().equals("NotInContactList"))
             {

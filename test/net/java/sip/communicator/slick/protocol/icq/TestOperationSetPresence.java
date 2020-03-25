@@ -551,7 +551,7 @@ public class TestOperationSetPresence
 
             logger.debug("I will add buddy does it exists ?  " +
                          (operationSetPresence.findContactByID(IcqSlickFixture.testerAgent.getIcqUIN()) != null));
-            // add the listener beacuse now our authorization will be accepted
+            // add the listener because now our authorization will be accepted
             // and so the buddy will be finally added to the list
             operationSetPresence.addSubscriptionListener(subEvtCollector);
             // subscribe again so we can trigger again the authorization procedure
