@@ -76,7 +76,7 @@ public class Sha1Crypto
         for (int i = 0; i < data.length; i++)
         {
             int halfbyte = (data[i] >>> 4) & 0x0F;
-            int two_halfs = 0;
+            int two_halves = 0;
             do
             {
                 if ((0 <= halfbyte) && (halfbyte <= 9))
@@ -85,7 +85,7 @@ public class Sha1Crypto
                     buf.append((char) ('a' + (halfbyte - 10)));
                 halfbyte = data[i] & 0x0F;
             }
-            while(two_halfs++ < 1);
+            while(two_halves++ < 1);
         }
         return buf.toString();
     }
