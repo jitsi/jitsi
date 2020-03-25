@@ -77,7 +77,7 @@ public class CallPeerRecord
     }
 
     /**
-     * When peer diconnected from the call
+     * When peer disconnected from the call
      *
      * @return Date
      */
