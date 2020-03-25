@@ -175,7 +175,7 @@ public abstract class AbstractOperationSetDesktopSharingClient
             listener.remoteControlGranted(new RemoteControlGrantedEvent(peer));
         }
         // The UI has not created the listener yet, then we need to store the
-        // information taht this peer has already been granted.
+        // information that this peer has already been granted.
         else
         {
             // Removes all previous instance of this peer.
