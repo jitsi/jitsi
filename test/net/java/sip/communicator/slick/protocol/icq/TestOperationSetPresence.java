@@ -479,7 +479,7 @@ public class TestOperationSetPresence
 
             logger.debug("Waiting for authorization error and authorization response...");
             authEventCollector.waitForAuthResponse(15000);
-            assertTrue("Error adding buddy not recieved or the buddy(" +
+            assertTrue("Error adding buddy not received or the buddy(" +
                        IcqSlickFixture.testerAgent.getIcqUIN() +
                        ") doesn't require authorization",
                        authEventCollector.isAuthorizationRequestSent);
@@ -561,7 +561,7 @@ public class TestOperationSetPresence
                          "to be trigered again so waiting for auth response ...");
             authEventCollector.waitForAuthResponse(15000);
 
-            assertTrue("Error adding buddy not recieved or the buddy(" +
+            assertTrue("Error adding buddy not received or the buddy(" +
                        IcqSlickFixture.testerAgent.getIcqUIN() +
                        ") doesn't require authorization",
                        authEventCollector.isAuthorizationRequestSent);
@@ -1330,7 +1330,7 @@ public class TestOperationSetPresence
         authEventCollector.waitForAuthRequest(25000);
 
         // check have we received authorization request?
-        assertTrue("Error adding buddy not recieved or the buddy(" +
+        assertTrue("Error adding buddy not received or the buddy(" +
                        fixture.ourUserID +
                        ") doesn't require authorization 1",
                        IcqSlickFixture.testerAgent.getAuthCmdFactory().isErrorAddingReceived);
@@ -1395,7 +1395,7 @@ public class TestOperationSetPresence
         authEventCollector.waitForAuthRequest(25000);
 
         // check have we received authorization request?
-        assertTrue("Error adding buddy not recieved or the buddy(" +
+        assertTrue("Error adding buddy not received or the buddy(" +
                               fixture.ourUserID +
                               ") doesn't require authorization 2",
                               IcqSlickFixture.testerAgent.getAuthCmdFactory().isErrorAddingReceived);

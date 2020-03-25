@@ -946,7 +946,7 @@ public class ProtocolProviderServiceIcqImpl
                                    ConversationEventInfo event)
         {
             if (logger.isDebugEnabled())
-                logger.debug("reveived ConversationEventInfo:" + event);
+                logger.debug("received ConversationEventInfo:" + event);
         }
 
         // This may be called without ever calling conversationOpened
