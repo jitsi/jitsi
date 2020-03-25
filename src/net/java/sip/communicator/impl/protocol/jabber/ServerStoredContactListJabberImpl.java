@@ -768,7 +768,7 @@ public class ServerStoredContactListJabberImpl
         {
             // first copy the item that will be removed
             // when iterating over group contacts and removing them
-            // concurrent exception occures
+            // concurrent exception occurs
             Vector<Contact> localCopy = new Vector<Contact>();
             Iterator<Contact> iter = groupToRemove.contacts();
 
