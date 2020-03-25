@@ -1215,7 +1215,7 @@ public class ServerStoredContactListSipImpl
      * @param serverGroup the server stored group.
      * @param deleteUnresolved indicates whether to delete unresolved contacts
      *                         and group. If true they will be removed otherwise
-     *                         they will be skiped.
+     *                         they will be skipped.
      */
     private void resolveContactGroup(
             ContactGroupSipImpl clientGroup,
