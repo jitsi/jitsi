@@ -6,7 +6,7 @@ and follow this short guide.
 Before you open an issue on GitHub, please discuss it on one of our
 [mailing lists](https://jitsi.org/Development/MailingLists) and wait for a 
 confirmation from one of the committers. Once you have that confirmation, 
-please proceed to reporting the issue on Github, while providing as much 
+please proceed to reporting the issue on GitHub, while providing as much 
 information as possible. Mention the version of Jitsi you are using, your 
 operating system and explain how the problem can be reproduced.
 
