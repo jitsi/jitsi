@@ -186,7 +186,7 @@ public interface MetaContactGroup
 
     /**
      * Determines whether or not this group can contain subgroups. The method
-     * should be called befor creating subgroups in order to avoir invalid
+     * should be called before creating subgroups in order to avoir invalid
      * argument exceptions.
      * <p>
      * @return <tt>true</tt> if this groups can contain subgroups and
