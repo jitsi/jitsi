@@ -94,7 +94,7 @@ public class OperationSetPersistentPresenceIcqImpl
     private String currentStatusMessage = "";
 
     /**
-     * The presence status that we were last notified of etnering.
+     * The presence status that we were last notified of entering.
      */
     private long currentIcqStatus = -1;
 
