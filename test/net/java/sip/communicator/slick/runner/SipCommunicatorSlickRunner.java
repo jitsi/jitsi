@@ -35,7 +35,7 @@ import org.osgi.framework.*;
  * <p>
  * In order for the SipCommunicatorSlickRunner to detect all SLICKs they
  * needs to be registered as services in the OSGI environment prior to the
- * actication of the runner, and their names need to be specified in a
+ * activation of the runner, and their names need to be specified in a
  * whitespace separated list registered against the
  * net.java.sip.communicator.slick.runner.TEST_LIST system property.
  * <p>
