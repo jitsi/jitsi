@@ -52,7 +52,7 @@ public class TestConfigurationServicePersistency extends TestCase
     //added_property values
     private static final String addedProperty = "ADDED_PROPERTY";
     private static final String addedPropertyValue =  "added";
-    private static final String addedPropertyValue2 =  "and then re-aded";
+    private static final String addedPropertyValue2 =  "and then re-added";
 
     private static final String addedPropertyPath =  "parent.";
 
