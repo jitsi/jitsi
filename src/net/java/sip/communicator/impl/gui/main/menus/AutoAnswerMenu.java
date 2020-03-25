@@ -654,7 +654,7 @@ public class AutoAnswerMenu
         private JRadioButton customValueRadio;
 
         /**
-         * Check box to active the video answer for wideo calls.
+         * Check box to active the video answer for video calls.
          */
         private SIPCommCheckBox answerWithVideoCheckBox;
 
