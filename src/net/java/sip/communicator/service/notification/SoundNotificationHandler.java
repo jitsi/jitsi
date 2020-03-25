@@ -28,7 +28,7 @@ public interface SoundNotificationHandler
     extends NotificationHandler
 {
     /**
-     * Start playing the sound pointed by <tt>getDescriotor</tt>. This
+     * Start playing the sound pointed by <tt>getDescriptor</tt>. This
      * method should check the loopInterval value to distinguish whether to play
      * a simple sound or to play it in loop.
      * @param action the action to act upon
