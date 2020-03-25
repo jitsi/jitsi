@@ -47,7 +47,7 @@ public class OrderedTransparentPanel
      */
     private Component addOrdered(Component comp)
     {
-        int orederIndex = ((OrderedComponent)comp).getIndex();
+        int orderIndex = ((OrderedComponent)comp).getIndex();
 
         Component[] cs = getComponents();
 
@@ -67,7 +67,7 @@ public class OrderedTransparentPanel
             {
                 int cIndex = ((OrderedComponent) c).getIndex();
 
-                if(orederIndex < cIndex)
+                if(orderIndex < cIndex)
                     return super.add(comp, i);
             }
         }
