@@ -86,7 +86,7 @@ LPTYPELIB TypeLib_loadRegTypeLib(WCHAR* path)
 }
 
 /**
- * Unegister the typeLib for the COM server and client.
+ * Unregister the typeLib for the COM server and client.
  *
  * @param A pointer to the loaded typeLib.
  */
