@@ -251,7 +251,7 @@ public class SelectAccountPanel
         private static final long serialVersionUID = 4259505654018472178L;
 
         /**
-         * Returns fale regardless of parameter values.
+         * Returns false regardless of parameter values.
          *
          * @param   row             the row whose value is to be queried
          * @param   column          the column whose value is to be queried
