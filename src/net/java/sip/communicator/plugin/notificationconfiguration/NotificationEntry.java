@@ -133,7 +133,7 @@ public class NotificationEntry
 
     /**
      * Method which returns true if one program is executed.
-     * @return boolean true if a programm is executed
+     * @return boolean true if a program is executed
      */
     public boolean getProgram()
     {
