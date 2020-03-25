@@ -274,7 +274,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
     public boolean isContentTypeSupported(String contentType, Contact contact)
     {
         // by default we support default mime type, for other mimetypes
-        // method must be overriden
+        // method must be overridden
         if(contentType.equals(DEFAULT_MIME_TYPE))
             return true;
         else if(contentType.equals(HTML_MIME_TYPE))

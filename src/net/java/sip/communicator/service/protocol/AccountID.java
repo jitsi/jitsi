@@ -570,8 +570,8 @@ public abstract class AccountID
     }
 
     /**
-     * Returns <tt>true</tt> if server was overriden.
-     * @return <tt>true</tt> if server was overriden.
+     * Returns <tt>true</tt> if server was overridden.
+     * @return <tt>true</tt> if server was overridden.
      */
     public boolean isServerOverridden()
     {

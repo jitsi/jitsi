@@ -230,7 +230,7 @@ public class SIPCommButtonUI
     }
 
     /**
-     * Overriden to do nothing.
+     * Overridden to do nothing.
      */
     @Override
     protected void paintButtonPressed(Graphics g, AbstractButton b)

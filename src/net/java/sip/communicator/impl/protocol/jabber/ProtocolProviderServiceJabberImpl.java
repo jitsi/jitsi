@@ -702,11 +702,11 @@ public class ProtocolProviderServiceJabberImpl
             boolean[] hadDnsSecException = new boolean[]{false};
 
             // try connecting with auto-detection if enabled
-            boolean isServerOverriden =
+            boolean isServerOverridden =
                 getAccountID().getAccountPropertyBoolean(
                     ProtocolProviderFactory.IS_SERVER_OVERRIDDEN, false);
 
-            if(!isServerOverriden)
+            if(!isServerOverridden)
             {
                 state = connectUsingSRVRecords(serviceName.toString(),
                         serviceName, hadDnsSecException, loginStrategy);

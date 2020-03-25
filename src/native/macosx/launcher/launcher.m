@@ -149,12 +149,12 @@ JLI_Launch_t getLauncher(NSDictionary *javaDictionary)
     if(required == NULL)
         required = @"1.7*";
 
-    NSString *overridenJVM =
+    NSString *overriddenJVM =
         [[[NSProcessInfo processInfo] environment] objectForKey:@"JITSI_JRE"];
 
-    if (overridenJVM != NULL)
+    if (overriddenJVM != NULL)
     {
-        JLI_Launch_t jli_LaunchFxnPtr = getJLILaunch(overridenJVM);
+        JLI_Launch_t jli_LaunchFxnPtr = getJLILaunch(overriddenJVM);
 
         if(jli_LaunchFxnPtr != NULL)
             return jli_LaunchFxnPtr;

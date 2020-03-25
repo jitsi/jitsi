@@ -343,7 +343,7 @@ public class ConnectionPanel
     public void itemStateChanged(ItemEvent e)
     {
         // do not set default values cause they are counted
-        // as overrrided ones
+        // as overridden ones
 //        if (e.getStateChange() == ItemEvent.SELECTED
 //            && e.getItem().equals("TLS"))
 //        {

@@ -117,7 +117,7 @@ public class SIPCommTabbedPaneEnhancedUI
             Rectangle textRect, boolean isSelected) {}
 
     /**
-     * Overriden to paint nothing.
+     * Overridden to paint nothing.
      */
     @Override
     protected void paintTabBorder(Graphics g, int tabPlacement, int tabIndex,
