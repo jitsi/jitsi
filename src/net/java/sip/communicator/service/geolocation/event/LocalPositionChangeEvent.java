@@ -42,7 +42,7 @@ public class LocalPositionChangeEvent extends PropertyChangeEvent
      * @param source
      *            the provider that generated the event
      * @param oldValue
-     *            the Geolocation the source provider was int before entering
+     *            the Geolocation the source provider was in before entering
      *            the new state.
      * @param newValue
      *            the Geolocation the source provider is currently in.
