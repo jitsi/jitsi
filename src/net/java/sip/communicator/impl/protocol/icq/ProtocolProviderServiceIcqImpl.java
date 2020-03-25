@@ -731,7 +731,7 @@ public class ProtocolProviderServiceIcqImpl
             }
             else if (newState == State.DISCONNECTED)
             {
-                // we need a Service here. no metter which
+                // we need a Service here. no matter which
                 // I've choose BosService
                 // we just need the oscar connection from the service
                 Service service = aimConnection.getBosService();
