@@ -46,7 +46,7 @@ public class SlicklessTests
         "net.java.sip.communicator.slick.runner.SLICKLESS_TEST_LIST";
 
     /**
-     * Start the Configuration Sevice Implementation Compatibility Kit.
+     * Start the Configuration Service Implementation Compatibility Kit.
      *
      * @param bundleContext BundleContext
      * @throws Exception

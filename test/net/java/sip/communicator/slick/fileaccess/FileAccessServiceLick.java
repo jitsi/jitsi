@@ -42,7 +42,7 @@ public class FileAccessServiceLick extends TestSuite implements BundleActivator 
     };
 
     /**
-     * Start the File Access Sevice Implementation Compatibility Kit.
+     * Start the File Access Service Implementation Compatibility Kit.
      *
      * @param bundleContext
      *            BundleContext

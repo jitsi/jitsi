@@ -145,7 +145,7 @@ public class TestMetaContactListPersistence extends TestCase
 
         //uninstall the meta contact list service
         assertNotNull("Couldn't find the bundle that exports the meta "
-                      + "contact list servce implementation that we're "
+                      + "contact list service implementation that we're "
                       + "currently testing"
                       , metaClBundle);
 

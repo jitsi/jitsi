@@ -2611,7 +2611,7 @@ public class CallManager
                 logger.error("The call could not be created: ", t);
 
                 String message = GuiActivator.getResources()
-                    .getI18NString("servoce.gui.CREATE_CALL_FAILED");
+                    .getI18NString("service.gui.CREATE_CALL_FAILED");
 
                 if (t.getMessage() != null)
                     message += " " +  t.getMessage();

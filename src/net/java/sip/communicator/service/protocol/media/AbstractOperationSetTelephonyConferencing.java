@@ -703,7 +703,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
 
     /**
      * Notifies this <tt>RegistrationStateChangeListener</tt> that the
-     * <tt>ProtocolProviderSerivce</tt> it is registered with has changed its
+     * <tt>ProtocolProviderService</tt> it is registered with has changed its
      * registration state.
      *
      * @param event a <tt>RegistrationStateChangeEvent</tt> which specifies the

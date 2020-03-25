@@ -37,7 +37,7 @@ public class MetaHistoryServiceLick
     protected static BundleContext bc = null;
 
     /**
-     * Start the File History Sevice Implementation Compatibility Kit.
+     * Start the File History Service Implementation Compatibility Kit.
      *
      * @param bundleContext
      *            BundleContext

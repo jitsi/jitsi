@@ -46,7 +46,7 @@ public class NetworkAddressManagerServiceLick
     public static TestCase tcase = new TestCase(){};
 
     /**
-     * Start the Network Address Manager Sevice Implementation Compatibility Kit.
+     * Start the Network Address Manager Service Implementation Compatibility Kit.
      * @param bundleContext BundleContext
      * @throws Exception
      */

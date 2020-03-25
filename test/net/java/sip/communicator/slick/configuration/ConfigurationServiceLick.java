@@ -39,7 +39,7 @@ public class ConfigurationServiceLick
     public static TestCase tcase = new TestCase(){};
 
     /**
-     * Start the Configuration Sevice Implementation Compatibility Kit.
+     * Start the Configuration Service Implementation Compatibility Kit.
      *
      * @param bundleContext BundleContext
      * @throws Exception

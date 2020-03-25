@@ -34,7 +34,7 @@ public class CallHistoryServiceLick extends TestSuite implements BundleActivator
     protected static BundleContext bc = null;
 
     /**
-     * Start the History Sevice Implementation Compatibility Kit.
+     * Start the History Service Implementation Compatibility Kit.
      *
      * @param bundleContext
      *            BundleContext

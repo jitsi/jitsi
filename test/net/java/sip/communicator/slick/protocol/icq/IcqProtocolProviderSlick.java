@@ -76,7 +76,7 @@ public class IcqProtocolProviderSlick
         = "accounts.icq.DISABLE_ONLINE_TESTING";
 
     /**
-     * Start the ICQ Sevice Leveraging Implementation Compatibility Kit.
+     * Start the ICQ Service Leveraging Implementation Compatibility Kit.
      *
      * @param bundleContext BundleContext
      * @throws Exception if anything goes wrong.

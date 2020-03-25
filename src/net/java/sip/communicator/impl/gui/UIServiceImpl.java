@@ -220,7 +220,7 @@ public class UIServiceImpl
     }
 
     /**
-     * Implements <code>UISercie.getSupportedContainers</code>. Returns the
+     * Implements <code>UIService.getSupportedContainers</code>. Returns the
      * list of supported containers by this implementation .
      *
      * @see UIService#getSupportedContainers()
