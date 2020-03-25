@@ -26,7 +26,7 @@ import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
 
 /**
- * Tests basic ConfiguratioService behaviour.
+ * Tests basic ConfigurationService behaviour.
  *
  * @author Emil Ivov
  */

@@ -141,7 +141,7 @@ public class ThunderbirdConfigForm
     }
 
     /**
-     * Required by ConfirgurationForm interface
+     * Required by ConfigurationForm interface
      *
      * Returns the index of this configuration form in the configuration window.
      * This index is used to put configuration forms in the desired order.

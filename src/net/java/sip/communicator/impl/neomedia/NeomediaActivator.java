@@ -87,7 +87,7 @@ public class NeomediaActivator
 
     /**
      * The name of the notification pop-up event displayed when the device
-     * configration has changed.
+     * configuration has changed.
      */
     public static final String DEVICE_CONFIGURATION_HAS_CHANGED
         = "DeviceConfigurationChanged";

@@ -29,7 +29,7 @@ import org.osgi.framework.*;
 import org.w3c.dom.*;
 
 /**
- * Tests ConfiguratioService persistency, which means that it makes the
+ * Tests ConfigurationService persistency, which means that it makes the
  * ConfigurationService store and load its properties from a file and checks
  * whether everything is going well.
  *
