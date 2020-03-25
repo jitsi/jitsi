@@ -80,7 +80,7 @@
 	</target>
 
 	<!-- prepare -->
-	<target name="prepare" description="Create folder sturcture.">
+	<target name="prepare" description="Create folder structure.">
 		<mkdir dir="${release.dir}" />
 		<mkdir dir="${release.dir}/lib" />
 		<mkdir dir="${release.dir}/lib/bundle" />
