@@ -29,7 +29,7 @@ import org.w3c.dom.*;
 import org.xml.sax.*;
 
 /**
- * Information provided via the spellchecer's xml parameters.
+ * Information provided via the spellchecker's xml parameters.
  *
  * @author Damian Johnson
  */
