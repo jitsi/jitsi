@@ -386,7 +386,7 @@ public class MsOutlookAddrBookContactQuery
     private int mapiMessageCount;
 
     /**
-     * Boolea used to defined if we already get and logged a read contact
+     * Boolean used to defined if we already get and logged a read contact
      * property error.
      */
     private boolean firstIMAPIPropGetPropFailureLogged = false;
