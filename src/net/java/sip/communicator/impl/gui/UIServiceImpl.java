@@ -730,7 +730,7 @@ public class UIServiceImpl
      * Checks if the plugable container with the given Container is supported
      * by this implementation.
      *
-     * @param containderID the id of the container that we're making the query
+     * @param containerID the id of the container that we're making the query
      * for.
      *
      * @return true if the container with the specified id is exported by the
@@ -738,9 +738,9 @@ public class UIServiceImpl
      *
      * @see UIService#isContainerSupported(Container)
      */
-    public boolean isContainerSupported(Container containderID)
+    public boolean isContainerSupported(Container containerID)
     {
-        return supportedContainers.contains(containderID);
+        return supportedContainers.contains(containerID);
     }
 
     /**

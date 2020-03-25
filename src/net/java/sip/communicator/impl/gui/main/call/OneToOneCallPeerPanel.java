@@ -1500,7 +1500,7 @@ public class OneToOneCallPeerPanel
                  * VideoContainer and JAWTRenderer cannot handle random
                  * additions of Components. Removing the localVideo when the
                  * user has requests its hiding though, should work without
-                 * removing all Components from the VideoCotainer and adding
+                 * removing all Components from the VideoContainer and adding
                  * them again.
                  */
                 if (localVideoChanged

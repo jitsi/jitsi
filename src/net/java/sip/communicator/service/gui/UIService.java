@@ -351,12 +351,12 @@ public interface UIService
      * Checks if the container with the given <tt>Container</tt> is supported
      * from the current UI implementation.
      *
-     * @param containderID One of the CONTAINER_XXX Container-s.
+     * @param containerID One of the CONTAINER_XXX Container-s.
      * @return <code>true</code> if the container with the given
      *         <tt>Container</tt> is supported from the current UI
      *         implementation, <code>false</code> otherwise.
      */
-    public boolean isContainerSupported(Container containderID);
+    public boolean isContainerSupported(Container containerID);
 
     /**
      * Determines whether the Mac OS X screen menu bar is being used by the UI
