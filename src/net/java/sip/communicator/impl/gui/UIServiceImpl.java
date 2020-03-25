@@ -1675,7 +1675,7 @@ public class UIServiceImpl
      */
     private void maybeShowMasterPasswordMissingWarningDialog()
     {
-        // is user do not want to be bothered with this dialog skip
+        // is user does not want to be bothered with this dialog skip
         // or if user is already using master password
         if (GuiActivator.getCredentialsStorageService().isUsingMasterPassword()
             || !ConfigurationUtils.showMasterPasswordWarning())
