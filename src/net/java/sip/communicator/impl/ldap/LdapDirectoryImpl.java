@@ -147,7 +147,7 @@ public class LdapDirectoryImpl
     private final List<String> phoneNumberAttributes = new ArrayList<String>();
 
     /**
-     * The contructor for this class.
+     * The constructor for this class.
      * Since this element is immutable (otherwise it would be a real pain
      * to use with a Set), it takes all the settings we could need to store
      * This constructor will not modify the <tt>settings</tt>
