@@ -287,7 +287,7 @@ public class GeneralConfigurationPanel
         configPanel.add(createGroupMessagesCheckbox());
         configPanel.add(createHistoryPanel());
         configPanel.add(createSendMessagePanel());
-        configPanel.add(createTypingNitificationsCheckBox());
+        configPanel.add(createTypingNotificationsCheckBox());
         configPanel.add(createBringToFrontCheckBox());
         configPanel.add(createChatAlertsOnMessageCheckbox());
         configPanel.add(createMultichatCheckbox());
@@ -570,7 +570,7 @@ public class GeneralConfigurationPanel
      * Initializes typing notifications panel.
      * @return the created check box
      */
-    private Component createTypingNitificationsCheckBox()
+    private Component createTypingNotificationsCheckBox()
     {
         final JCheckBox enableTypingNotifiCheckBox = new SIPCommCheckBox();
 

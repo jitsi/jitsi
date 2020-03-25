@@ -124,13 +124,13 @@ public class CallHistoryFilter
         {
             UIGroup uiGroup = notifGroups.next();
 
-            Iterator<? extends UIContact> notfications
+            Iterator<? extends UIContact> notifications
                 = notifSource.getNotifications(uiGroup);
 
-            while (notfications.hasNext())
+            while (notifications.hasNext())
             {
                 GuiActivator.getContactList()
-                    .addContact(notfications.next(),
+                    .addContact(notifications.next(),
                                 uiGroup,
                                 false,
                                 true);
