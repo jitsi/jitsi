@@ -907,7 +907,7 @@ public class MclStorageManager
                     catch (Throwable throwable)
                     {
                         // hmm, failed to remove the faulty node. we must be
-                        // in some kind of serious troble (but i don't see
+                        // in some kind of serious trouble (but i don't see
                         // what we can do about it)
                         logger.error("Failed to remove meta contact node "
                             + currentMetaContactNode, throwable);
@@ -958,7 +958,7 @@ public class MclStorageManager
                     catch (Throwable thr)
                     {
                         // hmm, failed to remove the faulty node. we must be
-                        // in some kind of serious troble (but i don't see
+                        // in some kind of serious trouble (but i don't see
                         // what we can do about it)
                         logger.error("Failed to remove group node "
                             + currentGroupNode, thr);
