@@ -502,15 +502,15 @@ public class TestXCapParse extends TestCase
                         "properly",
                 enty1ExtElement.getLocalName(), "display-name");
         assertEquals(
-                "The lists[1]entry[1]ext:dispaly-name element we set is not " +
+                "The lists[1]entry[1]ext:display-name element we set is not " +
                         "read properly",
                 XMLUtils.getNamespaceUri(enty1ExtElement), "extension");
         assertEquals(
-                "The lists[1]entry[1]ext:dispaly-name element we set is not " +
+                "The lists[1]entry[1]ext:display-name element we set is not " +
                         "read properly",
                 enty1ExtElement.getPrefix(), "ext");
         assertEquals(
-                "The lists[1]entry[1]ext:dispaly-name element we set is not " +
+                "The lists[1]entry[1]ext:display-name element we set is not " +
                         "read properly",
                 enty1ExtElement.getTextContent(), "Ext:Entry1");
 

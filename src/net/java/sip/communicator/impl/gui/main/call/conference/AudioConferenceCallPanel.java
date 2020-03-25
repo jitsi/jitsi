@@ -30,7 +30,7 @@ import net.java.sip.communicator.service.protocol.*;
  * Extends <tt>BasicConferenceCallPanel</tt> to implement a user interface
  * <tt>Component</tt> which depicts an audio-only <tt>CallConference</tt> and is
  * contained in a <tt>CallPanel</tt>. (Even if the <tt>CallConference</tt>
- * actually has video, <tt>AudioConferenceCallPanel</tt> does not dispay the
+ * actually has video, <tt>AudioConferenceCallPanel</tt> does not display the
  * video.)
  *
  * @author Dilshan Amadoru

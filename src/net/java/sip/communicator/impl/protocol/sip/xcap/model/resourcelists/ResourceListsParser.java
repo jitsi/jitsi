@@ -61,9 +61,9 @@ public final class ResourceListsParser
 
     private static String EXTERNAL_ANCHOR_ATTR = "anchor";
 
-    private static String DISPALY_NAME_ELEMENT = "display-name";
+    private static String DISPLAY_NAME_ELEMENT = "display-name";
 
-    private static String DISPALY_NAME_LANG_ATTR = "lang";
+    private static String DISPLAY_NAME_LANG_ATTR = "lang";
 
     private ResourceListsParser()
     {
@@ -226,7 +226,7 @@ public final class ResourceListsParser
             if (NAMESPACE.equals(namespaceUri))
             {
                 // display-name
-                if (DISPALY_NAME_ELEMENT.equals(localName))
+                if (DISPLAY_NAME_ELEMENT.equals(localName))
                 {
                     list.setDisplayName(displayNameFromElement(element));
                 }
@@ -413,11 +413,11 @@ public final class ResourceListsParser
             throws Exception
     {
         Element displayNameElement = document.createElementNS(NAMESPACE,
-                DISPALY_NAME_ELEMENT);
+                DISPLAY_NAME_ELEMENT);
         if (displayName.getLang() != null)
         {
             displayNameElement.setAttribute(
-                    XML_NS_PREFIX + ":" + DISPALY_NAME_LANG_ATTR,
+                    XML_NS_PREFIX + ":" + DISPLAY_NAME_LANG_ATTR,
                     displayName.getLang());
         }
         if (displayName.getValue() != null)
@@ -498,7 +498,7 @@ public final class ResourceListsParser
             if (NAMESPACE.equals(namespaceUri))
             {
                 // display-name
-                if (DISPALY_NAME_ELEMENT.equals(element.getLocalName()))
+                if (DISPLAY_NAME_ELEMENT.equals(element.getLocalName()))
                 {
                     entry.setDisplayName(displayNameFromElement(element));
                     continue;
@@ -585,7 +585,7 @@ public final class ResourceListsParser
             if (NAMESPACE.equals(namespaceUri))
             {
                 // display-name
-                if (DISPALY_NAME_ELEMENT.equals(element.getLocalName()))
+                if (DISPLAY_NAME_ELEMENT.equals(element.getLocalName()))
                 {
                     entryRef.setDisplayName(displayNameFromElement(element));
                     continue;
@@ -667,7 +667,7 @@ public final class ResourceListsParser
             if (NAMESPACE.equals(namespaceUri))
             {
                 // display-name
-                if (DISPALY_NAME_ELEMENT.equals(element.getLocalName()))
+                if (DISPLAY_NAME_ELEMENT.equals(element.getLocalName()))
                 {
                     external.setDisplayName(displayNameFromElement(element));
                     continue;
@@ -694,7 +694,7 @@ public final class ResourceListsParser
             Element displayNameElement) throws Exception
     {
         DisplayNameType displayName = new DisplayNameType();
-        if (!DISPALY_NAME_ELEMENT.equals(displayNameElement.getLocalName()) ||
+        if (!DISPLAY_NAME_ELEMENT.equals(displayNameElement.getLocalName()) ||
                 !NAMESPACE.equals(getNamespaceUri(displayNameElement)))
         {
             throw new Exception("display-name element is invalid");
@@ -709,7 +709,7 @@ public final class ResourceListsParser
             {
                 throw new Exception("display-name element is invalid");
             }
-            if (DISPALY_NAME_LANG_ATTR.equals(attribute.getLocalName()) &&
+            if (DISPLAY_NAME_LANG_ATTR.equals(attribute.getLocalName()) &&
                     XML_NS_URI.equals(namespaceUri))
             {
                 displayName.setLang(attribute.getValue());

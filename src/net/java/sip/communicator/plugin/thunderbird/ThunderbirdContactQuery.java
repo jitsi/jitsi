@@ -202,7 +202,7 @@ public class ThunderbirdContactQuery
         this.addPhoneDetail(details, r, "WorkPhone", SubCategory.Work);
         this.addPhoneDetail(details, r, "CellularNumber", SubCategory.Mobile);
 
-        // and the dispaly name
+        // and the display name
         String displayName = r.getValue("DisplayName");
         if (StringUtils.isBlank(displayName))
         {
