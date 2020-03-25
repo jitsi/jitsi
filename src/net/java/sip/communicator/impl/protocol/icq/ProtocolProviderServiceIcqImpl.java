@@ -213,7 +213,7 @@ public class ProtocolProviderServiceIcqImpl
      *
      * @param authority the security authority that will be used for resolving
      *        any security challenges that may be returned during the
-     *        registration or at any moment while wer're registered.
+     *        registration or at any moment while we're registered.
      *
      * @throws OperationFailedException with the corresponding code it the
      *        registration fails for some reason (e.g. a networking error or an
