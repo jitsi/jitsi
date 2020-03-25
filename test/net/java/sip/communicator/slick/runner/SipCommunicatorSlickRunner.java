@@ -116,7 +116,7 @@ public class SipCommunicatorSlickRunner
                 tests = "";
             }
 
-            logger.debug("specfied test list is: " + tests);
+            logger.debug("specified test list is: " + tests);
 
             StringTokenizer st = new StringTokenizer(tests);
             String[] ids = new String[st.countTokens()];

@@ -14,21 +14,21 @@
 # and IRREVERSIBLY ERASED
 accounts.icq.TESTED_IMPL_ACCOUNT_ID=
 
-# The Password for the UIN specifined in accounts.icq.TESTED_IMPL_ACCOUNT_ID.
+# The Password for the UIN specified in accounts.icq.TESTED_IMPL_ACCOUNT_ID.
 accounts.icq.TESTED_IMPL_PWD=
 
 # An ICQ UIN (number) for the ICQ SLICK itself, so that it would be able to
 # sign on icq and also communicated with the tested implementation.
 accounts.icq.TESTING_IMPL_ACCOUNT_ID=
 
-# The Password for the UIN specifined in accounts.icq.TESTING_IMPL_ACCOUNT_ID.
+# The Password for the UIN specified in accounts.icq.TESTING_IMPL_ACCOUNT_ID.
 accounts.icq.TESTING_IMPL_PWD=
 
 # An ICQ UIN (number) for the ICQ SLICK itself, so that it would be able to
 # sign on icq and also communicated with the tested implementation.
 accounts.icq.TESTING_IMPL2_ACCOUNT_ID=
 
-# The Password for the UIN specifined in accounts.icq.TESTING_IMPL2_ACCOUNT_ID.
+# The Password for the UIN specified in accounts.icq.TESTING_IMPL2_ACCOUNT_ID.
 accounts.icq.TESTING_IMPL2_PWD=
 
 # The following describes the contact list that we will store on the AIM server

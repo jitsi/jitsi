@@ -266,7 +266,7 @@ public class AnimatedImage
      * Returns the Image at the specified index.
      *
      * @param index the index of the Image to be returned
-     * @return the Image at the specifed index
+     * @return the Image at the specified index
      * @exception IndexOutOfBoundsException if the index is out of range
      */
     public Image getImage(int index)

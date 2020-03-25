@@ -369,7 +369,7 @@ public class Messenger
      * @param phoneNumber the <tt>PhoneNumberDetail</tt> for which a matching
      * <tt>MPHONE_TYPE</tt> enumerated type value is to be retrieved
      * @return an <tt>MPHONE_TYPE</tt> enumerated type value which indicates the
-     * phone number type of the speciifed <tt>phoneNumber</tt>
+     * phone number type of the specified <tt>phoneNumber</tt>
      */
     private static int getMPHONE_TYPE(PhoneNumberDetail phoneNumber)
     {

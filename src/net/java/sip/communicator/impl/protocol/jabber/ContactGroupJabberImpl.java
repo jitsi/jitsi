@@ -368,7 +368,7 @@ public class ContactGroupJabberImpl
     }
 
     /**
-     * Returns the contact encapsulating with the spcieified name or
+     * Returns the contact encapsulating with the specified name or
      * null if no such contact was found.
      *
      * @param id the id for the contact we're looking for.
