@@ -354,7 +354,7 @@ public class InfoRetreiver
     }
 
     /**
-     * Metods retrieving data and storing it
+     * Methods retrieving data and storing it
      */
     /**
      * Returns the stored info so far on the specified request
