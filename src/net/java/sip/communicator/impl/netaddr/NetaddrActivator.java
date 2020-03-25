@@ -73,7 +73,7 @@ public class NetaddrActivator
 
             logger.logEntry();
 
-            //in here we load stati properties that should be else where
+            //in here we load static properties that should be else where
             //System.setProperty("java.net.preferIPv4Stack", "false");
             //System.setProperty("java.net.preferIPv6Addresses", "true");
             //end ugly property set
