@@ -766,7 +766,7 @@ public class TestOperationSetPresence
         }
 
         /**
-         * Blocks until at least one staus message event is received or until
+         * Blocks until at least one status message event is received or until
          * waitFor milliseconds pass (whichever happens first).
          *
          * @param waitFor the number of milliseconds that we should be waiting

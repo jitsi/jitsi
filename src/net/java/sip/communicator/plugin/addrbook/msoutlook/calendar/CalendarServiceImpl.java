@@ -100,7 +100,7 @@ public class CalendarServiceImpl implements CalendarService
         }
 
         /**
-         * Finds <tt>ResponseStatuse</tt> instance by given value of the status.
+         * Finds <tt>ResponseStatus</tt> instance by given value of the status.
          * @param value the value of the status we are searching for.
          * @return the status or <tt>FREE</tt> if no status is found.
          */

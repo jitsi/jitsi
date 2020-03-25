@@ -141,7 +141,7 @@ public class BLFContactQuery
 
     /**
      * Maps BLFStatusEvent.type to BLFPresenceStatus.
-     * @param status the staus to map.
+     * @param status the status to map.
      * @return the corresponding BLFPresenceStatus.
      */
     private BLFPresenceStatus getPresenceStatus(int status)
