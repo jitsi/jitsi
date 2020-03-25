@@ -254,7 +254,7 @@ public class SIPCommunicator
             // 2) if such is forced and is the overridableDirName check it
             //      (the later is the case with name transition SIP Communicator
             //      -> Jitsi, check them only for Jitsi)
-            boolean chekLegacyDirNames
+            boolean checkLegacyDirNames
                 = (name == null) || name.equals(OVERRIDABLE_DIR_NAME);
 
             if (osName.startsWith("Mac"))
@@ -321,7 +321,7 @@ public class SIPCommunicator
 
             // if we need to check legacy names and there is no current home dir
             // already created
-            if(chekLegacyDirNames
+            if(checkLegacyDirNames
                     && !checkHomeFolderExist(profileLocation, name, osName))
             {
                 // now check whether a legacy dir name exists and use it
