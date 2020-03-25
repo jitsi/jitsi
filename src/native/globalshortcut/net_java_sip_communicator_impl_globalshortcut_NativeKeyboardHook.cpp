@@ -777,7 +777,7 @@ static int convertJavaUserDefinedModifiersToWindows(int modifiers)
  * \param java_modifiers original modifiers which were used to call notify function
  * \param java_keycode original keycode which wes used to call notify function
  */
-static void setHotkeyRealese(int modifiers, DWORD keycode, int java_modifiers, int java_keycode)
+static void setHotkeyRelease(int modifiers, DWORD keycode, int java_modifiers, int java_keycode)
 {
 
   hotkey_release *hk_release = &(g_keyboard_hook.hk_release);
@@ -898,7 +898,7 @@ HRESULT callback(UINT msg, WPARAM wParam, LPARAM lParam)
         notify(javaKeycode, javaModifiers, false);
         if(ks.is_on_key_release)
         {
-          setHotkeyRealese(ks.modifiers, ks.vkcode, javaModifiers, javaKeycode);
+          setHotkeyRelease(ks.modifiers, ks.vkcode, javaModifiers, javaKeycode);
         }
         return 0;
       }
@@ -981,7 +981,7 @@ LRESULT CALLBACK keyHandler(int nCode, WPARAM wParam, LPARAM lParam)
           notify(it->keycode, 16367, false);
           if(it->is_on_key_release)
           {
-            setHotkeyRealese(0, it->keycode, 16367, it->keycode);
+            setHotkeyRelease(0, it->keycode, 16367, it->keycode);
           }
           break;
         }
