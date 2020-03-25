@@ -20,7 +20,7 @@ package net.java.sip.communicator.impl.protocol.gibberish;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * Instant messaging functionalites for the Gibberish protocol.
+ * Instant messaging functionality for the Gibberish protocol.
  *
  * @author Emil Ivov
  */

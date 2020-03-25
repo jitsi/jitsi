@@ -27,7 +27,7 @@ import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 
 /**
- * Tests basic provider factory functionalitites
+ * Tests basic provider factory functionality
  * @author Emil Ivov
  * @author Damian Minkov
  */
