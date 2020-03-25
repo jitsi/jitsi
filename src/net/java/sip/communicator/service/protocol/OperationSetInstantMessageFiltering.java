@@ -22,7 +22,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 /**
  * An operation set that allows plugins to register filters which could
  * intercept instant messages and determine whether or not they should be
- * dispatched to regular listeners. <tt>EventFilter</tt>-s allow implementating
+ * dispatched to regular listeners. <tt>EventFilter</tt>-s allow implementing
  * features that use standard instant messaging channels to exchange
  *
  * @author Keio Kraaner
