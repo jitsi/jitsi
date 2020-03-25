@@ -994,7 +994,7 @@ public class TestOperationSetServerStoredInfo
         new Locale("vi"), // LC_VIETNAMESE    Vietnamese
         new Locale("yi"), // LC_YIDDISH   Yiddish
         new Locale("yo"), // LC_YORUBA    Yoruba
-        new Locale("af"), // LC_AFRIKAANS Afriaans
+        new Locale("af"), // LC_AFRIKAANS Afrikaans
         new Locale("bs"), // LC_BOSNIAN   Bosnian
         new Locale("fa"), // LC_PERSIAN   Persian
         new Locale("sq"), // LC_ALBANIAN  Albanian
