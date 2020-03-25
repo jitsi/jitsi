@@ -206,7 +206,7 @@ public class TestMetaContactList
     }
 
     /**
-     * Makes sure that all child contacs (both direct and children of subgroups)
+     * Makes sure that all child contacts (both direct and children of subgroups)
      * are properly ordered.
      * @param group a ref to the <tt>MetaContactGroup</tt> where we'd like to
      * confirm order.

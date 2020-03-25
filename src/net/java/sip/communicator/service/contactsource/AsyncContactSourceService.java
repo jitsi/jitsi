@@ -72,7 +72,7 @@ public abstract class AsyncContactSourceService
 
     /**
      * Defines whether using this contact source service (Outlook or MacOSX
-     * Contacs) can be used as result for the search field. This is
+     * Contacts) can be used as result for the search field. This is
      * useful when an external plugin looks for result of this contact source
      * service, but want to display the search field result from its own (avoid
      * duplicate results).
