@@ -644,7 +644,7 @@ public class IcqTesterAgent
      * Queries the AIM server for our own status and returns accordingly.
      * @return the IcqStatusEnum instance corresponding to our own status.
      */
-    public IcqStatusEnum getPresneceStatus()
+    public IcqStatusEnum getPresenceStatus()
     {
         return getBuddyStatus(getIcqUIN());
     }

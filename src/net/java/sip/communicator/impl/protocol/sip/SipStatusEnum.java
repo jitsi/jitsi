@@ -220,7 +220,7 @@ public class SipStatusEnum
         extends PresenceStatus
     {
         /**
-         * Creates an instance of <tt>SipPresneceStatus</tt> with the
+         * Creates an instance of <tt>SipPresenceStatus</tt> with the
          * specified parameters.
          * @param status the connectivity level of the new presence status
          * instance

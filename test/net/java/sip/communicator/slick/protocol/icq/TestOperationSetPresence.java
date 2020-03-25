@@ -645,7 +645,7 @@ public class TestOperationSetPresence
         // notified
         logger.debug("Testing presence notifications.");
         IcqStatusEnum testerAgentOldStatus
-            = IcqSlickFixture.testerAgent.getPresneceStatus();
+            = IcqSlickFixture.testerAgent.getPresenceStatus();
         IcqStatusEnum testerAgentNewStatus = IcqStatusEnum.FREE_FOR_CHAT;
         long testerAgentNewStatusLong = FullUserInfo.ICQSTATUS_FFC;
 
@@ -694,7 +694,7 @@ public class TestOperationSetPresence
                 logger.debug("Stop waiting!");
             }
 
-            testerAgentOldStatus = IcqSlickFixture.testerAgent.getPresneceStatus();
+            testerAgentOldStatus = IcqSlickFixture.testerAgent.getPresenceStatus();
             testerAgentNewStatusLong = FullUserInfo.ICQSTATUS_FFC;
 
             //in case we are by any chance already in a FREE_FOR_CHAT status, we'll
@@ -816,7 +816,7 @@ public class TestOperationSetPresence
         // get notifications as we're now unsubscribed.
         logger.debug("Testing (lack of) presence notifications.");
         IcqStatusEnum testerAgentOldStatus
-            = IcqSlickFixture.testerAgent.getPresneceStatus();
+            = IcqSlickFixture.testerAgent.getPresenceStatus();
         IcqStatusEnum testerAgentNewStatus = IcqStatusEnum.FREE_FOR_CHAT;
         long testerAgentNewStatusLong = FullUserInfo.ICQSTATUS_FFC;
 

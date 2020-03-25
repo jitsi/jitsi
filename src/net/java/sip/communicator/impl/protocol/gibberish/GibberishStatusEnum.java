@@ -134,7 +134,7 @@ public class GibberishStatusEnum
     }
 
     /**
-     * Creates an instance of <tt>GibberishPresneceStatus</tt> with the
+     * Creates an instance of <tt>GibberishPresenceStatus</tt> with the
      * specified parameters.
      * @param status the connectivity level of the new presence status instance
      * @param statusName the name of the presence status.

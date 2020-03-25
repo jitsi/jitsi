@@ -114,7 +114,7 @@ public class MockStatusEnum
     }
 
     /**
-     * Creates an instance of <tt>MockPresneceStatus</tt> with the specified
+     * Creates an instance of <tt>MockPresenceStatus</tt> with the specified
      * parameters.
      * @param status the connectivity level of the new presence status instance
      * @param statusName the name of the presence status.

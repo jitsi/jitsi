@@ -687,7 +687,7 @@ public class OperationSetPersistentPresenceJabberImpl
             catch (NotConnectedException | InterruptedException e)
             {
                 throw new OperationFailedException(
-                    "Could not send new presense status",
+                    "Could not send new presence status",
                     OperationFailedException.GENERAL_ERROR,
                     e
                 );
