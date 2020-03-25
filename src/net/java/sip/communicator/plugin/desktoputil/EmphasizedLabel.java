@@ -86,11 +86,11 @@ public class EmphasizedLabel
     {
         Color retVal;
         Window window = SwingUtilities.getWindowAncestor(this);
-        boolean hasFoucs = window != null && window.isFocused();
+        boolean hasFocus = window != null && window.isFocused();
 
         if (fUseEmphasisColor)
             retVal = EMPHASIZED_FONT_COLOR;
-        else if (hasFoucs)
+        else if (hasFocus)
             retVal = EMPHASIZED_FOCUSED_FONT_COLOR;
         else
             retVal = EMPHASIZED_UNFOCUSED_FONT_COLOR;
