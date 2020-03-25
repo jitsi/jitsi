@@ -148,7 +148,7 @@ public class GibberishStatusEnum
     }
 
     /**
-     * Returns an iterator over all status instances supproted by the gibberish
+     * Returns an iterator over all status instances supported by the gibberish
      * provider.
      * @return an <tt>Iterator</tt> over all status instances supported by the
      * gibberish provider.

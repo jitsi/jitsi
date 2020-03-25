@@ -580,7 +580,7 @@ public class TestOperationSetServerStoredInfo
 
             opSetServerStoredAccountInfo.addDetail(dummyDetail);
 
-            fail("As this class is not supperted. Exception must be thrown");
+            fail("As this class is not supported. Exception must be thrown");
         }
         catch (ArrayIndexOutOfBoundsException ex)
         {}

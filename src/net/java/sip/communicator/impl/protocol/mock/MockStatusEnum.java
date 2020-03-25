@@ -125,7 +125,7 @@ public class MockStatusEnum
     }
 
     /**
-     * Returns an iterator over all status instances supproted by the mock
+     * Returns an iterator over all status instances supported by the mock
      * provider.
      * @return an <tt>Iterator</tt> over all status instances supported by the
      * mock provider.
