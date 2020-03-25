@@ -37,7 +37,7 @@ public class ByteFormat
         long check = 1;
 
         // sizes
-        String[] sufixes = {"", " bytes", " K", " MB", " GB"};
+        String[] suffixes = {"", " bytes", " K", " MB", " GB"};
 
         for(int i = 1; i <= 4; i++)
         {
@@ -46,7 +46,7 @@ public class ByteFormat
             if(bytes < tempCheck || i == 4)
             {
                 return new DecimalFormat(check == 1 ? "#,##0" :
-                    "#,##0.0").format((double)bytes/check) + sufixes[i];
+                    "#,##0.0").format((double)bytes/check) + suffixes[i];
             }
 
             check = tempCheck;

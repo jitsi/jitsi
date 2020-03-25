@@ -295,8 +295,8 @@ public class JabberAccountRegistrationForm
                 throw new IllegalStateException("No user ID provided.");
 
             if(userID.indexOf('@') < 0
-               && registration.getDefaultUserSufix() != null)
-                userID = userID + '@' + registration.getDefaultUserSufix();
+               && registration.getDefaultUserSuffix() != null)
+                userID = userID + '@' + registration.getDefaultUserSuffix();
 
             password = accountPanel.getPassword();
             serverAddress = connectionPanel.getServerAddress();
@@ -369,7 +369,7 @@ public class JabberAccountRegistrationForm
             telephonyConfigPanel.isJingleDisabled());
         registration.setTelephonyDomainBypassCaps(
             telephonyConfigPanel.getTelephonyDomainBypassCaps());
-        registration.setOverridePhoneSufix(
+        registration.setOverridePhoneSuffix(
             telephonyConfigPanel.getTelephonyDomain());
 
         encodingsPanel.commitPanel(registration.getEncodingsRegistration());

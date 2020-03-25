@@ -41,7 +41,7 @@ public class JabberAccountRegistration
     /**
      * The default domain.
      */
-    private String defaultUserSufix;
+    private String defaultUserSuffix;
 
     /**
      * Indicates if the password should be remembered.
@@ -117,13 +117,13 @@ public class JabberAccountRegistration
     }
 
     /**
-     * Returns the user sufix.
+     * Returns the user suffix.
      *
-     * @return the user sufix
+     * @return the user suffix
      */
-    public String getDefaultUserSufix()
+    public String getDefaultUserSuffix()
     {
-        return defaultUserSufix;
+        return defaultUserSuffix;
     }
 
     /**
@@ -145,13 +145,13 @@ public class JabberAccountRegistration
     }
 
     /**
-     * Sets the default value of the user sufix.
+     * Sets the default value of the user suffix.
      *
-     * @param userSufix the user name sufix (the domain name after the @ sign)
+     * @param userSuffix the user name suffix (the domain name after the @ sign)
      */
-    public void setDefaultUserSufix(String userSufix)
+    public void setDefaultUserSuffix(String userSuffix)
     {
-        this.defaultUserSufix = userSufix;
+        this.defaultUserSuffix = userSuffix;
     }
 
     /**

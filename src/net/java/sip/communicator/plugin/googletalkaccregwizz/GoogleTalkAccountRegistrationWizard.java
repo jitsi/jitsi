@@ -101,7 +101,7 @@ public class GoogleTalkAccountRegistrationWizard
      */
     private void setPredefinedProperties(JabberAccountRegistration reg)
     {
-        reg.setDefaultUserSufix("gmail.com");
+        reg.setDefaultUserSuffix("gmail.com");
         reg.setServerAddress("talk.google.com");
 
         reg.setServerOverridden(true);

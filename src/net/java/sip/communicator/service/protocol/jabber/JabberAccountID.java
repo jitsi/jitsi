@@ -239,7 +239,7 @@ public class JabberAccountID
      * @param phoneSuffix the phone name suffix (the domain name after the @
      * sign)
      */
-    public void setOverridePhoneSufix(String phoneSuffix)
+    public void setOverridePhoneSuffix(String phoneSuffix)
     {
         setOrRemoveIfEmpty(OVERRIDE_PHONE_SUFFIX, phoneSuffix);
     }
