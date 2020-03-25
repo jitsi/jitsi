@@ -39,7 +39,7 @@ public interface OperationSetInstantMessageFiltering
     public void addEventFilter(EventFilter filter);
 
     /**
-     * Unregisteres an <tt>EventFilter</tt> so that it won't check any more
+     * Unregisters an <tt>EventFilter</tt> so that it won't check any more
      * if an event should be filtered out.
      *
      * @param filter the <tt>EventFilter</tt> to unregister.
