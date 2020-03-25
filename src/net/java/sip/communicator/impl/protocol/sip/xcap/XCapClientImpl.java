@@ -560,7 +560,7 @@ public class XCapClientImpl extends BaseHttpXCapClient implements XCapClient
     }
 
     /**
-     * Puts XCAP resources to the server. Analyzes HTTP code and tryes to get
+     * Puts XCAP resources to the server. Analyzes HTTP code and tries to get
      * xcap-error if possible.
      *
      * @param resource the resource.
@@ -595,7 +595,7 @@ public class XCapClientImpl extends BaseHttpXCapClient implements XCapClient
     }
 
     /**
-     * Gets XCAP resources from the server. Analyzes HTTP code and tryes to get
+     * Gets XCAP resources from the server. Analyzes HTTP code and tries to get
      * xcap-error if possible.
      *
      * @param resourceId  the resource identifier.
@@ -678,7 +678,7 @@ public class XCapClientImpl extends BaseHttpXCapClient implements XCapClient
     }
 
     /**
-     * Deletes XCAP resources from the server. Analyzes HTTP code and tryes to
+     * Deletes XCAP resources from the server. Analyzes HTTP code and tries to
      * get xcap-error if possible.
      *
      * @param resourceId the resource identifier.
