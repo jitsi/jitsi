@@ -510,7 +510,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
          * <tt>MessageReceivedEvent</tt>.
          *
          * @param conversation the conversation where the message is received in.
-         * @param minfo informtion about the received message
+         * @param minfo information about the received message
          */
         public void gotMessage(Conversation conversation, MessageInfo minfo)
         {
