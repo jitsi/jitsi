@@ -203,20 +203,20 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
             if (logger.isDebugEnabled())
             {
                 byte[] contentBytes = result.getContent();
-                String contenString;
+                String contentString;
                 // for debug purposes print only xmls
                 // skip the icon queries
                 if(contentBytes != null && result.getContentType() != null
                         && !result.getContentType()
                                 .startsWith(PresContentClient.CONTENT_TYPE))
-                    contenString = new String(contentBytes);
+                    contentString = new String(contentBytes);
                 else
-                    contenString = "";
+                    contentString = "";
 
                 String logMessage = String.format(
                         "Getting resource %1s from the server content:%2s",
                         uri.toString(),
-                        contenString
+                        contentString
                 );
                 logger.debug(logMessage);
             }

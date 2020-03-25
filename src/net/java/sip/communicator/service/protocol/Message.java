@@ -44,7 +44,7 @@ public interface Message
 
     /**
      * Returns the MIME type for the message content.
-     * @return a String containing the mime type of the message contant.
+     * @return a String containing the mime type of the message content.
      */
     public String getContentType();
 
