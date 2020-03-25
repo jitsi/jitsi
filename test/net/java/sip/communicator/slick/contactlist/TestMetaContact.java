@@ -166,7 +166,7 @@ public class TestMetaContact extends TestCase
     }
 
     /**
-     * Very light test of the existance and the uniqueness of meta UIDs
+     * Very light test of the existence and the uniqueness of meta UIDs
      */
     public void testGetMetaUID()
     {
