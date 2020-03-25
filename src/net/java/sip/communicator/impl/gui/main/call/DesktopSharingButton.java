@@ -29,7 +29,7 @@ import net.java.sip.communicator.util.*;
 
 /**
  * The button responsible to start(the <tt>Call</tt> of) an associated
- * <tt>CallPariticant</tt>.
+ * <tt>CallParticipant</tt>.
  *
  * @author Yana Stamcheva
  */

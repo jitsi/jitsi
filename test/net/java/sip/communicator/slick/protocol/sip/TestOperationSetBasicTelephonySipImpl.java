@@ -974,9 +974,9 @@ public class TestOperationSetBasicTelephonySipImpl
                     wait(waitFor);
 
                     if (collectedEvents.size() > 0)
-                        logger.trace("Received a CallParticpantStateEvent.");
+                        logger.trace("Received a CallParticipantStateEvent.");
                     else
-                        logger.trace("No CallParticpantStateEvent received for "
+                        logger.trace("No CallParticipantStateEvent received for "
                                      + waitFor + "ms.");
 
                     listenedCallPeer
@@ -985,7 +985,7 @@ public class TestOperationSetBasicTelephonySipImpl
                 catch (InterruptedException ex)
                 {
                     logger.debug("Interrupted while waiting for a "
-                                 + "CallParticpantEvent"
+                                 + "CallParticipantEvent"
                                  , ex);
                 }
             }
@@ -1048,7 +1048,7 @@ public class TestOperationSetBasicTelephonySipImpl
          */
         public void waitForEvent(long waitFor)
         {
-            logger.trace("Waiting for a CallParticpantEvent");
+            logger.trace("Waiting for a CallParticipantEvent");
             synchronized (this)
             {
                 if (listenedCall.getCallState() == awaitedState)
@@ -1074,7 +1074,7 @@ public class TestOperationSetBasicTelephonySipImpl
                 catch (InterruptedException ex)
                 {
                     logger.debug("Interrupted while waiting for a "
-                                 + "CallParticpantEvent"
+                                 + "CallParticipantEvent"
                                  , ex);
                 }
             }

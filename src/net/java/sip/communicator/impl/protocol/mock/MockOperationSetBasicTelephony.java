@@ -136,7 +136,7 @@ public class MockOperationSetBasicTelephony
 
     /**
      * Indicates a user request to end a call with the specified call
-     * particiapnt.
+     * participant.
      *
      * @param peer the peer that we'd like to hang up on.
      * @throws OperationFailedException with the corresponding code if we

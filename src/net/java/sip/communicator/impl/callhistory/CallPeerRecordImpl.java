@@ -53,7 +53,7 @@ public class CallPeerRecordImpl
     }
 
     /**
-     * Sets the particiapnts address
+     * Sets the participants address
      * @param peerAddress String
      */
     public void setPeerAddress(String peerAddress)

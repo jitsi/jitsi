@@ -179,7 +179,7 @@ public class OperationSetBasicTelephonySipImpl
      * @return CallPeer the CallPeer that will represented by the specified uri.
      * All following state change events will be delivered through that call
      * peer. The Call that this peer is a member of could be retrieved from the
-     * CallParticipatn instance with the use of the corresponding method.
+     * CallParticipant instance with the use of the corresponding method.
      *
      * @throws OperationFailedException with the corresponding code if we fail
      * to create the call.
@@ -2000,7 +2000,7 @@ public class OperationSetBasicTelephonySipImpl
                 }
                 catch (Exception ex)
                 {
-                    logger.warn("Failed to properly hangup particpant "
+                    logger.warn("Failed to properly hangup participant "
                         + peer, ex);
                 }
             }

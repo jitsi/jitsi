@@ -24,7 +24,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * Represents an UI means to put an associated <tt>CallPariticant</tt> on/off
+ * Represents an UI means to put an associated <tt>CallParticipant</tt> on/off
  * hold.
  *
  * @author Lubomir Marinov

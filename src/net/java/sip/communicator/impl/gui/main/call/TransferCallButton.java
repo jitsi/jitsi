@@ -26,7 +26,7 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Represents an UI means to transfer (the <tt>Call</tt> of) an associated
- * <tt>CallPariticant</tt>.
+ * <tt>CallParticipant</tt>.
  *
  * @author Lubomir Marinov
  * @author Yana Stamcheva

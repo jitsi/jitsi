@@ -180,7 +180,7 @@ public class ChatRoomMemberJabberImpl
     }
 
     /**
-     * Update the name of this parcipant
+     * Update the name of this participant
      * @param newNick the newNick of the participant
      */
     protected void setName(Resourcepart newNick)

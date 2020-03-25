@@ -98,7 +98,7 @@ public class OperationSetDesktopStreamingSipImpl
      * @return CallPeer the CallPeer that will represented by the
      * specified uri. All following state change events will be delivered
      * through that call peer. The Call that this peer is a member
-     * of could be retrieved from the CallParticipatn instance with the use
+     * of could be retrieved from the CallParticipant instance with the use
      * of the corresponding method.
      * @throws OperationFailedException with the corresponding code if we fail
      * to create the video call.
@@ -225,7 +225,7 @@ public class OperationSetDesktopStreamingSipImpl
      * @return CallPeer the CallPeer that will represented by the
      * specified uri. All following state change events will be delivered
      * through that call peer. The Call that this peer is a member
-     * of could be retrieved from the CallParticipatn instance with the use
+     * of could be retrieved from the CallParticipant instance with the use
      * of the corresponding method.
      * @throws OperationFailedException with the corresponding code if we fail
      * to create the video call.
@@ -252,7 +252,7 @@ public class OperationSetDesktopStreamingSipImpl
      * @return CallPeer the CallPeer that will represented by the
      * specified uri. All following state change events will be delivered
      * through that call peer. The Call that this peer is a member
-     * of could be retrieved from the CallParticipatn instance with the use
+     * of could be retrieved from the CallParticipant instance with the use
      * of the corresponding method.
      * @throws OperationFailedException with the corresponding code if we fail
      * to create the video call.
