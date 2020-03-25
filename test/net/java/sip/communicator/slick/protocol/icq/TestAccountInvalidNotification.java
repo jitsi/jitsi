@@ -88,7 +88,7 @@ public class TestAccountInvalidNotification extends TestCase
     public void failIcqTesterAgentRegisterRejected()
     {
         fail("Registering the IcqTesterAgent on icq has failed. "
-            +"Possible reasons: authentification failure (wrong ICQ "
+            +"Possible reasons: authentication failure (wrong ICQ "
             +"account number, no password, wrong password), "
             +"or Connection rate limit exceeded.");
     }

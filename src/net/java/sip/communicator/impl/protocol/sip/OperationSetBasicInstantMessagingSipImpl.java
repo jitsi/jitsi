@@ -896,7 +896,7 @@ public class OperationSetBasicInstantMessagingSipImpl
                 return true;
             }
 
-            // status 401/407 = proxy authentification
+            // status 401/407 = proxy authentication
             if (status >= 400 && status != 401 && status != 407)
             {
                 if (logger.isInfoEnabled())
@@ -919,7 +919,7 @@ public class OperationSetBasicInstantMessagingSipImpl
             }
             else if (status == 401 || status == 407)
             {
-                // proxy ask for authentification
+                // proxy ask for authentication
                 if (logger.isDebugEnabled())
                     logger.debug("proxy asks authentication : "
                             + responseEvent.getResponse().getStatusCode()
