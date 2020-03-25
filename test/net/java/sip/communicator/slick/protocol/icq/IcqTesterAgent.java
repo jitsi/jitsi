@@ -710,7 +710,7 @@ public class IcqTesterAgent
         /**
          * The method would wait until at least one new buddy is collected by
          * this collector or the specified number of milliseconds have passed.
-         * @param milliseconds the maximum number of millisseconds to wait for
+         * @param milliseconds the maximum number of milliseconds to wait for
          * a new buddy before simply bailing out.
          */
         public void waitForANewBuddy(int milliseconds)
@@ -731,7 +731,7 @@ public class IcqTesterAgent
         /**
          * The method would wait until at least one new group is collected by
          * this collector or the specified number of milliseconds have passed.
-         * @param milliseconds the maximum number of millisseconds to wait for
+         * @param milliseconds the maximum number of milliseconds to wait for
          * a new group before simply bailing out.
          */
         public void waitForANewGroup(int milliseconds)
