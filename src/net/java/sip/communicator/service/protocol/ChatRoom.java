@@ -470,7 +470,7 @@ public interface ChatRoom
     * Grants moderator privileges to a participant or visitor. Room
     * administrators may grant moderator privileges. A moderator is allowed to
     * kick users, grant and revoke voice, invite other users, modify room's
-    * subject plus all the partcipants privileges.
+    * subject plus all the participants privileges.
     *
     * @param nickname the nickname of the occupant to grant moderator
     * privileges.

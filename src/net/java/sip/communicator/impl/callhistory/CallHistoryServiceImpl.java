@@ -1330,7 +1330,7 @@ public class CallHistoryServiceImpl
         }
 
 
-        // if has already perticipants Dispatch them
+        // if has already participants Dispatch them
         Iterator<? extends CallPeer> iter = sourceCall.getCallPeers();
         while (iter.hasNext())
         {
