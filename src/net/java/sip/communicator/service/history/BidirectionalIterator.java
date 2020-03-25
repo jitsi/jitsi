@@ -22,7 +22,7 @@ import java.util.*;
 /**
  * The standard Java Iterator is uni-directional, allowing the user to explore
  * the contents of a collection in one way only. This interface defines a
- * bi-directional iterator, permiting the user to go forwards and backwards in a
+ * bi-directional iterator, permitting the user to go forwards and backwards in a
  * collection.
  *
  * @author Alexander Pelov
