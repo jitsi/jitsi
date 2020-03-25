@@ -303,7 +303,7 @@ public abstract class ProtocolProviderFactory
                                                 = "PROXY_ADDRESS_VALIDATED";
 
     /**
-     * Indicates the search strategy chosen for the DICT protocole.
+     * Indicates the search strategy chosen for the DICT protocol.
      */
     public static final String STRATEGY = "STRATEGY";
 

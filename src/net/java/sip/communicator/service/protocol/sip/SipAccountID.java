@@ -584,7 +584,7 @@ public class SipAccountID
 
     /**
      * Returns a string that could be directly used (or easily converted to) an
-     * address that other users of the procotol can use to communicate with us.
+     * address that other users of the protocol can use to communicate with us.
      * By default this string is set to userid@servicename. Protocol
      * implementors should override it if they'd need it to respect a different
      * syntax.

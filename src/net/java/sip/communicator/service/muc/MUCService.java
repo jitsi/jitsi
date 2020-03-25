@@ -25,7 +25,7 @@ import net.java.sip.communicator.util.*;
 
 /**
  * The MUC service provides interface for the chat rooms. It connects the GUI
- * with the protcol.
+ * with the protocol.
  *
  * @author Hristo Terezov
  */

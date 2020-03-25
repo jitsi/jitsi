@@ -2116,7 +2116,7 @@ public class MclStorageManager
         public String toString()
         {
 
-            return "StoredProtocoContactDescriptor[ "
+            return "StoredProtocolContactDescriptor[ "
                 + " contactAddress="
                 + contactAddress
                 + " persistentData="

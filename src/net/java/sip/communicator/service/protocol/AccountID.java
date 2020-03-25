@@ -603,7 +603,7 @@ public abstract class AccountID
     }
 
     /**
-     * Sets the protocl icon path that will be held under
+     * Sets the protocol icon path that will be held under
      * {@link ProtocolProviderFactory#PROTOCOL_ICON_PATH} key.
      *
      * @param iconPath a path to the protocol icon to set.

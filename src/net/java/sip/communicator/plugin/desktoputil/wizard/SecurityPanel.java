@@ -315,7 +315,7 @@ public class SecurityPanel
         c.fill = GridBagConstraints.HORIZONTAL;
         pnlAdvancedSettings.add(new JSeparator(), c);
 
-        // Encryption protcol preferences.
+        // Encryption protocol preferences.
         JLabel lblEncryptionProtocolPreferences = new JLabel();
         lblEncryptionProtocolPreferences.setText(UtilActivator.getResources()
             .getI18NString(

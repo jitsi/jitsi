@@ -421,7 +421,7 @@ public class ChatRoomListImpl
      * corresponding wrapper - returns null.
      *
      * @param chatRoomID the id of <tt>ChatRoom</tt> that we're looking for
-     * @param pps the procol provider associated with the chat room.
+     * @param pps the protocol provider associated with the chat room.
      * @return the <tt>ChatRoomWrapper</tt> object corresponding to the given id
      * of the chat room
      */
