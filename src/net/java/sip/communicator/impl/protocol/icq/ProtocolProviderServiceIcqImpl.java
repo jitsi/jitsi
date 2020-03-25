@@ -737,13 +737,13 @@ public class ProtocolProviderServiceIcqImpl
                 Service service = aimConnection.getBosService();
                 if(service != null)
                 {
-                    int discconectCode = service.getOscarConnection()
+                    int disconnectCode = service.getOscarConnection()
                         .getLastCloseCode();
                     reasonCode = ConnectionClosedListener
                         .convertCodeToRegistrationStateChangeEvent(
-                            discconectCode);
+                            disconnectCode);
                     reasonStr = ConnectionClosedListener
-                        .convertCodeToStringReason(discconectCode);
+                        .convertCodeToStringReason(disconnectCode);
                     if (logger.isDebugEnabled())
                         logger.debug(
                         "The aim Connection was disconnected! with reason : "
