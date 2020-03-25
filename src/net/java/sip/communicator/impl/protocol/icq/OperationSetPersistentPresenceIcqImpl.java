@@ -195,7 +195,7 @@ public class OperationSetPersistentPresenceIcqImpl
      * plugins that may for some reason need to know the status of a particular
      * contact.
      * <p>
-     * @param contactIdentifier the dientifier of the contact whose status we're
+     * @param contactIdentifier the identifier of the contact whose status we're
      * interested in.
      * @return PresenceStatus the <tt>PresenceStatus</tt> of the specified
      * <tt>contact</tt>

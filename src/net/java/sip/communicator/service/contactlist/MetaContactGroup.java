@@ -202,7 +202,7 @@ public interface MetaContactGroup
      * <tt>contactID</tt> is pertaining to.
      * @param contactID a String identifier of the protocol specific contact
      * whose container meta contact we're looking for.
-     * @return the <tt>MetaContact</tt> with the specified idnetifier.
+     * @return the <tt>MetaContact</tt> with the specified identifier.
      */
     public MetaContact getMetaContact(ProtocolProviderService provider,
                                       String contactID);
@@ -212,7 +212,7 @@ public interface MetaContactGroup
      * @param metaUID a String identifier obtained through the
      * <tt>MetaContact.getMetaUID()</tt> method.
      * <p>
-     * @return the <tt>MetaContact</tt> with the specified idnetifier.
+     * @return the <tt>MetaContact</tt> with the specified identifier.
      */
     public MetaContact getMetaContact(String metaUID);
 
