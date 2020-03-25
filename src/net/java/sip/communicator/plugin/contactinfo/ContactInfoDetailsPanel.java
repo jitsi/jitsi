@@ -74,12 +74,12 @@ public class ContactInfoDetailsPanel
     private Contact contact;
 
     /**
-     * The default width of hte avatar area.
+     * The default width of the avatar area.
      */
     private static final int AVATAR_AREA_WIDTH = 105;
 
     /**
-     * The default height of hte avatar area.
+     * The default height of the avatar area.
      */
     private static final int AVATAR_AREA_HEIGHT = 130;
 
