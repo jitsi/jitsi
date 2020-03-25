@@ -76,7 +76,7 @@ public class FileTransferImpl
     }
 
     /**
-     * Uniquie ID that is identifying the FileTransfer
+     * Unique ID that is identifying the FileTransfer
      * if the request has been accepted.
      *
      * @return the id.

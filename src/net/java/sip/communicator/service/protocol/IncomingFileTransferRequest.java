@@ -29,7 +29,7 @@ import java.io.*;
 public interface IncomingFileTransferRequest
 {
     /**
-     * Uniquie ID that is identifying the request and then the FileTransfer
+     * Unique ID that is identifying the request and then the FileTransfer
      * if the request has been accepted.
      *
      * @return the id.
