@@ -664,7 +664,7 @@ public abstract class TransportManagerJabberImpl
      * @return a new <tt>IceUdpTransportPacketExtension</tt> instance which has
      * the same run-time type, attributes, namespace, text and candidates as the
      * specified <tt>src</tt>
-     * @throws OperationFailedException if an error occurs during the cloing of
+     * @throws OperationFailedException if an error occurs during the cloning of
      * the specified <tt>src</tt> and its candidates
      */
     static IceUdpTransportPacketExtension cloneTransportAndCandidates(
