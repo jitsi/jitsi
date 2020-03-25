@@ -332,7 +332,7 @@ public class ContactSipImpl
     /**
      * Returns a reference to the protocol provider that created the contact.
      *
-     * @return a refererence to an instance of the ProtocolProviderService
+     * @return a reference to an instance of the ProtocolProviderService
      */
     public ProtocolProviderService getProtocolProvider()
     {

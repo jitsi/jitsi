@@ -111,7 +111,7 @@ public class ContactGroupGibberishImpl
 
     /**
      * Returns the protocol provider that this group belongs to.
-     * @return a regerence to the ProtocolProviderService instance that this
+     * @return a reference to the ProtocolProviderService instance that this
      * ContactGroup belongs to.
      */
     public ProtocolProviderService getProtocolProvider()

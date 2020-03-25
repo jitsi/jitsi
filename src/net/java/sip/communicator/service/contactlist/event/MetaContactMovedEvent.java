@@ -41,7 +41,7 @@ public class MetaContactMovedEvent
      * event is about.
      * @param oldParent a reference to the  <tt>MetaContactGroup</tt> that
      * contained <tt>sourceContact</tt> before it was moved.
-     * @param newParent a refenrece to the <tt>MetaContactGroup</tt> that
+     * @param newParent a reference to the <tt>MetaContactGroup</tt> that
      * contains <tt>sourceContact</tt> after it was moved.
      */
     public MetaContactMovedEvent(MetaContact sourceContact,
