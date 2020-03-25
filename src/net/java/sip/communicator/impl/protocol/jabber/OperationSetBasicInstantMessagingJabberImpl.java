@@ -303,7 +303,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
     /**
      * Remove from our <tt>jids</tt> map all entries that have not seen any
-     * activity (i.e. neither outgoing nor incoming messags) for more than
+     * activity (i.e. neither outgoing nor incoming messages) for more than
      * JID_INACTIVITY_TIMEOUT. Note that this method is not synchronous and that
      * it is only meant for use by the {@link #getThreadIDForAddress(BareJid)} and
      * {@link #putJidForAddress(FullJid, String)}
