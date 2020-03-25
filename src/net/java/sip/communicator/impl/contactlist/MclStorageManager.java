@@ -793,7 +793,7 @@ public class MclStorageManager
 
             // if this is not the meta contact list root and if it doesn't
             // contain proto groups of the account we're currently loading then
-            // we don't need to recurese it since it could contain any child
+            // we don't need to recurse it since it could contain any child
             // contacts of the same account.
             if (protoGroupsMap.size() == 0)
                 return;
