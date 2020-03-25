@@ -103,7 +103,7 @@ public class ContactDetail
         private final String value;
 
         /**
-         * Creates enum whith the specified value.
+         * Creates enum with the specified value.
          *
          * @param value the value to set.
          */
@@ -258,7 +258,7 @@ public class ContactDetail
         private final String value;
 
         /**
-         * Creates enum whith the specified value.
+         * Creates enum with the specified value.
          *
          * @param value the value to set.
          */

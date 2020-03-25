@@ -40,7 +40,7 @@ public class ParsingException extends Exception
     }
 
     /**
-     * Creates a new <code>XCapException</code> instance whith human-readable
+     * Creates a new <code>XCapException</code> instance with human-readable
      * explanation.
      *
      * @param message the detailed message explaining any particular details as

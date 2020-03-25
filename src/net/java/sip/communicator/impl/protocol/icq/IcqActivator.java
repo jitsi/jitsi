@@ -103,7 +103,7 @@ public class IcqActivator
     /**
      * Returns a reference to the bundle context that we were started with.
      * @return a reference to the BundleContext instance that we were started
-     * witn.
+     * with.
      */
     public static BundleContext getBundleContext()
     {
