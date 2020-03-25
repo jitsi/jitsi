@@ -55,7 +55,7 @@ Java_net_java_sip_communicator_impl_sparkle_SparkleActivator_initSparkle
     }
 
     // The below code was used to avoid to link the Sparkle framework
-    // at comilation time. 
+    // at compilation time. 
     //const char *path = (*env)->GetStringUTFChars(env, pathToSparkleFramework, 0); 
     //NSBundle* bundle = [NSBundle bundleWithPath:[NSString stringWithCString: path]];
     //Class suUpdaterClass = [bundle classNamed:@"SUUpdater"];
