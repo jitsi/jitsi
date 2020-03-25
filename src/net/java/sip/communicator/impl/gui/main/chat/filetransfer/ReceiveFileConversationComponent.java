@@ -202,17 +202,17 @@ public class ReceiveFileConversationComponent
         // If a file with the given name already exists, add an index to the
         // file name.
         int index = 0;
-        int filenameLenght = incomingFileName.lastIndexOf(".");
-        if(filenameLenght == -1)
+        int filenameLength = incomingFileName.lastIndexOf(".");
+        if(filenameLength == -1)
         {
-            filenameLenght = incomingFileName.length();
+            filenameLength = incomingFileName.length();
         }
         while (downloadFile.exists())
         {
             String newFileName
-             = incomingFileName.substring(0, filenameLenght)
+             = incomingFileName.substring(0, filenameLength)
                  + "-" + ++index
-                 + incomingFileName.substring(filenameLenght);
+                 + incomingFileName.substring(filenameLength);
 
             downloadFile = new File(downloadDir, newFileName);
         }

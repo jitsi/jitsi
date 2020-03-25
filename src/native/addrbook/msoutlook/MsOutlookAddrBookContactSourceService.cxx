@@ -606,7 +606,7 @@ HRESULT MsOutlookAddrBookContactSourceService_startComServer(void)
         startupInfo.dwFlags = STARTF_USESHOWWINDOW;
         startupInfo.wShowWindow = SW_HIDE;
         char* loggerPath = MsOutlookUtils_getLoggerPath();
-        int loggerPathLenght = 0;
+        int loggerPathLength = 0;
         char* comServerWithLogger;
         char* appNameWithLogger;
         char* loggerPathEscaped = NULL;
@@ -628,13 +628,13 @@ HRESULT MsOutlookAddrBookContactSourceService_startComServer(void)
         		loggerPath++;
         	}
         	*(loggerPathEscaped + i) = '\0';
-        	loggerPathLenght = strlen(loggerPathEscaped);
+        	loggerPathLength = strlen(loggerPathEscaped);
 			comServerWithLogger
 				= (char*) malloc(
-						(FILENAME_MAX + loggerPathLenght) * sizeof(char));
+						(FILENAME_MAX + loggerPathLength) * sizeof(char));
 			appNameWithLogger
 				= (char*) malloc(
-						(FILENAME_MAX + loggerPathLenght) * sizeof(char));
+						(FILENAME_MAX + loggerPathLength) * sizeof(char));
         	sprintf(comServerWithLogger, "%s \"%s\" %d", comServer,
         			loggerPathEscaped, loggerLevel);
         	sprintf(appNameWithLogger, "%s \"%s\" %d", applicationName

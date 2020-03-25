@@ -338,7 +338,7 @@ public class TestOperationSetServerStoredInfo
 //        };
 
         // the countries are between 0 and 232, see countryIndexToLocaleString,
-        // which lengthe is 232
+        // which length is 232
         int countryRandom = 0 + (int) (Math.random() * 232);
         int newCountryCode = ( (Integer) countryIndexToLocaleString[
                               countryRandom][0]).intValue();
