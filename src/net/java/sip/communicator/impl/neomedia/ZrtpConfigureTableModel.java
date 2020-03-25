@@ -243,7 +243,7 @@ public class ZrtpConfigureTableModel<T extends Enum<T>>
     /**
      * Sets the ZrtpConfigure data for this algorithm to a predefined set.
      *
-     * The caller prepared active ZrtpConfigureto contain a standard set of
+     * The caller prepared active ZrtpConfigure to contain a standard set of
      * algorithms. Get the names and construct a string, then call initialize
      * to setup the inActive ZrtpConfigure data.
      */
