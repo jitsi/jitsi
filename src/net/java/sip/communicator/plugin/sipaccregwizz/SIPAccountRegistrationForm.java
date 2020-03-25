@@ -35,7 +35,7 @@ import org.jitsi.utils.*;
  * The <tt>SIPAccountRegistrationForm</tt>.
  *
  * @author Yana Stamcheva
- * @author Grogorii Balutsel
+ * @author Grigorii Balutsel
  * @author Pawel Domas
  */
 public class SIPAccountRegistrationForm
