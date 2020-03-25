@@ -27,7 +27,7 @@ import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 
 /**
- * Tests whether accaounts are uninstalled properly. It is important that
+ * Tests whether accounts are uninstalled properly. It is important that
  * tests from this class be called last since they will install the accounts
  * that have been used to test the implementations. Apart from uninstallation
  * tests the class also contains tests that remove and reinstall the protocol
