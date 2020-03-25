@@ -420,12 +420,12 @@ public final class PresRulesParser
                 serviceUriElement.setTextContent(serviceUri.getValue());
                 element.appendChild(serviceUriElement);
             }
-            for (ProvideServicePermissionType.ServiceUriSchemeType serviceUriSheme :
+            for (ProvideServicePermissionType.ServiceUriSchemeType serviceUriScheme :
                     serviceService.getServiceUriSchemeList())
             {
                 Element serviceUriElement = document.createElementNS(NAMESPACE,
                         PROVIDE_SERVICES_SERBICE_URI_SCHEME_ELEMENT);
-                serviceUriElement.setTextContent(serviceUriSheme.getValue());
+                serviceUriElement.setTextContent(serviceUriScheme.getValue());
                 element.appendChild(serviceUriElement);
             }
             for (ClassType classType : serviceService.getClasses())
