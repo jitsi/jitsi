@@ -78,7 +78,7 @@ public class TestAccountInstallation
         }
         catch (InvalidSyntaxException ex)
         {
-            //this really shouldhn't occur as the filter expression is static.
+            //this really shouldn't occur as the filter expression is static.
             fail(osgiFilter + " is not a valid osgi filter");
         }
 
@@ -162,7 +162,7 @@ public class TestAccountInstallation
         }
         catch (InvalidSyntaxException ex)
         {
-            //this really shouldhn't occur as the filter expression is static.
+            //this really shouldn't occur as the filter expression is static.
             fail(osgiFilter + "is not a valid osgi filter");
         }
 
