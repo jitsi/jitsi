@@ -1325,7 +1325,7 @@ public class SipStackSharing
                         || pp.getRegistrarConnection().getTransport()
                             .equals(ListeningPoint.TLS)))
                 {
-                    ResetListeningPoint reseter;
+                    ResetListeningPoint resetter;
                     synchronized(resetListeningPointsTimers)
                     {
                         // we do this only once for transport
@@ -1333,12 +1333,12 @@ public class SipStackSharing
                                 pp.getRegistrarConnection().getTransport()))
                             continue;
 
-                        reseter = new ResetListeningPoint(pp);
+                        resetter = new ResetListeningPoint(pp);
                         resetListeningPointsTimers.put(
                             pp.getRegistrarConnection().getTransport(),
-                            reseter);
+                            resetter);
                     }
-                    pp.addRegistrationStateChangeListener(reseter);
+                    pp.addRegistrationStateChangeListener(resetter);
                 }
             }
         }
