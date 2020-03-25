@@ -619,7 +619,7 @@ public class MclStorageManager
         // we don't want to receive meta contact events triggered by ourselves
         // so we stop listening. it is possible but very unlikely that other
         // events, not triggered by us are received while we're off the channel
-        // but that would be a very bizzare case ..... I guess we got to live
+        // but that would be a very bizarre case ..... I guess we got to live
         // with the risk.
         this.mclServiceImpl.removeMetaContactListListener(this);
 
