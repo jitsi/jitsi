@@ -32,7 +32,7 @@ public abstract class NotificationAction
 
     /**
      * The popup message action type indicates that a window (or a systray
-     * popup), containing the corresponding notification message would be poped
+     * popup), containing the corresponding notification message would be popped
      * up, when a notification is fired.
      */
     public static final String ACTION_POPUP_MESSAGE = "PopupMessageAction";
