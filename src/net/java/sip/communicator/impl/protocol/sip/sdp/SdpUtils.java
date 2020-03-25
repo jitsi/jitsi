@@ -210,7 +210,7 @@ public class SdpUtils
      * @param ptRegistry the {@link DynamicPayloadTypeRegistry} that we are to
      * use in case <tt>payloadType</tt> is dynamic and <tt>rtpmap</tt> is
      * <tt>null</tt> (in which case we can hope its in the registry).
-     * @return a <tt>MediaForamt</tt> instance corresponding to the specified
+     * @return a <tt>MediaFormat</tt> instance corresponding to the specified
      * <tt>payloadType</tt> and <tt>rtpmap</tt>, and <tt>fmtp</tt> attributes or
      * <tt>null</tt> if such a format is not currently supported by our
      * <tt>MediaService</tt> implementation.
