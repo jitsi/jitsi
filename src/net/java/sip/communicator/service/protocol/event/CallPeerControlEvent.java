@@ -69,7 +69,7 @@ public class CallPeerControlEvent
     /**
      * Returns the target URI if this is event is triggered by a transfer
      * request or null if not.
-     * @return null or a tranfer URI.
+     * @return null or a transfer URI.
      */
     public String getTargetURI()
     {

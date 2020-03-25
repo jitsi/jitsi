@@ -51,7 +51,7 @@ public class FileTransferRequestEvent
      * of an incoming file transfer request.
      *
      * @param fileTransferOpSet the operation set, where this event initially occurred
-     * @param request the <tt>IncomingFileTranferRequest</tt> whose reception
+     * @param request the <tt>IncomingFileTransferRequest</tt> whose reception
      * this event represents.
      * @param timestamp the timestamp indicating the exact date when the event
      * occurred
