@@ -233,7 +233,7 @@ public class MsOutlookAddrBookSourceContact
         if(displayName != null && !displayName.equals(this.getDisplayName()))
         {
             // Be sure that the new determined display named is saved under all
-            // the requireed properties.
+            // the required properties.
             long[] displayNamePropIdList =
             {
                 0x3001, // PR_DISPLAY_NAME
