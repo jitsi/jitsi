@@ -74,7 +74,7 @@ public class FullScreenShareIndicator
     }
 
     /**
-     * Listens for vide change events of local video straming in media case
+     * Listens for vide change events of local video streaming in media case
      * desktop, whether we need to start and show the dialog, or if already
      * shown to close it.
      * @param evt the video event
