@@ -2387,7 +2387,7 @@ public class MetaContactListServiceImpl
                     || !servRefMask.equals(providerMask))
                 {
                     if (logger.isDebugEnabled())
-                        logger.debug("Ignoing masked provider: "
+                        logger.debug("Ignoring masked provider: "
                                         + provider.getAccountID());
                     return;
                 }
