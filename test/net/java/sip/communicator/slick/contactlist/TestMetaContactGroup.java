@@ -37,7 +37,7 @@ public class TestMetaContactGroup extends TestCase
     MclSlickFixture fixture = new MclSlickFixture(getClass().getName());
 
     /**
-     * The MetaContactGroup that we're doing the testing aginst.
+     * The MetaContactGroup that we're doing the testing against.
      */
     MetaContactGroup metaGroup = null;
 

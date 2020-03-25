@@ -633,7 +633,7 @@ public class AccountPanel
                 else if (protocolProvider.getTransportProtocol()
                         != TransportProtocol.TLS)
                 {
-                    //XEP-0077 advices agains changing password unless
+                    //XEP-0077 advices against changing password unless
                     //the underlying stream is encrypted
                     displayPopupError(Resources.getString(
                             "plugin.jabberaccregwizz.TLS_REQUIRED"));

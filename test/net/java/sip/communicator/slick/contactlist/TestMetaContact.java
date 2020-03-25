@@ -36,7 +36,7 @@ public class TestMetaContact extends TestCase
     MclSlickFixture fixture = new MclSlickFixture(getClass().getName());
 
     /**
-     * The MetaContact that we're doing the testing aginst.
+     * The MetaContact that we're doing the testing against.
      */
     MetaContact metaContact = null;
 
