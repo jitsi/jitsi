@@ -40,7 +40,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
  * really transparent, but only looks like. It overrides the
  * <code>paintComponent</code> method of <tt>JComponent</tt> to paint its
  * own background image, which is an exact image of the screen at the position
- * where the window will apear and with the same size. The
+ * where the window will appear and with the same size. The
  * <tt>java.awt.Robot</tt> class is used to make the screen capture.
  * <p>
  * Note that the effect of transparence is gone when behind there is an

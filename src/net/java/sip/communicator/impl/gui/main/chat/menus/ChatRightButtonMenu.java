@@ -54,7 +54,7 @@ public class ChatRightButtonMenu
     /**
      * Creates an instance of <tt>ChatRightButtonMenu</tt>.
      *
-     * @param chatConvPanel The conversation panel, where this menu will apear.
+     * @param chatConvPanel The conversation panel, where this menu will appear.
      */
     public ChatRightButtonMenu(ChatConversationPanel chatConvPanel)
     {
