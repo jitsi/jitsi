@@ -667,7 +667,7 @@ public class ScOtrEngineImpl
                                 {
                                     contact.getDisplayName() + resourceName,
                                     this.getClass().getName(),
-                                    "AUTHENTIFICATION",
+                                    "AUTHENTICATION",
                                     sessionGuid.toString()
                                 });
                         OtrActivator.uiService.getChat(contact).addMessage(
@@ -823,7 +823,7 @@ public class ScOtrEngineImpl
     public void chatLinkClicked(URI url)
     {
         String action = url.getPath();
-        if(action.equals("/AUTHENTIFICATION"))
+        if(action.equals("/AUTHENTICATION"))
         {
             UUID guid = UUID.fromString(url.getQuery());
 
