@@ -51,7 +51,7 @@ interface Gtk extends Library
     void gtk_image_menu_item_set_always_show_image(Pointer image_menu_item, int always_show); 
     void gtk_menu_item_set_label(Pointer menu_item, String label);
     void gtk_menu_shell_append(Pointer menu_shell, Pointer child);
-    void gtk_widget_set_sensitive(Pointer widget, int sesitive);
+    void gtk_widget_set_sensitive(Pointer widget, int sensitive);
     void gtk_widget_show_all(Pointer widget);
     void gtk_widget_destroy(Pointer widget);
     Pointer gtk_check_menu_item_new_with_label(String label);

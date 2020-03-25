@@ -380,7 +380,7 @@ public class TestMetaHistoryService
         assertTrue("Messages too few - findByKeyword", msgs.size() >= 5);
 
         /**
-         * Will test case sernsitive and insensitive search
+         * Will test case sensitive and insensitive search
          */
         rs = metaHistoryService.findByKeyword(
             new String[]{MessageHistoryService.class.getName()},
