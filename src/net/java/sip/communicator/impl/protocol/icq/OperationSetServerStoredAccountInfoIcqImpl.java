@@ -1938,7 +1938,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
 //    }
 //
 //    /**
-//     * Tlv set in command for changis user account info stored on server
+//     * Tlv set in command for changes user account info stored on server
 //     * @author Damian Minkov
 //     */
 //    public class DetailTlv
