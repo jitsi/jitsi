@@ -132,8 +132,8 @@ public class ContactPhotoPanel extends JLayeredPane
         // from the TooltipManager.
         this.setToolTipText("");
 
-        // if its multichat don't show addContactButton, cause
-        // it sa mutlichat room which
+        // if it's multichat don't show addContactButton, cause
+        // it's a mutlichat room which
         // cannot be saved with add contact dialog
         if (!chatSession.isDescriptorPersistent()
             && !(chatSession instanceof ConferenceChatSession)
