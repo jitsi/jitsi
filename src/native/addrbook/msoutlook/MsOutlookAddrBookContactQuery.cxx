@@ -665,7 +665,7 @@ MsOutlookAddrBookContactQuery_foreachRowInTable
                 	if(!entryIDBinary.cb)
 						MsOutlookUtils_log("ERROR binary structures size is 0");
                 	if(!entryIDBinary.lpb)
-						MsOutlookUtils_log("ERROR binary structuresis NULL");
+						MsOutlookUtils_log("ERROR binary structure is NULL");
                     MsOutlookAddrBookContactQuery_freeSRowSet(rows);
                 }
             }
