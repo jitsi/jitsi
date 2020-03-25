@@ -84,7 +84,7 @@ public class AESCrypto
     {
         try
         {
-            // we try init of key with suupplied lengths
+            // we try init of key with supplied lengths
             // we stop after the first successful attempt
             for (int i = 0; i < KEY_LENGTHS.length; i++)
             {
