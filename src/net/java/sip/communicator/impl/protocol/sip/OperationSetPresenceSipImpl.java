@@ -3292,7 +3292,7 @@ public class OperationSetPresenceSipImpl
             // update ourself and the UI that our status is OFFLINE
             // don't call publishPresenceStatus as we are in connection failed
             // and it seems we have no connectivity and there is no sense in
-            // sending packest(PUBLISH)
+            // sending packets(PUBLISH)
             PresenceStatus oldStatus = this.presenceStatus;
             this.presenceStatus = sipStatusEnum.getStatus(SipStatusEnum.OFFLINE);
 
