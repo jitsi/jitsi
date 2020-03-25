@@ -1382,7 +1382,7 @@ public class ServerStoredContactListJabberImpl
             ContactGroupJabberImpl groupImpl
                 = (ContactGroupJabberImpl)group;
 
-            // remove the contact from parrent group
+            // remove the contact from parent group
             groupImpl.removeContact(contact);
 
             // if the group is empty remove it from
