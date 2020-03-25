@@ -127,7 +127,7 @@ public class TestOperationSetPresence
 
         // execute this test after postTestSubscribe
         // to be sure that AuthorizationHandler is installed
-        suite.addTest(new TestOperationSetPresence("postTestReceiveAuthorizatinonRequest"));
+        suite.addTest(new TestOperationSetPresence("postTestReceiveAuthorizationRequest"));
 
         return suite;
     }
@@ -1304,7 +1304,7 @@ public class TestOperationSetPresence
     /**
      * Tests for receiving authorization requests
      */
-    public void postTestReceiveAuthorizatinonRequest()
+    public void postTestReceiveAuthorizationRequest()
     {
         logger.debug("Testing receive of authorization request!");
 

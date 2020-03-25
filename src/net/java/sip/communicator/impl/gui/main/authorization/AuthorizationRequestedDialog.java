@@ -330,7 +330,7 @@ public class AuthorizationRequestedDialog
     }
 
     /**
-     * Reloads athorization icon.
+     * Reloads authorization icon.
      */
     public void loadSkin()
     {

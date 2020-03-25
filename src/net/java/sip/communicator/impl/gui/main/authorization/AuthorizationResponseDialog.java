@@ -186,7 +186,7 @@ public class AuthorizationResponseDialog
     }
 
     /**
-     * Reloads athorization icon.
+     * Reloads authorization icon.
      */
     public void loadSkin()
     {

@@ -24,7 +24,7 @@ package net.java.sip.communicator.service.protocol;
  * An outgoing Authorization Request is to be created by the user interface
  * when an authorization error/challenge has been received by the underlying
  * protocol. The user interface or any other bundle responsible of handling
- * such requests is to implement the AuthoizationHandler interface and register
+ * such requests is to implement the AuthorizationHandler interface and register
  * itself as an authorization handler of a protocol provider. Whenever a request
  * needs to be sent the protocol provider would ask the the AuthorizationHandler
  * to create one through the createAuthorizationRequest() method.

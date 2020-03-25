@@ -24,7 +24,7 @@ package net.java.sip.communicator.service.protocol;
  * An outgoing Authorization Response is to be created by the user interface
  * when an authorization request has been received from the network. The user
  * interface or any other bundle responsible of handling such responses is to
- * implement the AuthoizationHandler interface and register itself with a
+ * implement the AuthorizationHandler interface and register itself with a
  * protocol provider. Whenever a response needs to be sent the protocol provider
  * would ask the the AuthorizationHandler to create one through the
  * processAuthorizationRequest() method.
