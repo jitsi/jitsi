@@ -679,7 +679,7 @@ public class ServerStoredContactListSipImpl
                 }
             }
             boolean updateResourceLists = false;
-            // Resolve localy saved contacts and groups with server stored
+            // Resolve locally saved contacts and groups with server stored
             // contacts and groups
             resolveContactGroup(rootGroup, serverRootList, false);
             // Upload unresolved contacts and groups to the server.
@@ -697,7 +697,7 @@ public class ServerStoredContactListSipImpl
                         parentGroup.removeContact(contact);
                         fireContactRemoved(parentGroup, contact);
                     }
-                    // If contact is added localy we upload it
+                    // If contact is added locally we upload it
                     else
                     {
                         updateResourceLists = true;

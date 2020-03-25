@@ -177,7 +177,7 @@ public class AvatarCacheUtils
     /**
      * Returns the avatar image corresponding to the given avatar path.
      *
-     * @param avatarPath The path to the lovally stored avatar.
+     * @param avatarPath The path to the locally stored avatar.
      * @return the avatar image corresponding to the given avatar path.
      */
     private static byte[] getLocallyStoredAvatar(String avatarPath)
