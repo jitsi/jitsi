@@ -246,7 +246,7 @@ public class TestOperationSetFileTransferImpl
     }
 
     /**
-     * It deleivers Failed event to receiver but it must deliver
+     * It delivers Failed event to receiver but it must deliver
      * canceled.
      * @return
      */
