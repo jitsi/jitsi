@@ -210,19 +210,19 @@ public class StatusSimpleSelector
      */
     public void itemStateChanged(ItemEvent e)
     {
-        Object soutceItem = e.getSource();
+        Object sourceItem = e.getSource();
         if(e.getStateChange() == ItemEvent.SELECTED)
         {
-            if(soutceItem instanceof CheckboxMenuItem)
+            if(sourceItem instanceof CheckboxMenuItem)
             {
-                changeStatus(soutceItem);
+                changeStatus(sourceItem);
             }
         }
         else if(e.getStateChange() == ItemEvent.DESELECTED)
         {
-            if(soutceItem instanceof CheckboxMenuItem)
+            if(sourceItem instanceof CheckboxMenuItem)
             {
-                ((CheckboxMenuItem)soutceItem).setState(true);
+                ((CheckboxMenuItem)sourceItem).setState(true);
             }
         }
     }
