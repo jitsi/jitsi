@@ -319,7 +319,7 @@ public class HistoryServiceImpl
     }
 
     /**
-     * Permamently removes local stored History
+     * Permanently removes local stored History
      *
      * @param id HistoryID
      * @throws IOException
