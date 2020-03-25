@@ -399,7 +399,7 @@ public class OperationSetMultiUserChatJabberImpl
      * rooms that are currently available on the server that this protocol
      * provider is connected to.
      *
-     * @throws OperationFailedException if we faile retrieving this list from
+     * @throws OperationFailedException if we fail retrieving this list from
      * the server.
      * @throws OperationNotSupportedException if the server does not support
      * multi user chat
