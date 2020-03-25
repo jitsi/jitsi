@@ -818,7 +818,7 @@ public class ContactListTreeCellRenderer
 
     /**
      * Returns the width of this icon. Used for the drag&drop component.
-     * @return the widht of this icon
+     * @return the width of this icon
      */
     public int getIconWidth()
     {

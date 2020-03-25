@@ -518,7 +518,7 @@ public class ChatContactCellRenderer
 
     /**
      * Returns the width of this icon.
-     * @return the widht of this icon
+     * @return the width of this icon
      */
     public int getIconWidth()
     {
