@@ -441,7 +441,7 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
 /**
  * Starts the COM server.
  *
- * @return S_OK if eveything was fine. E_FAIL otherwise.
+ * @return S_OK if everything was fine. E_FAIL otherwise.
  */
 HRESULT MsOutlookAddrBookContactSourceService_MAPIInitializeCOMServer(void)
 {

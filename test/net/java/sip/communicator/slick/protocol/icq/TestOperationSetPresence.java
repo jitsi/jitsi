@@ -537,7 +537,7 @@ public class TestOperationSetPresence
                 operationSetPresence.removeSubscriptionListener(unsubscribeEvtCollector);
             }
 
-            // so we haven't asserted so everithing is fine lets try to be authorized
+            // so we haven't asserted so everything is fine lets try to be authorized
             authEventCollector.authorizationRequestReason =
                 "Please accept my request!";
             IcqSlickFixture.testerAgent.getAuthCmdFactory().responseReasonStr =

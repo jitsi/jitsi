@@ -263,7 +263,7 @@ boolean MsOutlookAddrBookServer::foreachMailUserCallback(
  * @param propsType Used to return the list of type of property. b = byteArray,
  * l = long, s = 8 bits string, u = 16 bits string.
  *
- * @return S_OK if eveything works fine. Any error value otherwise.
+ * @return S_OK if everything works fine. Any error value otherwise.
  */
 HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_GetProps( 
         BSTR entryId,
@@ -485,7 +485,7 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_SetPropString(
  * @param result A boolean set to true if id1 and id2 are two identifiers of the
  * same contact.  False otherwise.
  *
- * @return S_OK if eveything works fine. E_FAIL otherwise.
+ * @return S_OK if everything works fine. E_FAIL otherwise.
  */
 HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::compareEntryIds(
        BSTR id1,
