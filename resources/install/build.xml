@@ -121,9 +121,9 @@
             description="simply execute 'ant' to discover the most useful targets.">
         <echo message="Useful ant commands for the Jitsi Build Installer..." />
         <echo message="'ant build-installation-generic' for building generic installator jar" />
-        <echo message="'ant build-installation-linux' for building linux instalation file" />
-        <echo message="'ant build-installation-wix' for building Windows MSI instalation file using WiX" />
-        <echo message="'ant build-installation-wix-64' for building Windows x64 MSI instalation file using WiX" />
+        <echo message="'ant build-installation-linux' for building linux installation file" />
+        <echo message="'ant build-installation-wix' for building Windows MSI installation file using WiX" />
+        <echo message="'ant build-installation-wix-64' for building Windows x64 MSI installation file using WiX" />
     </target>
 
     <target name="clean-install-generic">
