@@ -203,7 +203,7 @@
 //        //addExtProvider("bad-action", "http://jabber.org/protocol/commands",
 //        //    org.jivesoftware.smackx.provider.AdHocCommandDataProvider.BadActionError.class);
 //
-//        //addExtProvider("malformed-actionn", "http://jabber.org/protocol/commands",
+//        //addExtProvider("malformed-action", "http://jabber.org/protocol/commands",
 //        //    org.jivesoftware.smackx.provider.AdHocCommandDataProvider.MalformedActionError.class);
 //
 //        //addExtProvider("bad-locale", "http://jabber.org/protocol/commands",

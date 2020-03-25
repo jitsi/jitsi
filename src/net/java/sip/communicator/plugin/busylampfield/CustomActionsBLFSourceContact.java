@@ -26,7 +26,7 @@ import net.java.sip.communicator.util.*;
 import java.util.*;
 
 /**
- * Custom acction to show pickup call button.
+ * Custom action to show pickup call button.
  *
  * @author Damian Minkov
  */
