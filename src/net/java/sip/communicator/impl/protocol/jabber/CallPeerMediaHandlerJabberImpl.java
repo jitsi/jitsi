@@ -2828,7 +2828,7 @@ public class CallPeerMediaHandlerJabberImpl
      * ignored, and the <tt>transports</tt> <tt>Collection</tt> is put into
      * order depending on local preference.
      *
-     * Currently only ice and raw-udp are recognized, with ice being preffered
+     * Currently only ice and raw-udp are recognized, with ice being preferred
      * over raw-udp
      *
      * @param transports A <tt>Collection</tt> of XML namespaces of jingle
