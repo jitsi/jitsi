@@ -638,7 +638,7 @@ public class HistoryReaderImpl
     }
 
     /**
-     * Evaluetes does <tt>timestamp</tt> is in the given time period.
+     * Evaluates does <tt>timestamp</tt> is in the given time period.
      *
      * @param timestamp Date
      * @param startDate Date the start of the period
