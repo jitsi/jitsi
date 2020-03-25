@@ -837,7 +837,7 @@ public class UIServiceImpl
 
     /**
      * The <tt>RunLogin</tt> implements the Runnable interface and is used to
-     * shows the login windows in a seperate thread.
+     * shows the login windows in a separate thread.
      */
     private class RunLoginGui implements Runnable {
         public void run() {

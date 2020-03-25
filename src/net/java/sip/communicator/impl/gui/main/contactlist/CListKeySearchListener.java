@@ -39,7 +39,7 @@ import net.java.sip.communicator.service.contactlist.*;
  * the <tt>ContactListPanel</tt> to provide a search functionality over the
  * contact list when one of them is focused.
  *
- * The 'space' key, the '+' and the '-' keys are processed seperately to provide
+ * The 'space' key, the '+' and the '-' keys are processed separately to provide
  * another functionality completely different from the search. When user types
  * a '-' or 'space' and there's currently a group selected, the selected group
  * is closed. When user types '+' the selected group is opened.
