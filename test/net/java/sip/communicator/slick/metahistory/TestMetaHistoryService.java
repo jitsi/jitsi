@@ -48,7 +48,7 @@ public class TestMetaHistoryService
 {
     private static final Logger logger = Logger.getLogger(TestMetaHistoryService.class);
 
-    static final String TEST_CONTACT_NAME_1 = "Mincho_Penchev_the_fisrt";
+    static final String TEST_CONTACT_NAME_1 = "Mincho_Penchev_the_first";
     static final String TEST_CONTACT_NAME_2 = "Mincho_Penchev_the_second";
 
 //    static final String TEST_ROOM_NAME = "test_room";

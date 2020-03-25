@@ -193,7 +193,7 @@ public class TestMetaContactGroup extends TestCase
      */
     public void testGetMetaContact()
     {
-        //firt obtain references to 2 contacts.
+        //first obtain references to 2 contacts.
         MetaContact firstContact = metaGroup.getMetaContact(0);
         MetaContact lastContact = metaGroup.getMetaContact(
                                             metaGroup.countChildContacts() - 1);
@@ -215,7 +215,7 @@ public class TestMetaContactGroup extends TestCase
      */
     public void testGetMetaContact2()
     {
-        //firt obtain a reference to a contact through iteration.
+        //first obtain a reference to a contact through iteration.
         Iterator<MetaContact> childContactsIter = metaGroup.getChildContacts();
 
         //make sure the returned ref is ok.
@@ -269,7 +269,7 @@ public class TestMetaContactGroup extends TestCase
      */
     public void testGetMetaContactSubgroup()
     {
-        //firt obtain references to a group.
+        //first obtain references to a group.
         MetaContactGroup actualGroup = metaGroup.getMetaContactSubgroup(0);
 
         //make sure that what we just got is not null.
@@ -289,7 +289,7 @@ public class TestMetaContactGroup extends TestCase
      */
     public void testGetMetaContactSubgroup2()
     {
-        //firt obtain references to a group.
+        //first obtain references to a group.
         MetaContactGroup actualGroup = metaGroup.getMetaContactSubgroup(
             (metaGroup.getSubgroups().next()).getGroupName());
 

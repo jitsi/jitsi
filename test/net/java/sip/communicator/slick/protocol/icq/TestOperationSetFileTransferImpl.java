@@ -154,7 +154,7 @@ public class TestOperationSetFileTransferImpl
         providerFactory = (ProtocolProviderFactory)
             bc.getService(serRefs[0]);
 
-        // fisrt install the account
+        // first install the account
         String USER_ID = IcqSlickFixture.testerAgent.getIcqUIN();
         final String PASSWORD = System.getProperty(
             IcqProtocolProviderSlick.TESTED_IMPL_PWD_PROP_NAME, null);
