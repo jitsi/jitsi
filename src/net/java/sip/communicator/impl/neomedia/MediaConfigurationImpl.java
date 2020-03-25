@@ -1059,11 +1059,11 @@ public class MediaConfigurationImpl
             final AudioSystem audioSystem,
             JComponent container)
     {
-        GridBagConstraints cnstrnts = new GridBagConstraints();
+        GridBagConstraints constraints = new GridBagConstraints();
 
-        cnstrnts.anchor = GridBagConstraints.NORTHWEST;
-        cnstrnts.fill = GridBagConstraints.HORIZONTAL;
-        cnstrnts.weighty = 0;
+        constraints.anchor = GridBagConstraints.NORTHWEST;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.weighty = 0;
 
         int audioSystemFeatures = audioSystem.getFeatures();
         boolean featureNotifyAndPlaybackDevices
@@ -1071,26 +1071,26 @@ public class MediaConfigurationImpl
                     & AudioSystem.FEATURE_NOTIFY_AND_PLAYBACK_DEVICES)
                 != 0);
 
-        cnstrnts.gridx = 0;
-        cnstrnts.insets = new Insets(3, 0, 3, 3);
-        cnstrnts.weightx = 0;
+        constraints.gridx = 0;
+        constraints.insets = new Insets(3, 0, 3, 3);
+        constraints.weightx = 0;
 
-        cnstrnts.gridy = 0;
+        constraints.gridy = 0;
         container.add(new JLabel(getLabelText(
-            DeviceConfigurationComboBoxModel.AUDIO_CAPTURE)), cnstrnts);
+            DeviceConfigurationComboBoxModel.AUDIO_CAPTURE)), constraints);
         if (featureNotifyAndPlaybackDevices)
         {
-            cnstrnts.gridy = 2;
+            constraints.gridy = 2;
             container.add(new JLabel(getLabelText(
-                DeviceConfigurationComboBoxModel.AUDIO_PLAYBACK)), cnstrnts);
-            cnstrnts.gridy = 3;
+                DeviceConfigurationComboBoxModel.AUDIO_PLAYBACK)), constraints);
+            constraints.gridy = 3;
             container.add(new JLabel(getLabelText(
-                DeviceConfigurationComboBoxModel.AUDIO_NOTIFY)), cnstrnts);
+                DeviceConfigurationComboBoxModel.AUDIO_NOTIFY)), constraints);
         }
 
-        cnstrnts.gridx = 1;
-        cnstrnts.insets = new Insets(3, 3, 3, 0);
-        cnstrnts.weightx = 1;
+        constraints.gridx = 1;
+        constraints.insets = new Insets(3, 3, 3, 0);
+        constraints.weightx = 1;
 
         JComboBox captureCombo = null;
 
@@ -1102,22 +1102,22 @@ public class MediaConfigurationImpl
                     new DeviceConfigurationComboBoxModel(
                             mediaService.getDeviceConfiguration(),
                             DeviceConfigurationComboBoxModel.AUDIO_CAPTURE));
-            cnstrnts.gridy = 0;
-            container.add(captureCombo, cnstrnts);
+            constraints.gridy = 0;
+            container.add(captureCombo, constraints);
         }
 
-        int anchor = cnstrnts.anchor;
+        int anchor = constraints.anchor;
         SoundLevelIndicator capturePreview
             = new SoundLevelIndicator(
                     SimpleAudioLevelListener.MIN_LEVEL,
                     SimpleAudioLevelListener.MAX_LEVEL);
 
-        cnstrnts.anchor = GridBagConstraints.CENTER;
-        cnstrnts.gridy = (captureCombo == null) ? 0 : 1;
-        container.add(capturePreview, cnstrnts);
-        cnstrnts.anchor = anchor;
+        constraints.anchor = GridBagConstraints.CENTER;
+        constraints.gridy = (captureCombo == null) ? 0 : 1;
+        container.add(capturePreview, constraints);
+        constraints.anchor = anchor;
 
-        cnstrnts.gridy = GridBagConstraints.RELATIVE;
+        constraints.gridy = GridBagConstraints.RELATIVE;
 
         if (featureNotifyAndPlaybackDevices)
         {
@@ -1128,7 +1128,7 @@ public class MediaConfigurationImpl
                             mediaService.getDeviceConfiguration(),
                             DeviceConfigurationComboBoxModel.AUDIO_PLAYBACK));
             playbackCombo.addActionListener(this);
-            container.add(playbackCombo, cnstrnts);
+            container.add(playbackCombo, constraints);
 
             notifyCombo = new JComboBox();
             notifyCombo.setEditable(false);
@@ -1137,7 +1137,7 @@ public class MediaConfigurationImpl
                             mediaService.getDeviceConfiguration(),
                             DeviceConfigurationComboBoxModel.AUDIO_NOTIFY));
             notifyCombo.addActionListener(this);
-            container.add(notifyCombo, cnstrnts);
+            container.add(notifyCombo, constraints);
         }
 
         int[] checkBoxAudioSystemFeatures
@@ -1207,19 +1207,19 @@ public class MediaConfigurationImpl
                                 }
                             }
                         });
-                container.add(checkBox, cnstrnts);
+                container.add(checkBox, constraints);
             }
         }
 
         // Adds the play buttons for testing playback and notification devices.
-        cnstrnts.gridx = 2;
-        cnstrnts.insets = new Insets(3, 3, 3, 0);
-        cnstrnts.weightx = 0;
+        constraints.gridx = 2;
+        constraints.insets = new Insets(3, 3, 3, 0);
+        constraints.weightx = 0;
 
         if (featureNotifyAndPlaybackDevices)
         {
             // Playback play sound button.
-            cnstrnts.gridy = 2;
+            constraints.gridy = 2;
             playbackPlaySoundButton
                 = new JButton(new ImageIcon(NeomediaActivator.getResources()
                             .getImageInBytes(
@@ -1233,10 +1233,10 @@ public class MediaConfigurationImpl
             }
             playbackPlaySoundButton.setOpaque(false);
             playbackPlaySoundButton.addActionListener(this);
-            container.add(playbackPlaySoundButton, cnstrnts);
+            container.add(playbackPlaySoundButton, constraints);
 
             // Notification play sound button.
-            cnstrnts.gridy = 3;
+            constraints.gridy = 3;
             notificationPlaySoundButton
                 = new JButton(new ImageIcon(NeomediaActivator.getResources()
                             .getImageInBytes(
@@ -1250,7 +1250,7 @@ public class MediaConfigurationImpl
             }
             notificationPlaySoundButton.setOpaque(false);
             notificationPlaySoundButton.addActionListener(this);
-            container.add(notificationPlaySoundButton, cnstrnts);
+            container.add(notificationPlaySoundButton, constraints);
         }
 
         if (audioLevelListenerThread == null)

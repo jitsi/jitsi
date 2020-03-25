@@ -316,26 +316,26 @@ public class OneToOneCallPeerPanel
         /* Lay out the main Components of the UI. */
         setLayout(new GridBagLayout());
 
-        GridBagConstraints cnstrnts = new GridBagConstraints();
+        GridBagConstraints constraints = new GridBagConstraints();
 
         if (center != null)
         {
-            cnstrnts.fill = GridBagConstraints.BOTH;
-            cnstrnts.gridx = 0;
-            cnstrnts.gridy = 1;
-            cnstrnts.weightx = 1;
-            cnstrnts.weighty = 1;
-            add(center, cnstrnts);
+            constraints.fill = GridBagConstraints.BOTH;
+            constraints.gridx = 0;
+            constraints.gridy = 1;
+            constraints.weightx = 1;
+            constraints.weighty = 1;
+            add(center, constraints);
         }
         if (statusBar != null)
         {
-            cnstrnts.fill = GridBagConstraints.NONE;
-            cnstrnts.gridx = 0;
-            cnstrnts.gridy = 3;
-            cnstrnts.weightx = 0;
-            cnstrnts.weighty = 0;
-            cnstrnts.insets = new Insets(5, 0, 0, 0);
-            add(statusBar, cnstrnts);
+            constraints.fill = GridBagConstraints.NONE;
+            constraints.gridx = 0;
+            constraints.gridy = 3;
+            constraints.weightx = 0;
+            constraints.weighty = 0;
+            constraints.insets = new Insets(5, 0, 0, 0);
+            add(statusBar, constraints);
         }
 
         createSoundLevelIndicators();

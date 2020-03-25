@@ -58,19 +58,19 @@ public class ConfigurationPanel
         add(contentPanel, BorderLayout.NORTH);
 
         ResourceManagementService r = NeomediaActivator.getResources();
-        GridBagConstraints cnstrnts = new GridBagConstraints();
+        GridBagConstraints constraints = new GridBagConstraints();
 
-        cnstrnts.anchor = GridBagConstraints.FIRST_LINE_START;
-        cnstrnts.fill = GridBagConstraints.HORIZONTAL;
+        constraints.anchor = GridBagConstraints.FIRST_LINE_START;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
 
         Component defaultProfileLabel
             = createLineWrapLabel(
                     r.getI18NString(
                             "impl.neomedia.configform.H264.defaultProfile"));
-        cnstrnts.gridx = 0;
-        cnstrnts.gridy = 0;
-        cnstrnts.weightx = 1;
-        contentPanel.add(defaultProfileLabel, cnstrnts);
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.weightx = 1;
+        contentPanel.add(defaultProfileLabel, constraints);
 
         JComboBox defaultProfileComboBox = new JComboBox();
         defaultProfileComboBox.setEditable(false);
@@ -92,20 +92,20 @@ public class ConfigurationPanel
                                 "impl.neomedia.configform.H264.defaultProfile."
                                     + JNIEncoder.HIGH_PROFILE),
                         JNIEncoder.HIGH_PROFILE));
-        cnstrnts.gridx = 1;
-        cnstrnts.gridy = 0;
-        cnstrnts.weightx = 0;
-        //contentPanel.add(defaultProfileComboBox, cnstrnts);
+        constraints.gridx = 1;
+        constraints.gridy = 0;
+        constraints.weightx = 0;
+        //contentPanel.add(defaultProfileComboBox, constraints);
 
         Component preferredKeyFrameRequesterLabel
             = createLineWrapLabel(
                     r.getI18NString(
                             "impl.neomedia.configform.H264"
                                 + ".preferredKeyFrameRequester"));
-        cnstrnts.gridx = 0;
-        cnstrnts.gridy = 1;
-        cnstrnts.weightx = 1;
-        contentPanel.add(preferredKeyFrameRequesterLabel, cnstrnts);
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        constraints.weightx = 1;
+        contentPanel.add(preferredKeyFrameRequesterLabel, constraints);
 
         JComboBox preferredKeyFrameRequesterComboBox = new JComboBox();
         preferredKeyFrameRequesterComboBox.setEditable(false);
@@ -123,48 +123,48 @@ public class ConfigurationPanel
                                     + ".preferredKeyFrameRequester."
                                     + KeyFrameControl.KeyFrameRequester.SIGNALING),
                         KeyFrameControl.KeyFrameRequester.SIGNALING));
-        cnstrnts.gridx = 1;
-        cnstrnts.gridy = 1;
-        cnstrnts.weightx = 0;
+        constraints.gridx = 1;
+        constraints.gridy = 1;
+        constraints.weightx = 0;
         contentPanel.add(
                 preferredKeyFrameRequesterComboBox,
-                cnstrnts);
+                constraints);
 
         Component presetLabel
             = createLineWrapLabel(
                     r.getI18NString("impl.neomedia.configform.H264.preset"));
-        cnstrnts.gridx = 0;
-        cnstrnts.gridy = 2;
-        cnstrnts.weightx = 1;
-        contentPanel.add(presetLabel, cnstrnts);
+        constraints.gridx = 0;
+        constraints.gridy = 2;
+        constraints.weightx = 1;
+        contentPanel.add(presetLabel, constraints);
 
         JComboBox presetComboBox = new JComboBox();
         presetComboBox.setEditable(false);
         for (String preset : JNIEncoder.AVAILABLE_PRESETS)
             presetComboBox.addItem(new NameValuePair(preset, preset));
-        cnstrnts.gridx = 1;
-        cnstrnts.gridy = 2;
-        cnstrnts.weightx = 0;
-        contentPanel.add(presetComboBox, cnstrnts);
+        constraints.gridx = 1;
+        constraints.gridy = 2;
+        constraints.weightx = 0;
+        contentPanel.add(presetComboBox, constraints);
 
         JCheckBox defaultIntraRefreshCheckBox
             = new SIPCommCheckBox(
                     r.getI18NString(
                         "impl.neomedia.configform.H264.defaultIntraRefresh"));
-        cnstrnts.gridwidth = GridBagConstraints.REMAINDER;
-        cnstrnts.gridx = 0;
-        cnstrnts.gridy = 3;
-        cnstrnts.weightx = 1;
-        contentPanel.add(defaultIntraRefreshCheckBox, cnstrnts);
-        cnstrnts.gridwidth = 1;
+        constraints.gridwidth = GridBagConstraints.REMAINDER;
+        constraints.gridx = 0;
+        constraints.gridy = 3;
+        constraints.weightx = 1;
+        contentPanel.add(defaultIntraRefreshCheckBox, constraints);
+        constraints.gridwidth = 1;
 
         Component keyintLabel
             = createLineWrapLabel(
                     r.getI18NString("impl.neomedia.configform.H264.keyint"));
-        cnstrnts.gridx = 0;
-        cnstrnts.gridy = 4;
-        cnstrnts.weightx = 1;
-        contentPanel.add(keyintLabel, cnstrnts);
+        constraints.gridx = 0;
+        constraints.gridy = 4;
+        constraints.weightx = 1;
+        contentPanel.add(keyintLabel, constraints);
 
         JSpinner keyintSpinner
             = new JSpinner(
@@ -172,10 +172,10 @@ public class ConfigurationPanel
                             JNIEncoder.DEFAULT_KEYINT,
                             1, JNIEncoder.X264_KEYINT_MAX_INFINITE,
                             JNIEncoder.DEFAULT_FRAME_RATE));
-        cnstrnts.gridx = 1;
-        cnstrnts.gridy = 4;
-        cnstrnts.weightx = 0;
-        contentPanel.add(keyintSpinner, cnstrnts);
+        constraints.gridx = 1;
+        constraints.gridy = 4;
+        constraints.weightx = 0;
+        contentPanel.add(keyintSpinner, constraints);
 
         // Load the values from the ConfigurationService into the UI components.
         ConfigurationService cfg = NeomediaActivator.getConfigurationService();

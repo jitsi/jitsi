@@ -66,7 +66,7 @@ public class ConferenceFocusPanel
         conferenceMemberPanels
             = new Hashtable<ConferenceMember, ConferenceMemberPanel>();
 
-    private final GridBagConstraints cnstrnts;
+    private final GridBagConstraints constraints;
 
     /**
      * The <tt>CallPeer</tt> depicted by this instance.
@@ -106,13 +106,13 @@ public class ConferenceFocusPanel
         this.focusPeer = callPeer;
         this.callRenderer = callRenderer;
 
-        cnstrnts = new GridBagConstraints();
-        cnstrnts.fill = GridBagConstraints.BOTH;
-        cnstrnts.gridx = 0;
-        cnstrnts.gridy = 0;
-        cnstrnts.insets = new Insets(0, 0, 3, 0);
-        cnstrnts.weightx = 1;
-        cnstrnts.weighty = 0;
+        constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.BOTH;
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.insets = new Insets(0, 0, 3, 0);
+        constraints.weightx = 1;
+        constraints.weighty = 0;
         /*
          * Add the user interface which will depict the focusPeer without the
          * ConferenceMembers.
@@ -177,8 +177,8 @@ public class ConferenceFocusPanel
          * Add the newly-initialized ConferenceMemberPanel to the user interface
          * hierarchy of this view.
          */
-        add(conferenceMemberPanel, cnstrnts);
-        cnstrnts.gridy++;
+        add(conferenceMemberPanel, constraints);
+        constraints.gridy++;
 
         initSecuritySettings();
 
@@ -193,8 +193,8 @@ public class ConferenceFocusPanel
     private void addFocusPeerPanel()
     {
         focusPeerPanel = new ConferencePeerPanel(callRenderer, focusPeer);
-        add(focusPeerPanel, cnstrnts);
-        cnstrnts.gridy++;
+        add(focusPeerPanel, constraints);
+        constraints.gridy++;
 
         packWindow();
 
