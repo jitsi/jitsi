@@ -553,7 +553,7 @@ public class ContactGroupSipImpl
      * only allow a single level of contact groups and there is no danger of
      * having the same name twice in the same contact list. Other protocols
      * (no examples come to mind but that doesn't bother me ;) ) may be
-     * supporting mutilple levels of groups so it might be possible for group
+     * supporting multiple levels of groups so it might be possible for group
      * A and group B to both contain groups named C. In such cases the
      * implementation must find a way to return a unique identifier in this
      * method and this UID should never change for a given group.

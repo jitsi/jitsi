@@ -101,7 +101,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
     }
 
     /**
-     * A prefix helps to make sure that thread ID's are unique across mutliple
+     * A prefix helps to make sure that thread ID's are unique across multiple
      * instances.
      */
     private static String prefix = RandomStringUtils.random(5);

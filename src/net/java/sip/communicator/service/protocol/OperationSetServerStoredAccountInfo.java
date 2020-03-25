@@ -140,7 +140,7 @@ public interface OperationSetServerStoredAccountInfo
 
     /**
      * The method returns the number of instances supported for a particular
-     * detail type. Some protocols offer storing mutliple values for a
+     * detail type. Some protocols offer storing multiple values for a
      * particular detail type. Spoken languages are a good example.
      * @param detailClass the class whose max instance number we'd like to find
      * out.
