@@ -124,7 +124,7 @@ public class NeomediaActivator
         = "NewSelectedDevice";
 
     /**
-     * The notifcation service to pop-up messages.
+     * The notification service to pop-up messages.
      */
     private static NotificationService notificationService;
 

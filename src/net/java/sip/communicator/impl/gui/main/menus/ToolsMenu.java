@@ -281,7 +281,7 @@ public class ToolsMenu
 
             GuiActivator.getAudioNotifier().setMute(mute);
             {
-                // Distribute the mute state to the SoundNotificaitonHandler.
+                // Distribute the mute state to the SoundNotificationHandler.
                 for(NotificationHandler handler
                         : GuiActivator.getNotificationService()
                             .getActionHandlers(NotificationAction.ACTION_SOUND))

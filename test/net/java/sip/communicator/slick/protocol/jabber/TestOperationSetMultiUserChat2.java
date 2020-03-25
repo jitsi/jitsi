@@ -829,7 +829,7 @@ public class TestOperationSetMultiUserChat2
 
         // and the other side
 
-        // does user1 received notifcation since user2 left
+        // does user1 received notification since user2 left
         assertEquals("an user joined and left and a room member missed events "
             , 1, opSet1RoomCollector.collectedEvents.size());
 
