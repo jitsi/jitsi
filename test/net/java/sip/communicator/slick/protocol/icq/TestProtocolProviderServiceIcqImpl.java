@@ -238,7 +238,7 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
     }
 
     /**
-     * Verifies that all operation sets have the type they are declarded to
+     * Verifies that all operation sets have the type they are declared to
      * have.
      *
      * @throws java.lang.Exception if a class indicated in one of the keys
