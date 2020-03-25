@@ -2099,7 +2099,7 @@ public class ChatPanel
      * @param isMessageOrFileTransferReceived Boolean telling us if this change
      * of the chat transport correspond to an effective switch to this new
      * transform (a message received from this transport, or a file transfer
-     * request received, or if the resource timeouted), or just a status update
+     * request received, or if the resource timed-out), or just a status update
      * telling us a new chatTransport is now available (i.e. another device has
      * startup).
      */

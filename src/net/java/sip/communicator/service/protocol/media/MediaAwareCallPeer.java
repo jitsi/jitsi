@@ -874,7 +874,7 @@ public abstract class MediaAwareCallPeer
     }
 
     /**
-     * Indicates that the other party has timeouted replying to our
+     * Indicates that the other party has timed-out replying to our
      * offer to secure the connection.
      *
      * @param mediaType the <tt>MediaType</tt> of the call session
@@ -892,7 +892,7 @@ public abstract class MediaAwareCallPeer
     }
 
     /**
-     * Indicates that the other party has timeouted replying to our
+     * Indicates that the other party has timed-out replying to our
      * offer to secure the connection.
      *
      * @param mediaType the <tt>MediaType</tt> of the call session

@@ -123,7 +123,7 @@ public abstract class SecurityPanel<T extends SrtpControl>
     public abstract void securityOff(CallPeerSecurityOffEvent evt);
 
     /**
-     * Indicates that the security is timeouted, is not supported by the
+     * Indicates that the security is timed-out, is not supported by the
      * other end.
      * @param evt Details about the event that caused this message.
      */

@@ -199,7 +199,7 @@ public class ProtocolProviderServiceJabberImpl
 
     /**
      * Property for vcard reply timeout. Time to wait before
-     * we think vcard retrieving has timeouted, default value
+     * we think vcard retrieving has timed-out, default value
      * of smack is 5000 (5 sec.).
      */
     public static final String VCARD_REPLY_TIMEOUT_PROPERTY =

@@ -108,7 +108,7 @@ public interface OperationSetBasicTelephony<T extends ProtocolProviderService>
 
     /**
      * Reason code used to hangup peer when we wait for some event
-     * and it timeouted.
+     * and it timed-out.
      */
     public static final int HANGUP_REASON_TIMEOUT = 408;
 
