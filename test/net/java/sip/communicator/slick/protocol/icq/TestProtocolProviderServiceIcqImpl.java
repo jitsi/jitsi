@@ -96,7 +96,7 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
     /**
      * Since we cannot afford to log on and off to the icq service as many
      * times as we want we're obliged to do our testing in a predfined order.
-     * That's why we explicitely define a suite with the order that suits us ;).
+     * That's why we explicitly define a suite with the order that suits us ;).
      * @return a TestSuite with the tests of this class ordered for execution
      * the way we want them to be.
      */
