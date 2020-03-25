@@ -42,7 +42,7 @@ public class MetaContactListServiceLick
     private static final Logger logger =
         Logger.getLogger(MetaContactListServiceLick.class);
 
-    //Convenience referenes to some groups and contacts.
+    //Convenience references to some groups and contacts.
     static final String topLevelGroupName = "SomePeople";
 
     static MockContactGroup topLevelMockGroup = null;
