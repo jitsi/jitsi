@@ -1362,7 +1362,7 @@ public class OperationSetPresenceSipImpl
             else if (response.getStatusCode() == Response
                                                 .CONDITIONAL_REQUEST_FAILED)
             {
-                // as recommanded in rfc3903#5, we start a totally new
+                // as recommended in rfc3903#5, we start a totally new
                 // publication
                 this.distantPAET = null;
                 Request req = null;

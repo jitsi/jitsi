@@ -78,7 +78,7 @@ public class ProtocolProviderServiceGibberishImpl
 
     /**
      * Initializes the service implementation, and puts it in a sate where it
-     * could interoperate with other services. It is strongly recomended that
+     * could interoperate with other services. It is strongly recommended that
      * properties in this Map be mapped to property names as specified by
      * <tt>AccountProperties</tt>.
      *
