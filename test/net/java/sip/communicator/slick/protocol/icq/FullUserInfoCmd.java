@@ -800,7 +800,7 @@ public class FullUserInfoCmd
     }
 
     /**
-     * Command used for requestin full user info
+     * Command used for requesting full user info
      */
     private static class FullInfoRequest
         extends SnacCommand

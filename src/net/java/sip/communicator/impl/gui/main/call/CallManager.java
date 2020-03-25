@@ -4167,7 +4167,7 @@ public class CallManager
     }
 
     /**
-     * Tries to resolves a peer address into a display name, by reqesting the
+     * Tries to resolves a peer address into a display name, by requesting the
      * <tt>ContactSourceService</tt>s. This function returns only the
      * first match.
      *
