@@ -258,7 +258,7 @@ public class PhoneNumberI18nServiceImpl
      * @param phoneNumber The phone number string with some alphabetical
      * characters.
      *
-     * @return The phone number with all alphabetical caracters replaced with
+     * @return The phone number with all alphabetical characters replaced with
      * the corresponding dial pad number.
      */
     private static String convertAlphaCharactersInNumber(String phoneNumber)
