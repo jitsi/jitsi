@@ -1011,7 +1011,7 @@ public class OperationSetPersistentPresenceGibberishImpl
                            , ServerStoredGroupEvent.GROUP_CREATED_EVENT);
         }
 
-        //now add the volatile contact instide it
+        //now add the volatile contact inside it
         theVolatileGroup.addContact(newVolatileContact);
         fireSubscriptionEvent(newVolatileContact
                          , theVolatileGroup
