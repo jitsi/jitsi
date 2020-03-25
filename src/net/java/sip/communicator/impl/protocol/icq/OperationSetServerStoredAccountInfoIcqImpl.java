@@ -1649,7 +1649,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
      */
 //    private class ChangeDetailInfoCmd extends ToIcqCmd
 //    {
-//        // used when semding this command for changed details stored on the server
+//        // used when sending this command for changed details stored on the server
 //        private String senderUin = null;
 //        private List changeDataTlvs = new LinkedList();
 //
