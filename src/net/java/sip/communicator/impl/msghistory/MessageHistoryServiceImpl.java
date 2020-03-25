@@ -742,7 +742,7 @@ public class MessageHistoryServiceImpl
         String remoteId = remoteContact == null ? "default" : remoteContact
                 .getAddress();
 
-        String account = "unkown";
+        String account = "unknown";
         if (remoteContact != null)
             account = remoteContact.getProtocolProvider()
                 .getAccountID().getAccountUniqueID();
