@@ -46,7 +46,7 @@ public interface OperationSetInstantMessageTransform
     public void addTransformLayer(TransformLayer transformLayer);
 
     /**
-     * Adds <tt>transformLayer</tt> to the layers currrently used for message
+     * Adds <tt>transformLayer</tt> to the layers currently used for message
      * transformation in this provider and assigns the specified
      * <tt>priotity</tt> to it.
      *

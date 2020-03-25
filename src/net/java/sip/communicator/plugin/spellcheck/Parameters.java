@@ -301,7 +301,7 @@ class Parameters
         }
 
         /**
-         * Indicates if this locale is currenly loading in the list of locales.
+         * Indicates if this locale is currently loading in the list of locales.
          *
          * @return <tt>true</tt> if the locale is loading, <tt>false</tt> -
          * otherwise
