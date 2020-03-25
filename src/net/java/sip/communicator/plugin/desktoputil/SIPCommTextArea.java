@@ -129,7 +129,7 @@ public class SIPCommTextArea
     }
 
     /**
-     * Sets the default text when the field looses focus.
+     * Sets the default text when the field loses focus.
      * @param e the <tt>FocusEvent</tt> that notified us
      */
     public void focusLost(FocusEvent e)
