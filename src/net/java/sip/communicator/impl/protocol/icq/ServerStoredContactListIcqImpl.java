@@ -1131,7 +1131,7 @@ public class ServerStoredContactListIcqImpl
                 return;
             }
 
-            //we do have a new name. store a copy of it for our next deteciton
+            //we do have a new name. store a copy of it for our next detection
             //and fire the corresponding event.
             if (logger.isTraceEnabled())
                 logger.trace("Dispatching group change event.");
