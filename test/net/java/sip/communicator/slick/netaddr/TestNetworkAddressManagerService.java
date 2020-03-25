@@ -312,13 +312,13 @@ public class TestNetworkAddressManagerService
         catch (Exception e) {}
         try {
             // get the locahost grom NetworkAddressManager Service
-            InetAddress serviceAdress =
+            InetAddress serviceAddress =
                                     networkAddressManagerService.getLocalHost();
 
 
             // test must crash if the localHost is an IPv6 Address
-            if(serviceAdress instanceof Inet4Address)
-                assertTrue(foundInetAddr(serviceAdress,
+            if(serviceAddress instanceof Inet4Address)
+                assertTrue(foundInetAddr(serviceAddress,
                                             propertyIpV6Pref.booleanValue()));
             else
                 assertTrue(false);
@@ -356,13 +356,13 @@ public class TestNetworkAddressManagerService
         catch (Exception e) {}
         try {
             // get the locahost grom NetworkAddressManager Service
-            InetAddress serviceAdress =
+            InetAddress serviceAddress =
                                     networkAddressManagerService.getLocalHost();
 
 
             // test must crash if the localHost is an IPv6 Address
-            if(serviceAdress instanceof Inet4Address)
-                assertTrue(!isLinkLocalIPv4Address(serviceAdress));
+            if(serviceAddress instanceof Inet4Address)
+                assertTrue(!isLinkLocalIPv4Address(serviceAddress));
             else
                 assertTrue(false);
 
@@ -399,11 +399,11 @@ public class TestNetworkAddressManagerService
 
         try {
             // get localhost address from the NetworkAddressManager bundle
-            InetAddress serviceAdress =
+            InetAddress serviceAddress =
                                     networkAddressManagerService.getLocalHost();
 
-            if(serviceAdress instanceof Inet6Address)
-                assertTrue(foundInetAddr(serviceAdress,
+            if(serviceAddress instanceof Inet6Address)
+                assertTrue(foundInetAddr(serviceAddress,
                                          propertyIpV6Pref.booleanValue()));
             else
                 assertTrue(false);
@@ -442,12 +442,12 @@ public class TestNetworkAddressManagerService
         try
         {
             // get localhost address from the NetworkAddressManager bundle
-            InetAddress serviceAdress =
+            InetAddress serviceAddress =
                                     networkAddressManagerService.getLocalHost();
 
 
-            if(serviceAdress instanceof Inet6Address)
-                assertTrue( isRoutable(serviceAdress));
+            if(serviceAddress instanceof Inet6Address)
+                assertTrue( isRoutable(serviceAddress));
             else
                 assertTrue(false);
         }
@@ -459,14 +459,14 @@ public class TestNetworkAddressManagerService
      * verify if the address returned by the service is valid by listing local
      * interfaces and compare them to the address retruned
      *
-     * @param serviceAdress : address to check
+     * @param serviceAddress : address to check
      * @param ipv6version : if true verifie if this address is an ipv6 belong
      * to the local interface. if false, et do the same thing for
      * IPv4 Addresses
-     * @return : true if it is an ipv4 address and if this addres belong to the
+     * @return : true if it is an ipv4 address and if this address belong to the
      *         local interface
      */
-    /*boolean foundInetAddr(InetAddress serviceAdress, boolean ipv6version)
+    /*boolean foundInetAddr(InetAddress serviceAddress, boolean ipv6version)
     {
 
         try {
@@ -479,7 +479,7 @@ public class TestNetworkAddressManagerService
                     try {
                         InetAddress addr = (InetAddress) addrs.nextElement();
                         if (!addr.isLoopbackAddress()
-                        && serviceAdress.equals(addr)
+                        && serviceAddress.equals(addr)
                         && ((!ipv6version && addr.getClass().equals(Inet4Address.class)
                             ||
                             (ipv6version && addr.getClass().equals(Inet6Address.class)))))

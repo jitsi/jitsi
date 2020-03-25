@@ -82,7 +82,7 @@ public interface ContactGroup
     /**
      * Returns the <tt>Contact</tt> with the specified address or
      * identifier.
-     * @param id the addres or identifier of the <tt>Contact</tt> we are
+     * @param id the address or identifier of the <tt>Contact</tt> we are
      * looking for.
      * @return the <tt>Contact</tt> with the specified id or address.
      */

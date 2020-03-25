@@ -653,7 +653,7 @@ public class NetworkAddressManagerServiceImpl
                              new LongTermCredential(userName, password));
              }
 
-             //srvrAddres was null. try for a STUN only server.
+             //srvrAddress was null. try for a STUN only server.
              srvRecord = NetworkUtils.getSRVRecord(
                          STUN_SRV_NAME, Transport.UDP.toString(), domainName);
              if(srvRecord != null)

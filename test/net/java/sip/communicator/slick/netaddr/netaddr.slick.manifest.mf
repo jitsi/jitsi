@@ -1,6 +1,6 @@
 Bundle-Activator: net.java.sip.communicator.slick.netaddr.NetworkAddressManagerServiceLick
 Bundle-Name: Network Address Manager Service Implementation Compatibility Kit
-Bundle-Description: A Service Implementation Compatibility Kit for the Network Adress Manager Service
+Bundle-Description: A Service Implementation Compatibility Kit for the Network Address Manager Service
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
 System-Bundle: yes

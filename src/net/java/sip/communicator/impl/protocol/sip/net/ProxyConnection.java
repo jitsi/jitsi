@@ -100,7 +100,7 @@ public abstract class ProxyConnection
      * Compares an InetAddress against the active outbound proxy. The comparison
      * is by reference, not equals.
      *
-     * @param addressToTest The addres to test.
+     * @param addressToTest The address to test.
      * @return True when the InetAddress is the same as the outbound proxy.
      */
     public final boolean isSameInetAddress(InetAddress addressToTest)

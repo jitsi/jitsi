@@ -392,18 +392,18 @@ public abstract class TestOperationSetAdHocMultiUserChat extends TestCase
             2, adHocChatRoom.getParticipantsCount());
 
         // Gather room participants address...
-        List<String> participantsAdress = new ArrayList<String>();
+        List<String> participantsAddress = new ArrayList<String>();
         for(Contact c : adHocChatRoom.getParticipants())
         {
-            participantsAdress.add(c.getAddress());
+            participantsAddress.add(c.getAddress());
         }
 
         // ... and finally check that both of our guests are here by searching
         // for their identity:
         assertTrue("A participant is missing",
-            participantsAdress.contains(fixture.userID2));
+            participantsAddress.contains(fixture.userID2));
         assertTrue("A participant is missing",
-            participantsAdress.contains(fixture.userID3));
+            participantsAddress.contains(fixture.userID3));
 
         // We force the creation of an ad-hoc chatroom on each side:
         // (In some cases, the chat room is created when an instant message has
