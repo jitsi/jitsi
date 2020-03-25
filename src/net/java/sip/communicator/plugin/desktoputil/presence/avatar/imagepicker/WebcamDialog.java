@@ -125,7 +125,7 @@ public class WebcamDialog
     }
 
     /**
-     * Init the access to the webcam (asynchonous call)
+     * Init the access to the webcam (asynchronous call)
      */
     private void initAccessWebcam()
     {
