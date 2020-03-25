@@ -960,7 +960,7 @@ public class ProtocolProviderServiceIcqImpl
                                   ConversationEventInfo event)
         {
             if (logger.isDebugEnabled())
-                logger.debug("goet other event");
+                logger.debug("got other event");
             if(event instanceof TypingInfo)
             {
                 TypingInfo ti = (TypingInfo)event;
