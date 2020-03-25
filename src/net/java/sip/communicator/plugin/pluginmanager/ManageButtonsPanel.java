@@ -179,7 +179,7 @@ public class ManageButtonsPanel
                 }
                 catch (BundleException ex)
                 {
-                    logger.error("Failed to desactivate bundle.", ex);
+                    logger.error("Failed to deactivate bundle.", ex);
 
                     PluginManagerActivator.getUIService().getPopupDialog()
                         .showMessagePopupDialog(ex.getMessage(), "Error",
