@@ -153,7 +153,7 @@ public class DynamicRTPExtensionsRegistry
         if( extID < MIN_HEADER_ID)
         {
             throw new IllegalArgumentException(extID
-                + " is not a valid RTP extensino header ID."
+                + " is not a valid RTP extension header ID."
                 + " (must be between " + MIN_HEADER_ID
                 + " and " + MAX_TWO_BYTE_HEADER_ID);
         }

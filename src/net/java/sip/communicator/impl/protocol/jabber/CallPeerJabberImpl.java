@@ -1736,7 +1736,7 @@ public class CallPeerJabberImpl
      * <tt>MediaType</tt> can be associated with it, tries to take the
      * <tt>MediaType</tt> from the session's already established contents with
      * the same name as <tt>content</tt>
-     * @param content the <tt>ContentPacketExtention</tt> for which to get the
+     * @param content the <tt>ContentPacketExtension</tt> for which to get the
      * <tt>MediaType</tt>
      * @return the <tt>MediaType</tt> of <tt>content</tt>.
      */

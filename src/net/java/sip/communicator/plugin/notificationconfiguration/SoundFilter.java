@@ -86,7 +86,7 @@ public class SoundFilter
         {
             return true;
         }
-        // Else, tests if the exension is correct.
+        // Else, tests if the extension is correct.
         else
         {
             return SoundFileUtils.isSoundFile(f, this.soundFormats);

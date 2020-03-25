@@ -1865,7 +1865,7 @@ public class CallPeerMediaHandlerJabberImpl
      * Processes the transport-related information provided by the remote
      * <tt>peer</tt> in a specific set of <tt>ContentPacketExtension</tt>s.
      *
-     * @param contents the <tt>ContentPacketExtenion</tt>s provided by the
+     * @param contents the <tt>ContentPacketExtension</tt>s provided by the
      * remote <tt>peer</tt> and containing the transport-related information to
      * be processed
      * @throws OperationFailedException if anything goes wrong while processing
