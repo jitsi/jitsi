@@ -111,14 +111,14 @@ public:
         STDMETHODIMP_E_NOTIMPL_STUB
 #endif /* #ifdef DISPATCHIMPL_CREATESTDDISPATCH */
 
-    STDMETHODIMP Invoke(DISPID dispIdMember, REFIID riid, LCID lcid, WORD wFlags, DISPPARAMS *pDispParams, VARIANT *pVarResult, EXCEPINFO *pExcepInfo, UINT *puArgErr)
+    STDMETHODIMP Invoke(DISPID dispIdMember, REFIID riid, LCID lcid, WORD wFlags, DISPPARAMS *pDispParams, VARIANT *pVarResult, EXCEPINFO *pExceptInfo, UINT *puArgErr)
 #ifdef DISPATCHIMPL_CREATESTDDISPATCH
         {
             LPDISPATCH iDispatch = getIDispatch();
             HRESULT hr;
 
             if (iDispatch)
-                hr = iDispatch->Invoke(dispIdMember, riid, lcid, wFlags, pDispParams, pVarResult, pExcepInfo, puArgErr);
+                hr = iDispatch->Invoke(dispIdMember, riid, lcid, wFlags, pDispParams, pVarResult, pExceptInfo, puArgErr);
             else
                 hr = TYPE_E_ELEMENTNOTFOUND;
             return hr;

@@ -288,7 +288,7 @@ public class SipRegistrarConnection
                     return;
             }
 
-            //catches InvalidArgumentException, ParseExeption
+            //catches InvalidArgumentException, ParseException
             //this should never happen so let's just log and bail.
             logger.error("Failed to create a Register request." , exc);
             setRegistrationState(RegistrationState.CONNECTION_FAILED,

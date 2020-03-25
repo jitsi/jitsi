@@ -438,7 +438,7 @@ public class RecurringPattern
         result += "patternSpecific2: " 
             + String.format("%#04x", this.patternSpecific2) + "\n";
 
-        result += "\n\n =====================Exeptions====================\n\n";
+        result += "\n\n =====================Exceptions====================\n\n";
 
         for(ExceptionInfo info : exceptionInfo)
         {

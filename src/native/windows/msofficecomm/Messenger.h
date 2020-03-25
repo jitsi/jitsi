@@ -53,8 +53,8 @@ public:
         { return DispatchImpl::GetTypeInfo(iTInfo, lcid, ppTInfo); };
     STDMETHODIMP GetIDsOfNames(REFIID riid, LPOLESTR *rgszNames, UINT cNames, LCID lcid, DISPID *rgDispId)
         { return DispatchImpl::GetIDsOfNames(riid, rgszNames, cNames, lcid, rgDispId); };
-    STDMETHODIMP Invoke(DISPID dispIdMember, REFIID riid, LCID lcid, WORD wFlags, DISPPARAMS *pDispParams, VARIANT *pVarResult, EXCEPINFO *pExcepInfo, UINT *puArgErr)
-        { return DispatchImpl::Invoke(dispIdMember, riid, lcid, wFlags, pDispParams, pVarResult, pExcepInfo, puArgErr); };
+    STDMETHODIMP Invoke(DISPID dispIdMember, REFIID riid, LCID lcid, WORD wFlags, DISPPARAMS *pDispParams, VARIANT *pVarResult, EXCEPINFO *pExceptInfo, UINT *puArgErr)
+        { return DispatchImpl::Invoke(dispIdMember, riid, lcid, wFlags, pDispParams, pVarResult, pExceptInfo, puArgErr); };
 
     // IMessenger
     STDMETHODIMP get_Window(IDispatch **ppMWindow);

@@ -921,7 +921,7 @@ public final class CommonPolicyParser
         }
         for (ExceptType except : many.getExcepts())
         {
-            element.appendChild(elementFromExept(document, except));
+            element.appendChild(elementFromExcept(document, except));
         }
         processAny(element, many.getAny());
         return element;
@@ -1000,7 +1000,7 @@ public final class CommonPolicyParser
      * @return the conditions element.
      * @throws Exception if there is some error during creating.
      */
-    private static Element elementFromExept(
+    private static Element elementFromExcept(
             Document document, ExceptType except)
             throws Exception
     {
