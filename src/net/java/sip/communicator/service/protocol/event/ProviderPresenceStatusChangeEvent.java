@@ -54,7 +54,7 @@ public class ProviderPresenceStatusChangeEvent extends PropertyChangeEvent
     }
 
     /**
-     * Returns the provider that has genereted this event
+     * Returns the provider that has generated this event
      * @return the provider that generated the event.
      */
     public ProtocolProviderService getProvider()

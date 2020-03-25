@@ -55,7 +55,7 @@ public class LocalPositionChangeEvent extends PropertyChangeEvent
     }
 
     /**
-     * Returns the provider that has genereted this event
+     * Returns the provider that has generated this event
      *
      * @return the provider that generated the event.
      */

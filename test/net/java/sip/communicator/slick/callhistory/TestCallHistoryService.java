@@ -131,7 +131,7 @@ public class TestCallHistoryService
             (CallHistoryService) CallHistoryServiceLick.bc.
             getService(callHistoryServiceRef);
 
-        // Will genarate 4 Calls with 4 different participants
+        // Will generate 4 Calls with 4 different participants
         participantAddresses.add("participant_address_1");
         participantAddresses.add("participant_address_2");
         participantAddresses.add("participant_address_3");
