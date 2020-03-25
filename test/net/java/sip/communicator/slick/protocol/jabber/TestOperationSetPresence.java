@@ -751,7 +751,7 @@ public class TestOperationSetPresence
 
         /**
          * Blocks until at least one event is received or until waitFor
-         * milliseconds pass (whicever happens first).
+         * milliseconds pass (whichever happens first).
          *
          * @param waitFor the number of milliseconds that we should be waiting
          * for an event before simply bailing out.
@@ -810,7 +810,7 @@ public class TestOperationSetPresence
 
         /**
          * Blocks until at least one SubscriptionEvent is received or until
-         * waitFor milliseconds pass (whicever happens first).
+         * waitFor milliseconds pass (whichever happens first).
          *
          * @param waitFor the number of milliseconds that we should be waiting
          * for an SubscriptionEvent before simply bailing out.
@@ -825,7 +825,7 @@ public class TestOperationSetPresence
 
         /**
          * Blocks until at least one SubscriptionMovedEvent is received or until
-         * waitFor milliseconds pass (whicever happens first).
+         * waitFor milliseconds pass (whichever happens first).
          *
          * @param waitFor the number of milliseconds that we should be waiting
          * for an SubscriptionMovedEvent before simply bailing out.
@@ -840,7 +840,7 @@ public class TestOperationSetPresence
 
         /**
          * Blocks until at least one ContactPropertyChangeEvent is received or
-         * until waitFor milliseconds pass (whicever happens first).
+         * until waitFor milliseconds pass (whichever happens first).
          *
          * @param waitFor the number of milliseconds that we should be waiting
          * for an ContactPropertyChangeEvent before simply bailing out.
@@ -974,7 +974,7 @@ public class TestOperationSetPresence
 
         /**
          * Blocks until at least one event is received or until waitFor
-         * milliseconds pass (whicever happens first).
+         * milliseconds pass (whichever happens first).
          *
          * @param waitFor the number of milliseconds that we should be waiting
          * for an event before simply bailing out.
@@ -1019,7 +1019,7 @@ public class TestOperationSetPresence
 
     /**
      * Blocks until at least one event is received or until waitFor
-     * milliseconds pass (whicever happens first).
+     * milliseconds pass (whichever happens first).
      * Must be called by with a synchronized collectedEvents Object.
      *
      * @param waitFor the number of milliseconds that we should be waiting
