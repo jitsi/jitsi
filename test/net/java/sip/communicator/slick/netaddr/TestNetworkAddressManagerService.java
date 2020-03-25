@@ -311,7 +311,7 @@ public class TestNetworkAddressManagerService
         }
         catch (Exception e) {}
         try {
-            // get the locahost grom NetworkAddressManager Service
+            // get the locahost from NetworkAddressManager Service
             InetAddress serviceAddress =
                                     networkAddressManagerService.getLocalHost();
 
@@ -355,7 +355,7 @@ public class TestNetworkAddressManagerService
         }
         catch (Exception e) {}
         try {
-            // get the locahost grom NetworkAddressManager Service
+            // get the locahost from NetworkAddressManager Service
             InetAddress serviceAddress =
                                     networkAddressManagerService.getLocalHost();
 
