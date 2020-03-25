@@ -1061,7 +1061,7 @@ public class ServerStoredContactListIcqImpl
          * Called by joust sim to indicate that the server stored groups
          * have been reordered. We filter this list for contact groups that
          * we've already heard of and pass it to the root contact group
-         * so that it woul reorder its subgroups.
+         * so that it would reorder its subgroups.
          *
          * @param list the <tt>BuddyList</tt> where all this is happening
          * @param oldOrder unused

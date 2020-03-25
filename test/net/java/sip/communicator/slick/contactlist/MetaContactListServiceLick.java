@@ -75,7 +75,7 @@ public class MetaContactListServiceLick
 
         logger.debug("Service  " + getClass().getName() + " [  STARTED ]");
 
-        //initialize and register a mock protocol provider that woul fill the
+        //initialize and register a mock protocol provider that would fill the
         //meta contact list with dummy data.
         //create and init an instance of a MockProvider
         MockProvider provider = new MockProvider("SlickMockUser");
