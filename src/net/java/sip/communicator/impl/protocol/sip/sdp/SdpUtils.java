@@ -803,7 +803,7 @@ public class SdpUtils
         StringTokenizer rtcpTokenizer
             = new StringTokenizer(rtcpAttrValue.trim(), " ");
 
-        // RTCP attribtutes are supposed to look this way:
+        // RTCP attributes are supposed to look this way:
         // rtcp-attribute =  "a=rtcp:" port  [nettype space addrtype space
         //                                    connection-address] CRLF
         // which gives us 2 cases: port only (1 token), or port+addr (4 tokens)

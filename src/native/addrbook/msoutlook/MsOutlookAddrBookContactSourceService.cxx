@@ -178,7 +178,7 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                                 str++;
                             memcpy(str, _T("\\Outlook.exe"), 12 * sizeof(TCHAR));
                             *(str + 12) = 0;
-                            MsOutlookUtils_logInfo("Trying to retrieve atributes for:");
+                            MsOutlookUtils_logInfo("Trying to retrieve attributes for:");
                             MsOutlookUtils_logInfo(pathValue);
                             fileAttributes = GetFileAttributes(pathValue);
                             if (INVALID_FILE_ATTRIBUTES != fileAttributes)

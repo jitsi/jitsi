@@ -440,7 +440,7 @@ public class TestXCapParse extends TestCase
                 list1.getExternals().size() == 1);
         assertTrue("The lists[1] entryRefs we set is not read properly",
                 list1.getEntryRefs().size() == 1);
-        assertTrue("The lists[1] custom attriutes we set is not read properly",
+        assertTrue("The lists[1] custom attributes we set is not read properly",
                 list1.getAnyAttributes().size() == 1);
         assertTrue("The lists[1] custom elements we set is not read properly",
                 list1.getAnyAttributes().size() == 1);
