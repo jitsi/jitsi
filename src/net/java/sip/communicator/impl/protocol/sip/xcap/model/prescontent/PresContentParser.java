@@ -139,7 +139,7 @@ public class PresContentParser
                     {
                         content.setEncoding(encodingFromElement(element));
                     }
-                    // descritpion
+                    // description
                     else if (DESCRIPTION_ELEMENT.equals(localName))
                     {
                         content.getDescription()

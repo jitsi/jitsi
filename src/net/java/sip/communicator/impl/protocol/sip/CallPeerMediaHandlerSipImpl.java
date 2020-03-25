@@ -498,7 +498,7 @@ public class CallPeerMediaHandlerSipImpl
      *
      * @param newOffer the new SDP description that we are receiving as an
      * update to our current state.
-     * @param previousAnswer the <tt>SessionDescripiton</tt> that we last sent
+     * @param previousAnswer the <tt>SessionDescription</tt> that we last sent
      * as an answer to the previous offer currently updated by
      * <tt>newOffer</tt> is updating.
      *
