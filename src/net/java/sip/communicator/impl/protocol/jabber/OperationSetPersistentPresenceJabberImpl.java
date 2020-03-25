@@ -115,7 +115,7 @@ public class OperationSetPersistentPresenceJabberImpl
     /**
      * Listens for subscriptions.
      */
-    private JabberSubscriptionListener subscribtionPacketListener = null;
+    private JabberSubscriptionListener subscriptionPacketListener = null;
 
     /**
      * Current resource priority.
@@ -826,7 +826,7 @@ public class OperationSetPersistentPresenceJabberImpl
      */
     public void setAuthorizationHandler(AuthorizationHandler handler)
     {
-        subscribtionPacketListener.setHandler(handler);
+        subscriptionPacketListener.setHandler(handler);
     }
 
     /**
@@ -1150,14 +1150,14 @@ public class OperationSetPersistentPresenceJabberImpl
 
                 // Adds subscription listener as soon as connection is created
                 // or we can miss some subscription requests
-                if(subscribtionPacketListener == null)
+                if(subscriptionPacketListener == null)
                 {
-                    subscribtionPacketListener =
+                    subscriptionPacketListener =
                         new JabberSubscriptionListener();
                     parentProvider
                         .getConnection()
                             .addAsyncStanzaListener(
-                                subscribtionPacketListener,
+                                subscriptionPacketListener,
                                 new StanzaTypeFilter(Presence.class));
                 }
             }
@@ -1214,15 +1214,15 @@ public class OperationSetPersistentPresenceJabberImpl
     {
         XMPPConnection connection = parentProvider.getConnection();
         if(connection != null
-            && subscribtionPacketListener != null
+            && subscriptionPacketListener != null
             && contactChangesListener != null)
         {
             connection.removeAsyncStanzaListener(
-                subscribtionPacketListener);
+                subscriptionPacketListener);
             Roster.getInstanceFor(connection)
                 .removeRosterListener(contactChangesListener);
 
-            subscribtionPacketListener = null;
+            subscriptionPacketListener = null;
             contactChangesListener = null;
         }
     }

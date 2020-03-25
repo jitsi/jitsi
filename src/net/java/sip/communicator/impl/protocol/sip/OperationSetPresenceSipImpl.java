@@ -2906,7 +2906,7 @@ public class OperationSetPresenceSipImpl
          }
          catch (OperationFailedException ex)
          {
-             logger.error("Failed to create and send the subcription", ex);
+             logger.error("Failed to create and send the subscription", ex);
          }
      }
 
@@ -3220,7 +3220,7 @@ public class OperationSetPresenceSipImpl
                 }
                 catch (OperationFailedException ex)
                 {
-                    logger.error("Failed to create and send the subcription " +
+                    logger.error("Failed to create and send the subscription " +
                             "for watcher info.", ex);
                 }
             }

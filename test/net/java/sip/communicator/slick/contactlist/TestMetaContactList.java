@@ -51,7 +51,7 @@ public class TestMetaContactList
     private MclSlickFixture fixture = new MclSlickFixture(getClass().getName());
 
     /**
-     * The name of the new subscripiton that we create during testing.
+     * The name of the new subscription that we create during testing.
      */
     private String newSubscriptionName = "NewSubscription";
 

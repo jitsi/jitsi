@@ -583,7 +583,7 @@ public class TestOperationSetPersistentPresence
         }
 
         /**
-         * Stores the received subsctiption and notifies all waiting on this
+         * Stores the received subscription and notifies all waiting on this
          * object
          * @param evt the SubscriptionEvent containing the corresponding contact
          */
@@ -598,7 +598,7 @@ public class TestOperationSetPersistentPresence
         }
 
         /**
-         * Stores the received subsctiption and notifies all waiting on this
+         * Stores the received subscription and notifies all waiting on this
          * object
          * @param evt the SubscriptionEvent containing the corresponding contact
          */
@@ -613,7 +613,7 @@ public class TestOperationSetPersistentPresence
         }
 
         /**
-         * Stores the received subsctiption and notifies all waiting on this
+         * Stores the received subscription and notifies all waiting on this
          * object
          * @param evt the SubscriptionEvent containing the corresponding contact
          */
@@ -628,7 +628,7 @@ public class TestOperationSetPersistentPresence
         }
 
         /**
-         * Stores the received subsctiption and notifies all waiting on this
+         * Stores the received subscription and notifies all waiting on this
          * object
          * @param evt the SubscriptionEvent containing the corresponding contact
          */
@@ -644,7 +644,7 @@ public class TestOperationSetPersistentPresence
 
 
         /**
-         * Stores the received subsctiption and notifies all waiting on this
+         * Stores the received subscription and notifies all waiting on this
          * object
          * @param evt the SubscriptionEvent containing the corresponding contact
          */
@@ -659,7 +659,7 @@ public class TestOperationSetPersistentPresence
         }
 
         /**
-         * Stores the received subsctiption and notifies all waiting on this
+         * Stores the received subscription and notifies all waiting on this
          * object
          * @param evt the SubscriptionEvent containing the corresponding contact
          */
