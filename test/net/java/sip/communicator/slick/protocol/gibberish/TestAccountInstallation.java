@@ -179,7 +179,7 @@ public class TestAccountInstallation
     }
 
     /**
-     * Returns all properties necessary for the intialization of the account
+     * Returns all properties necessary for the initialization of the account
      * with <tt>accountPrefix</tt>.
      * @param accountPrefix the prefix contained by all property names for the
      * the account we'd like to initialized
