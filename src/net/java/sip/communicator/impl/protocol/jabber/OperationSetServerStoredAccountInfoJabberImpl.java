@@ -53,7 +53,7 @@ public class OperationSetServerStoredAccountInfoJabberImpl
     /**
      * The info retriever.
      */
-    private InfoRetreiver infoRetreiver = null;
+    private InfoRetriever infoRetriever = null;
 
     /**
      * The jabber provider that created us.
@@ -99,10 +99,10 @@ public class OperationSetServerStoredAccountInfoJabberImpl
 
     protected OperationSetServerStoredAccountInfoJabberImpl(
         ProtocolProviderServiceJabberImpl jabberProvider,
-        InfoRetreiver infoRetreiver,
+        InfoRetriever infoRetriever,
         EntityBareJid uin)
     {
-        this.infoRetreiver = infoRetreiver;
+        this.infoRetriever = infoRetriever;
         this.jabberProvider = jabberProvider;
         this.uin = uin;
     }
@@ -125,7 +125,7 @@ public class OperationSetServerStoredAccountInfoJabberImpl
     {
         assertConnected();
 
-        return infoRetreiver.getDetailsAndDescendants(uin, detailClass);
+        return infoRetriever.getDetailsAndDescendants(uin, detailClass);
     }
 
     /**
@@ -148,7 +148,7 @@ public class OperationSetServerStoredAccountInfoJabberImpl
     {
         assertConnected();
 
-        return infoRetreiver.getDetails(uin, detailClass);
+        return infoRetriever.getDetails(uin, detailClass);
     }
 
     /**
@@ -160,7 +160,7 @@ public class OperationSetServerStoredAccountInfoJabberImpl
     {
         assertConnected();
 
-        return infoRetreiver.getContactDetails(uin).iterator();
+        return infoRetriever.getContactDetails(uin).iterator();
     }
 
     /**
@@ -253,7 +253,7 @@ public class OperationSetServerStoredAccountInfoJabberImpl
                     "Max count for this detail is already reached");
         }
 
-        infoRetreiver.getCachedContactDetails(uin).add(detail);
+        infoRetriever.getCachedContactDetails(uin).add(detail);
     }
 
     /**
@@ -268,7 +268,7 @@ public class OperationSetServerStoredAccountInfoJabberImpl
     public boolean removeDetail(ServerStoredDetails.GenericDetail detail)
     {
 
-        return infoRetreiver.getCachedContactDetails(uin).remove(detail);
+        return infoRetriever.getCachedContactDetails(uin).remove(detail);
     }
 
     /**
@@ -304,7 +304,7 @@ public class OperationSetServerStoredAccountInfoJabberImpl
 
         boolean isFound = false;
         Iterator<GenericDetail> iter =
-                infoRetreiver.getDetails(uin, currentDetailValue.getClass());
+                infoRetriever.getDetails(uin, currentDetailValue.getClass());
 
         while (iter.hasNext())
         {
@@ -339,7 +339,7 @@ public class OperationSetServerStoredAccountInfoJabberImpl
     {
         assertConnected();
 
-        List<GenericDetail> details = infoRetreiver.getContactDetails(uin);
+        List<GenericDetail> details = infoRetriever.getContactDetails(uin);
         VCard vCard = new VCard();
         for (GenericDetail detail : details)
         {
@@ -427,19 +427,19 @@ public class OperationSetServerStoredAccountInfoJabberImpl
         //Fix the display name detail
         String tmp;
 
-        tmp = infoRetreiver.checkForFullName(vCard);
+        tmp = infoRetriever.checkForFullName(vCard);
         if(tmp != null)
         {
             DisplayNameDetail displayNameDetail = new DisplayNameDetail(
                 StringEscapeUtils.unescapeXml(tmp));
             Iterator<GenericDetail> detailIt
-                = infoRetreiver.getDetails(uin, DisplayNameDetail.class);
+                = infoRetriever.getDetails(uin, DisplayNameDetail.class);
             while(detailIt.hasNext())
             {
-                infoRetreiver.getCachedContactDetails(uin)
+                infoRetriever.getCachedContactDetails(uin)
                     .remove(detailIt.next());
             }
-            infoRetreiver.getCachedContactDetails(uin).add(displayNameDetail);
+            infoRetriever.getCachedContactDetails(uin).add(displayNameDetail);
         }
 
         try

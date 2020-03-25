@@ -215,13 +215,13 @@ public class OperationSetBasicInstantMessagingIcqImpl
     }
 
     /**
-     * Retreives all offline Messages If any.
+     * Retrieves all offline Messages If any.
      * Then delete them from the server.
      *
      * @param listener the <tt>MessageListener</tt> receiving the messages.
      */
     private static int offlineMessageRequestID = 0;
-    private void retreiveOfflineMessages()
+    private void retrieveOfflineMessages()
     {
         int requestID = offlineMessageRequestID++;
         OfflineMsgIcqRequest offlineMsgsReq =
@@ -420,7 +420,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
             else if (evt.getNewState() == RegistrationState.REGISTERED)
             {
                 if(icqProvider.USING_ICQ)
-                    retreiveOfflineMessages();
+                    retrieveOfflineMessages();
 
                 String customMessageEncoding = null;
                 if((customMessageEncoding =

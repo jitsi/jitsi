@@ -138,7 +138,7 @@ public class ServerStoredContactListIcqImpl
 
             parentOperationSet.addContactPresenceStatusListener(nickRetriever);
 
-            // start the nick retreiver thread
+            // start the nick retriever thread
             nickRetriever.start();
         }
     }
@@ -777,9 +777,9 @@ public class ServerStoredContactListIcqImpl
 
 
     /**
-     * when there is no alias for contact we must retreive its nickname from server
+     * when there is no alias for contact we must retrieve its nickname from server
      * but when the contact list is loaded the client is not yet registered to
-     * server we wait this and then retreive the nicknames
+     * server we wait this and then retrieve the nicknames
      *
      * @param c ContactIcqImpl
      */
@@ -1293,7 +1293,7 @@ public class ServerStoredContactListIcqImpl
         private final List<ContactIcqImpl> contactsForUpdate
             = new Vector<ContactIcqImpl>();
 
-        private boolean isReadyForRetreive = false;
+        private boolean isReadyForRetrieve = false;
 
         @Override
         public void run()
@@ -1326,12 +1326,12 @@ public class ServerStoredContactListIcqImpl
                         try
                         {
                             nickName = getParentProvider().
-                                getInfoRetreiver().getNickName(contact.getUIN());
+                                getInfoRetriever().getNickName(contact.getUIN());
                         }
                         catch (Exception e)
                         {
                             // if something happens do not interrupt
-                            // the nickname retreiver
+                            // the nickname retriever
                         }
 
                         if(nickName != null)
@@ -1366,7 +1366,7 @@ public class ServerStoredContactListIcqImpl
             {
                 if (!contactsForUpdate.contains(contact))
                 {
-                    if (isReadyForRetreive)
+                    if (isReadyForRetrieve)
                     {
                         contactsForUpdate.add(contact);
                         contactsForUpdate.notifyAll();
@@ -1387,9 +1387,9 @@ public class ServerStoredContactListIcqImpl
         public void contactPresenceStatusChanged(
             ContactPresenceStatusChangeEvent evt)
         {
-            if(!isReadyForRetreive)
+            if(!isReadyForRetrieve)
             {
-               isReadyForRetreive = true;
+               isReadyForRetrieve = true;
                synchronized(contactsForUpdate){
                    contactsForUpdate.notifyAll();
                }

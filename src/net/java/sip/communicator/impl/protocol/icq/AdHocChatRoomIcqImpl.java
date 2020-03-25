@@ -304,7 +304,7 @@ public class AdHocChatRoomIcqImpl
     {
         if (nickName == null)
             nickName =
-                provider.getInfoRetreiver().getNickName(
+                provider.getInfoRetriever().getNickName(
                     provider.getAccountID().getUserID());
 
         return nickName;

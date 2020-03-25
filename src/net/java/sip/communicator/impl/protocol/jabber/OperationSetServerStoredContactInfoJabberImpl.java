@@ -35,7 +35,7 @@ public class OperationSetServerStoredContactInfoJabberImpl
     private static final Logger logger =
         Logger.getLogger(OperationSetServerStoredContactInfoJabberImpl.class);
 
-    private InfoRetreiver infoRetreiver = null;
+    private InfoRetriever infoRetriever = null;
 
     /**
      * If we got several listeners for the same contact lets retrieve once
@@ -45,18 +45,18 @@ public class OperationSetServerStoredContactInfoJabberImpl
         listenersForDetails = new Hashtable<>();
 
     protected OperationSetServerStoredContactInfoJabberImpl(
-        InfoRetreiver infoRetreiver)
+        InfoRetriever infoRetriever)
     {
-        this.infoRetreiver = infoRetreiver;
+        this.infoRetriever = infoRetriever;
     }
 
     /**
      * Returns the info retriever.
      * @return the info retriever.
      */
-    InfoRetreiver getInfoRetriever()
+    InfoRetriever getInfoRetriever()
     {
-        return infoRetreiver;
+        return infoRetriever;
     }
 
     /**
@@ -79,7 +79,7 @@ public class OperationSetServerStoredContactInfoJabberImpl
         }
 
         List<GenericDetail> details
-            = infoRetreiver.getContactDetails(((ContactJabberImpl) contact)
+            = infoRetriever.getContactDetails(((ContactJabberImpl) contact)
                 .getAddressAsJid()
                 .asEntityBareJidOrThrow());
         List<T> result = new LinkedList<>();
@@ -114,7 +114,7 @@ public class OperationSetServerStoredContactInfoJabberImpl
             return new LinkedList<GenericDetail>().iterator();
 
         List<GenericDetail> details
-            = infoRetreiver.getContactDetails(((ContactJabberImpl) contact)
+            = infoRetriever.getContactDetails(((ContactJabberImpl) contact)
                 .getAddressAsJid()
                 .asEntityBareJidOrThrow());
         List<GenericDetail> result = new LinkedList<>();
@@ -142,7 +142,7 @@ public class OperationSetServerStoredContactInfoJabberImpl
             return new LinkedList<GenericDetail>().iterator();
 
         List<GenericDetail> details
-            = infoRetreiver.getContactDetails(((ContactJabberImpl) contact)
+            = infoRetriever.getContactDetails(((ContactJabberImpl) contact)
                 .getAddressAsJid()
                 .asEntityBareJidOrThrow());
 
@@ -167,7 +167,7 @@ public class OperationSetServerStoredContactInfoJabberImpl
         }
 
         List<GenericDetail> res =
-            infoRetreiver.getCachedContactDetails(((ContactJabberImpl) contact)
+            infoRetriever.getCachedContactDetails(((ContactJabberImpl) contact)
                 .getAddressAsJid().asEntityBareJidOrThrow());
 
         if(res != null)
@@ -201,7 +201,7 @@ public class OperationSetServerStoredContactInfoJabberImpl
             public void run()
             {
                 List<GenericDetail> result =
-                    infoRetreiver.retrieveDetails(((ContactJabberImpl) contact)
+                    infoRetriever.retrieveDetails(((ContactJabberImpl) contact)
                         .getAddressAsJid()
                         .asEntityBareJidOrThrow());
 

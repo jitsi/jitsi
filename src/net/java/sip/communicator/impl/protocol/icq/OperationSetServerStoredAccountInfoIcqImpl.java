@@ -45,7 +45,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
     private static final Logger logger =
         Logger.getLogger(OperationSetServerStoredAccountInfoIcqImpl.class);
 
-    private InfoRetreiver infoRetreiver = null;
+    private InfoRetriever infoRetriever = null;
     private String uin = null;
 
     /**
@@ -113,15 +113,15 @@ public class OperationSetServerStoredAccountInfoIcqImpl
     /**
      * Creates instance of OperationSetServerStoredAccountInfo
      * for icq protocol.
-     * @param infoRetreiver the info retreiver
+     * @param infoRetriever the info retriever
      * @param uin our own account uin
      * @param icqProvider the provider
      */
     public OperationSetServerStoredAccountInfoIcqImpl
-        (InfoRetreiver infoRetreiver, String uin,
+        (InfoRetriever infoRetriever, String uin,
          ProtocolProviderServiceIcqImpl icqProvider)
     {
-        this.infoRetreiver = infoRetreiver;
+        this.infoRetriever = infoRetriever;
         this.uin = uin;
         this.icqProvider = icqProvider;
     }
@@ -136,7 +136,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
     {
         assertConnected();
 
-        List<GenericDetail> ds = infoRetreiver.getContactDetails(uin);
+        List<GenericDetail> ds = infoRetriever.getContactDetails(uin);
         GenericDetail img = getImage();
         if(img != null)
             ds.add(img);
@@ -165,7 +165,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
             return res.iterator();
         }
 
-        return infoRetreiver.getDetails(uin, detailClass);
+        return infoRetriever.getDetails(uin, detailClass);
     }
 
     /**
@@ -195,7 +195,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
             return tIt;
         }
 
-        return infoRetreiver.getDetailsAndDescendants(uin, detailClass);
+        return infoRetriever.getDetailsAndDescendants(uin, detailClass);
     }
 
     /**
@@ -328,7 +328,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
 
             icqProvider.getAimConnection().getMyBuddyIconManager().requestSetIcon(
                     ByteBlock.wrap(((ServerStoredDetails.ImageDetail) detail).getBytes()));
-            infoRetreiver.detailsChanged(uin);
+            infoRetriever.detailsChanged(uin);
 
             fireServerStoredDetailsChangeEvent(icqProvider,
                 ServerStoredDetailsChangeEvent.DETAIL_ADDED,
@@ -443,7 +443,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
                 throw new OperationFailedException("Adding Detail Failed!",
                             OperationFailedException.GENERAL_ERROR);
 
-        infoRetreiver.detailsChanged(uin);
+        infoRetriever.detailsChanged(uin);
 
         fireServerStoredDetailsChangeEvent(icqProvider,
                 ServerStoredDetailsChangeEvent.DETAIL_ADDED,
@@ -487,7 +487,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
         // as there is items like language, which must be changed all the values
         // we write not only the changed one but and the other found
         List<GenericDetail> foundValues = new ArrayList<GenericDetail>();
-        Iterator<?> iter = infoRetreiver.getDetails(uin, detail.getClass());
+        Iterator<?> iter = infoRetriever.getDetails(uin, detail.getClass());
         while (iter.hasNext())
         {
             GenericDetail item = (GenericDetail) iter.next();
@@ -573,7 +573,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
 
        if (responseListener.success)
        {
-           infoRetreiver.detailsChanged(uin);
+           infoRetriever.detailsChanged(uin);
 
            fireServerStoredDetailsChangeEvent(icqProvider,
                 ServerStoredDetailsChangeEvent.DETAIL_REMOVED,
@@ -617,7 +617,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
         boolean isFound = false;
         List<GenericDetail> alreadySetDetails = new Vector<GenericDetail>();
         Iterator<GenericDetail> iter
-            = infoRetreiver.getDetails(uin, currentDetailValue.getClass());
+            = infoRetriever.getDetails(uin, currentDetailValue.getClass());
         while (iter.hasNext())
         {
             GenericDetail item = iter.next();
@@ -652,7 +652,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
                     ((ServerStoredDetails.ImageDetail) newDetailValue)
                             .getBytes()));
 
-            infoRetreiver.detailsChanged(uin);
+            infoRetriever.detailsChanged(uin);
 
             fireServerStoredDetailsChangeEvent(icqProvider,
                         ServerStoredDetailsChangeEvent.DETAIL_REPLACED,
@@ -810,7 +810,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
 
         if(responseListener.success)
         {
-            infoRetreiver.detailsChanged(uin);
+            infoRetriever.detailsChanged(uin);
 
             fireServerStoredDetailsChangeEvent(icqProvider,
                         ServerStoredDetailsChangeEvent.DETAIL_REPLACED,

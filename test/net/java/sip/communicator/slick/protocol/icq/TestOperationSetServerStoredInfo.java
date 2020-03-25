@@ -286,7 +286,7 @@ public class TestOperationSetServerStoredInfo
     /**
      * Testing changing of the details.
      * Changing the details from the account info operation set
-     * and checking the values retreived from TesterAgent
+     * and checking the values retrieved from TesterAgent
      */
     public void testWriteInfo()
     {

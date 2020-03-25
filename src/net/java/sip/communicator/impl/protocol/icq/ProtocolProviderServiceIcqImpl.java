@@ -99,7 +99,7 @@ public class ProtocolProviderServiceIcqImpl
     /**
      * Retrieves short or full user info, such as Name, Address, Nickname etc.
      */
-    private InfoRetreiver infoRetreiver = null;
+    private InfoRetriever infoRetriever = null;
 
     /**
      * The icon corresponding to the icq protocol.
@@ -532,18 +532,18 @@ public class ProtocolProviderServiceIcqImpl
 
             if(USING_ICQ)
             {
-                this.infoRetreiver = new InfoRetreiver(this, screenname);
+                this.infoRetriever = new InfoRetriever(this, screenname);
 
                 addSupportedOperationSet(
                     OperationSetServerStoredContactInfo.class,
                     new OperationSetServerStoredContactInfoIcqImpl(
-                            infoRetreiver,
+                            infoRetriever,
                             this));
 
                 OperationSetServerStoredAccountInfoIcqImpl
                     serverStoredAccountInfoOpSet =
                         new OperationSetServerStoredAccountInfoIcqImpl(
-                            infoRetreiver,
+                            infoRetriever,
                             screenname,
                             this);
                 addSupportedOperationSet(
@@ -689,9 +689,9 @@ public class ProtocolProviderServiceIcqImpl
      * @return the info retriever that we've initialized for the current
      * session.
      */
-    protected InfoRetreiver getInfoRetreiver()
+    protected InfoRetriever getInfoRetriever()
     {
-        return infoRetreiver;
+        return infoRetriever;
     }
 
     /**

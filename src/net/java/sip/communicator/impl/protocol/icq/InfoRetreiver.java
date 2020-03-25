@@ -30,10 +30,10 @@ import net.kano.joscar.snaccmd.icq.*;
 /**
  * @author Damian Minkov
  */
-public class InfoRetreiver
+public class InfoRetriever
 {
     private static final Logger logger =
-        Logger.getLogger(InfoRetreiver.class);
+        Logger.getLogger(InfoRetriever.class);
 
     /**
      * A callback to the ICQ provider that created us.
@@ -45,7 +45,7 @@ public class InfoRetreiver
     private String ownerUin = null;
 
     // here is kept all the details retrieved so far
-    private final Map<String, List<GenericDetail>> retreivedDetails
+    private final Map<String, List<GenericDetail>> retrievedDetails
         = new Hashtable<String, List<GenericDetail>>();
 
     // used to generate request id when sending commands for retrieving user info
@@ -56,11 +56,11 @@ public class InfoRetreiver
      * sequences of 8 packets according to the
      * requestID we keep the stored Info so far.
      */
-    private static final Map<Integer, List<GenericDetail>> retreivedInfo
+    private static final Map<Integer, List<GenericDetail>> retrievedInfo
         = new Hashtable<Integer, List<GenericDetail>>();
 
 
-    protected InfoRetreiver
+    protected InfoRetriever
         (ProtocolProviderServiceIcqImpl icqProvider, String ownerUin)
     {
         this.icqProvider = icqProvider;
@@ -178,7 +178,7 @@ public class InfoRetreiver
             result = new LinkedList<GenericDetail>();
 
         // put even empty result to bypass further retrieve
-        retreivedDetails.put(uin, result);
+        retrievedDetails.put(uin, result);
 
         return result;
     }
@@ -192,7 +192,7 @@ public class InfoRetreiver
      */
     protected List<GenericDetail> getCachedContactDetails(String uin)
     {
-        return retreivedDetails.get(uin);
+        return retrievedDetails.get(uin);
     }
 
     /**
@@ -312,14 +312,14 @@ public class InfoRetreiver
 
     /**
      * when detail is changed we remove it from the cache,
-     * from retreivedDetails so the next time we want the details
+     * from retrievedDetails so the next time we want the details
      * we are shure they are get from the server and are actual
      *
      * @param uin String
      */
     protected void detailsChanged(String uin)
     {
-        retreivedDetails.remove(uin);
+        retrievedDetails.remove(uin);
     }
 
     /**
@@ -364,7 +364,7 @@ public class InfoRetreiver
      */
     private List<GenericDetail> getInfoForRequest(int requestID)
     {
-        List<GenericDetail> res = retreivedInfo.get(requestID);
+        List<GenericDetail> res = retrievedInfo.get(requestID);
 
         if (res == null)
         {
@@ -373,7 +373,7 @@ public class InfoRetreiver
             // from the sequence (basic info)
 
             res = new LinkedList<GenericDetail>();
-            retreivedInfo.put(requestID, res);
+            retrievedInfo.put(requestID, res);
         }
 
         return res;

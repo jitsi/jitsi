@@ -153,11 +153,11 @@ public class OperationSetPersistentPresenceJabberImpl
     /**
      * Creates the OperationSet.
      * @param provider the parent provider.
-     * @param infoRetreiver retrieve contact information.
+     * @param infoRetriever retrieve contact information.
      */
     public OperationSetPersistentPresenceJabberImpl(
         ProtocolProviderServiceJabberImpl provider,
-        InfoRetreiver infoRetreiver)
+        InfoRetriever infoRetriever)
     {
         super(provider);
 
@@ -168,7 +168,7 @@ public class OperationSetPersistentPresenceJabberImpl
         initializePriorities();
 
         ssContactList = new ServerStoredContactListJabberImpl(
-            this , provider, infoRetreiver);
+            this , provider, infoRetriever);
 
         parentProvider.addRegistrationStateChangeListener(
             new RegistrationStateListener());

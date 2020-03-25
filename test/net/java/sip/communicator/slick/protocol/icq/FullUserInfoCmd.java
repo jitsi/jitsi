@@ -52,10 +52,10 @@ public class FullUserInfoCmd
 
     boolean lastOfSequences = false;
 
-    private static Hashtable<Integer, Hashtable<String, Object>> retreivedInfo
+    private static Hashtable<Integer, Hashtable<String, Object>> retrievedInfo
         = new Hashtable<Integer, Hashtable<String, Object>>();
 
-    // properties for the retreived info
+    // properties for the retrieved info
     final static String LAST_NAME = "LastName";
     final static String PHONE_NUMBER = "PhoneNumber";
     final static String SPEAK_LANG = "SpeakingLanguage";
@@ -184,7 +184,7 @@ public class FullUserInfoCmd
     private Hashtable<String, Object> getInfoForRequest(int requestID)
     {
         Hashtable<String, Object> res
-            = retreivedInfo.get(new Integer(requestID));
+            = retrievedInfo.get(new Integer(requestID));
 
         if (res == null)
         {
@@ -193,14 +193,14 @@ public class FullUserInfoCmd
             // from the sequence (basic info)
 
             res = new Hashtable<String, Object>();
-            retreivedInfo.put(new Integer(requestID), res);
+            retrievedInfo.put(new Integer(requestID), res);
         }
 
         return res;
     }
 
     /**
-     * Return the retreived info from the last received request
+     * Return the retrieved info from the last received request
      * @return Hashtable
      */
     public Hashtable<String, Object> getInfo()

@@ -1649,15 +1649,15 @@ public class ProtocolProviderServiceJabberImpl
                 = !accountID.getAccountPropertyBoolean(
                     IS_SERVER_STORED_INFO_DISABLED_PROPERTY, false);
 
-            InfoRetreiver infoRetreiver = null;
+            InfoRetriever infoRetriever = null;
             if (isServerStoredInfoEnabled)
             {
-                infoRetreiver = new InfoRetreiver(this);
+                infoRetriever = new InfoRetriever(this);
             }
 
             //initialize the presence OperationSet
             OperationSetPersistentPresenceJabberImpl persistentPresence =
-                new OperationSetPersistentPresenceJabberImpl(this, infoRetreiver);
+                new OperationSetPersistentPresenceJabberImpl(this, infoRetriever);
 
             addSupportedOperationSet(
                 OperationSetPersistentPresence.class,
@@ -1742,11 +1742,11 @@ public class ProtocolProviderServiceJabberImpl
                 addSupportedOperationSet(
                     OperationSetServerStoredContactInfo.class,
                     new OperationSetServerStoredContactInfoJabberImpl(
-                        infoRetreiver));
+                        infoRetriever));
 
                 OperationSetServerStoredAccountInfo accountInfo =
                     new OperationSetServerStoredAccountInfoJabberImpl(this,
-                        infoRetreiver,
+                        infoRetriever,
                         screenname);
 
                 addSupportedOperationSet(

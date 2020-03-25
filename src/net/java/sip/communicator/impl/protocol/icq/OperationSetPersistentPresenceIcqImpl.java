@@ -794,7 +794,7 @@ public class OperationSetPersistentPresenceIcqImpl
     }
 
     /**
-     * Returns a snapshot ieves a server stored list of subscriptions/contacts that have been
+     * Returns a snapshot. Retrieves a server stored list of subscriptions/contacts that have been
      * made previously. Note that the contact list returned by this method may
      * be incomplete as it is only a snapshot of what has been retrieved through
      * the network up to the moment when the method is called.
@@ -1572,7 +1572,7 @@ public class OperationSetPersistentPresenceIcqImpl
         public void run()
         {
             if (logger.isTraceEnabled())
-                logger.trace("Running status retreiver for AwaitingAuthorizationContacts");
+                logger.trace("Running status retriever for AwaitingAuthorizationContacts");
 
             Iterator<ContactGroup> groupsIter
                     = getServerStoredContactListRoot().subgroups();

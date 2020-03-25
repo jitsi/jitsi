@@ -106,7 +106,7 @@ public class ServerStoredContactListJabberImpl
     /**
      * Retrieve contact information.
      */
-    private InfoRetreiver infoRetreiver = null;
+    private InfoRetriever infoRetriever = null;
 
     /**
      * Whether roster has been requested and dispatched.
@@ -134,12 +134,12 @@ public class ServerStoredContactListJabberImpl
      * @param parentOperationSet the operation set that created us and that
      * we could use for dispatching subscription events
      * @param provider the provider that has instantiated us.
-     * @param infoRetreiver retrieve contact information.
+     * @param infoRetriever retrieve contact information.
      */
     ServerStoredContactListJabberImpl(
         OperationSetPersistentPresenceJabberImpl parentOperationSet,
         ProtocolProviderServiceJabberImpl        provider,
-        InfoRetreiver infoRetreiver)
+        InfoRetriever infoRetriever)
     {
         //We need to init these as early as possible to ensure that the provider
         //and the operationsset would not be null in the incoming events.
@@ -147,7 +147,7 @@ public class ServerStoredContactListJabberImpl
 
         this.jabberProvider = provider;
         this.rootGroup = new RootContactGroupJabberImpl(this.jabberProvider);
-        this.infoRetreiver = infoRetreiver;
+        this.infoRetriever = infoRetriever;
     }
 
     /**
@@ -1879,7 +1879,7 @@ public class ServerStoredContactListJabberImpl
         private byte[] getAvatar(ContactJabberImpl contact)
         {
             // not enabled
-            if (infoRetreiver == null)
+            if (infoRetriever == null)
             {
                 return null;
             }
@@ -1888,7 +1888,7 @@ public class ServerStoredContactListJabberImpl
             try
             {
                 Iterator<ServerStoredDetails.GenericDetail> iter =
-                    infoRetreiver.getDetails(contact.getAddressAsJid()
+                    infoRetriever.getDetails(contact.getAddressAsJid()
                             .asEntityBareJidOrThrow(),
                     ServerStoredDetails.ImageDetail.class);
 

@@ -41,10 +41,10 @@ import org.jxmpp.jid.*;
  *
  * @author Damian Minkov
  */
-public class InfoRetreiver
+public class InfoRetriever
 {
     private static final Logger logger =
-        Logger.getLogger(InfoRetreiver.class);
+        Logger.getLogger(InfoRetriever.class);
 
     /**
      * A callback to the Jabber provider that created us.
@@ -52,7 +52,7 @@ public class InfoRetreiver
     private ProtocolProviderServiceJabberImpl jabberProvider = null;
 
     // here is kept all the details retrieved so far
-    private final Map<EntityBareJid, List<GenericDetail>> retreivedDetails
+    private final Map<EntityBareJid, List<GenericDetail>> retrievedDetails
         = new Hashtable<>();
 
     private static final String TAG_FN_OPEN = "<FN>";
@@ -63,7 +63,7 @@ public class InfoRetreiver
      */
     private final long vcardTimeoutReply;
 
-    protected InfoRetreiver(ProtocolProviderServiceJabberImpl jabberProvider)
+    protected InfoRetriever(ProtocolProviderServiceJabberImpl jabberProvider)
     {
         this.jabberProvider = jabberProvider;
 
@@ -369,7 +369,7 @@ public class InfoRetreiver
                 logger.error(msg);
         }
 
-        retreivedDetails.put(contactAddress, result);
+        retrievedDetails.put(contactAddress, result);
 
         return result;
     }
@@ -383,7 +383,7 @@ public class InfoRetreiver
      */
     List<GenericDetail> getCachedContactDetails(EntityBareJid contactAddress)
     {
-        return retreivedDetails.get(contactAddress);
+        return retrievedDetails.get(contactAddress);
     }
 
     /**
@@ -394,7 +394,7 @@ public class InfoRetreiver
     void addCachedContactDetails(
         EntityBareJid contactAddress, List<GenericDetail> details)
     {
-        retreivedDetails.put(contactAddress, details);
+        retrievedDetails.put(contactAddress, details);
     }
 
     /**

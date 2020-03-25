@@ -135,11 +135,11 @@ public abstract class EventPackageNotifier
         catch (OperationFailedException e)
         {
             logger.error(
-                "Can't retrive the via headers or the max forwards header",
+                "Can't retrieve the via headers or the max forwards header",
                 e);
             throw
                 new OperationFailedException(
-                    "Can't retrive the via headers or the max forwards header",
+                    "Can't retrieve the via headers or the max forwards header",
                     OperationFailedException.INTERNAL_ERROR,
                     e);
         }

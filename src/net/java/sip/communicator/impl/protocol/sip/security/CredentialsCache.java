@@ -138,7 +138,7 @@ class CredentialsCache
      * Returns an authorization header cached for the specified call id and null
      * if no authorization header has been previously cached for this call.
      *
-     * @param callid the call id that we'd like to retrive a cached
+     * @param callid the call id that we'd like to retrieve a cached
      * authorization header for.
      *
      * @return authorization header corresponding to the specified callid

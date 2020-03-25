@@ -447,7 +447,7 @@ public class IcqTesterAgent
                 responseRetriever.waitingForResponseLock.wait(100000);
             }
             catch (InterruptedException ex){
-                logger.debug("Couldn't wait upon a response retriver", ex);
+                logger.debug("Couldn't wait upon a response retriever", ex);
             }
         }
 

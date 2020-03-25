@@ -36,7 +36,7 @@ public class OperationSetServerStoredContactInfoIcqImpl
     private static final Logger logger =
         Logger.getLogger(OperationSetServerStoredContactInfoIcqImpl.class);
 
-    private InfoRetreiver infoRetreiver;
+    private InfoRetriever infoRetriever;
 
     /**
      * If we got several listeners for the same contact lets retrieve once
@@ -52,9 +52,9 @@ public class OperationSetServerStoredContactInfoIcqImpl
     private ProtocolProviderServiceIcqImpl icqProvider = null;
 
     protected OperationSetServerStoredContactInfoIcqImpl
-        (InfoRetreiver infoRetreiver, ProtocolProviderServiceIcqImpl icqProvider)
+        (InfoRetriever infoRetriever, ProtocolProviderServiceIcqImpl icqProvider)
     {
-        this.infoRetreiver = infoRetreiver;
+        this.infoRetriever = infoRetriever;
         this.icqProvider = icqProvider;
     }
     /**
@@ -86,7 +86,7 @@ public class OperationSetServerStoredContactInfoIcqImpl
             return tIt;
         }
         return
-            infoRetreiver.getDetailsAndDescendants(
+            infoRetriever.getDetailsAndDescendants(
                     contact.getAddress(),
                     detailClass);
     }
@@ -113,7 +113,7 @@ public class OperationSetServerStoredContactInfoIcqImpl
                 "Image", contact.getImage()));
             return res.iterator();
         }
-        return infoRetreiver.getDetails(contact.getAddress(), detailClass);
+        return infoRetriever.getDetails(contact.getAddress(), detailClass);
     }
 
     /**
@@ -128,7 +128,7 @@ public class OperationSetServerStoredContactInfoIcqImpl
         assertConnected();
 
         List<GenericDetail> res
-            = infoRetreiver.getContactDetails(contact.getAddress());
+            = infoRetriever.getContactDetails(contact.getAddress());
 
         if(contact.getImage() != null)
         {
@@ -169,7 +169,7 @@ public class OperationSetServerStoredContactInfoIcqImpl
         assertConnected();
 
         List<GenericDetail> res =
-            infoRetreiver.getCachedContactDetails(contact.getAddress());
+            infoRetriever.getCachedContactDetails(contact.getAddress());
 
         if(res != null)
         {
@@ -207,7 +207,7 @@ public class OperationSetServerStoredContactInfoIcqImpl
             public void run()
             {
                 List<GenericDetail> result =
-                    infoRetreiver.retrieveDetails(contact.getAddress());
+                    infoRetriever.retrieveDetails(contact.getAddress());
 
                 if(contact.getImage() != null && result != null)
                 {
