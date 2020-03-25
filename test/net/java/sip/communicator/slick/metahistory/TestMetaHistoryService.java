@@ -65,7 +65,7 @@ public class TestMetaHistoryService
     public static MockPersistentPresenceOperationSet mockPresOpSet = null;
     public static MockOperationSetFileTransfer mockFTOpSet = null;
     public static MockBasicInstantMessaging mockBImOpSet = null;
-    public static MockOperationSetBasicTelephony mockBTelphonyOpSet = null;
+    public static MockOperationSetBasicTelephony mockBTelephonyOpSet = null;
 
     private static ServiceReference metaHistoryServiceRef = null;
     public static MetaHistoryService metaHistoryService = null;
@@ -150,7 +150,7 @@ public class TestMetaHistoryService
             (MockPersistentPresenceOperationSet) supportedOperationSets.get(
                 OperationSetPersistentPresence.class.getName());
 
-        mockBTelphonyOpSet =
+        mockBTelephonyOpSet =
             (MockOperationSetBasicTelephony) mockProvider
                 .getOperationSet(OperationSetBasicTelephony.class);
 
@@ -322,7 +322,7 @@ public class TestMetaHistoryService
     {
         try
         {
-            Call newCall = mockBTelphonyOpSet.placeCall(participant);
+            Call newCall = mockBTelephonyOpSet.placeCall(participant);
 
             Vector<CallPeer> v = new Vector<CallPeer>();
 
@@ -339,7 +339,7 @@ public class TestMetaHistoryService
             while (iter.hasNext())
             {
                 CallPeer item = iter.next();
-                mockBTelphonyOpSet.hangupCallPeer(item);
+                mockBTelephonyOpSet.hangupCallPeer(item);
             }
         }
         catch (Exception ex1)

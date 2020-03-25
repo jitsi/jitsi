@@ -125,17 +125,17 @@ public class ProtocolProviderServiceGibberishImpl
                         persistentPresence));
 
             //initialize the basic telephony operation set
-            OperationSetBasicTelephonyGibberishImpl telphonyOpSet =
+            OperationSetBasicTelephonyGibberishImpl telephonyOpSet =
                 new OperationSetBasicTelephonyGibberishImpl(this);
 
             addSupportedOperationSet(
                 OperationSetBasicTelephony.class,
-                telphonyOpSet);
+                telephonyOpSet);
 
             //initialize the telephony conferencing operation set
             OperationSetTelephonyConferencing conferenceOpSet
                 = new OperationSetTelephonyConferencingGibberishImpl(
-                    this, telphonyOpSet);
+                    this, telephonyOpSet);
 
             addSupportedOperationSet(
                 OperationSetTelephonyConferencing.class,

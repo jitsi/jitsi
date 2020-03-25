@@ -39,7 +39,7 @@ public class ActiveCallsRepositoryJabberImpl
     /**
      * It's where we store all active calls
      *
-     * @param opSet the <tt>OperationSetBasicTelphony</tt> instance which has
+     * @param opSet the <tt>OperationSetBasicTelephony</tt> instance which has
      * been used to create calls in this repository
      */
     public ActiveCallsRepositoryJabberImpl(

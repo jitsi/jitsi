@@ -49,7 +49,7 @@ public class TestCallHistoryService
      */
     public static MockProvider mockProvider = null;
 
-    public static MockOperationSetBasicTelephony mockBTelphonyOpSet = null;
+    public static MockOperationSetBasicTelephony mockBTelephonyOpSet = null;
 
     private static ServiceReference callHistoryServiceRef = null;
     public static CallHistoryService callHistoryService = null;
@@ -104,7 +104,7 @@ public class TestCallHistoryService
         mockProvider = new MockProvider("CallHistoryMockUser");
 
         //store thre presence op set of the new provider into the fixture
-        mockBTelphonyOpSet =
+        mockBTelephonyOpSet =
             (MockOperationSetBasicTelephony) mockProvider
                 .getOperationSet(OperationSetBasicTelephony.class);
 
@@ -164,7 +164,7 @@ public class TestCallHistoryService
     {
         try
         {
-            Call newCall = mockBTelphonyOpSet.placeCall(participant);
+            Call newCall = mockBTelephonyOpSet.placeCall(participant);
 
             Vector<CallPeer> v = new Vector<CallPeer>();
 
@@ -181,7 +181,7 @@ public class TestCallHistoryService
             while (iter.hasNext())
             {
                 CallPeer item = iter.next();
-                mockBTelphonyOpSet.hangupCallPeer(item);
+                mockBTelephonyOpSet.hangupCallPeer(item);
             }
         }
         catch (Exception ex1)
@@ -295,7 +295,7 @@ public class TestCallHistoryService
         try
         {
             Call newCall =
-                mockBTelphonyOpSet.placeCall(partAddresses[0]);
+                mockBTelephonyOpSet.placeCall(partAddresses[0]);
 
             Vector<CallPeer> v = new Vector<CallPeer>();
 
@@ -309,10 +309,10 @@ public class TestCallHistoryService
             waitSeconds(2000);
 
             CallPeer newParticipant =
-                mockBTelphonyOpSet.addNewCallPeer(newCall,
+                mockBTelephonyOpSet.addNewCallPeer(newCall,
                 partAddresses[1]);
 
-            mockBTelphonyOpSet.hangupCallPeer(newParticipant);
+            mockBTelephonyOpSet.hangupCallPeer(newParticipant);
 
             waitSeconds(2000);
 
@@ -320,7 +320,7 @@ public class TestCallHistoryService
             while (iter.hasNext())
             {
                 CallPeer item = iter.next();
-                mockBTelphonyOpSet.hangupCallPeer(item);
+                mockBTelephonyOpSet.hangupCallPeer(item);
             }
         }
         catch (Exception ex1)

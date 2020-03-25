@@ -83,12 +83,12 @@ public class MockProvider
                 OperationSetMultiUserChat.class.getName(),
                 new MockMultiUserChat(this));
 
-        MockOperationSetBasicTelephony mockTelphonyOpSet =
+        MockOperationSetBasicTelephony mockTelephonyOpSet =
             new MockOperationSetBasicTelephony(this);
 
         this.supportedOperationSets.put(
                 OperationSetBasicTelephony.class.getName(),
-                mockTelphonyOpSet);
+                mockTelephonyOpSet);
 
         MockOperationSetFileTransfer mockFileTransferOpSet =
             new MockOperationSetFileTransfer(this);
