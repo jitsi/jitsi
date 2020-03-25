@@ -573,7 +573,7 @@ public class SipRegistrarConnection
         if (getRegistrationState() == RegistrationState.UNREGISTERED)
         {
             if (logger.isTraceEnabled())
-                logger.trace("Trying to unregister when already unresgistered");
+                logger.trace("Trying to unregister when already unregistered");
             return;
         }
 
