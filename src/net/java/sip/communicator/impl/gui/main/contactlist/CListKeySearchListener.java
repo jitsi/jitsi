@@ -31,7 +31,7 @@ import net.java.sip.communicator.service.contactlist.*;
  * the Contact name closest to the typed string.
  *
  * The time between two button presses is checked to determine whether the user
- * makes a new search or a continious search. When user types the same letter
+ * makes a new search or a continuous search. When user types the same letter
  * consecutively the search mechanism selects the next Contact name starting
  * with the same letter.
  *
