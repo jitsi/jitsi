@@ -1818,7 +1818,7 @@ public class ProtocolProviderServiceSipImpl
     /**
      * Returns the SIP address of record (Display Name <user@server.net>) that
      * this account is created for. The method takes into account whether or
-     * not we are running in Registar or "No Registar" mode and either returns
+     * not we are running in Registrar or "No Registrar" mode and either returns
      * the AOR we are using to register or an address constructed using the
      * local address.
      *
@@ -1835,7 +1835,7 @@ public class ProtocolProviderServiceSipImpl
     /**
      * Returns the SIP address of record (Display Name <user@server.net>) that
      * this account is created for. The method takes into account whether or
-     * not we are running in Registar or "No Registar" mode and either returns
+     * not we are running in Registrar or "No Registrar" mode and either returns
      * the AOR we are using to register or an address constructed using the
      * local address
      *

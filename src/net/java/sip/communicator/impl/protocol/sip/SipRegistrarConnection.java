@@ -144,7 +144,7 @@ public class SipRegistrarConnection
     /**
     * The sip address that we're currently behind (the one that corresponds to
     * our account id). ATTENTION!!! This field must remain <tt>null</tt>
-    * when this protocol provider is configured as "No Regsitrar" account and
+    * when this protocol provider is configured as "No Registrar" account and
     * only be initialized if we actually have a registrar.
     */
     private Address ourSipAddressOfRecord = null;
