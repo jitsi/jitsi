@@ -228,7 +228,7 @@ public class TestOperationSetBasicInstantMessaging
         assertSame("source message", msg, evt.getSourceMessage());
 
 
-        //verify that the message has successfully arived at the destination
+        //verify that the message has successfully arrived at the destination
         assertTrue( "No messages received by the tester agent"
                     , jsEvtCollector.collectedMessageInfo.size() > 0);
         String receivedBody = jsEvtCollector.collectedMessageInfo
