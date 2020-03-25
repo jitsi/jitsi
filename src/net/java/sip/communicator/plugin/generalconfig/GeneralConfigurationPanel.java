@@ -253,7 +253,7 @@ public class GeneralConfigurationPanel
     /**
      * Initializes the minimize instead of hide checkbox.
      */
-    public Component createMinimzeInsteadOfHideCheckBox()
+    public Component createMinimizeInsteadOfHideCheckBox()
     {
         JCheckBox chk = new SIPCommCheckBox();
 
@@ -1029,7 +1029,7 @@ public class GeneralConfigurationPanel
             createConfigSectionComponent(
                 Resources.getString("plugin.generalconfig.STARTUP_CONFIG"));
 
-        updateConfigPanel.add(createMinimzeInsteadOfHideCheckBox());
+        updateConfigPanel.add(createMinimizeInsteadOfHideCheckBox());
         if (OSUtils.IS_WINDOWS)
         {
             updateConfigPanel.add(createAutoStartCheckBox());
