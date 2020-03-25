@@ -88,7 +88,7 @@ public abstract class MetaContactPropertyChangeEvent
                                             = "MetaContactModifiedEvent";
 
     /**
-     * Creates an instnace of this event.
+     * Creates an instance of this event.
      * @param source the <tt>MetaContact</tt> that this event is about.
      * @param eventName one of the META_CONTACT_XXXED <tt>String</tt> strings
      * indicating the exact typ of this event.

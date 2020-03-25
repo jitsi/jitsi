@@ -24,7 +24,7 @@ import net.java.sip.communicator.service.protocol.*;
 /**
  * An implementation of <tt>PresenceStatus</tt> that allows third parties
  * (external to the protocol provider) to create and eventually set custom
- * presence status intances.
+ * presence status instances.
  *
  * @author Emil Ivov
  */
