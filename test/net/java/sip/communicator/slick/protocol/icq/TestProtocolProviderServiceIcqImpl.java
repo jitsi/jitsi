@@ -184,7 +184,7 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
                 IcqSlickFixture.testerAgent.getBuddyStatus(fixture.ourUserID))
         );
 
-        //make sure that the registration process trigerred the corresponding
+        //make sure that the registration process triggered the corresponding
         //events.
         assertTrue(
             "No events were dispatched during the registration process."

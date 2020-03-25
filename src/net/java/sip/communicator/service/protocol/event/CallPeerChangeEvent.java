@@ -20,7 +20,7 @@ package net.java.sip.communicator.service.protocol.event;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * CallPeerChangeEvent-s are triggerred whenever a change occurs in a
+ * CallPeerChangeEvent-s are triggered whenever a change occurs in a
  * CallPeer. Dispatched events may be of one of the following types.
  * <p>
  * CALL_PEER_STATUS_CHANGE - indicates a change in the status of the
@@ -124,7 +124,7 @@ public class CallPeerChangeEvent
      * @param oldValue the value of the changed property before the event occurred
      * @param newValue current value of the changed property.
      * @param reason a string containing a human readable explanation for the
-     * reason that triggerred this event (may be null).
+     * reason that triggered this event (may be null).
      */
     public CallPeerChangeEvent(CallPeer source,
                                       String type,

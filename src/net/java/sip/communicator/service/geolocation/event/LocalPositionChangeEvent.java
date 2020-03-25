@@ -24,7 +24,7 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Instances of this class represent a change in the Geolocation of the provider
- * that triggerred them.
+ * that triggered them.
  *
  * @author Guillaume Schreiner
  */

@@ -23,7 +23,7 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Instances of this class represent a  change in the status of the provider
- * that triggerred them. A status change may have occurred because the user
+ * that triggered them. A status change may have occurred because the user
  * requested it or because an error or a failure have occurred, in which case
  * the reason and reason code would be set accordingly.
  * <p>

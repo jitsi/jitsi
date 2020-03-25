@@ -558,7 +558,7 @@ public class TestOperationSetPresence
             operationSetPresence.subscribe(IcqSlickFixture.testerAgent.getIcqUIN());
 
             logger.debug("Waiting ... Subscribe must fail and the authorization process " +
-                         "to be trigered again so waiting for auth response ...");
+                         "to be triggered again so waiting for auth response ...");
             authEventCollector.waitForAuthResponse(15000);
 
             assertTrue("Error adding buddy not received or the buddy(" +

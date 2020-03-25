@@ -23,7 +23,7 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Instances of this class represent a  change in the status of the provider
- * that triggerred them.
+ * that triggered them.
  * @author Emil Ivov
  */
 public class ProviderPresenceStatusChangeEvent extends PropertyChangeEvent

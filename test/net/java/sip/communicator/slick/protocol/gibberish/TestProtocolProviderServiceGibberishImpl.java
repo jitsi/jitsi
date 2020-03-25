@@ -117,7 +117,7 @@ public class TestProtocolProviderServiceGibberishImpl
         regEvtCollector1.waitForEvent(15000);
         regEvtCollector2.waitForEvent(40000);
 
-        //make sure that the registration process trigerred the corresponding
+        //make sure that the registration process triggered the corresponding
         //events.
         assertTrue(
             "No events were dispatched during the registration process."

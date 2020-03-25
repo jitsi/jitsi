@@ -276,7 +276,7 @@ public class GlobalProxyConfigForm
         if(password != null)
             passwordField.setText(password);
 
-        // we load the types at the end cause a event will ne trigered
+        // we load the types at the end cause a event will ne triggered
         // when selecting the configured value, which will eventually
         // trigger a save operation
         try
