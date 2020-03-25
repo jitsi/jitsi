@@ -122,7 +122,7 @@ public class ChatRoomNamePanel
     }
 
     /**
-     * Removess a <tt>DocumentListener</tt> to the text field containing the
+     * Removes a <tt>DocumentListener</tt> to the text field containing the
      * chosen chat room.
      *
      * @param l the <tt>DocumentListener</tt> to add
