@@ -31,7 +31,7 @@ public interface OperationSetInstantMessageFiltering
     extends OperationSet
 {
     /**
-     * Registeres an <tt>EventFilter</tt> with this operation set so that
+     * Registers an <tt>EventFilter</tt> with this operation set so that
      * events, that do not need processing, are filtered out.
      *
      * @param filter the <tt>EventFilter</tt> to register.
