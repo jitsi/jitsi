@@ -2759,7 +2759,7 @@ public class ChatPanel
                 int dividerLocation = (Integer) evt.getNewValue();
 
                 // We store the divider location only when the user drags the
-                // divider and not when we've set it programatically.
+                // divider and not when we've set it programmatically.
 //                if (dividerLocation != autoDividerLocation)
 //                {
                     int writeAreaSize

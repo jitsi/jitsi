@@ -117,7 +117,7 @@ public class JoinChatRoomDialog
     }
 
     /**
-     * When escape is pressed clicks the cancel button programatically.
+     * When escape is pressed clicks the cancel button programmatically.
      *
      * @param escaped indicates if the window was closed by pressing the Esc
      * key

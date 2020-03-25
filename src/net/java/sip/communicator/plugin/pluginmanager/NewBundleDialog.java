@@ -179,7 +179,7 @@ public class NewBundleDialog
     }
 
     /**
-     * Presses programatically the cancel button, when Esc key is pressed.
+     * Presses programmatically the cancel button, when Esc key is pressed.
      * @param isEscaped indicates if the Esc button was pressed on close
      */
     @Override
