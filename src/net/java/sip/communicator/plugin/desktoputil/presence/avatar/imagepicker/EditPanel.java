@@ -221,7 +221,7 @@ public class EditPanel
      */
     private void drawImage()
     {
-        // Use high quality scalling when the image is smaller than the clipper
+        // Use high quality scaling when the image is smaller than the clipper
         this.imageClipper.setImage(getResizedImage(smallImage));
     }
 
