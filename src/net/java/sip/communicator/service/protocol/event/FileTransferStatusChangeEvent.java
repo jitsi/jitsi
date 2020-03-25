@@ -72,7 +72,7 @@ public class FileTransferStatusChangeEvent
     public static final int PREPARING = 6;
 
     /**
-     * The state of the file transfer before this event occured.
+     * The state of the file transfer before this event occurred.
      */
     private final int oldStatus;
 
@@ -91,7 +91,7 @@ public class FileTransferStatusChangeEvent
      * source <tt>fileTransfer</tt>, the old transfer status and the new status.
      *
      * @param fileTransfer the source file transfer, for which this status
-     * change occured
+     * change occurred
      * @param oldStatus the old status
      * @param newStatus the new status
      * @param reason the reason of this status change
@@ -119,7 +119,7 @@ public class FileTransferStatusChangeEvent
     }
 
     /**
-     * Returns the state of the file transfer before this event occured.
+     * Returns the state of the file transfer before this event occurred.
      *
      * @return the old state
      */

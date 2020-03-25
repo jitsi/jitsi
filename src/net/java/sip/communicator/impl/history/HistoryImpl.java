@@ -295,10 +295,10 @@ public class HistoryImpl
                     retVal = this.historyServiceImpl.parse(file);
                 } catch (Exception e)
                 {
-//                    throw new RuntimeException("Error occured while "
+//                    throw new RuntimeException("Error occurred while "
 //                            + "parsing XML document.", e);
-//                    log.error("Error occured while parsing XML document.", e);
-                    log.error("Error occured while parsing XML document.", e);
+//                    log.error("Error occurred while parsing XML document.", e);
+                    log.error("Error occurred while parsing XML document.", e);
 
                     // will try to fix the xml file
                     retVal = getFixedDocument(file);

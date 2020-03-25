@@ -138,7 +138,7 @@ public abstract class AbstractFileTransfer
 
     /**
      * Notifies all status listeners that a new
-     * <tt>FileTransferStatusChangeEvent</tt> occured.
+     * <tt>FileTransferStatusChangeEvent</tt> occurred.
      * @param newStatus the new status
      */
     public void fireStatusChangeEvent(int newStatus)
@@ -148,7 +148,7 @@ public abstract class AbstractFileTransfer
 
     /**
      * Notifies all status listeners that a new
-     * <tt>FileTransferStatusChangeEvent</tt> occured.
+     * <tt>FileTransferStatusChangeEvent</tt> occurred.
      * @param newStatus the new status
      * @param reason the reason of the status change
      */
@@ -189,8 +189,8 @@ public abstract class AbstractFileTransfer
 
     /**
      * Notifies all status listeners that a new
-     * <tt>FileTransferProgressEvent</tt> occured.
-     * @param timestamp the date on which the event occured
+     * <tt>FileTransferProgressEvent</tt> occurred.
+     * @param timestamp the date on which the event occurred
      * @param progress the bytes representing the progress of the transfer
      */
     public void fireProgressChangeEvent(long timestamp, long progress)

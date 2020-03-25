@@ -452,7 +452,7 @@ public class PresenceManager
         else
         {
             throw new IOException(
-                "An exception occured while querying whois info.",
+                "An exception occurred while querying whois info.",
                 result.getException());
         }
     }

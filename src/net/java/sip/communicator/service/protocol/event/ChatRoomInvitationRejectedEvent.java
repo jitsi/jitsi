@@ -54,7 +54,7 @@ public class ChatRoomInvitationRejectedEvent
     private String reason;
 
     /**
-     * The exact date at which this event occured.
+     * The exact date at which this event occurred.
      */
     private Date timestamp;
 

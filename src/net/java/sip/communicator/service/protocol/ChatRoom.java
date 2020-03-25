@@ -362,7 +362,7 @@ public interface ChatRoom
      * of all such ban masks defined for this chat room.
      *
      * @return an Iterator over a set of ban masks for this chat room
-     * @throws OperationFailedException if an error occured while performing the
+     * @throws OperationFailedException if an error occurred while performing the
      * request to the server or you don't have enough privileges to get this
      * information
      */

@@ -56,7 +56,7 @@ public class ChatRoomMemberRoleChangeEvent
 
     /**
      * Creates a <tt>ChatRoomMemberRoleChangeEvent</tt> representing that
-     * a change in member role in the source chat room has occured.
+     * a change in member role in the source chat room has occurred.
      *
      * @param sourceRoom the <tt>ChatRoom</tt> that produced this event
      * @param sourceMember the <tt>ChatRoomMember</tt> that this event is about

@@ -886,7 +886,7 @@ public class OperationSetBasicTelephonySipImpl
             if (retryTran == null)
             {
                 if (logger.isTraceEnabled())
-                    logger.trace("No password supplied or error occured!");
+                    logger.trace("No password supplied or error occurred!");
                 return;
             }
 

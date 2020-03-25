@@ -77,7 +77,7 @@ public interface SystemActivityNotificationsService
 
     /**
      * The time since last user input. The time the system has been idle.
-     * Or -1 if there is no such information or error has occured.
+     * Or -1 if there is no such information or error has occurred.
      * @return time the system has been idle.
      */
     public long getTimeSinceLastInput();

@@ -194,7 +194,7 @@ public class StatusMessageMenu
                     == OperationFailedException.GENERAL_ERROR)
                 {
                     logger.error(
-                        "General error occured while "
+                        "General error occurred while "
                         + "publishing presence status.",
                         e1);
                 }
@@ -203,7 +203,7 @@ public class StatusMessageMenu
                             .NETWORK_FAILURE)
                 {
                     logger.error(
-                        "Network failure occured while "
+                        "Network failure occurred while "
                         + "publishing presence status.",
                         e1);
                 }

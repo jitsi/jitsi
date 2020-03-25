@@ -1047,7 +1047,7 @@ public class ChatPanel
     /**
      * Adds the given error message to the chat window conversation area.
      *
-     * @param contactName the name of the contact, for which the error occured
+     * @param contactName the name of the contact, for which the error occurred
      * @param message the error message
      */
     public void addErrorMessage(String contactName,

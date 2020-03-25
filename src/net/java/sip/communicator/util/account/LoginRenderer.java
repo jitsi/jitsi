@@ -64,7 +64,7 @@ public interface LoginRenderer
      *
      * @param protocolProvider the <tt>ProtocolProviderService</tt> that is
      * connected
-     * @param date the date on which the event occured
+     * @param date the date on which the event occurred
      */
     public void protocolProviderConnected(
         ProtocolProviderService protocolProvider,

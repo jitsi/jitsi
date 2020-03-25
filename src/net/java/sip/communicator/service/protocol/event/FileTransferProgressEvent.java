@@ -41,7 +41,7 @@ public class FileTransferProgressEvent
     private long progress;
 
     /**
-     * Indicates when this event occured.
+     * Indicates when this event occurred.
      */
     private long timestamp;
 
@@ -52,7 +52,7 @@ public class FileTransferProgressEvent
      *
      * @param fileTransfer the source file transfer object, that triggered the
      * event
-     * @param timestamp when this event occured
+     * @param timestamp when this event occurred
      * @param progress the new progress value
      */
     public FileTransferProgressEvent(   FileTransfer fileTransfer,
@@ -86,9 +86,9 @@ public class FileTransferProgressEvent
     }
 
     /**
-     * Returns the timestamp when this event initially occured.
+     * Returns the timestamp when this event initially occurred.
      *
-     * @return the timestamp when this event initially occured
+     * @return the timestamp when this event initially occurred
      */
     public long getTimestamp()
     {

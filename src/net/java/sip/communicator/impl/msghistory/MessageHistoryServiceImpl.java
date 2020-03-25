@@ -1750,7 +1750,7 @@ public class MessageHistoryServiceImpl
 
     /**
      * Called to notify interested parties that a change in our presence in
-     * a chat room has occured. Changes may include us being kicked, join,
+     * a chat room has occurred. Changes may include us being kicked, join,
      * left.
      * @param evt the <tt>LocalUserChatRoomPresenceChangeEvent</tt> instance
      * containing the chat room and the type, and reason of the change

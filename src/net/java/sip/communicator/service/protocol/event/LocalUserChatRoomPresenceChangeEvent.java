@@ -23,7 +23,7 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Dispatched to notify interested parties that a change in our presence in
- * the source chat room has occured. Changes may include us being kicked, join,
+ * the source chat room has occurred. Changes may include us being kicked, join,
  * left, etc.
  *
  * @author Emil Ivov
@@ -92,7 +92,7 @@ public class LocalUserChatRoomPresenceChangeEvent
     /**
      * Creates a <tt>ChatRoomLocalUserPresenceChangeEvent</tt> representing that
      * a change in local participant presence in the source chat room has
-     * occured.
+     * occurred.
      *
      * @param source the <tt>OperationSetMultiUserChat</tt>, which produced this
      * event
@@ -111,7 +111,7 @@ public class LocalUserChatRoomPresenceChangeEvent
     /**
      * Creates a <tt>ChatRoomLocalUserPresenceChangeEvent</tt> representing that
      * a change in local participant presence in the source chat room has
-     * occured.
+     * occurred.
      *
      * @param source the <tt>OperationSetMultiUserChat</tt>, which produced this
      * event

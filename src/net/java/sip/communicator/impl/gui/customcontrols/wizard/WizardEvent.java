@@ -36,7 +36,7 @@ public class WizardEvent
     public static final int CANCEL = 2;
 
     /**
-     * Indicates that an error occured and the wizard hasn't been able to
+     * Indicates that an error occurred and the wizard hasn't been able to
      * finish.
      */
     public static final int ERROR = 3;

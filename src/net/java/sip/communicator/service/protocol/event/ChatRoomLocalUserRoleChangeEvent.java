@@ -57,7 +57,7 @@ public class ChatRoomLocalUserRoleChangeEvent
     /**
      * Creates a <tt>ChatRoomLocalUserRoleChangeEvent</tt> representing that
      * a change in local participant role in the source chat room has
-     * occured.
+     * occurred.
      *
      * @param sourceRoom the <tt>ChatRoom</tt> that produced the event
      * @param previousRole the previous role that local participant had
@@ -96,9 +96,9 @@ public class ChatRoomLocalUserRoleChangeEvent
     }
 
     /**
-     * Returns the <tt>ChatRoom</tt>, where this event occured.
+     * Returns the <tt>ChatRoom</tt>, where this event occurred.
      *
-     * @return the <tt>ChatRoom</tt>, where this event occured
+     * @return the <tt>ChatRoom</tt>, where this event occurred
      */
     public ChatRoom getSourceChatRoom()
     {

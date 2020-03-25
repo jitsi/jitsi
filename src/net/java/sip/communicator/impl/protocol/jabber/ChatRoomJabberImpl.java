@@ -879,7 +879,7 @@ public class ChatRoomJabberImpl
                 | NoResponseException
                 | NotConnectedException e)
         {
-            logger.warn("Error occured while destroying chat room", e);
+            logger.warn("Error occurred while destroying chat room", e);
             return false;
         }
 
@@ -962,7 +962,7 @@ public class ChatRoomJabberImpl
         }
         catch(Throwable e)
         {
-            logger.warn("Error occured while leaving, maybe just " +
+            logger.warn("Error occurred while leaving, maybe just " +
                 "disconnected before leaving", e);
         }
 
@@ -1735,7 +1735,7 @@ public class ChatRoomJabberImpl
             {
                 logger.error("Failed to ban participant.", e);
                 throw new OperationFailedException(
-                    "An error occured while trying to kick the participant.",
+                    "An error occurred while trying to kick the participant.",
                     OperationFailedException.GENERAL_ERROR);
             }
         }
@@ -1745,7 +1745,7 @@ public class ChatRoomJabberImpl
         {
             logger.error("Failed to ban participant.", e);
             throw new OperationFailedException(
-                "An error occured while trying to kick the participant.",
+                "An error occurred while trying to kick the participant.",
                 OperationFailedException.GENERAL_ERROR);
         }
     }
@@ -1797,7 +1797,7 @@ public class ChatRoomJabberImpl
             else
             {
                 throw new OperationFailedException(
-                    "An error occured while trying to kick the participant.",
+                    "An error occurred while trying to kick the participant.",
                     OperationFailedException.GENERAL_ERROR);
             }
         }
@@ -1807,7 +1807,7 @@ public class ChatRoomJabberImpl
         {
             logger.error("Failed to kick participant.", e);
             throw new OperationFailedException(
-                "An error occured while trying to kick the participant.",
+                "An error occurred while trying to kick the participant.",
                 OperationFailedException.GENERAL_ERROR);
         }
     }

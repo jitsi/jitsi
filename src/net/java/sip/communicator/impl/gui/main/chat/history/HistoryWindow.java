@@ -710,10 +710,10 @@ public class HistoryWindow
                             date = keywordDatesVector.get(i);
 
                             /* I have tried to remove and add dates in the
-                             * datesList. A lot of problems occured because
+                             * datesList. A lot of problems occurred because
                              * it seems that the list generates selection events
                              * when removing elements. This was solved but after
-                             * that a problem occured when one and the same
+                             * that a problem occurred when one and the same
                              * selection was done twice.
                              *
                              * if(!keywordDatesVector.contains(date)) {

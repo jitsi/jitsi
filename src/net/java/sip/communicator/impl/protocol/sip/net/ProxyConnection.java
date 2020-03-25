@@ -147,7 +147,7 @@ public abstract class ProxyConnection
      * have to care about duplicate addresses.
      *
      * @return True when a further address was available.
-     * @throws DnssecException when a DNSSEC validation failure occured.
+     * @throws DnssecException when a DNSSEC validation failure occurred.
      */
     protected abstract boolean getNextAddressFromDns()
         throws DnssecException;

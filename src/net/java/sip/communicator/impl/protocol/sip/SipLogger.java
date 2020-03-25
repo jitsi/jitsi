@@ -448,7 +448,7 @@ public class SipLogger
      */
     public void logException(Exception exception)
     {
-        logger.warn("the following exception occured in JAIN-SIP: "
+        logger.warn("the following exception occurred in JAIN-SIP: "
                         + exception, exception);
     }
 

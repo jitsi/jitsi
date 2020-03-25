@@ -1275,7 +1275,7 @@ public class ScOtrEngineImpl
         catch (OtrException e)
         {
             logger.error(
-                "Error occured when sending SMP response to contact "
+                "Error occurred when sending SMP response to contact "
                 + otrContact.contact.getDisplayName(), e);
             showError(session.getSessionID(), e.getMessage());
         }

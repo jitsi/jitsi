@@ -1022,7 +1022,7 @@ public class SipRegistrarConnection
             if(retryTran == null)
             {
                 if (logger.isTraceEnabled())
-                    logger.trace("No password supplied or error occured!");
+                    logger.trace("No password supplied or error occurred!");
                 unregister(false);
                 return;
             }

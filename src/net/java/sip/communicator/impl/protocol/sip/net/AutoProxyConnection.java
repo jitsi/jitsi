@@ -194,7 +194,7 @@ public class AutoProxyConnection
     /**
      * Gets the next address from DNS.
      *
-     * @throws DnssecException When a DNSSEC failure occured during the lookup.
+     * @throws DnssecException When a DNSSEC failure occurred during the lookup.
      * @throws ParseException When a domain name (possibly returned from DNS
      *             itself) is invalid.
      */

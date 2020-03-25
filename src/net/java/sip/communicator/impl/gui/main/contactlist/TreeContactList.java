@@ -484,7 +484,7 @@ public class TreeContactList
         if (eventType == ContactQueryStatusEvent.QUERY_ERROR)
         {
             if (logger.isInfoEnabled())
-                logger.info("Contact query error occured: "
+                logger.info("Contact query error occurred: "
                                 + event.getQuerySource());
         }
 
@@ -505,7 +505,7 @@ public class TreeContactList
         if (eventType == ContactQueryStatusEvent.QUERY_ERROR)
         {
             if (logger.isInfoEnabled())
-                logger.info("Contact query error occured: "
+                logger.info("Contact query error occurred: "
                                 + event.getQuerySource());
         }
         event.getQuerySource().removeContactQueryListener(this);

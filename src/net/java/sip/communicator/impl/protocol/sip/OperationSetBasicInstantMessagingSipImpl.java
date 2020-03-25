@@ -1035,7 +1035,7 @@ public class OperationSetBasicInstantMessagingSipImpl
                 if(retryTran == null)
                 {
                     if (logger.isTraceEnabled())
-                        logger.trace("No password supplied or error occured!");
+                        logger.trace("No password supplied or error occurred!");
                     return;
                 }
 

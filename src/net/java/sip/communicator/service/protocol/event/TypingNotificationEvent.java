@@ -25,7 +25,7 @@ import net.java.sip.communicator.service.protocol.*;
  * <tt>TypingNotificationEvent</tt>s are delivered upon reception of a
  * corresponding message from a remote contact.
  * <tt>TypingNotificationEvent</tt>s contain a state id, identifying the exact
- * typing event that has occurrend (a user has started or stopped typing at us),
+ * typing event that has occurred (a user has started or stopped typing at us),
  * the source <tt>Contact</tt> that generated the event and others.
  * @author Emil Ivov
  */

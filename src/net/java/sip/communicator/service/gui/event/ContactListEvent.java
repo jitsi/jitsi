@@ -87,8 +87,8 @@ public class ContactListEvent
     }
 
     /**
-     * Returns the <tt>UIContactDescriptor</tt> for which this event occured.
-     * @return the </tt>UIContactDescriptor</tt> for which this event occured
+     * Returns the <tt>UIContactDescriptor</tt> for which this event occurred.
+     * @return the </tt>UIContactDescriptor</tt> for which this event occurred
      */
     public UIContact getSourceContact()
     {
@@ -99,8 +99,8 @@ public class ContactListEvent
     }
 
     /**
-     * Returns the <tt>UIGroupDescriptor</tt> for which this event occured.
-     * @return the <tt>UIGroupDescriptor</tt> for which this event occured
+     * Returns the <tt>UIGroupDescriptor</tt> for which this event occurred.
+     * @return the <tt>UIGroupDescriptor</tt> for which this event occurred
      */
     public UIGroup getSourceGroup()
     {

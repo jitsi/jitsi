@@ -62,7 +62,7 @@ public class NotificationEventTypeEvent
      * @param source the <tt>NotificationService</tt> that dispatched this event
      * @param eventType the type of this event. One of the static fields
      * declared in this class
-     * @param sourceEventType the event type for which this event occured
+     * @param sourceEventType the event type for which this event occurred
      */
     public NotificationEventTypeEvent(  NotificationService source,
                                         String eventType,
