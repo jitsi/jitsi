@@ -300,7 +300,7 @@ public class TestConfigurationService extends TestCase
         String exactPrefixProp1Name = prefix + ".PROP1";
         String exactPrefixProp2Name = prefix + ".PROP3";
         String longerPrefixProp3Name = prefix + ".which.is.longer.PROP3";
-        String completeMismatchProp4Name = "and.hereis.one.other.prefix.PROP4";
+        String completeMismatchProp4Name = "and.here.is.one.other.prefix.PROP4";
 
         configurationService.setProperty(exactPrefixProp1Name, new Object());
         configurationService.setProperty(exactPrefixProp2Name, new Object());
