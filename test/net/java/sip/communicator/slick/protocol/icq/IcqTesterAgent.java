@@ -307,7 +307,7 @@ public class IcqTesterAgent
         conn.getIcbmService().getImConversation(new Screenname(buddy))
             .sendMessage(new SimpleMessage(body));
 
-        //the aim server doesn't like fast consecutice messages
+        //the aim server doesn't like fast consecutive messages
         try{Thread.sleep(600);}catch (InterruptedException ex){}
     }
 
