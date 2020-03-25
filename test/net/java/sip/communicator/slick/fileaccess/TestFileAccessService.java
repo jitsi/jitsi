@@ -33,7 +33,7 @@ public class TestFileAccessService extends TestCase {
     private FileAccessService fileAccessService = null;
 
     /**
-     * Some sample data to be writen.
+     * Some sample data to be written.
      */
     private static final byte[] testData = "The quick brown fox jumped over the lazy dog"
             .getBytes();

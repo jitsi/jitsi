@@ -2000,7 +2000,7 @@ public class OperationSetServerStoredAccountInfoIcqImpl
 //        public void writeString(String str)
 //        {
 //            if (str == null)
-//                str = ""; // empty string so length will be 0 and nothing to be writen
+//                str = ""; // empty string so length will be 0 and nothing to be written
 //
 //            byte[] tmp = BinaryTools.getAsciiBytes(str);
 //
