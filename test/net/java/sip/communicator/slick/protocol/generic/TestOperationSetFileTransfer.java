@@ -507,7 +507,7 @@ public abstract class TestOperationSetFileTransfer
             return;
 
         logger.trace("Start test : receiver will cancel " +
-            "fileTransfer whil transferring.");
+            "fileTransfer while transferring.");
 
         File fileToTransfer = getTempFileToTransfer(12345678);
 
