@@ -266,7 +266,7 @@ public class OperationSetPersistentPresenceGibberishImpl
 
     /**
      * Requests the provider to enter into a status corresponding to the
-     * specified paramters.
+     * specified parameters.
      *
      * @param status the PresenceStatus as returned by
      *   getRequestableStatusSet

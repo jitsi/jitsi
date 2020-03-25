@@ -588,7 +588,7 @@ public class OperationSetPersistentPresenceIcqImpl
 
     /**
      * Requests the provider to enter into a status corresponding to the
-     * specified paramters. Note that calling this method does not necessarily
+     * specified parameters. Note that calling this method does not necessarily
      * imply that the requested status would be entered. This method would
      * return right after being called and the caller should add itself as
      * a listener to this class in order to get notified when the state has

@@ -111,7 +111,7 @@ public class PortTracker
 
     /**
      * Attempts to set the range specified by the min and max port string
-     * params. If the attempt fails, for reasons such as invalid porameters,
+     * params. If the attempt fails, for reasons such as invalid parameters,
      * this method will simply return without an exception and without an impact
      * on the state of this class.
      *
