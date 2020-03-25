@@ -173,7 +173,7 @@ public class PresenceStatus
     }
 
     /**
-     * Indicates whether the user is both Online and avaliable (can be reached
+     * Indicates whether the user is both Online and available (can be reached
      * and is likely to respond) or not.
      *
      * @return true if the the status coefficient is higher than the

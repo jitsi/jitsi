@@ -120,7 +120,7 @@ public class OperationSetPersistentPresenceIcqImpl
     private OperationSetExtendedAuthorizationsIcqImpl opSetExtendedAuthorizations = null;
 
     /**
-     *  Buddies seen availabel
+     *  Buddies seen available
      */
     private final List<String> buddiesSeenAvailable = new Vector<String>();
 

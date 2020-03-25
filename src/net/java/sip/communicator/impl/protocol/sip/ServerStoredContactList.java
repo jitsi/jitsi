@@ -402,10 +402,10 @@ public abstract class ServerStoredContactList
     }
 
     /**
-     * Returns all avaliable contacts from group and all subgroups.
+     * Returns all available contacts from group and all subgroups.
      *
      * @param group the parent of the contacts.
-     * @return the list of availcable contacts.
+     * @return the list of available contacts.
      */
     public synchronized List<ContactSipImpl> getAllContacts(
             ContactGroupSipImpl group)
@@ -427,10 +427,10 @@ public abstract class ServerStoredContactList
     }
 
     /**
-     * Returns all avaliable groups from group and all subgroups.
+     * Returns all available groups from group and all subgroups.
      *
      * @param group the parent of the contacts.
-     * @return the list of availcable groups.
+     * @return the list of available groups.
      */
     public synchronized List<ContactGroupSipImpl> getAllGroups(
             ContactGroupSipImpl group)
