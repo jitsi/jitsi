@@ -255,7 +255,7 @@ public class TestOperationSetPersistentPresence
 
         assertEquals("New group name", testGroupName, group.getGroupName());
 
-        // when opearting with groups . the group must have entries
+        // when operating with groups . the group must have entries
         // so changes to take effect. Otherwise group will be lost after loggingout
         try
         {
