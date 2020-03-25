@@ -342,7 +342,7 @@ public class AdHocChatRoomIcqImpl
     public void join() throws OperationFailedException
     {
         if (chatRoomSession == null && chatInvitation == null)
-        { // the session is not set and we don't have a chatInvitatoin
+        { // the session is not set and we don't have a chatInvitation
             // so we try to join the chatRoom again
             ChatRoomManager chatRoomManager =
                 provider.getAimConnection().getChatRoomManager();

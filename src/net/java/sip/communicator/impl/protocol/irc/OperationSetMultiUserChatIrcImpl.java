@@ -239,7 +239,7 @@ public class OperationSetMultiUserChatIrcImpl
     }
 
     /**
-     * There is no such thing as a rejection to an invitatation. The notion of
+     * There is no such thing as a rejection to an invitation. The notion of
      * an invite in IRC is just an addition to a white list. There is nothing to
      * reject.
      *
