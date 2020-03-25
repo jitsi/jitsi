@@ -77,7 +77,7 @@ public interface OperationSetTypingNotifications
 
 
     /**
-     * Sends a notification to <tt>notifiedContatct</tt> that we have entered
+     * Sends a notification to <tt>notifiedContact</tt> that we have entered
      * <tt>typingState</tt>.
      * @param notifiedContact the <tt>Contact</tt> to notify
      * @param typingState the typing state that we have entered.

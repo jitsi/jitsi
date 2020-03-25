@@ -28,7 +28,7 @@ import java.util.*;
 /**
  * Utility class that is obtained per metacontact. Used to check is a telephony
  * service, video calls and desktop sharing are enabled per contact from the
- * metacontact, or globally for the metacontct.
+ * metacontact, or globally for the metacontact.
  * @author Damian Minkov
  */
 public class UIPhoneUtil

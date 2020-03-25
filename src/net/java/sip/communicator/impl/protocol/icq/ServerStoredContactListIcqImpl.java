@@ -76,7 +76,7 @@ public class ServerStoredContactListIcqImpl
         = new JoustSimBuddyListener();
 
     /**
-     * The root contagroup. The container for all ICQ buddies and groups.
+     * The root contact group. The container for all ICQ buddies and groups.
      */
     private final RootContactGroupIcqImpl rootGroup;
 
@@ -358,7 +358,7 @@ public class ServerStoredContactListIcqImpl
     }
 
     /**
-     * Returns the ConntactGroup with the specified name or null if no such
+     * Returns the ContactGroup with the specified name or null if no such
      * group was found.
      * <p>
      * @param name the name of the group we're looking for.

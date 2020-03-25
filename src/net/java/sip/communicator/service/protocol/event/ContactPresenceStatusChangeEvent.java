@@ -56,7 +56,7 @@ public class ContactPresenceStatusChangeEvent extends PropertyChangeEvent
      * @param sourceProvider the protocol provider that the contact belongs to.
      * @param parentGroup the group containing the contact that caused this
      * event (to be set as null in cases where groups are not supported);
-     * @param oldValue the status the source countact was in before enetering
+     * @param oldValue the status the source contact was in before enetering
      * the new state.
      * @param newValue the status the source contact is currently in.
      */
@@ -77,7 +77,7 @@ public class ContactPresenceStatusChangeEvent extends PropertyChangeEvent
      * @param sourceProvider the protocol provider that the contact belongs to.
      * @param parentGroup the group containing the contact that caused this
      * event (to be set as null in cases where groups are not supported);
-     * @param oldValue the status the source countact was in before enetering
+     * @param oldValue the status the source contact was in before enetering
      * the new state.
      * @param newValue the status the source contact is currently in.
      */

@@ -56,7 +56,7 @@ public class TestMetaContactList
     private String newSubscriptionName = "NewSubscription";
 
     /**
-     * The name to use when renaming the new contat group.
+     * The name to use when renaming the new contact group.
      */
     private String renamedGroupName = "RenamedContactGroup";
 
@@ -946,7 +946,7 @@ public class TestMetaContactList
             ,MclSlickFixture.mockPresOpSet.getServerStoredContactListRoot()
                 .getGroup(newGroupName));
 
-        //create a mock contcat through the meta contact list.
+        //create a mock contact through the meta contact list.
         fixture.metaClService.createMetaContact(
             MclSlickFixture.mockProvider, newMetaGroup, newContactID);
 

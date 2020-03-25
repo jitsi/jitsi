@@ -216,7 +216,7 @@ public class CallHistorySourceContact
                 LinkedList<Class<? extends OperationSet>> supportedOpSets
                     = new LinkedList<Class<? extends OperationSet>>();
 
-                // if the contat supports call
+                // if the contact supports call
                 if((preferredProviders != null &&
                         preferredProviders.containsKey(
                                 OperationSetBasicTelephony.class)) ||

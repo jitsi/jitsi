@@ -39,7 +39,7 @@ import net.java.sip.communicator.util.account.*;
 public class MetaContactPhoneUtil
 {
     /**
-     * The metacontcat we are working on.
+     * The metacontact we are working on.
      */
     private MetaContact metaContact;
 
@@ -78,7 +78,7 @@ public class MetaContactPhoneUtil
 
     /**
      * Obtains the util for <tt>metaContact</tt>
-     * @param metaContact the metaconctact.
+     * @param metaContact the metacontact.
      * @return ContactPhoneUtil for the <tt>metaContact</tt>.
      */
     public static MetaContactPhoneUtil getPhoneUtil(MetaContact metaContact)

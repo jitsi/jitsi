@@ -390,7 +390,7 @@ public class MessageHistoryServiceImpl
      * @param count contacts count
      * @param providerToFilter can be filtered by provider, or <tt>null</tt> to
      * search for all providers
-     * @param contactToFilter can be filtered by contac, or <tt>null</tt> to
+     * @param contactToFilter can be filtered by contact, or <tt>null</tt> to
      * search for all contacts
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException

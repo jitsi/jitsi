@@ -161,7 +161,7 @@ public class MclSlickFixture
     @Override
     public void setUp()
     {
-        //find a reference to the meta contaact list service.
+        //find a reference to the meta contact list service.
         ServiceReference ref = bundleContext.getServiceReference(
             MetaContactListService.class.getName());
         metaClService

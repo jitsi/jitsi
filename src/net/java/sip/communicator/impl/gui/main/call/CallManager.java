@@ -1800,7 +1800,7 @@ public class CallManager
      * @param parent the parent group of the groups and contacts to search in
      * @param cusaxOpSet the opset of the provider which will be used to match
      *                   contact's details to peer userID (stored numbers).
-     * @return a cusax matching contac
+     * @return a cusax matching contact
      */
     private static Contact findContactByPeer(
         String peerUserID,

@@ -798,7 +798,7 @@ public class OperationSetPersistentPresenceIcqImpl
      * made previously. Note that the contact list returned by this method may
      * be incomplete as it is only a snapshot of what has been retrieved through
      * the network up to the moment when the method is called.
-     * @return a ConactGroup containing all previously made subscriptions stored
+     * @return a ContactGroup containing all previously made subscriptions stored
      * on the server.
      */
     ServerStoredContactListIcqImpl getServerStoredContactList()

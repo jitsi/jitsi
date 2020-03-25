@@ -129,7 +129,7 @@ public class MetaContactListServiceLick
             MclSlickFixture.mockP2ServiceRegistration.unregister();
 
         //clear the meta contact list
-        //find a reference to the meta contaact list service.
+        //find a reference to the meta contact list service.
         ServiceReference ref = context.getServiceReference(
             MetaContactListService.class.getName());
         if(ref == null)
