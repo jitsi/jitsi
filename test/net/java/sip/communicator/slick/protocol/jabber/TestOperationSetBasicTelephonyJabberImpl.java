@@ -184,7 +184,7 @@ public class TestOperationSetBasicTelephonyJabberImpl
             //do not asser equals here since one of the addresses may contain a
             //display name or something of the kind
             assertTrue("Provider 2 did not advertise their "
-                       + "accountID.getAccoutAddress() address."
+                       + "accountID.getAccountAddress() address."
                        , expectedPeer1Address.indexOf(
                            peerAtP1.getAddress()) != -1
                        || peerAtP1.getAddress().indexOf(
@@ -206,7 +206,7 @@ public class TestOperationSetBasicTelephonyJabberImpl
             //do not asser equals here since one of the addresses may contain a
             //display name or something of the kind
             assertTrue("Provider 1 did not advertise their "
-                       + "accountID.getAccoutAddress() address."
+                       + "accountID.getAccountAddress() address."
                        , expectedPeer2Address.indexOf(
                            peerAtP2.getAddress()) != -1
                        || peerAtP2.getAddress().indexOf(
@@ -412,7 +412,7 @@ public class TestOperationSetBasicTelephonyJabberImpl
             //do not asser equals here since one of the addresses may contain a
             //display name or something of the kind
             assertTrue("Provider 2 did not advertise their "
-                       + "accountID.getAccoutAddress() address."
+                       + "accountID.getAccountAddress() address."
                        , expectedPeer1Address.indexOf(
                            peerAtP1.getAddress()) != -1
                        || peerAtP1.getAddress().indexOf(
@@ -434,7 +434,7 @@ public class TestOperationSetBasicTelephonyJabberImpl
             //do not asser equals here since one of the addresses may contain a
             //display name or something of the kind
             assertTrue("Provider 1 did not advertise their "
-                       + "accountID.getAccoutAddress() address."
+                       + "accountID.getAccountAddress() address."
                        , expectedPeer2Address.indexOf(
                            peerAtP2.getAddress()) != -1
                        || peerAtP2.getAddress().indexOf(
@@ -647,7 +647,7 @@ public class TestOperationSetBasicTelephonyJabberImpl
             //do not assert equals here since one of the addresses may contain a
             //display name or something of the kind
             assertTrue("Provider 2 did not advertise their "
-                       + "accountID.getAccoutAddress() address."
+                       + "accountID.getAccountAddress() address."
                        , expectedPeer1Address.indexOf(
                            peerAtP1.getAddress()) != -1
                        || peerAtP1.getAddress().indexOf(
@@ -669,7 +669,7 @@ public class TestOperationSetBasicTelephonyJabberImpl
             //do not asser equals here since one of the addresses may contain a
             //display name or something of the kind
             assertTrue("Provider 1 did not advertise their "
-                       + "accountID.getAccoutAddress() address."
+                       + "accountID.getAccountAddress() address."
                        , expectedPeer2Address.indexOf(
                            peerAtP2.getAddress()) != -1
                        || peerAtP2.getAddress().indexOf(

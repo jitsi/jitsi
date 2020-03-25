@@ -81,7 +81,7 @@ public class SipSlickFixture
 
     /**
      * A reference to the bundle containing the tested pp implementation. This
-     * reference is set during the accoung uninstallation testing and used during
+     * reference is set during the account uninstallation testing and used during
      * the account uninstallation persistence testing.
      */
     public static Bundle providerBundle = null;

@@ -221,7 +221,7 @@ public class ProtocolProviderFactorySipImpl
 
         // make a backup of the account properties to restore them if a failure
         // occurs with the new ones
-        Map<String,String> oldAcccountProps = accountID.getAccountProperties();
+        Map<String,String> oldAccountProps = accountID.getAccountProperties();
         accountID.setAccountProperties(accountProperties);
 
         // First store the account and only then load it as the load generates
@@ -247,7 +247,7 @@ public class ProtocolProviderFactorySipImpl
             catch (Exception ex)
             {
                 initializationException = ex;
-                accountID.setAccountProperties(oldAcccountProps);
+                accountID.setAccountProperties(oldAccountProps);
             }
 
             // We store again the account in order to store all properties added
