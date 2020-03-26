@@ -93,6 +93,11 @@
         <artifactId>jitsi-utils</artifactId>
         <version>1.0-1-gaca0e20</version>
       </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>3.9</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
