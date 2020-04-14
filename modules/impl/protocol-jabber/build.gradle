@@ -1,0 +1,27 @@
+dependencies {
+    implementation libs.commons.lang
+    implementation libs.commons.text
+    implementation libs.jitsi.libjitsi
+    implementation libs.jitsi.xmppext
+    implementation project(':util')
+    implementation project(':osgi-util')
+    implementation project(':service:argdelegation')
+    implementation project(':service:certificate')
+    implementation project(':service:credentialsstorage')
+    implementation project(':service:customavatar')
+    implementation project(':service:dnsservice')
+    implementation project(':service:globaldisplaydetails')
+    implementation project(':service:ui-service')
+    implementation project(':service:hid')
+    implementation project(':service:netaddr')
+    implementation project(':service:protocol')
+    implementation project(':service:protocol-media')
+    implementation project(':service:resourcemanager')
+
+    testImplementation libs.junit
+    testImplementation project(':service:protocol').sourceSets.test.output
+}
+
+libs.smack.each {
+    dependencies.add('implementation', it.value)
+}

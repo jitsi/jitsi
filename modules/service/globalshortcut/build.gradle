@@ -1,0 +1,9 @@
+dependencies {
+    implementation libs.jitsi.basesvc
+    implementation project(':util')
+    implementation project(':osgi-util')
+    implementation project(':service:keybindings')
+    implementation project(':service:ui-service')
+    implementation project(':service:protocol')
+    implementation project(':service:protocol-media')
+}

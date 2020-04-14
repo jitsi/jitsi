@@ -1,0 +1,7 @@
+Bundle-Name: HID Service
+Bundle-Description: A bundle that offers Human Interaction service features.
+Bundle-Vendor: jitsi.org
+Manifest-Version: 1.0
+Bundle-Version: 0.0.1
+Bundle-SymbolicName: net.java.sip.communicator.service.hid
+Export-Package: net.java.sip.communicator.service.hid

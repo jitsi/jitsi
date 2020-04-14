@@ -15,6 +15,7 @@ target/
 out/
 build/
 test-reports/
+felix-cache/
 .gradle/
 .settings/
 .classpath
@@ -22,7 +23,7 @@ test-reports/
 
 # Never actually store Google API client token. A template is already committed
 # and the token should always be generated on-the-fly.
-/src/net/java/sip/communicator/impl/googlecontacts/GoogleAPIClientToken.java
+**/GoogleAPIClientToken.java
 
 .idea/
 !.idea/codeStyles/

@@ -1,0 +1,6 @@
+dependencies {
+    implementation project(':service:protocol')
+
+    testImplementation libs.junit
+    testImplementation project(':impl:protocol-mock')
+}

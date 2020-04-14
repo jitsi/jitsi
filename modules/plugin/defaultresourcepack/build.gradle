@@ -1,0 +1,30 @@
+import org.apache.tools.ant.filters.EscapeUnicode
+
+sourceSets {
+    main {
+        resources {
+            exclude "**/images/**/*.svg"
+        }
+    }
+}
+
+processResources {
+//    filteringCharset 'UTF-8'
+//    filesMatching('**/languages/*.properties'){
+//        filter(EscapeUnicode)
+//    }
+
+    // create a copy of the 'en' locale to be able to explicitly select it
+    from('src/main/resources/resources/languages') {
+        include 'resources.properties'
+        into 'resources/languages'
+        rename {
+            'resources_en.properties'
+        }
+    }
+}
+
+dependencies {
+    implementation project(':util')
+    implementation project(':service:resourcemanager')
+}

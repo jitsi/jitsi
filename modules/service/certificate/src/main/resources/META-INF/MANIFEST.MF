@@ -1,0 +1,33 @@
+Bundle-Name: Certificate Verification
+Bundle-Description: A bundle that offers certificate verification
+Bundle-Vendor: jitsi.org
+Manifest-Version: 1.0
+Bundle-Version: 0.0.1
+Bundle-SymbolicName: net.java.sip.communicator.certificate
+Export-Package: net.java.sip.communicator.service.certificate
+Import-Package: net.java.sip.communicator.util.osgi,
+ org.osgi.framework,
+ net.java.sip.communicator.service.gui,
+ net.java.sip.communicator.util,
+ org.jitsi.service.configuration,
+ org.jitsi.util,
+ net.java.sip.communicator.service.credentialsstorage,
+ org.jitsi.service.resources,
+ net.java.sip.communicator.service.resources,
+ javax.net.ssl,
+ javax.security.auth.callback,
+ javax.security.auth.x500,
+ javax.naming,
+ javax.naming.ldap,
+ javax.swing,
+ org.apache.http.conn.ssl,
+ org.bouncycastle.asn1,
+ org.bouncycastle.asn1.x509,
+ org.bouncycastle.x509.extension,
+ sun.security.pkcs11,
+ org.apache.http,
+ org.apache.http.client,
+ org.apache.http.client.fluent,
+ org.apache.http.conn.util,
+ org.bouncycastle.cert
+Bundle-Activator: net.java.sip.communicator.impl.certificate.CertificateVerificationActivator

@@ -1,0 +1,58 @@
+// TODO: sign
+buildDeb {
+    release = '1'
+    vendor = 'jitsi.org'
+    url = 'https://desktop.jitsi.org'
+    license = 'Apache-2.0'
+    packager = 'Ingo Bauersachs <ingo@jitsi.org>'
+    maintainer = 'Ingo Bauersachs <ingo@jitsi.org>'
+    uploaders = 'Ingo Bauersachs <ingo@jitsi.org>'
+    packageGroup = 'net'
+    packageDescription = description = """\
+VoIP and Instant Messaging client
+Jitsi is an application that allows you to do audio/video \
+conversations over the Internet through the SIP and XMPP/Jabber protocol, \
+as well as chat with your friends using some of the most popular instant \
+messaging protocols such as SIP/SIMPLE, XMPP/Jabber, AIM/ICQ and others.
+"""
+    arch = project.property('application.target') == 'x64'
+            ? 'amd64'
+            : 'x86'
+    distribution = 'xenial bionic'
+
+    requires('default-jre')
+    requires('libxss1')
+    requires('libspeex1')
+    requires('libspeexdsp1')
+
+    recommends('libappindicator1')
+    recommends('libavformat57').or('libavformat-ffmpeg56')
+    recommends('libavcodec-extra57').or('libavcodec57')
+            .or('libavcodec-ffmpeg-extra56').or('libavcodec-ffmpeg56')
+    recommends('libavfilter6').or('libavfilter-extra6').or('libavfilter-ffmpeg5')
+    recommends('libavutil55').or('libavutil-ffmpeg54')
+    recommends('libswscale4').or('libswscale-ffmpeg3')
+    
+    into('usr/share/pixmaps') {
+        from "${projectDir}/resources/install/debian"
+        include 'jitsi*-.xpm'
+        include 'jitsi.svg'
+    }
+    into('usr/share/applications') {
+        from "${projectDir}/resources/install/debian"
+        include 'jitsi.desktop'
+    }
+    into('usr/share/jitsi') {
+        from installLinuxDist.outputs.files
+        exclude "jitsi"
+        exclude "native/**"
+    }
+    into('usr/lib/jni') {
+        from "${projectDir}/lib/native/linux-${project.property('application.target')}"
+    }
+    into('usr/bin') {
+        from "${projectDir}/resources/install/debian"
+        include "jitsi"
+        fileMode 0755
+    }
+}

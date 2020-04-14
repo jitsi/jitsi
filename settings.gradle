@@ -1,0 +1,27 @@
+rootProject.name = 'jitsi'
+
+['impl', 'service', 'plugin'].each { moduleDir ->
+    include ":${moduleDir}"
+    project(":${moduleDir}").projectDir = file("modules/${moduleDir}")
+    file("modules/${moduleDir}").eachDir { dir ->
+        if (!['out', 'build', 'googlecontacts'].contains(dir.name)) {
+            include ":${moduleDir}:${dir.name}"
+            project(":${moduleDir}:${dir.name}").projectDir = dir
+        }
+    }
+}
+
+include ':launcher'
+project(':launcher').projectDir = file('modules/launcher')
+
+include ':launchutils'
+project(':launchutils').projectDir = file('modules/launchutils')
+
+include ':util'
+project(':util').projectDir = file('modules/util')
+
+include ':osgi-util'
+project(':osgi-util').projectDir = file('modules/osgi-util')
+
+//include ':installers:win'
+//project(':installers:win').projectDir = file('resources/install/windows')

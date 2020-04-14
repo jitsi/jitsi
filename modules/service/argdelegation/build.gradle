@@ -1,0 +1,9 @@
+dependencies {
+    implementation libs.commons.lang
+    implementation libs.orangeext
+    implementation libs.jitsi.basesvc
+    implementation project(':util')
+    implementation project(':osgi-util')
+    implementation project(':launchutils')
+    implementation project(':service:ui-service')
+}

@@ -1,0 +1,7 @@
+dependencies {
+    implementation libs.jmdns
+    implementation libs.jitsi.basesvc
+    implementation project(':util')
+    implementation project(':service:netaddr')
+    implementation project(':service:provdisc')
+}

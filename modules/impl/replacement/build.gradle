@@ -1,0 +1,9 @@
+dependencies {
+    implementation libs.jitsi.basesvc
+    implementation libs.json
+    implementation project(':util')
+    implementation project(':osgi-util')
+    implementation project(':service:httputil')
+    implementation project(':service:replacement')
+    implementation project(':service:resourcemanager')
+}

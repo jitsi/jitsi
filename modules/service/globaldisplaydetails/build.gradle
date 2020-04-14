@@ -1,0 +1,9 @@
+dependencies {
+    api project(':service:protocol')
+
+    implementation libs.jitsi.basesvc
+    implementation libs.commons.lang
+    implementation project(':util')
+    implementation project(':osgi-util')
+    implementation project(':service:ui-service')
+}

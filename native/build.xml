@@ -1,0 +1,786 @@
+<project name="jitsi-native" default="help-native" xmlns:if="ant:if">
+  <import file="../../../build.xml"/>
+
+  <!-- additionnal property -->
+  <property name="obj" value="${src}/../native/native_obj" />
+
+  <!-- load cpptasks jar to have <cc /> tag -->
+  <taskdef resource="cpptasks.tasks">
+    <!-- load cpptasks jar -->
+    <classpath>
+      <pathelement location="${sc.basedir}/lib/installer-exclude/cpptasks.jar"/>
+    </classpath>
+  </taskdef>
+
+  <condition property="arch" value="32">
+    <or>
+      <os arch="x86" />
+      <os arch="i386" />
+      <os arch="i486" />
+      <os arch="i586" />
+      <os arch="i686" />
+    </or>
+  </condition>
+  <condition property="arch" value="64">
+    <or>
+      <os arch="amd64" />
+      <os arch="x86_64" />
+    </or>
+  </condition>
+
+  <!--
+    Cross compilation. It is mainly used on Linux to cross-compile 32-bit
+    binaries on a 64-bit host. It is also used to compile ffmpeg on Mac OS X for
+    each architecture before creating an universal binary with the lipo tool. 
+  -->
+  <condition property="cross_32" value="y" >
+    <equals arg1="${arch}" arg2="32" />
+  </condition>
+
+  <condition property="cross_64" value="y" >
+    <equals arg1="${arch}" arg2="64" />
+  </condition>
+  
+  <!-- Mac OS X only -->
+  <condition property="cross_ppc" value="y" >
+    <equals arg1="${arch}" arg2="ppc" />
+  </condition>
+
+  <!-- initialize destination directory -->
+  <condition property="native_install_dir" value="${native.libs}/windows">
+    <and>
+      <isset property="is.running.windows"/>
+      <equals arg1="${arch}" arg2="32" />
+    </and>
+  </condition>
+
+  <condition property="native_install_dir" value="${native.libs}/windows-64">
+    <and>
+      <isset property="is.running.windows"/>
+      <equals arg1="${arch}" arg2="64" />
+    </and>                                    
+  </condition>
+
+  <condition property="native_install_dir" value="${native.libs}/linux">
+    <and>   
+      <isset property="is.running.linux"/>
+      <equals arg1="${arch}" arg2="32" />
+    </and>                                    
+  </condition>
+
+  <condition property="native_install_dir" value="${native.libs}/linux-64">
+    <and>
+      <isset property="is.running.linux"/>
+      <equals arg1="${arch}" arg2="64" />
+    </and>                                    
+  </condition>
+
+  <condition property="native_install_dir" value="${native.libs}/mac">
+    <isset property="is.running.macos"/>
+  </condition>
+
+  <!-- The path to the dpkg-buildpackage tool -->
+  <property name="dpkg-buildpackage" value="/usr/bin/dpkg-buildpackage"/>
+  <!-- The path to the dh_testdir tool -->
+  <property name="dh_testdir" value="/usr/bin/dh_testdir"/>
+  <condition property="is.running.debian">
+    <and>
+        <isset property="is.running.linux"/>
+        <available file="${dpkg-buildpackage}"/>
+        <available file="${dh_testdir}"/>
+    </and>
+  </condition>
+
+  <!--
+  <echo message="ffmpeg library: ${ffmpeg}" />
+  <echo message="x264 library: ${x264}" />
+  <echo message="lame library: ${lame}" />
+  <echo message="portaudio library: ${portaudio}" />
+  <echo message="Install directory ${native_install_dir}" />
+  <echo message="arch: ${arch}" />
+  -->
+
+  <target name="init-native" description="Initialize native stuff">
+    <mkdir dir="${obj}" />
+  </target>
+
+  <!-- compile jnscreencapture library -->
+  <target name="screencapture" description="Build screencapture shared library"
+    depends="init-native">
+    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/jnscreencapture" objdir="${obj}">
+      <!-- common compiler flags -->
+      <compilerarg value="-std=c99" />
+      <compilerarg value="-D_XOPEN_SOURCE=600" />
+      <compilerarg value="-Wall" />
+      <compilerarg value="-Wextra" />
+      <compilerarg value="-O3" />
+
+      <!-- Linux specific flags -->
+      <compilerarg value="-m32" if="cross_32" unless="is.running.macos" />
+      <compilerarg value="-m64" if="cross_64" unless="is.running.macos" />
+      <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.linux" />
+      <compilerarg value="-I${system.JAVA_HOME}/include/linux" if="is.running.linux" />
+      <compilerarg value="-D_FORTIFY_SOURCE=2" if="is.running.debian"/>
+
+      <linkerarg value="-m32" if="cross_32" unless="is.running.macos" />
+      <linkerarg value="-m64" if="cross_64" unless="is.running.macos" />
+      <linkerarg value="-Wl,-z,relro" if="is.running.debian"/>
+      <linkerarg value="-lX11" location="end" if="is.running.linux" />
+
+      <!-- Mac OS X specific flags -->
+      <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
+      <compilerarg value="-arch" if="is.running.macos" />
+      <compilerarg value="x86_64" if="is.running.macos" />
+      <compilerarg value="-I/System/Library/Frameworks/ApplicationServices.framework/Headers" if="is.running.macos" />
+      <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers" if="is.running.macos" />
+      
+      <linkerarg value="-o" location="end" if="is.running.macos" />
+      <linkerarg value="libjnscreencapture.jnilib" location="end" if="is.running.macos" />
+      <linkerarg value="-arch" if="is.running.macos" />
+      <linkerarg value="x86_64" if="is.running.macos" />
+      <linkerarg value="-framework" if="is.running.macos" />
+      <linkerarg value="ApplicationServices" if="is.running.macos" />
+      
+      <!-- Windows specific flags -->
+      <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.windows" />
+      <compilerarg value="-I${system.JAVA_HOME}/include/win32" if="is.running.windows" />
+
+      <linkerarg value="-lgdi32" location="end" if="is.running.windows" />
+      <linkerarg value="-ojnscreencapture.dll" if="is.running.windows" />
+      <linkerarg value="-Wl,--kill-at" if="is.running.windows" />
+
+      <fileset dir="${src}/../native/screencapture" includes="*.c"/>
+    </cc>
+  </target>
+
+  <!-- compile hid library -->
+  <target name="hid" description="Build hid shared library"
+    depends="init-native">
+    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/hid" objdir="${obj}">
+      <!-- common compiler flags -->
+      <compilerarg value="-Wall" />
+      <compilerarg value="-Wextra" />
+
+      <!-- Linux specific flags -->
+      <compilerarg value="-m32" if="cross_32" unless="is.running.macos" />
+      <compilerarg value="-m64" if="cross_64" unless="is.running.macos" />
+      <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.linux" />
+      <compilerarg value="-I${system.JAVA_HOME}/include/linux" if="is.running.linux" />
+
+      <linkerarg value="-m32" if="cross_32" unless="is.running.macos" />
+      <linkerarg value="-m64" if="cross_64" unless="is.running.macos" />
+      <linkerarg value="-lX11" location="end" if="is.running.linux" />
+      <linkerarg value="-Wl,-z,relro" if="is.running.debian"/>
+
+      <fileset dir="${src}/../native/hid" includes="net*.c KeyboardUtil_unix.c" if="is.running.linux" />
+
+      <!-- Mac OS X specific flags -->
+      <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
+      <compilerarg value="-arch" if="is.running.macos" />
+      <compilerarg value="x86_64" if="is.running.macos" />
+      <compilerarg value="-I/System/Library/Frameworks/ApplicationServices.framework/Headers" if="is.running.macos" />
+      <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers" if="is.running.macos" />
+
+      <linkerarg value="-arch" if="is.running.macos" />
+      <linkerarg value="x86_64" if="is.running.macos" />
+      <linkerarg value="-framework" if="is.running.macos" />
+      <linkerarg value="ApplicationServices" if="is.running.macos" />
+      <linkerarg value="-framework" if="is.running.macos" />
+      <linkerarg value="Carbon" if="is.running.macos" />
+      <linkerarg value="-o" location="end" if="is.running.macos" />
+      <linkerarg value="libhid.jnilib" location="end" if="is.running.macos" />
+      
+      <fileset dir="${src}/../native/hid" includes="net*.c KeyboardUtil_mac.c" if="is.running.macos" />
+
+      <!-- Windows specific flags -->
+      <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.windows" />
+      <compilerarg value="-I${system.JAVA_HOME}/include/win32" if="is.running.windows" />
+
+      <linkerarg value="-lgdi32" location="end" if="is.running.windows" />
+      <linkerarg value="-ohid.dll" if="is.running.windows" />
+      <linkerarg value="-Wl,--kill-at" if="is.running.windows" />
+
+      <fileset dir="${src}/../native/hid" includes="net*.c KeyboardUtil_windows.c" if="is.running.windows" />
+    </cc>
+  </target>
+
+  <!-- compile hwaddressretriever library -->
+  <target name="hwaddressretriever" description="Build hwaddressretriever shared library" depends="init-native,hwaddressretriever-windows"
+    unless="is.running.windows">
+    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/hwaddressretriever" objdir="${obj}">
+      <!-- common compiler flags -->
+      <compilerarg value="-D_FORTIFY_SOURCE=2" if="is.running.debian"/>
+      <compilerarg value="-Wall" />
+      <compilerarg value="-O2" />
+      <compilerarg value="-g" />
+      <compilerarg value="-fstack-protector" if="is.running.debian"/>
+      <compilerarg value="--param=ssp-buffer-size=4" if="is.running.debian"/>
+      <compilerarg value="-Werror=format-security" if="is.running.debian"/>
+      <compilerarg value="-Wformat" if="is.running.debian"/>
+
+      <fileset dir="${src}/../native/hwaddressretriever" includes="net*.c HardwareAddressRetriever_unix.c" />
+
+      <!-- Linux specific flags -->
+      <compilerarg value="-m32" if="cross_32" unless="is.running.macos" />
+      <compilerarg value="-m64" if="cross_64" unless="is.running.macos" />
+      <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.linux" />
+      <compilerarg value="-I${system.JAVA_HOME}/include/linux" if="is.running.linux" />
+
+      <linkerarg value="-m32" if="cross_32" unless="is.running.macos" />
+      <linkerarg value="-m64" if="cross_64" unless="is.running.macos" />
+      <linkerarg value="-Wl,-z,relro" if="is.running.debian"/>
+
+      <!-- Mac OS X specific flags -->
+      <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
+      <compilerarg value="-arch" if="is.running.macos" />
+      <compilerarg value="x86_64" if="is.running.macos" />
+      <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers" if="is.running.macos" />
+
+      <linkerarg value="-o" location="end" if="is.running.macos" />
+      <linkerarg value="libhwaddressretriever.jnilib" location="end" if="is.running.macos" />
+      <linkerarg value="-arch" if="is.running.macos" />
+      <linkerarg value="x86_64" if="is.running.macos" />
+    </cc>
+  </target>
+
+  <!-- compile hwaddressretrieverr library for Windows-->
+  <target name="hwaddressretriever-windows" description="Build hwaddressretriever shared library for Windows" if="is.running.windows"
+    depends="init-native">
+    <cc outtype="shared" name="msvc" outfile="${native_install_dir}/hwaddressretriever" objdir="${obj}">
+      <compilerarg value="/O2" />
+      <compilerarg value="/MT" location="end" />
+      <compilerarg value="-I${system.JAVA_HOME}/include" />
+      <compilerarg value="-I${system.JAVA_HOME}/include/win32" />
+
+      <linkerarg value="iphlpapi.lib" location="end" />
+
+      <fileset dir="${src}/../native/hwaddressretriever" includes="net*.c HardwareAddressRetriever_win.c" />
+    </cc>
+  </target>
+
+  <!-- compile galagonotification library -->
+  <target name="galagonotification" description="Build galagonotification shared library" if="is.running.linux"
+    depends="init-native">
+    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/galagonotification" objdir="${obj}">
+      <compilerarg value="-std=c99" />
+      <compilerarg value="-Wall" />
+      <compilerarg value="-O2" />
+      <compilerarg value="-I/usr/include/dbus-1.0" />
+      <compilerarg value="-I/usr/lib/dbus-1.0/include" />
+      <compilerarg value="-I/usr/lib/x86_64-linux-gnu/dbus-1.0/include" />
+      <compilerarg value="-I/usr/lib/i386-linux-gnu/dbus-1.0/include" />
+      <compilerarg value="-m32" if="cross_32" />
+      <compilerarg value="-m64" if="cross_64" />
+      <compilerarg value="-I${system.JAVA_HOME}/include" />
+      <compilerarg value="-I${system.JAVA_HOME}/include/linux" />
+
+      <linkerarg value="-m32" if="cross_32" />
+      <linkerarg value="-m64" if="cross_64" />
+      <linkerarg value="-ldbus-1" location="end" />
+      <linkerarg value="-Wl,--as-needed" location="end" />
+      <linkerarg value="-Wl,-z,defs" location="end" />
+      <linkerarg value="-Wl,-z,relro" if="is.running.debian"/>
+
+      <fileset dir="${src}/../native/linux/galagonotification" includes="*.c"/>
+    </cc>
+  </target>
+
+  <!-- compile LocalhostRetriever library -->
+  <target name="localhostretriever" description="Build LocalhostRetriever shared library" if="is.running.windows"
+    depends="init-native">
+    <cc outtype="shared" name="msvc" outfile="${native_install_dir}/LocalhostRetriever" objdir="${obj}">
+      <compilerarg value="/O2" />
+      <compilerarg value="/MT" location="end" />
+      <compilerarg value="-I${system.JAVA_HOME}/include" />
+      <compilerarg value="-I${system.JAVA_HOME}/include/win32" />
+
+      <linkerarg value="iphlpapi.lib" location="end" />
+
+      <fileset dir="${src}/../native/windows/LocalhostRetriever" includes="*.c"/>
+    </cc>
+  </target>
+
+  <!-- compile AEGetURLEventHandler library for Mac OS X (32-bit/64-bit/ppc) -->
+  <target name="aegeturleventhandler" description="Build AEGetURLEventHandler shared library for Mac OS X" if="is.running.macos"
+    depends="init-native">
+    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/AEGetURLEventHandler" objdir="${obj}">
+      <compilerarg value="-Wall" />
+      <compilerarg value="-O2" />
+      <compilerarg value="-arch" />
+      <compilerarg value="x86_64" />
+      <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers" />
+
+      <linkerarg value="-o" location="end" />
+      <linkerarg value="libAEGetURLEventHandlerAgent.dylib" location="end" />
+      <linkerarg value="-arch" />
+      <linkerarg value="x86_64" />
+      <linkerarg value="-framework" />
+      <linkerarg value="Foundation" />
+
+      <fileset dir="${src}/../native/macosx/launcharghandler" includes="*.m"/>
+    </cc>
+  </target>
+
+  <!-- compile sparkle library for Mac OS X (32-bit/64-bit/ppc)
+  make sure you do export MACOSX_DEPLOYMENT_TARGET=10.6
+  and also:
+  install_name_tool -change "@loader_path/../Frameworks/Sparkle.framework/Versions/A/Sparkle" "@executable_path/../Frameworks/Sparkle.framework/Versions/A/Sparkle" libsparkle_init.dylib
+  -->
+  <target name="sparkle" description="Build sparkle shared library for Mac OS X" if="is.running.macos"
+    depends="init-native">
+    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/sparkle_init" objdir="${obj}">
+      <compilerarg value="-Wall" />
+      <compilerarg value="-O2" />
+      <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
+      <compilerarg value="-arch" />
+      <compilerarg value="x86_64" />
+      <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers" />
+      <compilerarg value="-I/System/Library/Frameworks/Sparkle.framework/Versions/A/Headers/" />
+
+      <linkerarg value="-arch" />
+      <linkerarg value="x86_64" />
+      <linkerarg value="-framework" />
+      <linkerarg value="AppKit" />
+      <linkerarg value="-framework" />
+      <linkerarg value="Foundation" />
+      <linkerarg value="-framework" />
+      <linkerarg value="Sparkle" />
+
+      <fileset dir="${src}/../native/macosx/sparkle" includes="*.m"/>
+    </cc>
+  </target>
+
+    <target name="sysactivity" description="Build sysactivity"
+            depends="init-native">
+
+    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/sysactivitynotifications"
+        objdir="${obj}">
+        <!-- Common compiler flags -->
+        <compilerarg value="-D_JNI_IMPLEMENTATION_" />
+        <compilerarg value="-m32" if="cross_32" unless="is.running.macos" />
+        <compilerarg value="-m64" if="cross_64" unless="is.running.macos" />
+        <compilerarg value="-O2" />
+        <compilerarg value="-Wall" />
+        <compilerarg value="-Wextra" />
+        <compilerarg value="-Wno-unused-parameter" />
+
+        <!-- Common linker flags -->
+        <linkerarg value="-m32" if="cross_32" unless="is.running.macos" />
+        <linkerarg value="-m64" if="cross_64" unless="is.running.macos" />
+
+        <!-- Mac OS X-specific flags -->
+        <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
+        <compilerarg value="-arch" if="is.running.macos"/>
+        <compilerarg value="x86_64" if="is.running.macos"/>
+        <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers"
+                   if="is.running.macos"/>
+
+        <linkerarg value="-o" location="end" if="is.running.macos"/>
+        <linkerarg value="libsysactivitynotifications.jnilib" location="end"
+                   if="is.running.macos"/>
+        <linkerarg value="-arch" if="is.running.macos"/>
+        <linkerarg value="x86_64" if="is.running.macos"/>
+        <linkerarg value="-framework" if="is.running.macos"/>
+        <linkerarg value="AppKit" if="is.running.macos"/>
+        <linkerarg value="-framework" if="is.running.macos"/>
+        <linkerarg value="Carbon" if="is.running.macos"/>
+        <linkerarg value="-framework" if="is.running.macos"/>
+        <linkerarg value="SystemConfiguration" if="is.running.macos"/>
+        <linkerarg value="-framework" if="is.running.macos" />
+        <linkerarg value="IOKit" if="is.running.macos" />
+
+        <fileset dir="${src}/../native/sysactivity" includes="*.m" if="is.running.macos"/>
+
+        <!-- Linux-specific flags -->
+        <compilerarg value="-I/usr/include/gtk-2.0" if="is.running.linux" />
+        <compilerarg value="-I/usr/include/glib-2.0/" if="is.running.linux" />
+        <compilerarg value="-I/usr/include/cairo/" if="is.running.linux" />
+        <compilerarg value="-I/usr/include/pango-1.0/" if="is.running.linux" />
+        <compilerarg value="-I/usr/include/gdk-pixbuf-2.0/" if="is.running.linux" />
+        <compilerarg value="-I/usr/lib/glib-2.0/include/" if="is.running.linux" />
+        <compilerarg value="-I/usr/lib/gtk-2.0/include/" if="is.running.linux" />
+        <compilerarg value="-I/usr/lib/x86_64-linux-gnu/glib-2.0/include" if="is.running.linux" />
+        <compilerarg value="-I/usr/lib/x86_64-linux-gnu/gtk-2.0/include" if="is.running.linux" />
+        <compilerarg value="-I/usr/lib/i386-linux-gnu/glib-2.0/include" if="is.running.linux" />
+        <compilerarg value="-I/usr/lib/i386-linux-gnu/gtk-2.0/include" if="is.running.linux" />
+
+        <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.linux" />
+        <compilerarg value="-I${system.JAVA_HOME}/include/linux" if="is.running.linux" />
+
+        <linkerarg value="-lgdk-x11-2.0" if="is.running.linux" location="end" />
+        <linkerarg value="-lXss" if="is.running.linux" location="end" />
+        <linkerarg value="-Wl,-z,relro" if="is.running.debian"/>
+
+        <fileset dir="${src}/../native/sysactivity" includes="*.c" if="is.running.linux" />
+
+        <!-- Windows-specific flags -->
+        <compilerarg value="-D_WIN32_WINNT=0x0502" if="is.running.windows" />
+        <compilerarg value="-DWINVER=0x0502" if="is.running.windows" />
+        <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.windows" />
+        <compilerarg value="-I${system.JAVA_HOME}/include/win32" if="is.running.windows" />
+
+        <linkerarg value="-osysactivitynotifications.dll" if="is.running.windows" />
+        <linkerarg value="-liphlpapi" location="end" if="is.running.windows" />
+        <linkerarg value="-Wl,--kill-at" if="is.running.windows" />
+
+        <fileset dir="${src}/../native/sysactivity" includes="*.cpp" if="is.running.windows" />
+    </cc>
+  </target>
+    <!-- compile sysactivity library for Windows
+    "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.Cmd" /x86 /xp /Release
+    -->
+    <target name="sysactivity-windows"
+            description="Build sysactivity shared library for Windows"
+            if="is.running.windows"
+            depends="init-native">
+        <cc outtype="shared" name="msvc"
+            outfile="${native_install_dir}/sysactivitynotifications"
+            objdir="${obj}">
+            <compilerarg value="/O2" />
+            <compilerarg value="/GS" if="cross_64" />
+            <compilerarg value="/MT" location="end" />
+            <compilerarg value="-I${system.JAVA_HOME}/include" />
+            <compilerarg value="-I${system.JAVA_HOME}/include/win32" />
+
+            <linkerarg value="/LIBPATH:${system.JAVA_HOME}\\lib" />
+            <linkerarg value="iphlpapi.lib" location="end" />
+            <linkerarg value="user32.lib" location="end" />
+            <linkerarg value="jawt.lib" location="end" />
+
+            <fileset dir="${src}/../native/sysactivity" includes="*.cpp" />
+        </cc>
+    </target>
+
+    <target name="globalshortcut" description="Build globalshortcut"
+            depends="init-native,globalshortcut-windows,globalshortcut-mac" unless="is.running.windows"/>
+    <target name="globalshortcut-mac" unless="is.running.linux"
+            depends="globalshortcut-linux">
+        <echo message="For building mac os x binary checkout: https://github.com/jitsi/DDHotKey"/>
+    </target>
+    <target name="globalshortcut-linux" if="is.running.linux">
+    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/globalshortcut"
+        objdir="${obj}">
+        <!-- common compiler flags -->
+        <compilerarg value="-Wall" />
+        <compilerarg value="-Wextra" />
+
+        <compilerarg value="-m32" if="cross_32" unless="is.running.macos" />
+        <compilerarg value="-m64" if="cross_64" unless="is.running.macos" />
+        <linkerarg value="-m32" if="cross_32" unless="is.running.macos" />
+        <linkerarg value="-m64" if="cross_64" unless="is.running.macos" />
+
+        <!-- Mac OS X specific flags -->
+        <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
+        <compilerarg value="-O2" if="is.running.macos"/>
+        <compilerarg value="-arch" if="is.running.macos"/>
+        <compilerarg value="x86_64" if="is.running.macos"/>
+        <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers"
+                   if="is.running.macos"/>
+
+        <linkerarg value="-o" location="end" if="is.running.macos"/>
+        <linkerarg value="libglobalshortcut.jnilib" location="end"
+                   if="is.running.macos"/>
+        <linkerarg value="-arch" if="is.running.macos"/>
+        <linkerarg value="x86_64" if="is.running.macos"/>
+        <linkerarg value="-framework" if="is.running.macos"/>
+        <linkerarg value="Foundation" if="is.running.macos"/>
+        <linkerarg value="-framework" if="is.running.macos"/>
+        <linkerarg value="Carbon" if="is.running.macos"/>
+        <linkerarg value="-framework" if="is.running.macos"/>
+        <linkerarg value="Cocoa" if="is.running.macos"/>
+
+        <fileset dir="${src}/../native/globalshortcut"
+                 includes="*.m" if="is.running.macos"/>
+
+        <!-- Linux specific flags -->
+        <fileset dir="${src}/../native/globalshortcut" includes="*.cc" if="is.running.linux" />
+
+        <compilerarg value="-m32" if="cross_32" unless="is.running.macos" />
+        <compilerarg value="-m64" if="cross_64" unless="is.running.macos" />
+        <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.linux" />
+        <compilerarg value="-I${system.JAVA_HOME}/include/linux" if="is.running.linux" />
+
+        <linkerarg value="-m32" if="cross_32" unless="is.running.macos" />
+        <linkerarg value="-m64" if="cross_64" unless="is.running.macos" />
+        <linkerarg value="-lX11" if="is.running.linux" />
+        <linkerarg value="-lstdc++" if="is.running.linux" />
+        <linkerarg value="-Wl,-z,relro" if="is.running.debian"/>
+    </cc>
+  </target>
+
+  <!-- compile globalshortcut library for Windows
+  "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.Cmd" /x86 /xp /Release
+  -->
+  <target name="globalshortcut-windows"
+          description="Build globalshortcut shared library for Windows"
+          if="is.running.windows"
+          depends="init-native">
+      <cc outtype="shared" name="msvc"
+          outfile="${native_install_dir}/globalshortcut"
+          objdir="${obj}">
+          <compilerarg value="/O2" />
+          <compilerarg value="/GS" if="cross_64" />
+          <compilerarg value="/EHsc" />
+          <compilerarg value="/MT" location="end" />
+          <compilerarg value="-I${system.JAVA_HOME}/include" />
+          <compilerarg value="-I${system.JAVA_HOME}/include/win32" />
+
+          <linkerarg value="/LIBPATH:${system.JAVA_HOME}\\lib" />
+          <linkerarg value="iphlpapi.lib" location="end" />
+          <linkerarg value="user32.lib" location="end" />
+          <linkerarg value="jawt.lib" location="end" />
+
+          <fileset dir="${src}/../native/globalshortcut" includes="*.cpp" />
+      </cc>
+  </target>
+
+  <!-- Cleanup object files and shared libraries -->
+  <target name="clean-native" description="Clean all object files and libraries.">
+    <delete failonerror="false" includeemptydirs="true">
+        <fileset dir="${obj}" />
+        <fileset dir="${src}/../native/" includes="*.dll *.so *.dyld *.jnilib *.manifest *.o *.obj *.lib *.exp history.xml" />
+        <fileset dir="${sc.basedir}" includes="**.dll *.so *.dyld *.jnilib *.manifest *.o *.obj *.lib *.exp history.xml" />
+    </delete>
+  </target>
+
+  <!-- Help, print useful targets -->
+  <target name="help-native">
+    <echo message="Targets available:" />
+    <echo message="'ant screencapture' to compile screencapture shared library" />
+    <echo message="'ant hid' to compile hid shared library" />
+    <echo message="'ant hwaddressretriever' to compile hwaddressretriever shared library" />
+    <echo message="'ant galagonotification (Linux only)' to compile galagonotification shared library" />
+    <echo message="'ant localhostretriever (Windows only)' to compile LocalhostRetriever shared library" />
+    <echo message="'ant aegeturleventhandler (Mac OS X only)' to compile AEGetURLEventHandler shared library" />
+    <echo message="'ant sparkle (Mac OS X only)' to compile sparkle shared library" />
+    <echo message="'ant quicktime (Mac OS X only)' to compile jquicktime shared library" />
+    <echo message="" />
+    <echo message="Options:" />
+    <echo message="-Darch: cross-compile for 32-bit (-Darch=32), 64-bit (-Darch=64) or ppc (-Darch=ppc, Mac OS X only) targets. Windows users have to use gcc >= 4.5." />
+    <echo message="" />
+  </target>
+
+  <!-- compile jmsoutlookaddrbook library for Windows -->
+  <!-- install tdm-gcc both 32 and 64 bit with command line tools and
+       can directly use command prompt
+       When changing idl file in visual studio console execute
+       midl <idl file>.
+       
+       Microsoft MAPI headers won't compile with gcc. See:
+       http://lists.jitsi.org/pipermail/dev/2013-April/001313.html
+  -->
+  <target
+      name="msoutlookaddrbook"
+      description="Build jmsoutlookaddrbook shared library for Windows"
+      if="is.running.windows"
+      depends="init-native">
+    <fail message="Outlook2010MAPIHeaders not set!"
+        unless="Outlook2010MAPIHeaders" />
+    <cc
+        name="gcc"
+        objdir="${obj}"
+        outfile="${native_install_dir}/jmsoutlookaddrbook"
+        outtype="shared">
+      <compilerarg value="-D_JNI_IMPLEMENTATION_" />
+      <compilerarg value="-D_WIN32_WINNT=0x0502" />
+      <compilerarg value="-DWINVER=0x0502" />
+      <compilerarg value="-I${system.JAVA_HOME}/include" />
+      <compilerarg value="-I${system.JAVA_HOME}/include/win32" />
+      <compilerarg value="-I${Outlook2010MAPIHeaders}" />
+      <compilerarg value="-m32" if="cross_32" />
+      <compilerarg value="-m64" if="cross_64" />
+      <compilerarg value="-O2" />
+      <compilerarg value="-Wall" />
+
+      <linkerarg value="-ojmsoutlookaddrbook.dll" />
+      <linkerarg value="-m32" if="cross_32" />
+      <linkerarg value="-m64" if="cross_64" />
+      <linkerarg value="-Wl,--kill-at" />
+      <linkerarg value="-Wl,--subsystem,windows" />
+      <linkerarg value="-Wl,-Bstatic" location="end" if="is.running.windows" />
+      <libset libs="advapi32, uuid, ole32, oleaut32, msi, stdc++" />
+
+      <fileset dir="${src}/../native/addrbook" includes="*.c" />
+      <fileset dir="${src}/../native/addrbook/msoutlook" includes="*.cxx" />
+      <fileset dir="${src}/../native/addrbook/msoutlook/com/" includes="*.cxx" />
+    </cc>
+    <exec executable="strip">
+      <arg value="-x"/>
+      <arg value="${native_install_dir}/jmsoutlookaddrbook.dll"/>
+    </exec>
+  </target>
+
+  <!--
+       Compile jmsofficecomm library for Windows
+       - install tdm-gcc-64 for both 32 and 64 bit
+       - install the OCS 2007 SDK from: 
+         http://www.microsoft.com/en-us/download/details.aspx?id=10176
+       - compile the tlb:
+         cd src/native/windows/msofficecomm
+         midl "C:\Program Files (x86)\Microsoft Office Communicator\SDK\msgrua.idl"
+       - run ant:
+         ant msofficecomm -DOCS2007SDK=<path here, escape \ with \\> -Darch=32
+         ant msofficecomm -DOCS2007SDK=<path here, escape \ with \\> -Darch=64
+  -->
+  <target
+      name="msofficecomm"
+      description="Build jmsofficecomm shared library for Windows"
+      if="is.running.windows"
+      depends="init-native">
+    <fail message="OCS 2007 SDK not set!" unless="OCS2007SDK" />
+    <exec executable="windres">
+        <arg value="-i"/>
+        <arg value="${src}\native\windows\msofficecomm\Resources.rc"/>
+        <arg value="-o"/>
+        <arg value="${obj}\jmsofficecommtlb.o"/>
+        <arg value="-F"/>
+        <arg value="pe-i386" if:set="cross_32"/>
+        <arg value="pe-x86-64" if:set="cross_64"/>
+    </exec>
+    <cc
+        name="gcc"
+        objdir="${obj}"
+        outfile="${native_install_dir}/jmsofficecomm"
+        outtype="shared">
+      <compilerarg value="-D_JNI_IMPLEMENTATION_" />
+      <compilerarg value="-D_WIN32_WINNT=0x0502" />
+      <compilerarg value="-DWINVER=0x0502" />
+      <compilerarg value="-DUNICODE" />
+      <compilerarg value="-D_UNICODE" />
+      <compilerarg value="-I${system.JAVA_HOME}/include" />
+      <compilerarg value="-I${system.JAVA_HOME}/include/win32" />
+      <compilerarg value="-I${OCS2007SDK}" />
+      <compilerarg value="-m32" if="cross_32" />
+      <compilerarg value="-m64" if="cross_64" />
+      <compilerarg value="-O2" />
+      <compilerarg value="-Wall" />
+
+      <linkerarg value="-ojmsofficecomm.dll" />
+      <linkerarg value="-m32" if="cross_32" />
+      <linkerarg value="-m64" if="cross_64" />
+      <linkerarg value="-Wl,--kill-at" />
+      <linkerarg value="-Wl,--subsystem,windows" />
+      <linkerarg value="-Wl,-Bstatic" location="end" if="is.running.windows" />
+      <libset libs="advapi32, uuid, ole32, oleaut32, msi, stdc++" />
+
+      <fileset dir="${src}\native\windows\msofficecomm" includes="*.cxx" />
+      <fileset dir="${obj}" includes="jmsofficecommtlb.o"/>
+    </cc>
+    <exec executable="strip">
+      <arg value="-x"/>
+      <arg value="${native_install_dir}/jmsofficecomm.dll"/>
+    </exec>
+  </target>
+
+  <!-- compile msoutlookaddrbookserver executable for Windows -->
+  <target
+      name="msoutlookaddrbookcomserver"
+      description="Build jmsoutlookaddrbookcomserver executable for Windows"
+      if="is.running.windows"
+      depends="init-native">
+    <fail message="Outlook2010MAPIHeaders not set!"
+        unless="Outlook2010MAPIHeaders" />
+    <exec executable="cp">
+      <arg value="${src}/../native/addrbook/msoutlook/com/*.tlb"/>
+      <arg value="${native_install_dir}/"/>
+    </exec>
+    <exec executable="windres">
+      <arg value="--target=pe-i386"/>
+      <arg value="${src}/../native/addrbook/msoutlook/com/Resources32.rc" />
+      <arg value="${obj}/Resources.o"/>
+    </exec>
+    <cc
+        name="g++"
+        objdir="${obj}"
+        outfile="${native_install_dir}/jmsoutlookaddrbookcomserver32">
+      <compilerarg value="-I${system.JAVA_HOME}/include" />
+      <compilerarg value="-I${system.JAVA_HOME}/include/win32" />
+      <compilerarg value="-I${Outlook2010MAPIHeaders}" />
+      <compilerarg value="-m32" />
+      <compilerarg value="-O2" />
+      <compilerarg value="-Wall" />
+
+      <linkerarg value="-ojmsoutlookaddrbookcomserver32.exe" />
+      <linkerarg value="-m32" />
+      <linkerarg value="${obj}/Resources.o" location="mid" />
+      <linkerarg value="-Wl,-Bstatic" location="end" if="is.running.windows" />
+      <libset libs="uuid, ole32, oleaut32, msi, stdc++" />
+
+      <fileset dir="${src}/../native/addrbook/msoutlook" includes="*.cxx" />
+      <fileset dir="${src}/../native/addrbook/msoutlook/com" includes="*.cxx" />
+      <fileset dir="${src}/../native/addrbook/msoutlook/com/server"
+          includes="*.cxx" />
+    </cc>
+    <exec executable="strip">
+      <arg value="-x"/>
+      <arg value="${native_install_dir}/jmsoutlookaddrbookcomserver32.exe"/>
+    </exec>
+
+    <exec executable="windres">
+      <arg value="--target=pe-x86-64"/>
+      <arg value="${src}/../native/addrbook/msoutlook/com/Resources64.rc" />
+      <arg value="${obj}/Resources.o"/>
+    </exec>
+    <cc
+        name="g++"
+        objdir="${obj}"
+        outfile="${native_install_dir}/jmsoutlookaddrbookcomserver64">
+      <compilerarg value="-I${system.JAVA_HOME}/include" />
+      <compilerarg value="-I${system.JAVA_HOME}/include/win32" />
+      <compilerarg value="-I${Outlook2010MAPIHeaders}" />
+      <compilerarg value="-m64" />
+      <compilerarg value="-O2" />
+      <compilerarg value="-Wall" />
+
+      <linkerarg value="-ojmsoutlookaddrbookcomserver64.exe" />
+      <linkerarg value="-m64" />
+      <linkerarg value="${obj}/Resources.o" location="mid" />
+      <linkerarg value="-Wl,-Bstatic" location="end" if="is.running.windows" />
+      <libset libs="uuid, ole32, oleaut32, msi, stdc++" />
+
+      <fileset dir="${src}/../native/addrbook/msoutlook" includes="*.cxx" />
+      <fileset dir="${src}/../native/addrbook/msoutlook/com" includes="*.cxx" />
+      <fileset dir="${src}/../native/addrbook/msoutlook/com/server"
+          includes="*.cxx" />
+    </cc>
+    <exec executable="strip">
+      <arg value="-x"/>
+      <arg value="${native_install_dir}/jmsoutlookaddrbookcomserver64.exe"/>
+    </exec>
+  </target>
+
+  <!-- compile launcher for Mac OS X (32-bit/64-bit) -->
+  <target name="macosx-launcher"
+          description="Build macosx launcher shared library for Mac OS X"
+          if="is.running.macos"
+          depends="init-native">
+    <cc name="gcc"
+        outfile="${src}/../native/macosx/launcher/JavaApplicationStub"
+        objdir="${obj}">
+
+        <compilerarg value="-Wall" />
+        <compilerarg value="-O2" />
+        <compilerarg value="-arch" />
+        <compilerarg value="x86_64" />
+        <!--<compilerarg value="-arch" />-->
+        <!--<compilerarg value="i386" />-->
+        <compilerarg value="-I${system.JAVA_HOME}/include" />
+        <compilerarg value="-I${system.JAVA_HOME}/include/darwin" />
+        <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers" />
+        <compilerarg value="-mmacosx-version-min=10.6"/>
+        <!--<compilerarg value="-D_JITSI_USE_1_6_"/>-->
+
+        <linkerarg value="-arch" />
+        <linkerarg value="x86_64" />
+        <!--<linkerarg value="-arch" />-->
+        <!--<linkerarg value="i386" />-->
+        <linkerarg value="-framework" />
+        <linkerarg value="Cocoa" />
+
+        <fileset dir="${src}/../native/macosx/launcher" includes="*.m"/>
+    </cc>
+
+    <delete dir="${obj}" failonerror="false" />
+    <delete file="${src}/../native/macosx/launcher/history.xml" failonerror="false" />
+  </target>
+</project>

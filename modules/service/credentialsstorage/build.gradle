@@ -1,0 +1,8 @@
+dependencies {
+    implementation libs.jitsi.basesvc
+    implementation project(':util')
+    implementation project(':osgi-util')
+    implementation project(':service:resourcemanager')
+
+    testImplementation libs.junit
+}

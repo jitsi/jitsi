@@ -1,0 +1,427 @@
+import groovy.xml.XmlUtil
+
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+}
+
+plugins {
+    id 'application'
+    id 'io.franzbecker.gradle-lombok' version '3.3.0' apply false
+    id 'org.standardout.bnd-platform' version '1.7.0'
+    id 'org.jetbrains.gradle.plugin.idea-ext' version '0.7'
+    id 'de.undercouch.download' version '4.0.4'
+    id 'nebula.ospackage' version '8.2.0'
+}
+
+allprojects {
+    repositories {
+//        mavenLocal()
+        mavenCentral()
+        maven {
+            name = 'Jitsi Releases'
+            url = 'https://github.com/jitsi/jitsi-maven-repository/raw/master/releases'
+        }
+        maven {
+            name = 'Jitsi Snapshots'
+            url = 'https://github.com/jitsi/jitsi-maven-repository/raw/master/snapshots'
+        }
+        maven {
+            // FIXME: use a better repository
+            name = 'for jmyspell-core'
+            url = 'https://dl.bintray.com/omegat-org/maven'
+        }
+    }
+
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.compilerArgs /*<< "-Xlint:unchecked"*/ << "-Xlint:deprecation"
+            options.fork = true
+        }
+    }
+}
+
+ext.jnaVersion = '5.2.0'
+ext.smackVersion = '4.2.4-47d17fc'
+ext.jxmppVersion = '0.6.3'
+ext.slf4jversion = '1.7.30'
+
+ext.libs = [
+        nonosgi    : [
+                // FIXME: create a sane package, used by dbus-java
+                dbus     : ['org.freedesktop.dbus:dbus-java:2.7',[
+                        'cx.ath.matthew.debug'
+                ]],
+                // FIXME: create a sane package, used by dbus-java
+                hexdump  : [files('lib/installer-exclude/hexdump-0.2.jar')],
+                jcalendar: ['com.toedter:jcalendar:1.4', [
+                        'com.jgoodies.looks',
+                        'com.jgoodies.looks.plastic'
+                ]],
+                // FIXME: necessary? source (java + native)?
+                jdic     : [files('lib/installer-exclude/jdic_misc.jar')],
+                jmyspell : ['org.omegat:jmyspell-core:1.0.0-beta-2'],
+                // FIXME: migrate to 'com.github.insubstantial:laf-widget:7.3'
+                lafwidget: ['net.java.dev.laf-widget:laf-widget:4.0', [
+                        'org.apache.tools.ant.*',
+                        'org.objectweb.asm.*',
+                        'com.sun.java.swing.plaf.windows'
+                ]],
+                orangeext: ['com.massisframework:orange-extensions:1.3.1'],
+                // FIXME: update
+                otr4j    : ['org.jitsi:org.otr4j:0.22'],
+                // FIXME: create a sane package, used by dbus-java
+                unixsock : [files('lib/installer-exclude/unix-0.5.jar')],
+        ],
+        ahttp      : [
+                client   : "org.apache.httpcomponents:httpclient-osgi:4.5.12",
+                clientold: 'org.apache.httpcomponents:httpclient-osgi:4.4.1',
+                core     : "org.apache.httpcomponents:httpcore-osgi:4.4.13",
+        ],
+        bc         : [
+                pkix    : 'org.bouncycastle:bcpkix-jdk15on:1.60',
+                provider: 'org.bouncycastle:bcprov-jdk15on:1.60'
+        ],
+        commons    : [
+                lang    : 'org.apache.commons:commons-lang3:3.9',
+                text    : 'org.apache.commons:commons-text:1.6',
+                compress: 'org.apache.commons:commons-compress:1.20',
+        ],
+        dhcp4java  : 'com.helger:dhcp4java:1.1.0',
+        dnsjava    : 'dnsjava:dnsjava:2.1.7',
+        dnssecjava : 'org.jitsi:dnssecjava:1.1.3',
+        felix      : dependencies.create('org.apache.felix:org.apache.felix.main:6.0.3') {
+            exclude group: 'org.apache.felix', module: 'org.apache.felix.framework'
+        },
+        gdata      : 'com.google.gdata:core:1.47.1',
+        ghttp      : 'com.google.http-client:google-http-client-assembly:1.34.2',
+        goauth     : 'com.google.oauth-client:google-oauth-client:1.30.6',
+        gson       : 'com.google.code.gson:gson:2.8.5',
+        // FIXME: update this in jitsi-utils
+        guava      : 'com.google.guava:guava:28.2-jre',
+        hsqldb     : 'org.hsqldb:hsqldb:2.5.0',
+        ice4j      : 'org.jitsi:ice4j:2.0.0-20181213.100259-20',
+        // FIXME: unfork Danny's changes into upstream (https://github.com/migzai/irc-api.git)
+        ircapi     : files('lib/installer-exclude/irc-api-1.0.jar'),
+        jitsi      : [
+                basesvc : dependencies.create('org.jitsi:libjitsi:1.0-24-g887fe21e') {
+                    transitive = false
+                },
+                libjitsi: dependencies.create('org.jitsi:libjitsi:1.0-24-g887fe21e') {
+                    exclude group: 'junit', module: 'junit'
+                },
+                utils   : 'org.jitsi:jitsi-utils:1.0-39-gd481c98',
+                xmppext : 'org.jitsi:jitsi-xmpp-extensions:1.0-1-g9b2e85b',
+                fmj     : 'org.jitsi:fmj:1.0-20160225.164040-18',
+                lgpldeps: 'org.jitsi:jitsi-lgpl-dependencies:1.2-1-gfc49658',
+        ],
+        jmdns      : 'org.jmdns:jmdns:3.5.5',
+        jmork      : 'org.jitsi:jmork:1.0.6',
+        jna        : [
+                jna     : "net.java.dev.jna:jna:${jnaVersion}",
+                platform: "net.java.dev.jna:jna-platform:${jnaVersion}",
+        ],
+        joscar     : files(
+                'lib/installer-exclude/joscar-client.jar',
+                'lib/installer-exclude/joscar-common.jar',
+                'lib/installer-exclude/joscar-protocol.jar'
+        ),
+        jsip       : [
+                sipapi: 'org.opentelecoms.sip:sip-api-1.2:1.2',
+                sdpapi: 'org.opentelecoms.sdp:sdp-api:1.0',
+                bridge: 'org.opentelecoms.sdp:java-sdp-nist-bridge:1.2',
+                ri    : 'org.jitsi:jain-sip-ri-ossonly:1.2.279-jitsi-oss1',
+        ],
+        json       : dependencies.create('com.googlecode.json-simple:json-simple:1.1.1') {
+            exclude group: 'junit', module: 'junit'
+        },
+        jxmpp      : [
+                core : "org.jxmpp:jxmpp-core:${jxmppVersion}",
+                jid  : "org.jxmpp:jxmpp-jid:${jxmppVersion}",
+                cache: "org.jxmpp:jxmpp-util-cache:${jxmppVersion}"
+        ],
+        log4j      : "org.slf4j:log4j-over-slf4j:$slf4jversion",
+        lombok     : 'org.projectlombok:lombok:1.18.4',
+        libphonenum: 'com.googlecode.libphonenumber:libphonenumber:8.10.2',
+        macwidgets : 'com.explodingpixels:mac_widgets:0.9.5',
+        osgi_core  : 'org.osgi:org.osgi.core:6.0.0',
+        osgi_cm    : 'org.osgi:org.osgi.service.cm:1.6.0',
+        slf        : "org.slf4j:slf4j-api:$slf4jversion",
+        slfjdk     : "org.slf4j:slf4j-jdk14:$slf4jversion",
+        // FIXME: update
+        smack      : [
+                core        : "org.igniterealtime.smack:smack-core:${smackVersion}",
+                java7       : "org.igniterealtime.smack:smack-java7:${smackVersion}",
+                im          : "org.igniterealtime.smack:smack-im:${smackVersion}",
+                bosh        : "org.igniterealtime.smack:smack-bosh:${smackVersion}",
+                tcp         : "org.igniterealtime.smack:smack-tcp:${smackVersion}",
+                debug       : "org.igniterealtime.smack:smack-debug:${smackVersion}",
+                extensions  : "org.igniterealtime.smack:smack-extensions:${smackVersion}",
+                experimental: "org.igniterealtime.smack:smack-experimental:${smackVersion}",
+                legacy      : "org.igniterealtime.smack:smack-legacy:${smackVersion}",
+                jnsapi      : 'org.jitsi:jnsapi:0.0.3-jitsi-smack4.2-3'
+        ],
+
+        // for (unit) testing only
+        junit      : 'junit:junit:4.13',
+        easymock   : 'org.easymock:easymock:4.2',
+]
+
+libs.nonosgi.each {
+    def symName
+    def depVersion = "1.0.0.jitsi-autowrapped"
+    def dep = it.value.first()
+    def optImports = it.value[1] as String[]
+    def instructions = it.value[2]
+    if (dep instanceof FileCollection) {
+        def file = dep.first()
+        symName = file.name.take(file.name.lastIndexOf('.'))
+    } else {
+        def (depGroup, depName) = dep.split(':')
+        symName = depGroup + '.' + depName
+    }
+
+    platform.bundle(dep) {
+        bnd {
+            version = depVersion
+            symbolicName = symName
+            if (optImports != null && optImports.length > 0) {
+                optionalImport optImports
+            }
+            instructions.each { inst ->
+                instruction inst.key, inst.value
+            }
+        }
+    }
+
+    libs[it.key] = files("${buildDir}/plugins/${symName}_${depVersion}.jar")
+}
+
+task jarAllServices(group: 'build') {}
+task jarAllPlugins(group: 'build') {}
+task jarAllImpl(group: 'build') {}
+task prepareIde(type: Copy, group: 'ide', dependsOn: [bundles]) {
+    from(configurations.runtimeClasspath) {
+        exclude "**/jitsi_*.jar"
+    }
+    into "${projectDir}/out/production/bundles"
+}
+
+configurations {
+    all {
+        resolutionStrategy.dependencySubstitution {
+            substitute module('xpp3:xpp3:1.1.4c') because 'does not have OSGi' with module('org.apache.servicemix.bundles:org.apache.servicemix.bundles.xpp3:1.1.4c_7')
+            substitute module('org.apache.httpcomponents:httpclient') because 'does not have OSGi' with module(libs.ahttp.client)
+            substitute module('org.apache.httpcomponents:httpcore') because 'does not have OSGi' with module(libs.ahttp.core)
+            substitute module('org.reflections:reflections') because 'Guava conflict' with module('org.reflections:reflections:0.9.12')
+            substitute module('com.google.guava:guava') because 'Use one Guava' with module(libs.guava)
+            substitute module('commons-logging:commons-logging') because 'Use one Guava' with module("org.slf4j:jcl-over-slf4j:$slf4jversion")
+        }
+
+        exclude group: 'org.apache.felix', module: 'org.apache.felix.framework'
+        exclude group: 'com.google.oauth-client', module: 'google-oauth-client-jetty'
+        exclude group: 'javax.mail', module: 'mail'
+        exclude group: 'com.google.guava', module: 'listenablefuture'
+        exclude group: 'com.google.code.findbugs', module: 'jsr305'
+        exclude group: 'org.checkerframework', module: 'checker-qual'
+        exclude group: 'com.google.errorprone', module: 'error_prone_annotations'
+        exclude group: 'com.google.j2objc', module: 'j2objc-annotations'
+        exclude group: 'org.codehaus.mojo', module: 'animal-sniffer-annotations'
+        exclude group: 'org.jetbrains', module: 'annotations'
+        exclude group: 'org.hamcrest', module: 'hamcrest'
+        exclude group: 'org.hamcrest', module: 'hamcrest-core'
+        exclude group: 'com.github.spotbugs', module: 'spotbugs-annotations'
+    }
+}
+
+ext.sharedManifest = manifest {
+    attributes(
+            'Bundle-Vendor': 'jitsi.org',
+            'Bundle-Version': project.version.replaceAll(/[\-_]/, '.'),
+            'Bundle-License': 'Apache-2.0;link="https://raw.githubusercontent.com/jitsi/jitsi/master/LICENSE"'
+    )
+}
+
+platform {
+    bnd {
+        instruction '-removeheaders', 'Require-Capability'
+    }
+    fetchSources = false
+    useBndHashQualifiers = false
+    defaultQualifier = ''
+}
+
+task modifyIdeaXml(group: 'ide') {
+    doLast {
+        fileTree(
+                dir: "${rootDir}/.idea/modules/",
+                include: '**/*.main.iml',
+                exclude: '**/jitsi.launcher.*.iml'
+        ).files.each { imlFile ->
+            println imlFile.name
+            def moduleRoot = new XmlParser().parse(imlFile)
+
+            // Find if component with name 'FacetManager' is already set
+            def facetManager = moduleRoot.component.find { component -> component.'@name' == 'FacetManager' }
+            if (!facetManager) {
+                // Create new component with name 'FacetManager'
+                facetManager = moduleRoot.appendNode('component')
+            }
+
+            facetManager.replaceNode {
+                component(name: 'FacetManager') {
+                    facet(type: 'Osmorc', name: 'OSGi') {
+                        configuration(
+                                manifestGenerationMode: 'Manually',
+                                manifestLocation: 'resources/META-INF/MANIFEST.MF',
+                                outputPathType: 'OsgiOutputPath',
+                                useProjectDefaultManifestFileLocation: 'false'
+                        ) {
+                            additionalProperties {}
+                            additionalJARContents {
+                                entry(source: '$MODULE_DIR$/'
+                                        + imlFile.relativePath(rootDir).replaceFirst('../', '') + '/'
+                                        + imlFile.parent.replace(rootDir.path, '').replace('\\', '/').replace('/.idea/modules/', '')
+                                        + '/src/main/resources',
+                                        dest: '') {}
+                            }
+                        }
+                    }
+                }
+            }
+
+            imlFile.write(XmlUtil.serialize(moduleRoot))
+        }
+    }
+}
+
+idea.project.settings {
+    taskTriggers {
+        afterSync modifyIdeaXml
+    }
+}
+
+subprojects { p ->
+    apply plugin: 'java-library'
+    apply plugin: 'io.franzbecker.gradle-lombok'
+    apply plugin: 'org.jetbrains.gradle.plugin.idea-ext'
+    apply plugin: 'maven-publish'
+
+    lombok {
+        version = '1.18.12'
+    }
+
+    dependencies {
+        api libs.osgi_core
+        implementation libs.slf
+    }
+
+    if (p.path.startsWith(':service:')) {
+        jarAllServices.dependsOn << p.jar
+    }
+
+    if (p.path.startsWith(':plugin:')) {
+        jarAllPlugins.dependsOn << p.jar
+    }
+
+    if (p.path.startsWith(':impl:')) {
+        jarAllImpl.dependsOn << p.jar
+    }
+
+    rootProject.dependencies.add('runtimeOnly', p)
+    jar {
+        // TODO: disable compression for delta updates
+        archivesBaseName = "jitsi_${project.parent.name}_${project.name}"
+        manifest {
+            if (file('src/main/resources/META-INF/MANIFEST.MF').exists()) {
+                from('src/main/resources/META-INF/MANIFEST.MF')
+            }
+            from sharedManifest
+        }
+    }
+
+    javadoc {
+        // without the -quiet option, the build fails
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+
+    tasks.clean.doLast {
+        delete "out"
+    }
+
+    if ([
+            ':service:argdelegation',
+            ':service:certificate',
+            ':impl:configuration',
+            ':service:contactlist',
+            ':service:credentialsstorage',
+            ':plugin:desktoputil',
+            ':impl:dns',
+            ':service:dnsservice',
+            ':impl:dns',
+            //FIXME fileaccess vs. libjitsi
+            ':service:globaldisplaydetails',
+            ':service:hid',
+            ':service:muc',
+            ':impl:neomedia',
+            ':service:netaddr',
+            ':service:notification-service',
+            ':impl:packetlogging',
+            ':service:protocol',
+            ':service:protocol-media',
+            ':impl:protocol-jabber',
+            ':impl:protocol-sip',
+            ':impl:protocol-sip',
+            ':plugin:reconnect',
+            ':service:resourcemanager',
+            ':service:sysactivity',
+            ':service:systray-service',
+            ':service:ui-service',
+            ':util',
+            ':impl:version',
+    ].contains(p.path)) {
+        java {
+            withJavadocJar()
+            withSourcesJar()
+        }
+
+        publishing {
+            publications {
+                maven(MavenPublication) {
+                    artifactId = "jitsi-${p.name}"
+                    groupId = 'org.jitsi'
+                    from components.java
+                    pom {
+                        url = 'https://github.com/jitsi/jitsi'
+                        licenses {
+                            license {
+                                name = 'The Apache License, Version 2.0'
+                                url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                            }
+                        }
+                        scm {
+                            connection = 'scm:git:https://github.com/jitsi/jitsi'
+                            developerConnection = 'scm:git:https://github.com/jitsi/jitsi'
+                            url = 'https://github.com/jitsi/jitsi'
+                        }
+                    }
+                }
+            }
+            repositories {
+                maven {
+                    name = 'Jitsi_GitHub_Releases'
+                    url = 'https://github.com/jitsi/jitsi-maven-repository/raw/master/releases'
+                }
+            }
+        }
+    }
+}
+
+apply from: 'resources/install/build.gradle'
+apply from: 'resources/install/debian/build.gradle'
+apply from: 'resources/install/windows/build.gradle'
+apply from: 'resources/install/mac/build.gradle'

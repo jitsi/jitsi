@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-Activator: net.java.sip.communicator.impl.replacement.ReplacementActivator
+Bundle-Vendor: jitsi.org
+Bundle-Version: 1.0.0
+Bundle-SymbolicName: net.java.sip.communicator.replacement
+Import-Package: org.osgi.framework,
+ net.java.sip.communicator.util.osgi,
+ net.java.sip.communicator.service.replacement,
+ net.java.sip.communicator.service.replacement.directimage,
+ net.java.sip.communicator.service.replacement.smilies,
+ org.jitsi.service.configuration,
+ org.jitsi.service.resources,
+ net.java.sip.communicator.service.resources,
+ net.java.sip.communicator.util,
+ org.json.simple

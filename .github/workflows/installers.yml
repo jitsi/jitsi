@@ -1,0 +1,105 @@
+# This workflow will build a Java project with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: Java CI with Gradle
+
+on: [push, pull_request]
+
+jobs:
+  deb:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.1.0
+
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1.3.0
+        with:
+          java-version: 1.8
+
+      - name: Verify Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v1.0.3
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v1.1.2
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Build x64-deb
+        run: ./gradlew buildDeb -Darch=x64
+      - name: Upload x64-deb
+        uses: actions/upload-artifact@v1
+        with:
+          name: jitsi-debian-x64
+          path: $GITHUB_WORKSPACE/build/distributions/
+
+      - name: Build x86-deb
+        run: ./gradlew clean buildDeb -Darch=x86
+      - name: Upload x86-deb
+        uses: actions/upload-artifact@v1
+        with:
+          name: jitsi-debian-x86
+          path: $GITHUB_WORKSPACE/build/distributions/
+
+  wix:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2.1.0
+
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1.3.0
+        with:
+          java-version: 1.8
+
+      - name: Verify Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v1.0.3
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v1.1.2
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Build x64
+        run: |
+          cd $GITHUB_WORKSPACE/native/windows
+          cmake -B cmake-build-x64
+          cd cmake-build-x64 -A x64 -DCMAKE_BUILD_TYPE=Release
+          cmake --build .
+          cd $GITHUB_WORKSPACE
+          ./gradlew wixLight -Dapplication.target=x64
+
+      - name: Build x86
+        run: |
+          cd $GITHUB_WORKSPACE
+          ./gradlew clean
+          cd $GITHUB_WORKSPACE/native/windows
+          cmake -B cmake-build-x86 -A Win32 -DCMAKE_BUILD_TYPE=Release
+          cd cmake-build-x86
+          cmake --build .
+          cd $GITHUB_WORKSPACE
+          ./gradlew wixLight -Dapplication.target=x86
+
+  mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2.1.0
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1.3.0
+        with:
+          java-version: 1.8
+      - name: Verify Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v1.0.3
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v1.1.2
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Build with Gradle
+        run: ./gradlew createDmg

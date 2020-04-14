@@ -1,0 +1,117 @@
+def wixHome = System.env.WIX != null
+        ? System.env.WIX
+        : 'C:\\Program Files (x86)\\WiX Toolset v3.11\\'
+def wixRootDir = "${buildDir}/install/wix"
+def wixTempDir = "${wixRootDir}/tmp"
+def wixTargetDir = "${wixRootDir}/target"
+def arch = project.property('application.target')
+
+// TODO: sign
+task copyLauncher(type: Copy, group: 'installer-wix') {
+    from "native"
+    into wixTargetDir
+    include "**/cmake-build-*/run/**/*.exe"
+    includeEmptyDirs = false
+    eachFile {
+        path = name
+    }
+}
+
+// TODO: sign
+task copyCleansweep(type: Copy, group: 'installer-wix') {
+    from "native"
+    into wixTempDir
+    include "**/cmake-build-*/cleansweep/**/*.exe"
+    includeEmptyDirs = false
+    eachFile {
+        path = name
+    }
+}
+
+task prepareTarget(type: Sync, group: 'installer-wix', dependsOn: [
+        installWindowsDist,
+        copyLauncher,
+        copyCleansweep
+]) {
+    from installWindowsDist.outputs.files
+    into "${wixTargetDir}"
+    exclude "${rootProject.name}.bat"
+    exclude "**/*.exe"
+    preserve {
+        "${project.name}.exe"
+    }
+}
+
+task wixHeat(type: Exec, group: 'installer-wix', dependsOn: prepareTarget) {
+    inputs.files(wixTargetDir)
+    outputs.files("${wixTempDir}/heat.wxs")
+
+    workingDir wixTargetDir
+    commandLine "\"${wixHome}bin\\heat.exe\""
+    args 'dir', '.',
+            '-cg', 'ComponentGroup_HeatExe',
+            '-dr', 'INSTALLDIR',
+            '-out', outputs.files.singleFile,
+            '-platform', arch,
+            '-nologo', '-ag', '-srd', '-sfrag', '-scom', '-sreg', '-svb6',
+            '-var', 'var.SourceDir'
+}
+
+static def findConfigInHeat(File heat) {
+    def xml = new XmlSlurper(false, true).parse(heat)
+    xml.Fragment.DirectoryRef.Directory.find { it.'@Name' == 'config' }.'@Id'.toString()
+}
+
+task copyWixResources(type: Copy, group: 'installer-wix', dependsOn: wixHeat) {
+    from("${projectDir}/resources/install/windows") {
+        include "wix/*.jpg"
+        include "wix/*.wx*"
+        include "wix/License.rtf"
+        include "sc-logo.ico"
+    }
+    into wixTempDir
+    includeEmptyDirs = false
+    eachFile {
+        path = name
+    }
+}
+
+task wixCandle(type: Exec, group: 'installer-wix', dependsOn: [
+        copyCleansweep,
+        copyWixResources
+]) {
+    inputs.files(copyCleansweep.outputs)
+    inputs.files(copyWixResources.outputs)
+    workingDir wixTempDir
+    commandLine "\"${wixHome}bin\\candle.exe\""
+    doFirst {
+        args '-nologo',
+                '-dcodepage=1252',
+                '-ext', 'WixUIExtension',
+                '-ext', 'WixUtilExtension',
+                '-arch', arch,
+                "-dPlatform=${arch}",
+                '-dSourceDir=../target',
+                "-dMANUFACTURER=${project.property('application.org')}",
+                "-dPRODUCT=${project.property('application.name')}",
+                "-dUPGRADE_CODE=${project.property('application.wix_upgrade_code')}",
+                "-dAPP_WEB=${project.property('application.web')}",
+                "-dVERSION=${project.version.replaceAll(/[^0-9\.]/, '')}",
+                "-dLAUNCHER_NAME=${project.name}",
+                "-dCOMPRESS_LEVEL=none",
+                "-dConfigDirId=${findConfigInHeat(wixHeat.outputs.files.singleFile)}",
+                '*.wxs'
+    }
+}
+
+task wixLight(type: Exec, group: 'installer-wix', dependsOn: wixCandle) {
+    workingDir wixTempDir
+    commandLine "\"${wixHome}bin\\light.exe\""
+    args '-nologo',
+            '-ext', 'WixUIExtension',
+            '-ext', 'WixUtilExtension',
+            '-cultures:en-us',
+            '-loc', "${projectDir}/resources/install/windows/wix/en-us.wxl",
+            '-out', "${wixRootDir}/setup.msi",
+            "${wixTempDir}/*.wixobj"
+}

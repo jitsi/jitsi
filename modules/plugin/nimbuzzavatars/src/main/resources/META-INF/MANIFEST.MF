@@ -1,0 +1,9 @@
+Bundle-Activator: net.java.sip.communicator.plugin.nimbuzzavatars.NimbuzzAvatarsActivator
+Bundle-Name: NimbuzzAvatars
+Bundle-Description: Custom Nimbuzz Avatars plugin
+Bundle-Vendor: jitsi.org
+Manifest-Version: 1.0
+Bundle-Version: 0.0.1
+Bundle-SymbolicName: net.java.sip.communicator.plugin.nimbuzzavatars
+Import-Package: net.java.sip.communicator.util.osgi,org.osgi.framework,
+ net.java.sip.communicator.service.customavatar

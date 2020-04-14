@@ -1,0 +1,14 @@
+dependencies {
+    implementation libs.ahttp.client
+    implementation libs.bc.pkix
+    implementation libs.bc.provider
+    implementation libs.commons.lang
+    implementation(libs.jitsi.basesvc) {
+        transitive = false
+    }
+    implementation project(':util')
+    implementation project(':osgi-util')
+    implementation project(':service:credentialsstorage')
+    implementation project(':service:ui-service')
+    implementation project(':service:resourcemanager')
+}

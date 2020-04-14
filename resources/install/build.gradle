@@ -1,0 +1,167 @@
+application {
+    mainClassName = 'net.java.sip.communicator.launcher.SIPCommunicator'
+    executableDir = ''
+}
+
+jar {
+    archiveFileName = "${project.name}.jar"
+    doFirst {
+        manifest {
+            from sharedManifest
+            attributes(
+                    'Class-Path': 'config/ ' + project(':launcher')
+                            .configurations
+                            .runtimeClasspath
+                            .collect { "lib/${it.name}" }
+                            .join(' '),
+                    'Main-Class': 'net.java.sip.communicator.launcher.SIPCommunicator',
+
+            )
+        }
+    }
+}
+
+startScripts {
+    applicationName = project.name
+    defaultJvmOpts = [
+            '-splash:splash.gif',
+            '-Djava.library.path=_JITSI_APP_HOME_native',
+            '-Djna.library.path=_JITSI_APP_HOME_native',
+            '-Dfelix.config.properties=file:config/felix.properties',
+            '-Djava.util.logging.config.file=config/logging.properties',
+            "-Dnet.java.sip.communicator.SC_HOME_DIR_NAME=${project.property('application.name')}",
+    ]
+    doFirst {
+        classpath = files(
+                project(':launcher').configurations.runtimeClasspath,
+                project(':launcher').jar,
+                'config/',
+        )
+    }
+    doLast {
+        unixScript.text = unixScript.text
+                .replace('_JITSI_APP_HOME_', '$APP_HOME/')
+                .replace('lib/config', '/config')
+        windowsScript.text = windowsScript.text
+                .replace('_JITSI_APP_HOME_', '%APP_HOME%\\')
+                .replace('lib\\config', '\\config')
+        file("${outputDir}/config").mkdirs()
+        file("${outputDir}/config/classpath").text = classpath.collect {
+            if (it.name != "config") {
+                "lib/${it.name}"
+            } else {
+                it.name
+            }
+        }.join('\n') + '\n'
+    }
+}
+
+def createJreTasks(String os) {
+    def arch = project.property('application.target')
+    def getTask = tasks.create("get${os}Jre", Download) {
+        def jreVersion = project.property('application.jre.version')
+        src "https://api.adoptopenjdk.net/v3/binary/version/${jreVersion}/${os}/${arch}/jre/hotspot/normal/adoptopenjdk?project=jdk"
+        dest file("${project.buildDir}/jre-${jreVersion}-${os}-${arch}.${os == 'windows' ? 'zip' : 'tar.gz'}")
+    }
+
+    def verifyTask = tasks.create("verify${os}Jre", Verify) {
+        src getTask.dest
+        algorithm 'SHA-256'
+        checksum project.property("application.jre.${os}.${arch}-hash")
+    }
+    verifyTask.dependsOn += getTask
+    tasks.find {it.name.equalsIgnoreCase("install${os}Dist")}.dependsOn += verifyTask
+    getTask
+}
+
+def nativeCopySpec(String os) {
+    copySpec {
+        into('native') {
+            from "lib/native/${os}-${project.property('application.target')}"
+        }
+    }
+}
+
+distributions {
+    main {
+        contents {
+            into('config') {
+                from('lib') {
+                    include 'jitsi-defaults.properties'
+                }
+            }
+        }
+    }
+
+    linux {
+        contents {
+            with distributions.main.contents
+            with nativeCopySpec('linux')
+            exclude '*.bat'
+            exclude '*orange*'
+            exclude '*sparkle*'
+            exclude '*growl*'
+            exclude '*mac_widgets*'
+        }
+    }
+
+    mac {
+        contents {
+            into('Jitsi.app/Contents/Resources/Java') {
+                with distributions.main.contents
+                with nativeCopySpec('mac')
+                exclude '*.bat'
+                exclude '*dbus*'
+                exclude '*unix*'
+                exclude '*hexdump*'
+
+                // something with executable_path and load_path, explanation at
+                // https://wincent.com/wiki/%40executable_path%2C_%40load_path_and_%40rpath
+                // not sure which dylib is which (/lib/native vs src/mac/dist)
+                exclude '*libgrowl4j.*'
+            }
+
+            into('Jitsi.app/Contents/PlugIns') {
+                def getJreTask = createJreTasks('mac')
+                from tarTree(getJreTask.dest)
+                exclude '**/man'
+            }
+
+            // TODO: working? might only be possible once the dmg is mounted
+            rename {
+                if (it.startsWith('dmg-')) {
+                    it.replace('dmg-', '')
+                }
+            }
+        }
+    }
+
+    windows {
+        contents {
+            with distributions.main.contents
+            with nativeCopySpec('windows')
+            exclude rootProject.name
+            exclude '*dbus*'
+            exclude '*unix*'
+            exclude '*hexdump*'
+            exclude '*orange*'
+            exclude '*sparkle*'
+            exclude '*growl*'
+            exclude '*mac_widgets*'
+
+            into('jre') {
+                def getJreTask = createJreTasks('windows')
+                from zipTree(getJreTask.dest)
+                eachFile {
+                    // replace first folder in archive (e.g. jdk-version-something)
+                    // with generic name. 'into' above isn't really considered
+                    path = 'jre/' + (path - ~/^(.+?\/){2}/)
+                }
+                exclude {
+                    it.file.name.endsWith('.exe') && it.file.name != 'java.exe'
+                }
+                includeEmptyDirs = false
+            }
+        }
+    }
+}

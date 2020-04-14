@@ -1,0 +1,17 @@
+##
+# \file Makefile
+# \brief Win32 (gcc) makefile.
+# \author Sebastien Vincent
+
+# add -m32 to cross-compile for 32-bit target
+CC = gcc -O2
+JNI_HEADERS = -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/win32
+CFLAGS = -shared -Wl,--kill-at $(JNI_HEADERS) -D_JNI_IMPLEMENTATION
+
+LocalhostRetriever.dll: net_java_sip_communicator_impl_netaddr_Win32LocalhostRetriever.c
+	$(CC) $(CFLAGS) net_java_sip_communicator_impl_netaddr_Win32LocalhostRetriever.c -liphlpapi -o $@
+	strip $@
+
+clean:
+	del *.dll *.o
+

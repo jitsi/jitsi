@@ -1,0 +1,7 @@
+dependencies {
+    implementation libs.ircapi
+    implementation project(':impl:protocol-irc')
+
+    testImplementation libs.junit
+    testImplementation libs.easymock
+}

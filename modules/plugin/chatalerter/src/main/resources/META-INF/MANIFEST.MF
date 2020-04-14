@@ -1,0 +1,19 @@
+Bundle-Activator: net.java.sip.communicator.plugin.chatalerter.ChatAlerterActivator
+Bundle-Name: Chat Alerter
+Bundle-Description: A plug-in that alerts for new messages by flashing the window in the taskbar.
+Bundle-Vendor: jitsi.org
+Manifest-Version: 1.0
+Bundle-Version: 0.0.1
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: net.java.sip.communicator.plugin.chatalerter
+Import-Package: net.java.sip.communicator.util.osgi,
+ org.osgi.framework,
+ org.jitsi.util,
+ org.jitsi.service.configuration,
+ net.java.sip.communicator.util,
+ net.java.sip.communicator.service.gui,
+ net.java.sip.communicator.service.protocol,
+ net.java.sip.communicator.service.protocol.event,
+ com.apple.eawt;resolution:="optional",
+ javax.swing,
+ org.jdesktop.jdic.misc

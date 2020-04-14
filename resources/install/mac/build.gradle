@@ -1,0 +1,30 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+task copyInfoPlist(group: 'installer-mac') {
+    doLast {
+        // cannot be a copy task itself (the classpath must be evaluated on exec, not config)
+        copy {
+            from file('resources/install/mac/Info.plist')
+            into 'build/install/jitsi-mac/Jitsi.app/Contents/'
+            filter(ReplaceTokens, tokens: [
+                    CLASSPATH_STRINGS         : (
+                            project(':launcher').configurations.runtimeClasspath.collect {
+                                "<string>\$JAVAROOT/lib/${it.name}</string>"
+                            } << '<string>$JAVAROOT/config</string>'
+                    ).join('\n').toString(),
+                    CFBundleShortVersionString: project.version.replaceAll(/[^0-9\.]/, '').toString(),
+                    CFBundleVersion           : project.version.toString(),
+                    JRE_VERSION               : "${project.property('application.jre.version')}-jre".toString(),
+            ])
+        }
+    }
+}
+
+task createDmg(type: Exec, group: 'installer-mac', dependsOn: [
+        installMacDist,
+        copyInfoPlist,
+]) {
+    // TODO: sign
+    workingDir "${buildDir}/install"
+    commandLine 'build-dmg.sh'
+}

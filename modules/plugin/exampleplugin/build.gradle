@@ -1,0 +1,7 @@
+dependencies {
+    implementation libs.jitsi.basesvc
+    implementation project(':util')
+    implementation project(':plugin:desktoputil')
+    implementation project(':service:contactlist')
+    implementation project(':service:ui-service')
+}

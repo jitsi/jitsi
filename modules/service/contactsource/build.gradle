@@ -1,0 +1,13 @@
+dependencies {
+    implementation libs.jitsi.basesvc
+    implementation libs.commons.lang
+    implementation project(':util')
+    implementation project(':osgi-util')
+    implementation project(':service:protocol')
+}
+
+//jar {
+//    bnd(
+//            'Bundle-Activator': '${classes;IMPLEMENTS;org.osgi.framework.BundleActivator}'
+//    )
+//}

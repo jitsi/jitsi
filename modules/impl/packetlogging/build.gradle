@@ -1,0 +1,6 @@
+dependencies {
+    implementation libs.jitsi.basesvc
+    implementation libs.guava
+    implementation project(':util')
+    implementation project(':osgi-util')
+}

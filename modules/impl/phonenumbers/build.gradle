@@ -1,0 +1,7 @@
+dependencies {
+    implementation libs.jitsi.basesvc
+    implementation libs.libphonenum
+    implementation project(':util')
+    implementation project(':osgi-util')
+    implementation project(':service:protocol')
+}

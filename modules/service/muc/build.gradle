@@ -1,0 +1,6 @@
+dependencies {
+    api project(':service:protocol')
+    api project(':service:contactsource')
+
+    implementation project(':util')
+}

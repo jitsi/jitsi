@@ -1,6 +1,0 @@
-Bundle-Name: JmDNS Lib Provider
-Bundle-Description: JmDNS Lib Provider
-Bundle-Vendor: sip-communicator.org
-Bundle-Version: 0.0.1
-Bundle-SymbolicName: javax.jmdns
-Export-Package: javax.jmdns

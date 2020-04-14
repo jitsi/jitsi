@@ -1,0 +1,11 @@
+dependencies {
+    implementation libs.jitsi.basesvc
+    implementation project(':util')
+    implementation project(':osgi-util')
+    implementation project(':service:protocol')
+    implementation project(':service:protocol-media')
+    implementation project(':service:resourcemanager')
+
+    testImplementation libs.junit
+    testImplementation project(':service:protocol').sourceSets.test.output
+}

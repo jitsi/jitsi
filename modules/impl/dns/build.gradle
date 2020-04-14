@@ -1,0 +1,20 @@
+dependencies {
+    implementation libs.commons.lang
+    implementation libs.dnsjava
+    implementation libs.dnssecjava
+    implementation libs.jitsi.basesvc
+    implementation project(':util')
+    implementation project(':osgi-util')
+    implementation project(':plugin:desktoputil')
+    implementation project(':service:dnsservice')
+    implementation project(':service:netaddr')
+    implementation project(':service:notification-service')
+    implementation project(':service:protocol')
+    implementation project(':service:resourcemanager')
+}
+
+//jar {
+//    bnd(
+//            'Export-Package': 'net.java.sip.communicator.impl.dns'
+//    )
+//}

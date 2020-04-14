@@ -1,0 +1,9 @@
+dependencies {
+    implementation libs.jdic
+    implementation libs.jitsi.basesvc
+    implementation libs.orangeext
+    implementation project(':util')
+    implementation project(':osgi-util')
+    implementation project(':service:ui-service')
+    implementation project(':service:protocol')
+}

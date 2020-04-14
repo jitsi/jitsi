@@ -1,0 +1,10 @@
+dependencies {
+    implementation libs.jitsi.basesvc
+    implementation libs.commons.lang
+    implementation project(':util')
+    implementation project(':osgi-util')
+    implementation project(':service:resourcemanager')
+    implementation project(':service:systray-service')
+}
+
+// FIXME: bnd native library galagonotification or rewrite to another dbus lib

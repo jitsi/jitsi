@@ -1,0 +1,18 @@
+dependencies {
+    api project(':service:contactlist')
+    api project(':service:history')
+    api project(':service:protocol')
+
+    implementation libs.jitsi.basesvc
+    implementation libs.commons.lang
+    implementation project(':util')
+    implementation project(':osgi-util')
+    implementation project(':service:callhistory')
+    implementation project(':service:contactsource')
+    implementation project(':service:filehistory')
+    implementation project(':service:ui-service')
+    implementation project(':service:muc')
+
+    testImplementation libs.junit
+    testImplementation project(':impl:protocol-mock')
+}

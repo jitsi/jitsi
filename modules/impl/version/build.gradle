@@ -1,0 +1,14 @@
+dependencies {
+    implementation libs.jitsi.basesvc
+    implementation libs.commons.lang
+    implementation project(':util')
+    implementation project(':osgi-util')
+}
+
+sourceSets {
+    main {
+        java {
+            exclude '**/*Task'
+        }
+    }
+}

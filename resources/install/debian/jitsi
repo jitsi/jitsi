@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+SHOW_SPLASH=true
+SPLASH_ARG=""
+for arg in "$@"; do
+  if [ "$arg" = "--splash=no" ]; then
+    SHOW_SPLASH=false
+  fi
+done
+
+SCDIR=/usr/share/jitsi
+CONFIGPATH=${SCDIR}/config
+
+FELIX_CONFIG=${CONFIGPATH}/felix.properties
+LOG_CONFIG=${CONFIGPATH}/logging.properties
+CLASSPATH_CONFIG=${CONFIGPATH}/classpath
+
+CLASSPATH=""
+while IFS= read -r line; do
+  CLASSPATH="${CLASSPATH:+$CLASSPATH:}${SCDIR}/${line}"
+done <"${CLASSPATH_CONFIG}"
+
+if $SHOW_SPLASH; then
+  SPLASH_ARG="-splash:${SCDIR}/splash.gif"
+fi
+
+COMMAND="$(command -v java) ${JITSI_EXTRA_ARGS} -cp ${CLASSPATH} -Djna.library.path=/usr/lib/jni -Dfelix.auto.deploy.dir=${SCDIR}/lib -Dfelix.config.properties=file:${FELIX_CONFIG} -Djava.util.logging.config.file=${LOG_CONFIG} ${SPLASH_ARG} net.java.sip.communicator.launcher.SIPCommunicator"
+
+# add JNI libs to LD_LIBRARY_PATH for any sc natives (e.g. jmf .so's)
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}/usr/lib/jni"
+
+exec ${COMMAND} "$@"

@@ -1,0 +1,5 @@
+//jar {
+//    bnd(
+//        'Export-Package': 'net.java.sip.communicator.util.osgi'
+//    )
+//}

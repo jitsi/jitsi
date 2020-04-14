@@ -1,0 +1,7 @@
+dependencies {
+    implementation libs.jitsi.basesvc
+    implementation libs.commons.lang
+    implementation project(':util')
+    implementation project(':service:contactsource')
+    implementation project(':service:protocol')
+}

@@ -1,0 +1,14 @@
+Bundle-Name: Resource Management Service
+Bundle-Description: The plugin managing images and languages resource packs.
+Bundle-Vendor: jitsi.org
+Manifest-Version: 1.0
+Bundle-Version: 0.0.1
+Bundle-SymbolicName: net.java.sip.communicator.service.resources
+Export-Package: net.java.sip.communicator.service.resources
+Import-Package: net.java.sip.communicator.util.osgi,org.osgi.framework,
+ org.jitsi.service.configuration,
+ org.jitsi.service.resources,
+ net.java.sip.communicator.util,
+ javax.imageio,
+ javax.swing
+Bundle-Activator: net.java.sip.communicator.impl.resources.ResourceManagementActivator

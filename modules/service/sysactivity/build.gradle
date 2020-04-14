@@ -1,0 +1,8 @@
+dependencies {
+    implementation libs.dbus
+    runtimeOnly libs.unixsock // for dbus
+    runtimeOnly libs.hexdump  // for dbus
+    implementation libs.jitsi.basesvc
+    implementation project(':util')
+    implementation project(':osgi-util')
+}

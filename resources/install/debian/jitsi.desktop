@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Jitsi
+GenericName=jitsi
+Comment=VoIP and Instant Messaging client
+Keywords=chat;messaging;im;voip;video;call;conference;
+Icon=jitsi
+Type=Application
+Categories=Network;InstantMessaging;Chat;Telephony;VideoConference;Java;
+Exec=jitsi %u
+Terminal=false
+MimeType=x-scheme-handler/sip;x-scheme-handler/xmpp;x-scheme-handler/tel;
+X-PulseAudio-Properties=media.role=phone
