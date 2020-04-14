@@ -13,6 +13,9 @@ sip-communicator.utest.bin
 *.swp
 target/
 test-reports/
+.settings/
+.classpath
+.project
 
 # Never actually store Google API client token. A template is already committed
 # and the token should always be generated on-the-fly.
