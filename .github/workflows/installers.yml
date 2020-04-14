@@ -28,7 +28,7 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Build x64-deb
-        run: ./gradlew buildDeb -Darch=x64
+        run: ./gradlew bundles buildDeb -Darch=x64
       - name: Upload x64-deb
         uses: actions/upload-artifact@v1
         with:
@@ -36,7 +36,7 @@ jobs:
           path: $GITHUB_WORKSPACE/build/distributions/
 
       - name: Build x86-deb
-        run: ./gradlew clean buildDeb -Darch=x86
+        run: ./gradlew clean bundles buildDeb -Darch=x86
       - name: Upload x86-deb
         uses: actions/upload-artifact@v1
         with:
@@ -71,7 +71,7 @@ jobs:
           cd cmake-build-x64 -A x64 -DCMAKE_BUILD_TYPE=Release
           cmake --build .
           cd $GITHUB_WORKSPACE
-          ./gradlew wixLight -Dapplication.target=x64
+          ./gradlew bundles wixLight -Dapplication.target=x64
 
       - name: Build x86
         run: |
@@ -82,7 +82,7 @@ jobs:
           cd cmake-build-x86
           cmake --build .
           cd $GITHUB_WORKSPACE
-          ./gradlew wixLight -Dapplication.target=x86
+          ./gradlew bundles wixLight -Dapplication.target=x86
 
   mac:
     runs-on: macos-latest
@@ -102,4 +102,4 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
       - name: Build with Gradle
-        run: ./gradlew createDmg
+        run: ./gradlew bundles createDmg
