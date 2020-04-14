@@ -12,7 +12,9 @@ sc-bundles/
 sip-communicator.utest.bin
 *.swp
 target/
+build/
 test-reports/
+.gradle/
 .settings/
 .classpath
 .project
