@@ -4,8 +4,8 @@ task copyInfoPlist(group: 'installer-mac') {
     doLast {
         // cannot be a copy task itself (the classpath must be evaluated on exec, not config)
         copy {
-            from file('resources/install/mac/Info.plist')
-            into 'build/install/jitsi-mac/Jitsi.app/Contents/'
+            from "${projectDir}/resources/install/mac/Info.plist"
+            into "${buildDir}/install/jitsi-mac/Jitsi.app/Contents/"
             filter(ReplaceTokens, tokens: [
                     CLASSPATH_STRINGS         : (
                             project(':launcher').configurations.runtimeClasspath.collect {
