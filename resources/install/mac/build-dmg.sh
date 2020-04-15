@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -x
+
 SRC_DIR="jitsi-mac"
 TEMP_MOUNT=$(mktemp -d "${TMPDIR:-/tmp}jitsi-dmg.XXXXXXXXX")
 TEMP_DMG="Jitsi-tmp.dmg"

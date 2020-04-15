@@ -74,6 +74,11 @@ jobs:
           cmake --build .
           cd $Env:GITHUB_WORKSPACE
           & .\gradlew --% bundles wixLight -Papplication.target=x64
+      - name: Upload msi
+        uses: actions/upload-artifact@v1
+        with:
+          name: jitsi-win-64
+          path: build/install/wix/setup.msi
 
       - name: Build x86
         run: |
@@ -85,6 +90,11 @@ jobs:
           cmake --build .
           cd $Env:GITHUB_WORKSPACE
           & .\gradlew --% bundles wixLight -Papplication.target=x86
+      - name: Upload msi
+        uses: actions/upload-artifact@v1
+        with:
+          name: jitsi-win-32
+          path: build/install/wix/setup.msi
 
   mac:
     runs-on: macos-latest
@@ -105,3 +115,8 @@ jobs:
             ${{ runner.os }}-gradle-
       - name: Build with Gradle
         run: ./gradlew bundles createDmg
+      - name: Upload dmg
+        uses: actions/upload-artifact@v1
+        with:
+          name: dmg
+          path: build/distributions/jitsi.dmg

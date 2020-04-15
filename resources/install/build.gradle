@@ -15,7 +15,6 @@ jar {
                             .collect { "lib/${it.name}" }
                             .join(' '),
                     'Main-Class': 'net.java.sip.communicator.launcher.SIPCommunicator',
-
             )
         }
     }
@@ -58,6 +57,8 @@ startScripts {
 
 def createJreTasks(String os) {
     def arch = project.property('application.target')
+    // weird adoptopenjdk arch notation
+    arch = arch == 'x86' ? 'x32' : arch
     def getTask = tasks.create("get${os}Jre", Download) {
         def jreVersion = project.property('application.jre.version')
         src "https://api.adoptopenjdk.net/v3/binary/version/${jreVersion}/${os}/${arch}/jre/hotspot/normal/adoptopenjdk?project=jdk"
