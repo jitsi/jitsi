@@ -17,11 +17,10 @@
  */
 package net.java.sip.communicator.impl.growlnotification;
 
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 
-import net.java.sip.communicator.util.osgi.ServiceUtils;
+import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.resources.*;
 import org.jitsi.util.OSUtils; // disambiguation
 import org.osgi.framework.*;
@@ -34,13 +33,8 @@ import org.osgi.framework.*;
  * @author Lyubomir Marinov
  */
 public class GrowlNotificationActivator
-    implements BundleActivator
+    extends DependentActivator
 {
-    /**
-     * The bundle context in which we started
-     */
-    public static BundleContext bundleContext;
-
     /**
      * The <tt>Logger</tt> used by the <tt>GrowlNotificationActivator</tt> class
      * and its instances for logging output.
@@ -58,17 +52,21 @@ public class GrowlNotificationActivator
      */
     private static GrowlNotificationServiceImpl handler;
 
+    public GrowlNotificationActivator()
+    {
+        super(
+            ResourceManagementService.class
+        );
+    }
     /**
      * Initializes and starts a new <tt>GrowlNotificationService</tt>
      * implementation on Mac OS X.
      *
      * @param bundleContext the <tt>BundleContext</tt> to register the new
      * <tt>GrowlNotificationService</tt> implementation into
-     * @throws Exception if initializing and/or starting the new
-     * <tt>GrowlNotificationService</tt> implementation fails
      */
-    public void start(BundleContext bundleContext)
-        throws Exception
+    @Override
+    public void startWithServices(BundleContext bundleContext)
     {
         // This bundle is available for Mac OS X only.
         if (!OSUtils.IS_MAC)
@@ -77,7 +75,7 @@ public class GrowlNotificationActivator
         if (logger.isInfoEnabled())
             logger.info("Growl Notification... [Starting]");
 
-        GrowlNotificationActivator.bundleContext  = bundleContext;
+        resourcesService = getService(ResourceManagementService.class);
 
         handler = new GrowlNotificationServiceImpl();
         handler.start(bundleContext);
@@ -94,10 +92,8 @@ public class GrowlNotificationActivator
      * Stops this bundle.
      *
      * @param bundleContext the <tt>BundleContext</tt> to stop this bundle into
-     * @throws Exception if stopping this bundle fails
      */
     public void stop(BundleContext bundleContext)
-        throws Exception
     {
         // This bundle is available for Mac OS X only.
         if (!OSUtils.IS_MAC)
@@ -116,13 +112,6 @@ public class GrowlNotificationActivator
      */
     public static ResourceManagementService getResources()
     {
-        if (resourcesService == null)
-        {
-            resourcesService
-                = ServiceUtils.getService(
-                bundleContext,
-                ResourceManagementService.class);
-        }
         return resourcesService;
     }
 }
