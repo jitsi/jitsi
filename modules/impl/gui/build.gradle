@@ -5,7 +5,7 @@ dependencies {
     implementation libs.jitsi.basesvc
     implementation libs.ice4j
     implementation libs.macwidgets
-    implementation libs.orangeext
+    compileOnly libs.orangeext
     implementation project(':util')
     implementation project(':osgi-util')
     implementation project(':plugin:desktoputil')

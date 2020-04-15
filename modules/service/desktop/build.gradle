@@ -3,7 +3,7 @@ dependencies {
     implementation libs.jna.jna
     implementation libs.jna.platform
     implementation libs.jitsi.basesvc
-    implementation libs.orangeext
+    compileOnly libs.orangeext
     implementation project(':util')
     implementation project(':osgi-util')
     implementation project(':plugin:desktoputil')

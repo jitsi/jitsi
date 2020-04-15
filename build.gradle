@@ -71,7 +71,6 @@ ext.libs = [
                         'org.objectweb.asm.*',
                         'com.sun.java.swing.plaf.windows'
                 ]],
-                orangeext: ['com.massisframework:orange-extensions:1.3.1'],
                 // FIXME: update
                 otr4j    : ['org.jitsi:org.otr4j:0.22'],
                 // FIXME: create a sane package, used by dbus-java
@@ -148,6 +147,7 @@ ext.libs = [
         lombok     : 'org.projectlombok:lombok:1.18.4',
         libphonenum: 'com.googlecode.libphonenumber:libphonenumber:8.10.2',
         macwidgets : 'com.explodingpixels:mac_widgets:0.9.5',
+        orangeext  : 'com.massisframework:orange-extensions:1.3.1',
         osgi_core  : 'org.osgi:org.osgi.core:6.0.0',
         osgi_cm    : 'org.osgi:org.osgi.service.cm:1.6.0',
         slf        : "org.slf4j:slf4j-api:$slf4jversion",
