@@ -33,7 +33,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: jitsi-debian-x64
-          path: $GITHUB_WORKSPACE/build/distributions/
+          path: build/distributions/
 
       - name: Build x86-deb
         run: ./gradlew clean bundles buildDeb -Darch=x86
@@ -41,7 +41,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: jitsi-debian-x86
-          path: $GITHUB_WORKSPACE/build/distributions/
+          path: build/distributions/
 
   wix:
     runs-on: windows-latest
@@ -67,8 +67,8 @@ jobs:
       - name: Build x64
         run: |
           cd $Env:GITHUB_WORKSPACE/native/windows
-          cmake -B cmake-build-x64
-          cd cmake-build-x64 -A x64 -DCMAKE_BUILD_TYPE=Release
+          cmake -B cmake-build-x64 -A x64 -DCMAKE_BUILD_TYPE=Release
+          cd cmake-build-x64
           cmake --build .
           cd $Env:GITHUB_WORKSPACE
           ./gradlew bundles wixLight -Dapplication.target=x64
