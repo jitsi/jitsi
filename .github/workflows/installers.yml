@@ -69,9 +69,8 @@ jobs:
       - name: Build x64
         run: |
           cd $Env:GITHUB_WORKSPACE/native/windows
-          cmake -B cmake-build-x64 -A x64 -DCMAKE_BUILD_TYPE=Release
-          cd cmake-build-x64
-          cmake --build .
+          cmake -B cmake-build-x64 -A x64
+          cmake --build cmake-build-x64 --config Release
           cd $Env:GITHUB_WORKSPACE
           & .\gradlew --% bundles wixLight -Papplication.target=x64
       - name: Upload msi
@@ -85,9 +84,8 @@ jobs:
           cd $Env:GITHUB_WORKSPACE
           ./gradlew clean
           cd $Env:GITHUB_WORKSPACE/native/windows
-          cmake -B cmake-build-x86 -A Win32 -DCMAKE_BUILD_TYPE=Release
-          cd cmake-build-x86
-          cmake --build .
+          cmake -B cmake-build-x86 -A Win32
+          cmake --build cmake-build-x86 --config Release
           cd $Env:GITHUB_WORKSPACE
           & .\gradlew --% bundles wixLight -Papplication.target=x86
       - name: Upload msi
@@ -119,4 +117,4 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: dmg
-          path: build/distributions/jitsi.dmg
+          path: build/install/jitsi.dmg
