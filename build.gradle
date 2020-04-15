@@ -421,6 +421,8 @@ subprojects { p ->
     }
 }
 
+build.dependsOn(bundles)
+
 apply from: 'resources/install/build.gradle'
 apply from: 'resources/install/debian/build.gradle'
 apply from: 'resources/install/windows/build.gradle'

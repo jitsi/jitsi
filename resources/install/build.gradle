@@ -64,13 +64,16 @@ def createJreTasks(String os) {
         dest file("${project.buildDir}/jre-${jreVersion}-${os}-${arch}.${os == 'windows' ? 'zip' : 'tar.gz'}")
     }
 
-    def verifyTask = tasks.create("verify${os}Jre", Verify) {
-        src getTask.dest
-        algorithm 'SHA-256'
-        checksum project.property("application.jre.${os}.${arch}-hash")
+    def hashProperty = "application.jre.${os}.${arch}-hash"
+    if (project.hasProperty(hashProperty)) {
+        def verifyTask = tasks.create("verify${os}Jre", Verify) {
+            src getTask.dest
+            algorithm 'SHA-256'
+            checksum project.property("application.jre.${os}.${arch}-hash")
+        }
+        verifyTask.dependsOn += getTask
+        tasks.find { it.name.equalsIgnoreCase("install${os}Dist") }.dependsOn += verifyTask
     }
-    verifyTask.dependsOn += getTask
-    tasks.find {it.name.equalsIgnoreCase("install${os}Dist")}.dependsOn += verifyTask
     getTask
 }
 

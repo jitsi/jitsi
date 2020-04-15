@@ -26,5 +26,5 @@ task createDmg(type: Exec, group: 'installer-mac', dependsOn: [
 ]) {
     // TODO: sign
     workingDir "${buildDir}/install"
-    commandLine 'build-dmg.sh'
+    commandLine "${projectDir}/resources/install/mac/build-dmg.sh"
 }
