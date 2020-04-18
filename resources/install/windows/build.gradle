@@ -8,9 +8,9 @@ def arch = project.property('application.target')
 
 // TODO: sign
 task copyLauncher(type: Copy, group: 'installer-wix') {
-    from "native"
+    from 'native'
     into wixTargetDir
-    include "**/cmake-build-*/run/**/*.exe"
+    include '**/cmake-build-*/run/**/*.exe'
     includeEmptyDirs = false
     eachFile {
         path = name
@@ -19,30 +19,30 @@ task copyLauncher(type: Copy, group: 'installer-wix') {
 
 // TODO: sign
 task copyCleansweep(type: Copy, group: 'installer-wix') {
-    from "native"
+    from 'native'
     into wixTempDir
-    include "**/cmake-build-*/cleansweep/**/*.exe"
+    include '**/cmake-build-*/cleansweep/**/*.exe'
     includeEmptyDirs = false
     eachFile {
         path = name
     }
 }
 
-task prepareTarget(type: Sync, group: 'installer-wix', dependsOn: [
+task prepareWixTarget(type: Sync, group: 'installer-wix', dependsOn: [
         installWindowsDist,
         copyLauncher,
         copyCleansweep
 ]) {
     from installWindowsDist.outputs.files
-    into "${wixTargetDir}"
+    into wixTargetDir
     exclude "${rootProject.name}.bat"
-    exclude "**/*.exe"
+    caseSensitive = false
     preserve {
-        "${project.name}.exe"
+        include "${project.property('application.name')}.exe"
     }
 }
 
-task wixHeat(type: Exec, group: 'installer-wix', dependsOn: prepareTarget) {
+task wixHeat(type: Exec, group: 'installer-wix', dependsOn: prepareWixTarget) {
     inputs.files(wixTargetDir)
     outputs.files("${wixTempDir}/heat.wxs")
 

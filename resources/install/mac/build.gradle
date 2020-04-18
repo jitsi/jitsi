@@ -1,11 +1,13 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
+def dmgDir = "${buildDir}/install/dmg"
+
 task copyInfoPlist(group: 'installer-mac') {
     doLast {
         // cannot be a copy task itself (the classpath must be evaluated on exec, not config)
         copy {
             from "${projectDir}/resources/install/mac/Info.plist"
-            into "${buildDir}/install/jitsi-mac/Jitsi.app/Contents/"
+            into "${dmgDir}/Jitsi.app/Contents/"
             filter(ReplaceTokens, tokens: [
                     CLASSPATH_STRINGS         : (
                             project(':launcher').configurations.runtimeClasspath.collect {
@@ -20,10 +22,18 @@ task copyInfoPlist(group: 'installer-mac') {
     }
 }
 
-task createDmg(type: Exec, group: 'installer-mac', dependsOn: [
+task prepareDmgTarget(type: Sync, group: 'installer-mac', dependsOn: [
         installMacDist,
-        copyInfoPlist,
+        copyInfoPlist
 ]) {
+    from installMacDist.outputs.files
+    into dmgDir
+    preserve {
+        include '**/*.plist'
+    }
+}
+
+task createDmg(type: Exec, group: 'installer-mac', dependsOn: prepareDmgTarget) {
     // TODO: sign
     workingDir "${buildDir}/install"
     commandLine "${projectDir}/resources/install/mac/build-dmg.sh"

@@ -5,9 +5,9 @@ Jitsi is a free open-source audio/video and chat communicator that supports prot
 
 Helpful Resources
 -----------------
-- https://jitsi.org
+- https://desktop.jitsi.org
 - [Download](https://download.jitsi.org) pre-built packages
-- [Mailing lists](https://jitsi.org/Development/MailingLists)
+- [Community Forums](https://community.jitsi.org/c/jitsi-desktop/)
  
 Submitting Issues
 -----------------
