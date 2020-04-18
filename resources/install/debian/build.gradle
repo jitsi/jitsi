@@ -1,4 +1,7 @@
-// TODO: sign
+def debArch = project.property('application.target') == 'x64'
+        ? 'amd64'
+        : 'x86'
+
 buildDeb {
     release = '1'
     vendor = 'jitsi.org'
@@ -15,9 +18,7 @@ conversations over the Internet through the SIP and XMPP/Jabber protocol, \
 as well as chat with your friends using some of the most popular instant \
 messaging protocols such as SIP/SIMPLE, XMPP/Jabber, AIM/ICQ and others.
 """
-    arch = project.property('application.target') == 'x64'
-            ? 'amd64'
-            : 'x86'
+    arch = debArch
     distribution = 'xenial bionic'
 
     requires('default-jre')
@@ -32,7 +33,7 @@ messaging protocols such as SIP/SIMPLE, XMPP/Jabber, AIM/ICQ and others.
     recommends('libavfilter6').or('libavfilter-extra6').or('libavfilter-ffmpeg5')
     recommends('libavutil55').or('libavutil-ffmpeg54')
     recommends('libswscale4').or('libswscale-ffmpeg3')
-    
+
     into('usr/share/pixmaps') {
         from "${projectDir}/resources/install/debian"
         include 'jitsi*-.xpm'
@@ -55,4 +56,8 @@ messaging protocols such as SIP/SIMPLE, XMPP/Jabber, AIM/ICQ and others.
         include "jitsi"
         fileMode 0755
     }
+}
+
+task signDeb(type: Sign, dependsOn: buildDeb) {
+    sign buildDeb
 }

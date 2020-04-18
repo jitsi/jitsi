@@ -6,7 +6,6 @@ def wixTempDir = "${wixRootDir}/tmp"
 def wixTargetDir = "${wixRootDir}/target"
 def arch = project.property('application.target')
 
-// TODO: sign
 task copyLauncher(type: Copy, group: 'installer-wix') {
     from 'native'
     into wixTargetDir
@@ -17,7 +16,6 @@ task copyLauncher(type: Copy, group: 'installer-wix') {
     }
 }
 
-// TODO: sign
 task copyCleansweep(type: Copy, group: 'installer-wix') {
     from 'native'
     into wixTempDir
@@ -25,6 +23,9 @@ task copyCleansweep(type: Copy, group: 'installer-wix') {
     includeEmptyDirs = false
     eachFile {
         path = name
+    }
+    doLast {
+        signFile file("${wixTempDir}/cleansweep.exe")
     }
 }
 

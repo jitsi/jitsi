@@ -28,7 +28,10 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Build x64-deb
-        run: ./gradlew bundles buildDeb -Papplication.target=x64
+        env:
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_KEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_PW }}
+        run: ./gradlew bundles signDeb -Papplication.target=x64
       - name: Upload x64-deb
         uses: actions/upload-artifact@v1
         with:
@@ -36,9 +39,12 @@ jobs:
           path: build/distributions/
 
       - name: Build x86-deb
+        env:
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_KEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_PW }}
         run: |
           rm -rf build/
-          ./gradlew bundles buildDeb -Papplication.target=x86
+          ./gradlew bundles signDeb -Papplication.target=x86
       - name: Upload x86-deb
         uses: actions/upload-artifact@v1
         with:
@@ -76,7 +82,7 @@ jobs:
       - name: Upload msi
         uses: actions/upload-artifact@v1
         with:
-          name: jitsi-win-64
+          name: jitsi-win-x64
           path: build/install/wix/setup.msi
 
       - name: Build x86
@@ -87,11 +93,11 @@ jobs:
           cmake -B cmake-build-x86 -A Win32
           cmake --build cmake-build-x86 --config Release
           cd $Env:GITHUB_WORKSPACE
-          & .\gradlew --% bundles wixLight -Papplication.target=x86
+          & .\gradlew --% bundles signMsi -Papplication.target=x86
       - name: Upload msi
         uses: actions/upload-artifact@v1
         with:
-          name: jitsi-win-32
+          name: jitsi-win-x86
           path: build/install/wix/setup.msi
 
   mac:
@@ -116,5 +122,5 @@ jobs:
       - name: Upload dmg
         uses: actions/upload-artifact@v1
         with:
-          name: dmg
+          name: jitsi-mac
           path: build/install/jitsi.dmg
