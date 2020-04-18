@@ -61,6 +61,8 @@ def createJreTasks(String os) {
     def adoptArch = arch == 'x86' ? 'x32' : arch
     def getTask = tasks.create("get${os}Jre", Download) {
         def jreVersion = project.property('application.jre.version')
+        onlyIfModified true
+        overwrite true
         src "https://api.adoptopenjdk.net/v3/binary/version/${jreVersion}/${os}/${adoptArch}/jre/hotspot/normal/adoptopenjdk?project=jdk"
         dest file("${project.buildDir}/jre-${jreVersion}-${os}-${arch}.${os == 'windows' ? 'zip' : 'tar.gz'}")
     }
