@@ -21,11 +21,23 @@ task copyInfoPlist(group: 'installer-mac') {
     }
 }
 
+task copyMacLauncher(type: Copy, group: 'installer-mac') {
+    from 'native'
+    into "${installMacDist.destinationDir}/Jitsi.app/MacOS/"
+    include '**/cmake-build/launcher/**/MacOS/Jitsi'
+    includeEmptyDirs = false
+    eachFile {
+        path = name
+    }
+}
+
 copyInfoPlist.mustRunAfter(installMacDist)
+copyMacLauncher.mustRunAfter(installMacDist)
 
 task createDmg(type: Exec, group: 'installer-mac', dependsOn: [
         installMacDist,
-        copyInfoPlist
+        copyMacLauncher,
+        copyInfoPlist,
 ]) {
     // TODO: sign
     workingDir installMacDist.destinationDir.parent

@@ -54,25 +54,19 @@ Java_net_java_sip_communicator_impl_sparkle_SparkleActivator_initSparkle
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
 
-    // The below code was used to avoid to link the Sparkle framework
-    // at comilation time. 
-    //const char *path = (*env)->GetStringUTFChars(env, pathToSparkleFramework, 0); 
-    //NSBundle* bundle = [NSBundle bundleWithPath:[NSString stringWithCString: path]];
-    //Class suUpdaterClass = [bundle classNamed:@"SUUpdater"];
-    //id suUpdater = [[suUpdaterClass alloc] init];
-    //(*env)->ReleaseStringUTFChars(env, pathToSparkleFramework, path);
-
     SUUpdater *suUpdater = [SUUpdater updaterForBundle:[NSBundle mainBundle]];
-
     if(downloadLink)
     {
         const char* link = (*env)->GetStringUTFChars(env, downloadLink, 0);
-        NSString* sLink = [NSString stringWithCString: link length: strlen(link)];
-        NSURL* nsLink = [NSURL URLWithString: sLink];
-
-        if(nsLink)
+        if (link)
         {
-            [suUpdater setFeedURL: nsLink];
+            NSURL* nsLink = [NSURL URLWithString: [NSString stringWithUTF8String:link]];
+            if(nsLink)
+            {
+                [suUpdater setFeedURL: nsLink];
+            }
+
+            (*env)->ReleaseStringUTFChars(env, downloadLink, link);
         }
     }
 

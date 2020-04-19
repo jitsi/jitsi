@@ -117,6 +117,11 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
+      - name: Build natives
+        run: |
+          cd $GITHUB_WORKSPACE/native/macosx
+          cmake -B cmake-build
+          cmake --build cmake-build --config Release
       - name: Build with Gradle
         run: ./gradlew bundles createDmg
       - name: Upload dmg

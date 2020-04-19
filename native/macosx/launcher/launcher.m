@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
     } @catch (NSException *exception)
     {
         NSAlert *alert = [[NSAlert alloc] init];
-        [alert setAlertStyle:NSCriticalAlertStyle];
+        [alert setAlertStyle:NSAlertStyleCritical];
         [alert setMessageText:[exception reason]];
         [alert runModal];
 
@@ -90,12 +90,9 @@ JLI_Launch_t getJLILaunch(NSString *parentPath)
     void *libJLI = NULL;
 
     NSDictionary *paths = @{
-        @"Contents/Libraries/libjli.jnilib"
-            : @"Contents/Libraries/libsplashscreen.jnilib",
-        @"Contents/Home/jre/lib/jli/libjli.dylib"
-            : @"Contents/Home/jre/lib/libsplashscreen.dylib",
-        @"Contents/Home/lib/jli/libjli.dylib"
-            : @"Contents/Home/lib/libsplashscreen.dylib"
+        @"Contents/Libraries/libjli.jnilib"       : @"Contents/Libraries/libsplashscreen.jnilib",
+        @"Contents/Home/jre/lib/jli/libjli.dylib" : @"Contents/Home/jre/lib/libsplashscreen.dylib",
+        @"Contents/Home/lib/jli/libjli.dylib"     : @"Contents/Home/lib/libsplashscreen.dylib"
     };
 
     for (NSString *path in paths)
@@ -172,8 +169,7 @@ JLI_Launch_t getLauncher(NSDictionary *javaDictionary)
             NSString *bundlePath
                 = [pluginsFolder stringByAppendingPathComponent:pFolderName];
 
-            if ([pFolderName hasSuffix:@".jdk"]
-                || [pFolderName hasSuffix:@".jre"])
+            if ([pFolderName hasSuffix:@"-jre"])
             {
                 NSBundle *bundle = [NSBundle bundleWithPath:bundlePath];
 
