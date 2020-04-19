@@ -23,7 +23,7 @@ task copyInfoPlist(group: 'installer-mac') {
 
 task copyMacLauncher(type: Copy, group: 'installer-mac') {
     from 'native'
-    into "${installMacDist.destinationDir}/Jitsi.app/MacOS/"
+    into "${installMacDist.destinationDir}/Jitsi.app/Contents/MacOS/"
     include '**/cmake-build/launcher/**/MacOS/Jitsi'
     includeEmptyDirs = false
     eachFile {
