@@ -25,7 +25,7 @@
     <key>NSHighResolutionCapable</key>
     <true/>
     <key>LSMinimumSystemVersion</key>
-    <string>10.8.3</string>
+    <string>10.9.0</string>
     <key>SUCheckAtStartup</key>
     <string>YES</string>
     <key>SUScheduledCheckInterval</key>

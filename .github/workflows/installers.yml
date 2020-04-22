@@ -121,7 +121,7 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/native/macosx
           cmake -B cmake-build
-          cmake --build cmake-build --config Release
+          cmake --build cmake-build --config Release --verbose
       - name: Build with Gradle
         run: ./gradlew bundles createDmg
       - name: Upload dmg
