@@ -73,7 +73,7 @@
       <key>JVMRuntime</key>
       <string>@JRE_VERSION@</string>
       <key>VMOptions</key>
-      <string>-agentlib:AEGetURLEventHandlerAgent agentpath:$JAVAROOT/native/ -splash:splash.gif</string>
+      <string>-agentlib:AEGetURLEventHandlerAgent -agentpath:$JAVAROOT/native/ -splash:splash.gif</string>
       <key>WorkingDirectory</key>
       <string>$APP_PACKAGE/Contents/Resources/Java</string>
       <key>Properties</key>
