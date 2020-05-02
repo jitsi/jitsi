@@ -38,9 +38,9 @@ public class ResourceManagementActivator
             ConfigurationService.class,
             ColorPack.class,
             ImagePack.class,
-            LanguagePack.class,
+            SoundPack.class,
             SettingsPack.class,
-            SoundPack.class
+            LanguagePack.class
         );
     }
 

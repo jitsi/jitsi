@@ -22,17 +22,14 @@ import java.awt.event.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-
 import javax.imageio.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
 import javax.xml.parsers.*;
-
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.util.*;
-
 import org.jitsi.service.fileaccess.*;
 import org.jitsi.util.xml.*;
 import org.osgi.framework.*;
@@ -320,23 +317,15 @@ public class JabberServerChooserDialog
 
         public ServerChooserTableModel()
         {
-            try
+            try (InputStream is = JabberServerChooserDialog.class
+                .getResourceAsStream("/servercomments.xml"))
             {
                 // Create the builder and parse the file
                 serverComments
                     = XMLUtils.newDocumentBuilderFactory().newDocumentBuilder()
-                            .parse(Resources.getPropertyInputStream(
-                                    "plugin.jabberaccregwizz.SERVER_COMMENTS"));
+                    .parse(is);
             }
-            catch (SAXException e)
-            {
-                logger.error("Failed to parse server comments.", e);
-            }
-            catch (ParserConfigurationException e)
-            {
-                logger.error("Failed to parse server comments.", e);
-            }
-            catch (IOException e)
+            catch (SAXException | ParserConfigurationException | IOException e)
             {
                 logger.error("Failed to parse server comments.", e);
             }

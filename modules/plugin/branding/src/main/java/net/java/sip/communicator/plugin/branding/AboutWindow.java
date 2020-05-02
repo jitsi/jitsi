@@ -22,21 +22,16 @@ import java.awt.event.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-
 import javax.imageio.*;
 import javax.swing.*;
 import javax.swing.event.*;
-
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.plaf.*;
-import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.util.Logger;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
-
 import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
-import org.osgi.framework.*;
 
 /**
  * The <tt>AboutWindow</tt> is containing information about the application
@@ -369,18 +364,8 @@ public class AboutWindow
     {
         if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED)
         {
-            ServiceReference<BrowserLauncherService> serviceReference =
-                BrandingActivator.getBundleContext().getServiceReference(
-                            BrowserLauncherService.class);
-
-            if (serviceReference != null)
-            {
-                BrowserLauncherService browserLauncherService
-                    = BrandingActivator
-                        .getBundleContext().getService(serviceReference);
-
-                browserLauncherService.openURL(e.getDescription());
-            }
+            BrandingActivator.getBrowserLauncherService()
+                .openURL(e.getDescription());
         }
     }
 

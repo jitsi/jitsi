@@ -185,17 +185,6 @@ public class LaunchArgHandler
             if (logger.isTraceEnabled())
                 logger.trace("Couldn't open version.properties");
         }
-
-        // Start url handler for Mac OS X.
-        /*
-         * XXX The detection of the operating systems is the responsibility of
-         * OSUtils. It used to reside in the util.jar which is in the classpath
-         * but it is now in libjitsi.jar which is not in the classpath.
-         */
-        String osName = System.getProperty("os.name");
-
-        if ((osName != null) && osName.startsWith("Mac"))
-            new AEGetURLEventHandler(this);
     }
 
     /**

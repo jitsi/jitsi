@@ -20,89 +20,55 @@ package net.java.sip.communicator.plugin.branding;
 import java.lang.reflect.*;
 import java.util.*;
 
+import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
-import net.java.sip.communicator.util.osgi.ServiceUtils;
+import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.resources.*;
+import org.jitsi.util.*;
 import org.osgi.framework.*;
 
 /**
  * Branding bundle activator.
  */
 public class BrandingActivator
-    extends AbstractServiceDependentActivator
+    extends DependentActivator
 {
     private final Logger logger = Logger.getLogger(BrandingActivator.class);
-    private static BundleContext bundleContext;
     private static ResourceManagementService resourcesService;
+    private static BrowserLauncherService browserLauncherService;
 
-    /**
-     * Setting context to the activator, as soon as we have one.
-     *
-     * @param context the context to set.
-     */
-    @Override
-    public void setBundleContext(BundleContext context)
+    public BrandingActivator()
     {
-        bundleContext = context;
-    }
-
-    /**
-     * This activator depends on UIService.
-     * @return the class name of uiService.
-     */
-    @Override
-    public Class<?> getDependentServiceClass()
-    {
-        return UIService.class;
+        super(
+            UIService.class,
+            ResourceManagementService.class,
+            BrowserLauncherService.class
+        );
     }
 
     /**
      * The dependent service is available and the bundle will start.
-     * @param dependentService the UIService this activator is waiting.
      */
     @Override
-    public void start(Object dependentService)
+    public void startWithServices(BundleContext bundleContext)
     {
+        resourcesService = getService(ResourceManagementService.class);
+        browserLauncherService = getService(BrowserLauncherService.class);
+
         // register the about dialog menu entry
-        registerMenuEntry((UIService)dependentService);
-    }
-
-    @Override
-    public void stop(BundleContext context) throws Exception
-    {
-    }
-
-    /**
-     * Register the about menu entry.
-     * @param uiService
-     */
-    private void registerMenuEntry(UIService uiService)
-    {
-        if ((uiService == null)
-                || !uiService.useMacOSXScreenMenuBar()
-                || !registerMenuEntryMacOSX(uiService))
+        if (!OSUtils.IS_MAC || !registerMenuEntryMacOSX())
         {
-            registerMenuEntryNonMacOSX(uiService);
+            registerMenuEntryNonMacOSX(bundleContext);
         }
     }
 
-    private boolean registerMenuEntryMacOSX(UIService uiService)
+    private boolean registerMenuEntryMacOSX()
     {
         try
         {
-            Class<?> clazz =
-                Class
-                    .forName("net.java.sip.communicator.plugin.branding.MacOSXAboutRegistration");
-            Method method = clazz.getMethod("run", (Class<?>[]) null);
-            Object result = method.invoke(null, (Object[]) null);
-
-            if (result instanceof Boolean)
-            {
-                return ((Boolean) result).booleanValue();
-            }
+            return MacOSXAboutRegistration.run();
         }
         catch (Exception ex)
         {
@@ -113,11 +79,11 @@ public class BrandingActivator
         return false;
     }
 
-    private void registerMenuEntryNonMacOSX(UIService uiService)
+    private void registerMenuEntryNonMacOSX(
+        BundleContext bundleContext)
     {
         // Register the about window plugin component in the main help menu.
-        Hashtable<String, String> helpMenuFilter
-            = new Hashtable<String, String>();
+        Hashtable<String, String> helpMenuFilter = new Hashtable<>();
         helpMenuFilter.put( Container.CONTAINER_ID,
                             Container.CONTAINER_HELP_MENU.getID());
 
@@ -160,11 +126,6 @@ public class BrandingActivator
             logger.info("CHAT ABOUT WINDOW ... [REGISTERED]");
     }
 
-    static BundleContext getBundleContext()
-    {
-        return bundleContext;
-    }
-
     /**
      * Returns the <tt>ResourceManagementService</tt>.
      *
@@ -172,11 +133,11 @@ public class BrandingActivator
      */
     public static ResourceManagementService getResources()
     {
-        if (resourcesService == null)
-            resourcesService
-                = ServiceUtils.getService(
-                bundleContext,
-                ResourceManagementService.class);
         return resourcesService;
+    }
+
+    public static BrowserLauncherService getBrowserLauncherService()
+    {
+        return browserLauncherService;
     }
 }

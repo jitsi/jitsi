@@ -29,23 +29,9 @@ import org.osgi.framework.*;
  * @author Romain Kuntz
  */
 public class SparkleActivator
-    implements BundleActivator
+    extends DependentActivator
 {
-    /**
-     * Our class logger.
-     */
-    private static Logger logger = Logger.getLogger(SparkleActivator.class);
-
-    /**
-     * A reference to the ConfigurationService implementation instance that
-     * is currently registered with the bundle context.
-     */
-    private static ConfigurationService configurationService = null;
-
-    /**
-     * The current BundleContext.
-     */
-    private static BundleContext bundleContext = null;
+    private static final Logger logger = Logger.getLogger(SparkleActivator.class);
 
     /**
      * Native method declaration
@@ -69,12 +55,12 @@ public class SparkleActivator
     /**
      * Whether updates are checked at startup
      */
-    private boolean updateAtStartup = true;
+    private final boolean updateAtStartup = true;
 
     /**
      * Check interval period, in seconds
      */
-    private int checkInterval = 86400;  // 1 day
+    private final int checkInterval = 86400;  // 1 day
 
     /**
      * Internal flag that we use in order to determine whether the native
@@ -88,16 +74,23 @@ public class SparkleActivator
     private static final String PROP_UPDATE_LINK =
         "net.java.sip.communicator.UPDATE_LINK";
 
+    public SparkleActivator()
+    {
+        super(
+            ResourceManagementService.class,
+            ConfigurationService.class
+        );
+    }
+
     /**
      * Initialize and start Sparkle
      *
      * @param bundleContext BundleContext
      * @throws Exception if something goes wrong during sparkle initialization
      */
-    public void start(BundleContext bundleContext) throws Exception
+    @Override
+    public void startWithServices(BundleContext bundleContext) throws Exception
     {
-        SparkleActivator.bundleContext = bundleContext;
-
         // Dynamically loads JNI object. Will fail if non-MacOSX
         // or when libinit_sparkle.dylib is outside of the LD_LIBRARY_PATH
         try
@@ -114,12 +107,10 @@ public class SparkleActivator
             return;
         }
 
-        String downloadLink = getConfigurationService().getString(
-                PROP_UPDATE_LINK);
+        String downloadLink = getService(ConfigurationService.class)
+            .getString(PROP_UPDATE_LINK);
 
-        String title = ServiceUtils.getService(
-            bundleContext,
-            ResourceManagementService.class)
+        String title = getService(ResourceManagementService.class)
                 .getI18NString("plugin.updatechecker.UPDATE_MENU_ENTRY");
 
         // add common suffix of this menu title
@@ -133,40 +124,5 @@ public class SparkleActivator
 
         if (logger.isInfoEnabled())
             logger.info("Sparkle Plugin ...[Started]");
-    }
-
-    /**
-     * Stops this bundle
-     *
-     * @param bundleContext a reference to the currently valid
-     * <tt>BundleContext</tt>
-     *
-     * @throws Exception if anything goes wrong (original, right ;) )
-     */
-    public void stop(BundleContext bundleContext) throws Exception
-    {
-        SparkleActivator.bundleContext = null;
-        if (logger.isInfoEnabled())
-            logger.info("Sparkle Plugin ...[Stopped]");
-    }
-
-    /**
-     * Returns a reference to a ConfigurationService implementation currently
-     * registered in the bundle context or null if no such implementation was
-     * found.
-     *
-     * @return a currently valid implementation of the ConfigurationService.
-     */
-    public static ConfigurationService getConfigurationService()
-    {
-        if (configurationService == null)
-        {
-            ServiceReference confReference
-                = bundleContext.getServiceReference(
-                    ConfigurationService.class.getName());
-            configurationService
-                = (ConfigurationService)bundleContext.getService(confReference);
-        }
-        return configurationService;
     }
 }

@@ -11,6 +11,5 @@ endif ()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake_modules")
 
-add_subdirectory(launcharghandler)
 add_subdirectory(launcher)
 add_subdirectory(sparkle)

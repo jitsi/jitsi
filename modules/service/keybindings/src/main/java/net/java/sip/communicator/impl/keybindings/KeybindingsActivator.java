@@ -56,17 +56,11 @@ public class KeybindingsActivator
      */
     private static ResourceManagementService resourceService = null;
 
-    /**
-     * OSGi bundle context.
-     */
-    private static BundleContext bundleContext = null;
-
     public KeybindingsActivator()
     {
         super(
             ResourceManagementService.class,
             ConfigurationService.class
-            
         );
     }
 
@@ -78,18 +72,16 @@ public class KeybindingsActivator
     @Override
     public void startWithServices(BundleContext context)
     {
-        if (this.keybindingsService == null)
-        {
-            bundleContext = context;
+        configService = getService(ConfigurationService.class);
+        resourceService = getService(ResourceManagementService.class);
 
-            if (logger.isDebugEnabled())
-                logger.debug("Service Impl: " + getClass().getName()
-                + " [  STARTED ]");
-            this.keybindingsService = new KeybindingsServiceImpl();
-            this.keybindingsService.start(context);
-            context.registerService(KeybindingsService.class.getName(),
-                this.keybindingsService, null);
-        }
+        if (logger.isDebugEnabled())
+            logger.debug("Service Impl: " + getClass().getName()
+            + " [  STARTED ]");
+        this.keybindingsService = new KeybindingsServiceImpl();
+        this.keybindingsService.start(context);
+        context.registerService(KeybindingsService.class.getName(),
+            this.keybindingsService, null);
     }
 
     /**
@@ -117,15 +109,6 @@ public class KeybindingsActivator
      */
     public static ConfigurationService getConfigService()
     {
-        if(configService == null)
-        {
-            ServiceReference confReference
-                = bundleContext.getServiceReference(
-                        ConfigurationService.class.getName());
-            configService
-                = (ConfigurationService) bundleContext.getService(
-                        confReference);
-        }
         return configService;
     }
 
@@ -138,17 +121,6 @@ public class KeybindingsActivator
      */
     public static ResourceManagementService getResourceService()
     {
-        if (resourceService == null)
-        {
-            ServiceReference resourceReference
-                = bundleContext.getServiceReference(
-                    ResourceManagementService.class.getName());
-
-            resourceService =
-                (ResourceManagementService) bundleContext
-                    .getService(resourceReference);
-        }
-
         return resourceService;
     }
 }

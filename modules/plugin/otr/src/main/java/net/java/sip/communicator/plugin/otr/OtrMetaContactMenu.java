@@ -29,6 +29,7 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
+import org.jitsi.util.*;
 
 /**
  * @author George Politis
@@ -72,7 +73,7 @@ public class OtrMetaContactMenu
 
         inMacOSXScreenMenuBar =
             Container.CONTAINER_CHAT_MENU_BAR.equals(container)
-                && OtrActivator.uiService.useMacOSXScreenMenuBar();
+                && OSUtils.IS_MAC;
     }
 
     /*

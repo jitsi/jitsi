@@ -59,28 +59,30 @@ ext.slf4jversion = '1.7.30'
 ext.libs = [
         nonosgi    : [
                 // FIXME: create a sane package, used by dbus-java
-                dbus     : ['org.freedesktop.dbus:dbus-java:2.7',[
+                dbus      : ['org.freedesktop.dbus:dbus-java:2.7', [
                         'cx.ath.matthew.debug'
                 ]],
                 // FIXME: create a sane package, used by dbus-java
-                hexdump  : [files('lib/installer-exclude/hexdump-0.2.jar')],
-                jcalendar: ['com.toedter:jcalendar:1.4', [
+                hexdump   : [files('lib/installer-exclude/hexdump-0.2.jar')],
+                jcalendar : ['com.toedter:jcalendar:1.4', [
                         'com.jgoodies.looks',
                         'com.jgoodies.looks.plastic'
                 ]],
                 // FIXME: necessary? source (java + native)?
-                jdic     : [files('lib/installer-exclude/jdic_misc.jar')],
-                jmyspell : ['org.omegat:jmyspell-core:1.0.0-beta-2'],
+                jdic      : [files('lib/installer-exclude/jdic_misc.jar')],
+                jgoodies  : ['com.jgoodies:forms:1.2.1'],
+                jmyspell  : ['org.omegat:jmyspell-core:1.0.0-beta-2'],
                 // FIXME: migrate to 'com.github.insubstantial:laf-widget:7.3'
-                lafwidget: ['net.java.dev.laf-widget:laf-widget:4.0', [
+                lafwidget : ['net.java.dev.laf-widget:laf-widget:4.0', [
                         'org.apache.tools.ant.*',
                         'org.objectweb.asm.*',
                         'com.sun.java.swing.plaf.windows'
                 ]],
+                macwidgets: ['com.explodingpixels:mac_widgets:0.9.5'],
                 // FIXME: update
-                otr4j    : ['org.jitsi:org.otr4j:0.22'],
+                otr4j     : ['org.jitsi:org.otr4j:0.22'],
                 // FIXME: create a sane package, used by dbus-java
-                unixsock : [files('lib/installer-exclude/unix-0.5.jar')],
+                unixsock  : [files('lib/installer-exclude/unix-0.5.jar')],
         ],
         ahttp      : [
                 client   : "org.apache.httpcomponents:httpclient-osgi:4.5.12",
@@ -105,6 +107,7 @@ ext.libs = [
         gdata      : 'com.google.gdata:core:1.47.1',
         ghttp      : 'com.google.http-client:google-http-client-assembly:1.34.2',
         goauth     : 'com.google.oauth-client:google-oauth-client:1.30.6',
+        growl4j    : 'org.jitsi:growl4j:1.0.0',
         gson       : 'com.google.code.gson:gson:2.8.5',
         // FIXME: update this in jitsi-utils
         guava      : 'com.google.guava:guava:28.2-jre',
@@ -152,7 +155,6 @@ ext.libs = [
         log4j      : "org.slf4j:log4j-over-slf4j:$slf4jversion",
         lombok     : 'org.projectlombok:lombok:1.18.4',
         libphonenum: 'com.googlecode.libphonenumber:libphonenumber:8.10.2',
-        macwidgets : 'com.explodingpixels:mac_widgets:0.9.5',
         orangeext  : 'com.massisframework:orange-extensions:1.3.1',
         osgi_core  : 'org.osgi:org.osgi.core:6.0.0',
         osgi_cm    : 'org.osgi:org.osgi.service.cm:1.6.0',

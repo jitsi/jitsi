@@ -17,10 +17,8 @@
  */
 package net.java.sip.communicator.plugin.defaultresourcepack;
 
-import java.io.*;
 import java.lang.reflect.*;
 import java.net.*;
-import java.nio.charset.*;
 import java.util.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -29,6 +27,7 @@ import net.java.sip.communicator.util.*;
  * @author Damian Minkov
  */
 public class DefaultLanguagePackImpl
+    extends AbstractResourcePack
     implements LanguagePack
 {
     private static final String DEFAULT_RESOURCE_PATH
@@ -47,7 +46,7 @@ public class DefaultLanguagePackImpl
     /**
      * All language resource locales.
      */
-    private Vector<Locale> availableLocales = new Vector<Locale>();
+    private final Vector<Locale> availableLocales = new Vector<>();
 
     /**
      * Constructor.
@@ -55,17 +54,18 @@ public class DefaultLanguagePackImpl
     public DefaultLanguagePackImpl()
     {
         // Finds all the files *.properties in the path : /resources/languages.
-        Enumeration<?> fsEnum = DefaultResourcePackActivator.bundleContext.getBundle().
+        Enumeration<?> fsEnum =
+            DefaultResourcePackActivator.bundleContext.getBundle().
                 findEntries("/resources/languages", "*.properties", false);
 
-        if(fsEnum != null)
+        if (fsEnum != null)
         {
             while (fsEnum.hasMoreElements())
             {
-                String fileName = ((URL)fsEnum.nextElement()).getFile();
+                String fileName = ((URL) fsEnum.nextElement()).getFile();
                 int localeIndex = fileName.indexOf('_');
 
-                if(localeIndex != -1)
+                if (localeIndex != -1)
                 {
                     String localeId =
                         fileName.substring(
@@ -101,59 +101,14 @@ public class DefaultLanguagePackImpl
     public Map<String, String> getResources(Locale locale)
     {
         // check if we didn't computed it at the previous call
-        if (locale.equals(localeInBuffer) && lastResourcesAsked != null) {
+        if (locale.equals(localeInBuffer) && lastResourcesAsked != null)
+        {
             return lastResourcesAsked;
         }
 
         ResourceBundle resourceBundle
             = ResourceBundle.getBundle(DEFAULT_RESOURCE_PATH, locale,
-                new ResourceBundle.Control(){
-                    @Override
-                    public ResourceBundle newBundle(String baseName,
-                        Locale locale, String format, ClassLoader loader,
-                        boolean reload) throws
-                        IOException
-                    {
-                        try (InputStream is = loader.getResourceAsStream(
-                            toResourceName(toBundleName(baseName, locale),
-                                "properties")))
-                        {
-                            if (is != null)
-                            {
-                                try (InputStreamReader isr
-                                    = new InputStreamReader(
-                                    is, StandardCharsets.UTF_8))
-                                {
-                                    return new PropertyResourceBundle(isr);
-                                }
-                            }
-                            else
-                            {
-                                return null;
-                            }
-                        }
-                    }
-
-                    // work around Java's backwards compatibility
-                @Override
-                public String toBundleName(String baseName, Locale locale)
-                {
-                    if (locale.equals(new Locale("he")))
-                    {
-                        return baseName + "_he";
-                    }
-                    else if (locale.equals(new Locale("yi")))
-                    {
-                        return baseName + "_yi";
-                    }
-                    else if (locale.equals(new Locale("id")))
-                    {
-                        return baseName + "_id";
-                    }
-
-                    return super.toBundleName(baseName, locale);
-                }
-            });
+            new Utf8ResourceBundleControl());
 
         Map<String, String> resources = new Hashtable<String, String>();
 
@@ -171,10 +126,11 @@ public class DefaultLanguagePackImpl
     /**
      * Returns a Set of the keys contained only in the ResourceBundle for
      * locale.
+     *
      * @param locale the locale for which the keys are requested
-     * @return a Set of the keys contained only in the ResourceBundle for
-     * locale
+     * @return a Set of the keys contained only in the ResourceBundle for locale
      */
+    @Override
     @SuppressWarnings("unchecked")
     public Set<String> getResourceKeys(Locale locale)
     {
@@ -183,58 +139,14 @@ public class DefaultLanguagePackImpl
             Method handleKeySet = ResourceBundle.class
                 .getDeclaredMethod("handleKeySet");
             handleKeySet.setAccessible(true);
-            return (Set<String>)handleKeySet.invoke(
-                ResourceBundle.getBundle(DEFAULT_RESOURCE_PATH, locale));
+            return (Set<String>) handleKeySet.invoke(
+                ResourceBundle.getBundle(DEFAULT_RESOURCE_PATH, locale).keySet());
         }
         catch (Exception e)
         {
         }
 
-        return new HashSet<String>();
-    }
-
-    /**
-     * Returns the name of this resource pack.
-     *
-     * @return the name of this resource pack.
-     */
-    public String getName()
-    {
-        return "Default Language Resources";
-    }
-
-    /**
-     * Returns the description of this resource pack.
-     *
-     * @return the description of this resource pack.
-     */
-    public String getDescription()
-    {
-        return "Provide Jitsi default Language resource pack.";
-    }
-
-    /**
-     * Fills the given resource map with all (key,value) pairs obtained from the
-     * given <tt>ResourceBundle</tt>. This method will look in the properties
-     * files for references to other properties files and will include in the
-     * final map data from all referenced files.
-     *
-     * @param resourceBundle The initial <tt>ResourceBundle</tt>, corresponding
-     * to the "main" properties file.
-     * @param resources A <tt>Map</tt> that would store the data.
-     */
-    private void initResources( ResourceBundle resourceBundle,
-                                Map<String, String> resources)
-    {
-        Enumeration<String> colorKeys = resourceBundle.getKeys();
-
-        while (colorKeys.hasMoreElements())
-        {
-            String key = colorKeys.nextElement();
-            String value = resourceBundle.getString(key);
-
-            resources.put(key, value);
-        }
+        return Collections.emptySet();
     }
 
     /**
@@ -242,35 +154,32 @@ public class DefaultLanguagePackImpl
      * pattern and adds them to this resource pack.
      */
     private void initPluginResources(Map<String, String> resources,
-                                    Locale locale)
+        Locale locale)
     {
-        Iterator<String> pluginProperties = DefaultResourcePackActivator
-            .findResourcePaths(   "resources/languages",
-                                    "strings-*.properties");
+        List<String> pluginProperties = DefaultResourcePackActivator
+            .findResourcePaths("resources/languages",
+                "strings-*.properties");
 
-        while (pluginProperties.hasNext())
+        for (String rbName : pluginProperties)
         {
-            String resourceBundleName = pluginProperties.next();
-
-            if (resourceBundleName.indexOf('_') == -1)
+            if (rbName.indexOf('_') == -1)
             {
-                ResourceBundle resourceBundle
-                    = ResourceBundle.getBundle(
-                        resourceBundleName.substring(
-                            0, resourceBundleName.indexOf(".properties")),
-                            locale);
+                ResourceBundle rb = ResourceBundle.getBundle(
+                    rbName.substring(0, rbName.indexOf(".properties")), locale);
 
-                initResources(resourceBundle, resources);
+                initResources(rb, resources);
             }
         }
     }
 
     /**
      * All the locales in the language pack.
+     *
      * @return all the locales this Language pack contains.
      */
     public Iterator<Locale> getAvailableLocales()
     {
         return availableLocales.iterator();
     }
+
 }

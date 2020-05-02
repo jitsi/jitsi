@@ -94,19 +94,6 @@ public class Resources
     }
 
     /**
-     * Returns the resource for the given key. This could be any resource stored
-     * in the resources.properties file of this bundle.
-     *
-     * @param key the key of the resource to search for
-     * @return the resource for the given key
-     */
-    public static InputStream getPropertyInputStream(String key)
-    {
-        return getResources().getSettingsInputStream(key,
-                                        JabberAccRegWizzActivator.class);
-    }
-
-    /**
      * Returns the <tt>ResourceManagementService</tt>.
      *
      * @return the <tt>ResourceManagementService</tt>.

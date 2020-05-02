@@ -18,11 +18,10 @@
 package net.java.sip.communicator.service.resources;
 
 /**
- *
  * @author Damian Minkov
  */
 public interface SettingsPack
     extends ResourcePack
 {
-    public String RESOURCE_NAME_DEFAULT_VALUE = "DefaultSettingsPack";
+    String RESOURCE_NAME_DEFAULT_VALUE = "DefaultSettingsPack";
 }

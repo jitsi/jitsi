@@ -26,7 +26,7 @@ import java.util.*;
  */
 public interface ResourcePack
 {
-    public String RESOURCE_NAME = "ResourceName";
+    String RESOURCE_NAME = "ResourceName";
 
     /**
      * Returns a <tt>Map</tt>, containing all [key, value] pairs for this
@@ -35,19 +35,5 @@ public interface ResourcePack
      * @return a <tt>Map</tt>, containing all [key, value] pairs for this
      * resource pack.
      */
-    public Map<String, String> getResources();
-
-    /**
-     * Returns the name of this resource pack.
-     *
-     * @return the name of this resource pack.
-     */
-    public String getName();
-
-    /**
-     * Returns the description of this resource pack.
-     *
-     * @return the description of this resource pack.
-     */
-    public String getDescription();
+    Map<String, String> getResources();
 }

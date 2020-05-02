@@ -24,22 +24,21 @@ import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 
 /**
- *
  * @author damencho
  */
 public class DefaultResourcePackActivator
     implements BundleActivator
 {
-    private Logger logger =
+    private final Logger logger =
         Logger.getLogger(DefaultResourcePackActivator.class);
 
     static BundleContext bundleContext;
 
     // buffer for ressource files found
-    private static Hashtable<String, Iterator<String>> ressourcesFiles =
-        new Hashtable<String, Iterator<String>>();
+    private static final Map<String, List<String>> resourceFiles =
+        new HashMap<>();
 
-    public void start(BundleContext bc) throws Exception
+    public void start(BundleContext bc)
     {
         bundleContext = bc;
 
@@ -59,22 +58,6 @@ public class DefaultResourcePackActivator
             new DefaultImagePackImpl(),
             imgProps);
 
-        Hashtable<String, String> langProps = new Hashtable<>();
-        langProps.put(ResourcePack.RESOURCE_NAME,
-            LanguagePack.RESOURCE_NAME_DEFAULT_VALUE);
-
-        bundleContext.registerService(LanguagePack.class,
-            new DefaultLanguagePackImpl(),
-            langProps);
-
-        Hashtable<String, String> setProps = new Hashtable<>();
-        setProps.put(ResourcePack.RESOURCE_NAME,
-            SettingsPack.RESOURCE_NAME_DEFAULT_VALUE);
-
-        bundleContext.registerService(SettingsPack.class,
-            new DefaultSettingsPackImpl(),
-            setProps);
-
         Hashtable<String, String> sndProps = new Hashtable<>();
         sndProps.put(ResourcePack.RESOURCE_NAME,
             SoundPack.RESOURCE_NAME_DEFAULT_VALUE);
@@ -83,15 +66,30 @@ public class DefaultResourcePackActivator
             new DefaultSoundPackImpl(),
             sndProps);
 
+        Hashtable<String, String> settingsProps = new Hashtable<>();
+        settingsProps.put(ResourcePack.RESOURCE_NAME,
+            SettingsPack.RESOURCE_NAME_DEFAULT_VALUE);
+
+        bundleContext.registerService(SettingsPack.class,
+            new DefaultSettingsPackImpl(),
+            settingsProps);
+
+        Hashtable<String, String> langProps = new Hashtable<>();
+        langProps.put(ResourcePack.RESOURCE_NAME,
+            LanguagePack.RESOURCE_NAME_DEFAULT_VALUE);
+
+        bundleContext.registerService(LanguagePack.class,
+            new DefaultLanguagePackImpl(),
+            langProps);
+
         if (logger.isInfoEnabled())
         {
             logger.info("Default resources ... [REGISTERED]");
         }
     }
 
-    public void stop(BundleContext bc) throws Exception
+    public void stop(BundleContext bc)
     {
-
     }
 
     /**
@@ -99,42 +97,31 @@ public class DefaultResourcePackActivator
      *
      * @param path the path pointing to the properties files.
      */
-    protected static Iterator<String> findResourcePaths(  String path,
-                                                            String pattern)
+    protected static List<String> findResourcePaths(String path,
+        String pattern)
     {
-        Iterator<String> bufferedResult = ressourcesFiles.get(path + pattern);
-        if (bufferedResult != null) {
-            return bufferedResult;
+        List<String> cachedResult = resourceFiles.get(path + pattern);
+        if (cachedResult != null)
+        {
+            return cachedResult;
         }
 
-        ArrayList<String> propertiesList = new ArrayList<String>();
+        ArrayList<String> propertiesList = new ArrayList<>();
 
-        @SuppressWarnings ("unchecked")
         Enumeration<URL> propertiesUrls = bundleContext.getBundle()
-            .findEntries(path,
-                        pattern,
-                        false);
+            .findEntries(path, pattern, false);
 
         if (propertiesUrls != null)
         {
-            while (propertiesUrls.hasMoreElements())
+            for (URL propertyUrl : Collections.list(propertiesUrls))
             {
-                URL propertyUrl = propertiesUrls.nextElement();
-
-                // Remove the first slash.
-                String propertyFilePath
-                    = propertyUrl.getPath().substring(1);
-
-                // Replace all slashes with dots.
-                propertyFilePath = propertyFilePath.replaceAll("/", ".");
-
-                propertiesList.add(propertyFilePath);
+                // Remove the first slash, then replace all slashes with dots.
+                propertiesList.add(
+                    propertyUrl.getPath().substring(1).replaceAll("/", "."));
             }
         }
 
-        Iterator<String> result = propertiesList.iterator();
-        ressourcesFiles.put(path + pattern, result);
-
-        return result;
+        resourceFiles.put(path + pattern, propertiesList);
+        return propertiesList;
     }
 }
