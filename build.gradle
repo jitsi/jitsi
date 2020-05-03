@@ -27,6 +27,7 @@ apply plugin: 'net.jsign'
 ext {
     def gradleMatcher = project.version =~ /^(?<MAJOR>\d+)\.(?<MINOR>\d+)(\.(?<REVISION>\d+))?(\.(?<BUILD>\d+))?(-(?<SUFFIX>\S+))?$/
     def gitVersion = 'git describe --match "Jitsi-[0-9\\.]*" --long --dirty --always'.execute().text.trim()
+    println "Parsing versions: ${project.version} / ${gitVersion}"
     def gitMatcher = gitVersion =~ /^((?<TAG>Jitsi-[0-9.]+)-(?<NCOMMITS>\d+)-)?(?<REV>\S+)$/
     if (!gradleMatcher.matches() || !gitMatcher.matches()) {
         throw new GradleException("Unknown project version format: ${project.version} / ${gitVersion}")
