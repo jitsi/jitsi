@@ -8,5 +8,7 @@ Bundle-SymbolicName: net.java.sip.communicator.version
 Import-Package: net.java.sip.communicator.util.osgi,org.osgi.framework,
  org.jitsi.service.configuration,
  org.jitsi.utils.version,
- org.jitsi.service.resources, net.java.sip.communicator.service.resources,
- net.java.sip.communicator.util
+ org.jitsi.service.resources,
+ net.java.sip.communicator.service.resources,
+ net.java.sip.communicator.util,
+ org.slf4j

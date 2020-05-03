@@ -5,10 +5,12 @@ dependencies {
     implementation project(':osgi-util')
 }
 
-sourceSets {
-    main {
-        java {
-            exclude '**/*Task'
-        }
-    }
+processResources {
+    filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: [
+            versionName      : project.getProperty('application.name').toString(),
+            versionMajor     : versionMajor.toString(),
+            versionMinor     : versionMinor.toString(),
+            versionBuildId   : "${versionRevision}+${versionHash}".toString(),
+            versionPrerelease: versionSuffix.toString(),
+    ])
 }

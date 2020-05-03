@@ -30,6 +30,8 @@ SCLogoIcon ICON "sc-logo.ico"
     FILEVERSION PRODUCTBUILDVERSION_COMMA
     FILETYPE VFT_APP
     PRODUCTVERSION PRODUCTBUILDVERSION_COMMA
+    FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+    FILEFLAGS PRODUCT_FILEFLAGS
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
@@ -42,7 +44,7 @@ BEGIN
             VALUE "LegalCopyright", PRODUCTCOPYRIGHT
             VALUE "OriginalFilename", "cleansweep.exe"
             VALUE "ProductName", PRODUCTNAME
-            VALUE "ProductVersion", PRODUCTBUILDVERSION
+            VALUE "ProductVersion", PRODUCT_INFO_VERSION
         END
     END
     BLOCK "VarFileInfo"

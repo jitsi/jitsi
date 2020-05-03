@@ -127,7 +127,7 @@ task wixCandle(type: Exec, group: 'installer-wix', dependsOn: [
                 "-dPRODUCT=${project.property('application.name')}",
                 "-dUPGRADE_CODE=${project.property('application.wix_upgrade_code')}",
                 "-dAPP_WEB=${project.property('application.web')}",
-                "-dVERSION=${project.version.replaceAll(/[^0-9\.]/, '')}",
+                "-dVERSION=${versionShort}",
                 "-dLAUNCHER_NAME=${project.name}",
                 "-dCOMPRESS_LEVEL=none",
                 "-dConfigDirId=${findConfigInHeat(wixHeat.outputs.files.singleFile)}",

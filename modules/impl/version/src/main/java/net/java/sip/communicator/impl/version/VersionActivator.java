@@ -18,9 +18,7 @@
 package net.java.sip.communicator.impl.version;
 
 import net.java.sip.communicator.util.*;
-
 import org.jitsi.utils.version.*;
-import org.jitsi.utils.version.Version;
 import org.osgi.framework.*;
 
 /**
@@ -32,81 +30,30 @@ import org.osgi.framework.*;
 public class VersionActivator
     implements BundleActivator
 {
-    /**
-     * The <tt>Logger</tt> used by this <tt>VersionActivator</tt> instance for
-     * logging output.
-     */
     private final Logger logger = Logger.getLogger(VersionActivator.class);
-
-    /**
-     * The OSGi <tt>BundleContext</tt>.
-     */
-    private static BundleContext bundleContext;
 
     /**
      * Called when this bundle is started so the Framework can perform the
      * bundle-specific activities necessary to start this bundle.
      *
      * @param context The execution context of the bundle being started.
-     * @throws Exception If this method throws an exception, this bundle is
-     *   marked as stopped and the Framework will remove this bundle's
-     *   listeners, unregister all services registered by this bundle, and
-     *   release all services used by this bundle.
      */
-    public void start(BundleContext context) throws Exception
+    public void start(BundleContext context)
     {
-        if (logger.isDebugEnabled())
-            logger.debug("Started.");
+        VersionService vs = new VersionServiceImpl();
+        context.registerService(VersionService.class, vs, null);
 
-        VersionActivator.bundleContext = context;
+        String appName = vs.getCurrentVersion().getApplicationName();
+        String version = vs.getCurrentVersion().toString();
 
-        context.registerService(
-                VersionService.class.getName(),
-                new VersionServiceImpl(),
-                null);
-
-        if (logger.isDebugEnabled())
-            logger.debug("Jitsi Version Service ... [REGISTERED]");
-
-        Version version = VersionImpl.currentVersion();
-        String applicationName = version.getApplicationName();
-        String versionString = version.toString();
-
-        if (logger.isInfoEnabled())
-        {
-            logger.info(
-                    "Jitsi Version: " + applicationName + " " + versionString);
-        }
+        logger.info("Jitsi Version: " + appName + " " + version);
 
         // later stage.
-        System.setProperty("sip-communicator.version", versionString);
-        System.setProperty(
-            "sip-communicator.application.name", applicationName);
+        System.setProperty("sip-communicator.version", version);
+        System.setProperty("sip-communicator.application.name", appName);
     }
 
-    /**
-     * Gets the <tt>BundleContext</tt> instance within which this bundle has
-     * been started.
-     *
-     * @return the <tt>BundleContext</tt> instance within which this bundle has
-     * been started
-     */
-    public static BundleContext getBundleContext()
-    {
-        return bundleContext;
-    }
-
-    /**
-     * Called when this bundle is stopped so the Framework can perform the
-     * bundle-specific activities necessary to stop the bundle.
-     *
-     * @param context The execution context of the bundle being stopped.
-     * @throws Exception If this method throws an exception, the bundle is
-     *   still marked as stopped, and the Framework will remove the bundle's
-     *   listeners, unregister all services registered by the bundle, and
-     *   release all services used by the bundle.
-     */
-    public void stop(BundleContext context) throws Exception
+    public void stop(BundleContext context)
     {
     }
 }

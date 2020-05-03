@@ -24,7 +24,28 @@ plugins {
 
 apply plugin: 'net.jsign'
 
+ext {
+    def gradleMatcher = project.version =~ /^(?<MAJOR>\d+)\.(?<MINOR>\d+)(\.(?<REVISION>\d+))?(\.(?<BUILD>\d+))?(-(?<SUFFIX>\S+))?$/
+    def gitVersion = 'git describe --match "Jitsi-[0-9\\.]*" --long --dirty --always'.execute().text.trim()
+    def gitMatcher = gitVersion =~ /^((?<TAG>Jitsi-[0-9.]+)-(?<NCOMMITS>\d+)-)?(?<REV>\S+)$/
+    if (!gradleMatcher.matches() || !gitMatcher.matches()) {
+        throw new GradleException("Unknown project version format: ${project.version} / ${gitVersion}")
+    }
+
+    versionMajor = gradleMatcher.group('MAJOR')
+    versionMinor = gradleMatcher.group('MINOR')
+    versionRevision = gitMatcher.group('NCOMMITS')
+    versionBuild = 0
+    versionSuffix = gradleMatcher.group('SUFFIX') ?: ''
+    versionHash = gitMatcher.group('REV')
+
+    versionShort = "${ext.versionMajor}.${ext.versionMinor}.${ext.versionRevision}"
+    versionFull = "${ext.versionShort}${ext.versionSuffix ? '-' + ext.versionSuffix : ''}+${ext.versionHash}"
+    versionOsgi = "${ext.versionShort}.${ext.versionSuffix ? ext.versionSuffix + '+' : ''}${ext.versionHash}"
+}
+
 allprojects {
+    it.version = versionFull
     repositories {
 //        mavenLocal()
         mavenCentral()
@@ -181,7 +202,7 @@ ext.libs = [
 
 libs.nonosgi.each {
     def symName
-    def depVersion = "1.0.0.jitsi-autowrapped"
+    def depVersion = "${ext.versionShort}.jitsi-autowrapped"
     def dep = it.value.first()
     def optImports = it.value[1] as String[]
     def instructions = it.value[2]
@@ -249,7 +270,7 @@ configurations {
 ext.sharedManifest = manifest {
     attributes(
             'Bundle-Vendor': 'jitsi.org',
-            'Bundle-Version': project.version.replaceAll(/[\-_]/, '.'),
+            'Bundle-Version': versionOsgi,
             'Bundle-License': 'Apache-2.0;link="https://raw.githubusercontent.com/jitsi/jitsi/master/LICENSE"'
     )
 }
@@ -294,7 +315,7 @@ task modifyIdeaXml(group: 'ide') {
                                 entry(source: '$MODULE_DIR$/'
                                         + imlFile.relativePath(rootDir).replaceFirst('../', '') + '/'
                                         + imlFile.parent.replace(rootDir.path, '').replace('\\', '/').replace('/.idea/modules/', '')
-                                        + '/src/main/resources',
+                                        + '/out/production/resources',
                                         dest: '') {}
                             }
                         }
@@ -314,8 +335,8 @@ idea.project.settings {
 }
 
 signing {
-    def signingKey = findProperty("signingKey")
-    def signingPassword = findProperty("signingPassword")
+    String signingKey = findProperty("signingKey")
+    String signingPassword = findProperty("signingPassword")
     required signingKey != null
     useInMemoryPgpKeys signingKey, signingPassword
 }

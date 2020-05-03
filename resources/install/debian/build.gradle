@@ -3,6 +3,7 @@ def debArch = project.property('application.target') == 'x64'
         : 'x86'
 
 buildDeb {
+    archiveVersion = versionFull
     release = '1'
     vendor = 'jitsi.org'
     url = 'https://desktop.jitsi.org'
@@ -11,8 +12,7 @@ buildDeb {
     maintainer = 'Ingo Bauersachs <ingo@jitsi.org>'
     uploaders = 'Ingo Bauersachs <ingo@jitsi.org>'
     packageGroup = 'net'
-    packageDescription = description = """\
-VoIP and Instant Messaging client
+    packageDescription = description = """VoIP and Instant Messaging client
 Jitsi is an application that allows you to do audio/video \
 conversations over the Internet through the SIP and XMPP/Jabber protocol, \
 as well as chat with your friends using some of the most popular instant \
