@@ -17,6 +17,7 @@
  */
 package net.java.sip.communicator.impl.sysactivity;
 
+import lombok.extern.slf4j.*;
 import net.java.sip.communicator.service.sysactivity.*;
 import net.java.sip.communicator.util.*;
 
@@ -28,20 +29,10 @@ import org.osgi.framework.*;
  *
  * @author Damian Minkov
  */
+@Slf4j
 public class SysActivityActivator
     implements BundleActivator
 {
-    /**
-     * The <tt>Logger</tt> used by this <tt>SysActivityActivator</tt> for
-     * logging output.
-     */
-    private final Logger logger = Logger.getLogger(SysActivityActivator.class);
-
-    /**
-     * The OSGi <tt>BundleContext</tt>.
-     */
-    private static BundleContext bundleContext = null;
-
     /**
      * The system activity service impl.
      */
@@ -61,29 +52,15 @@ public class SysActivityActivator
     public void start(BundleContext bundleContext)
         throws Exception
     {
-        SysActivityActivator.bundleContext = bundleContext;
-
-        if (logger.isDebugEnabled())
-            logger.debug("Started.");
+        logger.debug("Started.");
 
         sysActivitiesServiceImpl = new SystemActivityNotificationsServiceImpl();
         sysActivitiesServiceImpl.start();
 
         bundleContext.registerService(
-                SystemActivityNotificationsService.class.getName(),
+                SystemActivityNotificationsService.class,
                 sysActivitiesServiceImpl,
                 null);
-    }
-
-    /**
-     * Returns a reference to the bundle context that we were started with.
-     * @return a reference to the BundleContext instance that we were started
-     * with.
-     */
-    public static SystemActivityNotificationsServiceImpl
-        getSystemActivityService()
-    {
-        return sysActivitiesServiceImpl;
     }
 
     /**
@@ -101,15 +78,5 @@ public class SysActivityActivator
     {
         if (sysActivitiesServiceImpl != null)
             sysActivitiesServiceImpl.stop();
-    }
-
-    /**
-     * Returns a reference to the bundle context that we were started with.
-     * @return a reference to the BundleContext instance that we were started
-     * with.
-     */
-    public static BundleContext getBundleContext()
-    {
-        return bundleContext;
     }
 }

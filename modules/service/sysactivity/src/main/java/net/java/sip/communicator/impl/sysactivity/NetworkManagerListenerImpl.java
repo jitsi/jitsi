@@ -17,45 +17,45 @@
  */
 package net.java.sip.communicator.impl.sysactivity;
 
+import lombok.extern.slf4j.*;
+import net.java.sip.communicator.impl.sysactivity.DBusNetworkManager.*;
 import net.java.sip.communicator.service.sysactivity.event.*;
-import net.java.sip.communicator.util.*;
-
-import org.freedesktop.*;
-import org.freedesktop.dbus.*;
+import org.apache.commons.lang3.*;
+import org.freedesktop.DBus.*;
+import org.freedesktop.dbus.connections.impl.*;
 import org.freedesktop.dbus.exceptions.*;
+import org.freedesktop.dbus.interfaces.*;
 
 /**
- * Responsible for subscribe and dispatch signals from NetworkManager.
- * Uses dbus to connect.
+ * Responsible for subscribe and dispatch signals from NetworkManager. Uses dbus
+ * to connect.
  *
  * @author Damian Minkov
  */
-@SuppressWarnings("rawtypes")
+@Slf4j
 public class NetworkManagerListenerImpl
-    implements DBusSigHandler,
-               SystemActivityManager
+    implements SystemActivityManager
 {
-    /**
-     * The logger.
-     */
-    private Logger logger = Logger.getLogger(
-        NetworkManagerListenerImpl.class.getName());
-
     /**
      * Dbus connection we use.
      */
     private DBusConnection dbusConn;
 
+    private SystemActivityNotificationsServiceImpl sysActivitiesService;
+
     /**
      * Make only one instance.
      */
-    public NetworkManagerListenerImpl()
+    public NetworkManagerListenerImpl(SystemActivityNotificationsServiceImpl
+        sysActivitiesService)
     {
+        this.sysActivitiesService = sysActivitiesService;
         try
         {
-            dbusConn = DBusConnection.getConnection(DBusConnection.SYSTEM);
+            dbusConn = DBusConnection.getConnection(
+                DBusConnection.DEFAULT_SYSTEM_BUS_ADDRESS);
         }
-        catch(DBusException e)
+        catch (DBusException e)
         {
             logger.error("Cannot obtain dbus connection", e);
         }
@@ -64,20 +64,22 @@ public class NetworkManagerListenerImpl
     /**
      * Starts
      */
-    @SuppressWarnings("unchecked")
     public void start()
     {
         // on error connecting to dbus do nothing
-        if(dbusConn == null)
+        if (dbusConn == null)
+        {
             return;
+        }
 
         try
         {
-            dbusConn.addSigHandler(DBus.NameOwnerChanged.class, this);
-            dbusConn.addSigHandler(DBusNetworkManager.StateChange.class, this);
-            dbusConn.addSigHandler(DBusNetworkManager.StateChanged.class, this);
+            dbusConn.addSigHandler(NameOwnerChanged.class,
+                nameOwnerChangedHandler);
+            dbusConn.addSigHandler(StateChange.class,
+                stateChangeHandler);
         }
-        catch(DBusException e)
+        catch (DBusException e)
         {
             logger.error("Error adding dbus signal handlers", e);
         }
@@ -86,89 +88,76 @@ public class NetworkManagerListenerImpl
     /**
      * Stops.
      */
-    @SuppressWarnings("unchecked")
     public void stop()
     {
         // on error connecting to dbus do nothing
-        if(dbusConn == null)
+        if (dbusConn == null)
+        {
             return;
+        }
 
         try
         {
-            dbusConn.removeSigHandler(DBus.NameOwnerChanged.class, this);
-            dbusConn.removeSigHandler(
-                DBusNetworkManager.StateChange.class, this);
-            dbusConn.removeSigHandler(
-                DBusNetworkManager.StateChanged.class, this);
+            dbusConn.removeSigHandler(NameOwnerChanged.class,
+                nameOwnerChangedHandler);
+            dbusConn.removeSigHandler(StateChange.class,
+                stateChangeHandler);
         }
-        catch(DBusException e)
+        catch (DBusException e)
         {
             logger.error("Error removing dbus signal handlers", e);
         }
     }
 
-    /**
-     * Receives signals and dispatch them.
-     * @param dBusSignal signal to handle.
-     */
-    public void handle(DBusSignal dBusSignal)
+    private final DBusSigHandler<NameOwnerChanged>
+        nameOwnerChangedHandler = nameOwnerChanged ->
     {
-        if(dBusSignal instanceof DBus.NameOwnerChanged)
+        if (nameOwnerChanged.name.equals("org.freedesktop.NetworkManager"))
         {
-            DBus.NameOwnerChanged nameOwnerChanged =
-                (DBus.NameOwnerChanged)dBusSignal;
-
-            if(nameOwnerChanged.name.equals("org.freedesktop.NetworkManager"))
+            if (StringUtils.isNotEmpty(nameOwnerChanged.oldOwner)
+                && StringUtils.isEmpty(nameOwnerChanged.newOwner))
             {
-                boolean b1 = nameOwnerChanged.old_owner != null
-                    && nameOwnerChanged.old_owner.length() > 0;
-                boolean b2 = nameOwnerChanged.new_owner != null
-                    && nameOwnerChanged.new_owner.length() > 0;
-
-                if(b1 && !b2)
-                {
-                    SystemActivityEvent evt = new SystemActivityEvent(
-                        SysActivityActivator.getSystemActivityService(),
-                        SystemActivityEvent.EVENT_NETWORK_CHANGE);
-                    SysActivityActivator.getSystemActivityService()
-                        .fireSystemActivityEvent(evt);
-                }
+                SystemActivityEvent evt = new SystemActivityEvent(
+                    sysActivitiesService,
+                    SystemActivityEvent.EVENT_NETWORK_CHANGE);
+                sysActivitiesService.fireSystemActivityEvent(evt);
             }
         }
-        else if(dBusSignal instanceof DBusNetworkManager.StateChange)
+    };
+
+    private final DBusSigHandler<StateChange>
+        stateChangeHandler = stateChange ->
+    {
+        SystemActivityEvent evt = null;
+        switch (stateChange.getStatus())
         {
-            DBusNetworkManager.StateChange stateChange =
-                (DBusNetworkManager.StateChange)dBusSignal;
-
-            SystemActivityEvent evt = null;
-            switch(stateChange.getStatus())
-            {
-                case DBusNetworkManager.NM_STATE_CONNECTED:
-                case DBusNetworkManager.NM_STATE_DISCONNECTED:
-                case DBusNetworkManager.NM9_STATE_DISCONNECTED:
-                case DBusNetworkManager.NM9_STATE_CONNECTED_LOCAL:
-                case DBusNetworkManager.NM9_STATE_CONNECTED_SITE:
-                case DBusNetworkManager.NM9_STATE_CONNECTED_GLOBAL:
-                    evt = new SystemActivityEvent(
-                        SysActivityActivator.getSystemActivityService(),
-                        SystemActivityEvent.EVENT_NETWORK_CHANGE);
-                    break;
-                case DBusNetworkManager.NM_STATE_ASLEEP:
-                case DBusNetworkManager.NM9_STATE_ASLEEP:
-                    evt = new SystemActivityEvent(
-                        SysActivityActivator.getSystemActivityService(),
-                        SystemActivityEvent.EVENT_SLEEP);
-                    break;
-            }
-
-            if(evt != null)
-                SysActivityActivator.getSystemActivityService()
-                        .fireSystemActivityEvent(evt);
+        case DBusNetworkManager.NM_STATE_CONNECTED:
+        case DBusNetworkManager.NM_STATE_DISCONNECTED:
+        case DBusNetworkManager.NM9_STATE_DISCONNECTED:
+        case DBusNetworkManager.NM9_STATE_CONNECTED_LOCAL:
+        case DBusNetworkManager.NM9_STATE_CONNECTED_SITE:
+        case DBusNetworkManager.NM9_STATE_CONNECTED_GLOBAL:
+            evt = new SystemActivityEvent(
+                sysActivitiesService,
+                SystemActivityEvent.EVENT_NETWORK_CHANGE);
+            break;
+        case DBusNetworkManager.NM_STATE_ASLEEP:
+        case DBusNetworkManager.NM9_STATE_ASLEEP:
+            evt = new SystemActivityEvent(
+                sysActivitiesService,
+                SystemActivityEvent.EVENT_SLEEP);
+            break;
         }
-    }
+
+        if (evt != null)
+        {
+            sysActivitiesService.fireSystemActivityEvent(evt);
+        }
+    };
 
     /**
      * Whether we are connected to the network manager through dbus.
+     *
      * @return whether we are connected to the network manager.
      */
     public boolean isConnected()

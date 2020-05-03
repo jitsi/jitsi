@@ -17,8 +17,11 @@
  */
 package net.java.sip.communicator.impl.sysactivity;
 
-import org.freedesktop.dbus.*;
+import org.freedesktop.dbus.annotations.*;
 import org.freedesktop.dbus.exceptions.*;
+import org.freedesktop.dbus.interfaces.*;
+import org.freedesktop.dbus.messages.*;
+import org.freedesktop.dbus.types.*;
 
 /**
  * NetworkManager D-Bus Interface

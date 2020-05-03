@@ -18,11 +18,10 @@
 package net.java.sip.communicator.impl.sysactivity;
 
 import java.util.*;
-
+import lombok.extern.slf4j.*;
 import net.java.sip.communicator.service.sysactivity.*;
 import net.java.sip.communicator.service.sysactivity.event.*;
-import net.java.sip.communicator.util.Logger;
-
+import net.java.sip.communicator.util.*;
 import org.jitsi.util.*;
 
 /**
@@ -31,18 +30,12 @@ import org.jitsi.util.*;
  *
  * @author Damian Minkov
  */
+@Slf4j
 public class SystemActivityNotificationsServiceImpl
     implements SystemActivityNotifications.NotificationsDelegate,
                SystemActivityNotificationsService,
                Runnable
 {
-    /**
-     * The <tt>Logger</tt> used by this
-     * <tt>SystemActivityNotificationsServiceImpl</tt> for logging output.
-     */
-    private final Logger logger
-        = Logger.getLogger(SystemActivityNotificationsServiceImpl.class);
-
     /**
      * The thread dispatcher of network change events.
      */
@@ -100,18 +93,6 @@ public class SystemActivityNotificationsServiceImpl
     private Boolean networkIsConnected = null;
 
     /**
-     * The linux impl class name.
-     */
-    private static final String SYSTEM_ACTIVITY_MANAGER_LINUX_CLASS
-        = "net.java.sip.communicator.impl.sysactivity.NetworkManagerListenerImpl";
-
-    /**
-     * The android impl class name.
-     */
-    private static final String SYSTEM_ACTIVITY_MANAGER_ANDROID_CLASS
-        = "net.java.sip.communicator.impl.sysactivity.ConnectivityManagerListenerImpl";
-
-    /**
      * The currently instantiated and working manager.
      */
     private SystemActivityManager currentRunningManager = null;
@@ -125,18 +106,12 @@ public class SystemActivityNotificationsServiceImpl
 
         // set the delegate and start notification in new thread
         // make sure we don't block startup process
-        Thread notifystartThread
-            = new Thread(
-                    new Runnable()
-                    {
-                        public void run()
-                        {
-                            SystemActivityNotifications.setDelegate(
-                                SystemActivityNotificationsServiceImpl.this);
-                            SystemActivityNotifications.start();
-                        }
-                    },
-                    "SystemActivityNotificationsServiceImpl");
+        Thread notifystartThread = new Thread(() ->
+        {
+            SystemActivityNotifications.setDelegate(
+                SystemActivityNotificationsServiceImpl.this);
+            SystemActivityNotifications.start();
+        }, "SystemActivityNotificationsServiceImpl");
         notifystartThread.setDaemon(true);
         notifystartThread.start();
 
@@ -596,10 +571,8 @@ public class SystemActivityNotificationsServiceImpl
                     SystemActivityManager currentRunningManager
                         = getCurrentRunningManager();
 
-                    return
-                        (currentRunningManager == null)
-                            ? false
-                            : currentRunningManager.isConnected();
+                    return currentRunningManager != null
+                        && currentRunningManager.isConnected();
                 }
             case SystemActivityEvent.EVENT_SYSTEM_IDLE:
             case SystemActivityEvent.EVENT_SYSTEM_IDLE_END:
@@ -607,10 +580,6 @@ public class SystemActivityNotificationsServiceImpl
             default:
                 return false;
             }
-        }
-        else if(OSUtils.IS_ANDROID)
-        {
-            return (eventID == SystemActivityEvent.EVENT_NETWORK_CHANGE);
         }
         else
         {
@@ -620,7 +589,6 @@ public class SystemActivityNotificationsServiceImpl
 
     /**
      * Returns or instantiate the manager.
-     * @return
      */
     private SystemActivityManager getCurrentRunningManager()
     {
@@ -628,19 +596,7 @@ public class SystemActivityNotificationsServiceImpl
         {
             try
             {
-                String className = null;
-                if(OSUtils.IS_LINUX)
-                {
-                    className = SYSTEM_ACTIVITY_MANAGER_LINUX_CLASS;
-                }
-                else if(OSUtils.IS_ANDROID)
-                {
-                    className = SYSTEM_ACTIVITY_MANAGER_ANDROID_CLASS;
-                }
-
-                if(className != null)
-                    currentRunningManager = (SystemActivityManager)
-                        Class.forName(className).newInstance();
+                currentRunningManager = new NetworkManagerListenerImpl(this);
             }
             catch(Throwable t)
             {

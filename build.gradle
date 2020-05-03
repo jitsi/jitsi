@@ -79,12 +79,6 @@ ext.slf4jversion = '1.7.30'
 
 ext.libs = [
         nonosgi    : [
-                // FIXME: create a sane package, used by dbus-java
-                dbus      : ['org.freedesktop.dbus:dbus-java:2.7', [
-                        'cx.ath.matthew.debug'
-                ]],
-                // FIXME: create a sane package, used by dbus-java
-                hexdump   : [files('lib/installer-exclude/hexdump-0.2.jar')],
                 jcalendar : ['com.toedter:jcalendar:1.4', [
                         'com.jgoodies.looks',
                         'com.jgoodies.looks.plastic'
@@ -102,7 +96,6 @@ ext.libs = [
                 macwidgets: ['com.explodingpixels:mac_widgets:0.9.5'],
                 // FIXME: update
                 otr4j     : ['org.jitsi:org.otr4j:0.22'],
-                // FIXME: create a sane package, used by dbus-java
                 unixsock  : [files('lib/installer-exclude/unix-0.5.jar')],
         ],
         ahttp      : [
@@ -119,6 +112,7 @@ ext.libs = [
                 text    : 'org.apache.commons:commons-text:1.6',
                 compress: 'org.apache.commons:commons-compress:1.20',
         ],
+        dbus       : 'com.github.hypfvieh:dbus-java-osgi:3.2.0',
         dhcp4java  : 'com.helger:dhcp4java:1.1.0',
         dnsjava    : 'dnsjava:dnsjava:2.1.7',
         dnssecjava : 'org.jitsi:dnssecjava:1.1.3',
