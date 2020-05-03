@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.1.0
+        with:
+          fetch-depth: 0
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
 
       - name: Set up JDK 1.8
@@ -56,6 +58,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2.1.0
+        with:
+          fetch-depth: 0
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
 
       - name: Set up JDK 1.8
@@ -106,6 +110,8 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2.1.0
+        with:
+          fetch-depth: 0
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
 
       - name: Set up JDK 1.8
