@@ -550,7 +550,7 @@ public class ResourceManagementServiceImpl
     public InputStream getSettingsInputStream(  String streamKey,
                                                 Class<?> resourceClass)
     {
-        String path = getSettingsString(streamKey);
+        String path = settingsPack.getResources().get(streamKey);
 
         if (path == null || path.length() == 0)
         {
