@@ -16,22 +16,25 @@
  * limitations under the License.
  */
 
-import junit.framework.*;
+import static org.junit.Assert.*;
 
-/**
- *
- * @author Emil Ivov
- */
-public class TestAddressPool
-    extends TestCase
+import java.io.*;
+import java.net.*;
+import net.java.sip.communicator.impl.netaddr.*;
+import org.junit.*;
+
+public class Win32LocalhostTest
 {
-    public TestAddressPool()
+    @Test
+    public void testBestAdapterRoute() throws IOException
     {
-        super();
-    }
+        InetAddress localhost = Win32LocalhostRetriever
+            .getSourceForDestination(InetAddress.getLoopbackAddress());
+        assertEquals(InetAddress.getLoopbackAddress(), localhost);
 
-    public TestAddressPool(String name)
-    {
-        super(name);
+        System.setProperty("java.net.preferIPv6Addresses", "true");
+        localhost = Win32LocalhostRetriever
+            .getSourceForDestination(InetAddress.getLoopbackAddress());
+        assertEquals(InetAddress.getLoopbackAddress(), localhost);
     }
 }

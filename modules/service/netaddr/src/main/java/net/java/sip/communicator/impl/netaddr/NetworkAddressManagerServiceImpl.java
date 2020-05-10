@@ -17,6 +17,7 @@
  */
 package net.java.sip.communicator.impl.netaddr;
 
+import com.sun.jna.platform.win32.*;
 import java.beans.*;
 import java.io.*;
 import java.net.*;
@@ -160,27 +161,19 @@ public class NetworkAddressManagerServiceImpl
 
         if (OSUtils.IS_WINDOWS) /* 2000 */
         {
-            if (Win32LocalhostRetriever.isLoaded)
+            try
             {
-                byte[] src
-                    = Win32LocalhostRetriever.getSourceForDestination(
-                    intendedDestination.getAddress());
+                localHost = Win32LocalhostRetriever.getSourceForDestination(
+                    intendedDestination);
+            }
+            catch (IOException | Win32Exception e)
+            {
+                logger.warn("Failed to get localhost", e);
+            }
 
-                if (src == null)
-                {
-                    logger.warn("Failed to get localhost ");
-                }
-                else
-                {
-                    try
-                    {
-                        localHost = InetAddress.getByAddress(src);
-                    }
-                    catch (UnknownHostException uhe)
-                    {
-                        logger.warn("Failed to get localhost", uhe);
-                    }
-                }
+            if (localHost == null)
+            {
+                logger.warn("Failed to get localhost ");
             }
         }
         else if (OSUtils.IS_MAC)
