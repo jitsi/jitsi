@@ -46,6 +46,7 @@ jobs:
         run: |
           rm -rf build/
           ./gradlew bundles signDeb -Papplication.target=x86
+          ./gradlew --stop
       - name: Upload x86-deb
         uses: actions/upload-artifact@v1
         with:
@@ -95,6 +96,7 @@ jobs:
           cmake --build cmake-build-x86 --config Release
           cd $Env:GITHUB_WORKSPACE
           & .\gradlew --% bundles signMsi -Papplication.target=x86
+          & .\gradlew --% --stop
       - name: Upload msi
         uses: actions/upload-artifact@v1
         with:
@@ -129,7 +131,7 @@ jobs:
           cmake --build cmake-build --config Release --verbose
 
       - name: Build with Gradle
-        run: ./gradlew bundles createDmg
+        run: ./gradlew --no-daemon bundles createDmg
 
       - name: Upload dmg
         uses: actions/upload-artifact@v1
