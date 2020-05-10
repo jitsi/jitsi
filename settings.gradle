@@ -22,6 +22,3 @@ project(':util').projectDir = file('modules/util')
 
 include ':osgi-util'
 project(':osgi-util').projectDir = file('modules/osgi-util')
-
-//include ':installers:win'
-//project(':installers:win').projectDir = file('resources/install/windows')
