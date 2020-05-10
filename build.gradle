@@ -33,16 +33,16 @@ ext {
         throw new GradleException("Unknown project version format: ${project.version} / ${gitVersion}")
     }
 
-    versionMajor = gradleMatcher.group('MAJOR')
-    versionMinor = gradleMatcher.group('MINOR')
-    versionRevision = gitMatcher.group('NCOMMITS')
-    versionBuild = 0
-    versionSuffix = gradleMatcher.group('SUFFIX') ?: ''
-    versionHash = gitMatcher.group('REV')
+    versionMajor = gradleMatcher.group('MAJOR').toString()
+    versionMinor = gradleMatcher.group('MINOR').toString()
+    versionRevision = gitMatcher.group('NCOMMITS').toString()
+    versionBuild = '0'.toString()
+    versionSuffix = (gradleMatcher.group('SUFFIX') ?: '').toString()
+    versionHash = gitMatcher.group('REV').toString()
 
-    versionShort = "${ext.versionMajor}.${ext.versionMinor}.${ext.versionRevision}"
-    versionFull = "${ext.versionShort}${ext.versionSuffix ? '-' + ext.versionSuffix : ''}+${ext.versionHash}"
-    versionOsgi = "${ext.versionShort}.${ext.versionSuffix ? ext.versionSuffix + '+' : ''}${ext.versionHash}"
+    versionShort = "${ext.versionMajor}.${ext.versionMinor}.${ext.versionRevision}".toString()
+    versionFull = "${ext.versionShort}${ext.versionSuffix ? '-' + ext.versionSuffix : ''}+${ext.versionHash}".toString()
+    versionOsgi = "${ext.versionShort}.${ext.versionSuffix ? ext.versionSuffix + '+' : ''}${ext.versionHash}".toString()
 }
 
 allprojects {
