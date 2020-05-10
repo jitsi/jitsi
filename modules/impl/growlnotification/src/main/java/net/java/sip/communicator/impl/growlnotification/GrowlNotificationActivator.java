@@ -93,8 +93,10 @@ public class GrowlNotificationActivator
      *
      * @param bundleContext the <tt>BundleContext</tt> to stop this bundle into
      */
-    public void stop(BundleContext bundleContext)
+    public void stop(BundleContext bundleContext) throws Exception
     {
+        super.stop(bundleContext);
+
         // This bundle is available for Mac OS X only.
         if (!OSUtils.IS_MAC)
             return;

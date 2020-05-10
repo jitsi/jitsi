@@ -5,9 +5,13 @@ Bundle-Vendor: jitsi.org
 Manifest-Version: 1.0
 Bundle-Version: 0.0.1
 Bundle-SymbolicName: net.java.sip.communicator.galagonotification
-Import-Package: net.java.sip.communicator.util.osgi,javax.imageio,
+Bundle-NativeCode: linux-x86/libgalagonotification.so;osname=Linux;processor=x86,
+                   linux-x64/libgalagonotification.so;osname=Linux;processor=x86-64
+Import-Package: net.java.sip.communicator.util.osgi,
+ javax.imageio,
  net.java.sip.communicator.service.systray,
- org.jitsi.service.resources, net.java.sip.communicator.service.resources,
+ org.jitsi.service.resources,
+ net.java.sip.communicator.service.resources,
  net.java.sip.communicator.util,
  org.osgi.framework,
  org.apache.commons.lang3

@@ -118,8 +118,7 @@ distributions {
                 with nativeCopySpec('mac')
                 exclude '*.bat'
                 exclude '*dbus*'
-                exclude '*unix*'
-                exclude '*hexdump*'
+                exclude '*galago*'
 
                 // something with executable_path and load_path, explanation at
                 // https://wincent.com/wiki/%40executable_path%2C_%40load_path_and_%40rpath
@@ -148,12 +147,11 @@ distributions {
             with nativeCopySpec('windows')
             exclude rootProject.name
             exclude '*dbus*'
-            exclude '*unix*'
-            exclude '*hexdump*'
             exclude '*orange*'
             exclude '*sparkle*'
             exclude '*growl*'
             exclude '*mac_widgets*'
+            exclude '*galago*'
 
             into('jre') {
                 def getJreTask = createJreTasks('windows')
