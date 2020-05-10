@@ -9,10 +9,7 @@ jobs:
   deb:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.1.0
-        with:
-          fetch-depth: 0
-      - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+      - uses: actions/checkout@v1.2.0
       - run: git describe --match "Jitsi-[0-9\.]*" --long --dirty --always
 
       - name: Set up JDK 1.8
@@ -58,10 +55,7 @@ jobs:
   wix:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2.1.0
-        with:
-          fetch-depth: 0
-      - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+      - uses: actions/checkout@v1.2.0
 
       - name: Set up JDK 1.8
         uses: actions/setup-java@v1.3.0
@@ -110,10 +104,7 @@ jobs:
   mac:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v2.1.0
-        with:
-          fetch-depth: 0
-      - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+      - uses: actions/checkout@v1.2.0
 
       - name: Set up JDK 1.8
         uses: actions/setup-java@v1.3.0
