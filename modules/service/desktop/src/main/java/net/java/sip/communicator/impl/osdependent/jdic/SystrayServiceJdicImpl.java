@@ -18,7 +18,6 @@
 package net.java.sip.communicator.impl.osdependent.jdic;
 
 import java.awt.*;
-import java.awt.event.*;
 import java.awt.image.*;
 import java.net.*;
 import java.util.HashMap;

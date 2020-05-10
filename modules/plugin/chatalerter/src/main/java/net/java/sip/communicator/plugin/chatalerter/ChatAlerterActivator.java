@@ -17,22 +17,17 @@
  */
 package net.java.sip.communicator.plugin.chatalerter;
 
-import javax.swing.*;
-
+import java.awt.*;
+import java.beans.*;
+import java.util.*;
+import lombok.extern.slf4j.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.Logger;
-
 import net.java.sip.communicator.util.osgi.*;
-import org.jdesktop.jdic.misc.*;
 import org.jitsi.service.configuration.*;
-import org.jitsi.util.*;
 import org.osgi.framework.*;
-
-import java.beans.*;
-import java.util.*;
 
 /**
  * Chat Alerter plugin.
@@ -44,6 +39,7 @@ import java.util.*;
  *
  * @author Damian Minkov
  */
+@Slf4j
 public class ChatAlerterActivator
     extends DependentActivator
     implements  ServiceListener,
@@ -55,11 +51,6 @@ public class ChatAlerterActivator
                 PropertyChangeListener,
                 CallListener
 {
-    /**
-     * The logger for this class.
-     */
-    private static Logger logger = Logger.getLogger(ChatAlerterActivator.class);
-
     /**
      * The BundleContext that we got from the OSGI bus.
      */
@@ -75,6 +66,8 @@ public class ChatAlerterActivator
      */
     private boolean started = false;
 
+    private Alert alert;
+
     public ChatAlerterActivator()
     {
         super(
@@ -85,14 +78,13 @@ public class ChatAlerterActivator
     /**
      * Starts this bundle.
      * @param bc bundle context.
-     * @throws Exception
      */
     @Override
     public void startWithServices(BundleContext bc)
     {
         this.bundleContext = bc;
 
-        ServiceUtils.getService(bundleContext, ConfigurationService.class)
+        getService(ConfigurationService.class)
                     .addPropertyChangeListener(
                         ConfigurationUtils.ALERTER_ENABLED_PROP, this);
 
@@ -103,9 +95,7 @@ public class ChatAlerterActivator
                 return;
             }
 
-            // try to load native libs, if it fails don't do anything
-            if(!OSUtils.IS_MAC)
-                Alerter.newInstance();
+            alert = Alert.newInstance();
         }
         catch (Exception | UnsatisfiedLinkError exception)
         {
@@ -127,11 +117,12 @@ public class ChatAlerterActivator
         // start listening for newly register or removed protocol providers
         bc.addServiceListener(this);
 
-        ServiceReference[] protocolProviderRefs;
+        Collection<ServiceReference<ProtocolProviderService>>
+            protocolProviderRefs;
         try
         {
             protocolProviderRefs = bc.getServiceReferences(
-                ProtocolProviderService.class.getName(),
+                ProtocolProviderService.class,
                 null);
         }
         catch (InvalidSyntaxException ex)
@@ -147,14 +138,16 @@ public class ChatAlerterActivator
         if (protocolProviderRefs != null)
         {
             if (logger.isDebugEnabled())
+            {
                 logger.debug("Found "
-                         + protocolProviderRefs.length
-                         + " already installed providers.");
-            for (ServiceReference protocolProviderRef : protocolProviderRefs)
+                    + protocolProviderRefs.size()
+                    + " already installed providers.");
+            }
+            for (ServiceReference<ProtocolProviderService> protocolProviderRef
+                : protocolProviderRefs)
             {
                 ProtocolProviderService provider
-                    = (ProtocolProviderService)
-                        bc.getService(protocolProviderRef);
+                    = bc.getService(protocolProviderRef);
 
                 this.handleProviderAdded(provider);
             }
@@ -166,16 +159,14 @@ public class ChatAlerterActivator
     /**
      * Stops bundle.
      * @param bc context.
-     * @throws Exception
      */
     public void stop(BundleContext bc) throws Exception
     {
-        super.stop(bc);
-        stopInternal(bc);
-
-        ServiceUtils.getService(bundleContext, ConfigurationService.class)
+        getService(ConfigurationService.class)
             .removePropertyChangeListener(
                 ConfigurationUtils.ALERTER_ENABLED_PROP, this);
+        stopInternal(bc);
+        super.stop(bc);
     }
 
     /**
@@ -187,11 +178,12 @@ public class ChatAlerterActivator
         // start listening for newly register or removed protocol providers
         bc.removeServiceListener(this);
 
-        ServiceReference[] protocolProviderRefs;
+        Collection<ServiceReference<ProtocolProviderService>>
+            protocolProviderRefs;
         try
         {
             protocolProviderRefs = bc.getServiceReferences(
-                ProtocolProviderService.class.getName(),
+                ProtocolProviderService.class,
                 null);
         }
         catch (InvalidSyntaxException ex)
@@ -206,11 +198,11 @@ public class ChatAlerterActivator
         // in case we found any
         if (protocolProviderRefs != null)
         {
-            for (ServiceReference protocolProviderRef : protocolProviderRefs)
+            for (ServiceReference<ProtocolProviderService> protocolProviderRef
+                : protocolProviderRefs)
             {
                 ProtocolProviderService provider
-                    = (ProtocolProviderService)
-                        bc.getService(protocolProviderRef);
+                    = bc.getService(protocolProviderRef);
 
                 this.handleProviderRemoved(provider);
             }
@@ -404,16 +396,10 @@ public class ChatAlerterActivator
                 return;
 
             Object winSource = win.getSource();
-            if (!(winSource instanceof JFrame))
+            if (!(winSource instanceof Frame))
                 return;
 
-            JFrame fr = (JFrame) winSource;
-
-            if(OSUtils.IS_MAC)
-                com.apple.eawt.Application.getApplication()
-                    .requestUserAttention(true);
-            else
-                Alerter.newInstance().alert(fr);
+            alert.alert((Frame) winSource);
         }
         catch (Throwable ex)
         {
@@ -504,11 +490,7 @@ public class ChatAlerterActivator
     {
         if(uiService == null)
         {
-            ServiceReference serviceRef = bundleContext
-                .getServiceReference(UIService.class.getName());
-
-            if (serviceRef != null)
-                uiService = (UIService) bundleContext.getService(serviceRef);
+            uiService = ServiceUtils.getService(bundleContext, UIService.class);
         }
 
         return uiService;
@@ -535,7 +517,7 @@ public class ChatAlerterActivator
                 stopInternal(bundleContext);
             }
         }
-        catch(Throwable t)
+        catch (Exception t)
         {
             logger.error("Error starting/stopping on configuration change");
         }

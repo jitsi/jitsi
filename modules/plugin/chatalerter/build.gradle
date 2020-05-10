@@ -1,6 +1,8 @@
 dependencies {
-    implementation libs.jdic
+    implementation libs.jna.jna
+    implementation libs.jna.platform
     implementation libs.jitsi.basesvc
+    implementation libs.commons.lang
     compileOnly libs.orangeext
     implementation project(':util')
     implementation project(':osgi-util')

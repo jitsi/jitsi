@@ -84,8 +84,6 @@ ext.libs = [
                         'com.jgoodies.looks',
                         'com.jgoodies.looks.plastic'
                 ]],
-                // FIXME: necessary? source (java + native)?
-                jdic      : [files('lib/installer-exclude/jdic_misc.jar')],
                 jgoodies  : ['com.jgoodies:forms:1.2.1'],
                 jmyspell  : ['org.omegat:jmyspell-core:1.0.0-beta-2'],
                 // FIXME: migrate to 'com.github.insubstantial:laf-widget:7.3'
@@ -96,8 +94,7 @@ ext.libs = [
                 ]],
                 macwidgets: ['com.explodingpixels:mac_widgets:0.9.5'],
                 // FIXME: update
-                otr4j     : ['org.jitsi:org.otr4j:0.22'],
-                unixsock  : [files('lib/installer-exclude/unix-0.5.jar')],
+                otr4j     : ['org.jitsi:org.otr4j:0.22']
         ],
         ahttp      : [
                 client   : "org.apache.httpcomponents:httpclient-osgi:4.5.12",
