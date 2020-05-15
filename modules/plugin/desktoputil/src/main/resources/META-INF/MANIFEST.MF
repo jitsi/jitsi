@@ -7,7 +7,6 @@ Bundle-Version: 0.0.1
 Bundle-SymbolicName: net.java.sip.communicator.plugin.desktoputil
 Import-Package: net.java.sip.communicator.util.osgi,
  com.sun.awt,
- org.jvnet.lafwidget.animation,
  javax.accessibility,
  javax.imageio,
  javax.naming,

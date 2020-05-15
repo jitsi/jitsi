@@ -9,7 +9,6 @@ Bundle-SymbolicName: net.java.sip.communicator.swingui
 Import-Package: net.java.sip.communicator.util.osgi,
  com.apple.eawt;resolution:="optional",
  com.explodingpixels.macwidgets;resolution:="optional",
- org.jvnet.lafwidget.animation,
  com.sun.jna.platform,
  javax.accessibility,
  javax.imageio,

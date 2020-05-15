@@ -23,8 +23,6 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import org.jvnet.lafwidget.animation.*;
-
 /**
  * A custom component, used to show images in a frame. A rollover for the
  * content image and optional menu in dialog.
@@ -139,20 +137,8 @@ public class FramedImageWithMenu
 
             try
             {
-                // Paint a roll over fade out.
-                FadeTracker fadeTracker = FadeTracker.getInstance();
-
-                float visibility = 0.0f;
-                if (fadeTracker.isTracked(this, FadeKind.ROLLOVER))
-                {
-                    visibility = fadeTracker.getFade(this, FadeKind.ROLLOVER);
-                    visibility /= 4;
-                }
-                else
-                    visibility = 0.5f;
-
                 // Draw black overlay
-                g.setColor(new Color(0.0f, 0.0f, 0.0f, visibility));
+                g.setColor(new Color(0.0f, 0.0f, 0.0f, 0.5f));
                 g.fillRoundRect(1, 1, width - 2, height - 2, 10, 10);
 
                 // Draw arrow
@@ -218,13 +204,7 @@ public class FramedImageWithMenu
             return;
 
         this.drawOverlay = true;
-
-        FadeTracker fadeTracker = FadeTracker.getInstance();
-
-        fadeTracker.trackFadeIn(FadeKind.ROLLOVER,
-            FramedImageWithMenu.this,
-            true,
-            new AvatarRepaintCallback());
+        this.repaint();
     }
 
     public void mouseExited(MouseEvent e)
@@ -272,39 +252,6 @@ public class FramedImageWithMenu
      * This method is called when the popup menu is canceled
      */
     public void popupMenuCanceled(PopupMenuEvent e){}
-
-    /**
-     * The <tt>ButtonRepaintCallback</tt> is charged to repaint this button
-     * when the fade animation is performed.
-     */
-    private class AvatarRepaintCallback
-        implements FadeTrackerCallback
-    {
-        public void fadeEnded(FadeKind arg0)
-        {
-            repaintLater();
-        }
-
-        public void fadePerformed(FadeKind arg0, float arg1)
-        {
-            repaintLater();
-        }
-
-        private void repaintLater()
-        {
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    FramedImageWithMenu.this.repaint();
-                }
-            });
-        }
-
-        public void fadeReversed(FadeKind arg0, boolean arg1, float arg2)
-        {
-        }
-    }
 
     public void mouseClicked(MouseEvent e) {}
 

@@ -20,10 +20,6 @@ package net.java.sip.communicator.plugin.desktoputil;
 import java.awt.*;
 import java.awt.geom.*;
 
-import javax.swing.*;
-
-import org.jvnet.lafwidget.animation.*;
-
 /**
  * The <tt>FadeInBaloonPanel</tt> is a semi-transparent "balloon" panel, which
  * could be shown in a glass pane for example. You can define a begin point,
@@ -95,15 +91,7 @@ public class FadeInBalloonPanel
             g.fillRect(0, 0, getWidth(), getHeight());
         }
 
-        // Paint a roll over fade out.
-        FadeTracker fadeTracker = FadeTracker.getInstance();
-
         float visibility = isVisible() ? 0.8f : 0.0f;
-        if (fadeTracker.isTracked(this, FadeKind.ROLLOVER))
-        {
-            visibility = fadeTracker.getFade(this, FadeKind.ROLLOVER);
-        }
-
         g.setColor(new Color(0f, 0f, 0f, visibility));
 
         int y = 0;
@@ -139,65 +127,6 @@ public class FadeInBalloonPanel
         {
             g.fillRoundRect(
                 0, y, this.getWidth(), this.getHeight(), 10, 10);
-        }
-    }
-
-    /**
-     * The <tt>ButtonRepaintCallback</tt> is charged to repaint this button
-     * when the fade animation is performed.
-     */
-    private class PanelRepaintCallback implements FadeTrackerCallback
-    {
-        public void fadeEnded(FadeKind arg0)
-        {
-            repaintLater();
-        }
-
-        public void fadePerformed(FadeKind arg0, float arg1)
-        {
-            repaintLater();
-        }
-
-        private void repaintLater()
-        {
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    FadeInBalloonPanel.this.repaint();
-                }
-            });
-        }
-
-        public void fadeReversed(FadeKind arg0, boolean arg1, float arg2)
-        {
-        }
-    }
-
-    /**
-     * Shows/hides this panel.
-     *
-     * @param isVisible <tt>true</tt> to show this panel, <tt>false</tt> to
-     * hide it
-     */
-    @Override
-    public void setVisible(boolean isVisible)
-    {
-        FadeTracker fadeTracker = FadeTracker.getInstance();
-
-        if (isVisible)
-        {
-            fadeTracker.trackFadeIn(FadeKind.ROLLOVER,
-                FadeInBalloonPanel.this,
-                true,
-                new PanelRepaintCallback());
-        }
-        else
-        {
-            fadeTracker.trackFadeOut(FadeKind.ROLLOVER,
-                FadeInBalloonPanel.this,
-                true,
-                new PanelRepaintCallback());
         }
     }
 }

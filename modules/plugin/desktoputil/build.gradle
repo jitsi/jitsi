@@ -1,6 +1,5 @@
 dependencies {
     implementation libs.commons.lang
-    implementation libs.lafwidget
     implementation libs.jitsi.basesvc
     implementation project(':util')
     implementation project(':osgi-util')

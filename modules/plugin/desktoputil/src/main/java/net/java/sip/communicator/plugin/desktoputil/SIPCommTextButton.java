@@ -23,8 +23,6 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.plaf.basic.*;
 
-import org.jvnet.lafwidget.animation.*;
-
 /**
  * A custom JButton that contains only text. A custom background could be set,
  * which will result in a round cornered background behind the text. Note that
@@ -144,18 +142,8 @@ public class SIPCommTextButton
     {
         AntialiasingManager.activateAntialiasing(g);
 
-        // Paint a roll over fade out.
-        FadeTracker fadeTracker = FadeTracker.getInstance();
-
-        float visibility = this.getModel().isRollover() ? 1.0f : 0.0f;
-        if (fadeTracker.isTracked(this, FadeKind.ROLLOVER))
-        {
-            visibility = fadeTracker.getFade(this, FadeKind.ROLLOVER);
-        }
-
-        visibility /= 2;
-
-        if (visibility != 0.0f)
+        float visibility = this.getModel().isRollover() ? 0.5f : 0.0f;
+        if (visibility > 0.0f)
         {
             g.setColor(new Color(borderColor[0], borderColor[1],
                     borderColor[2], visibility));
@@ -202,39 +190,6 @@ public class SIPCommTextButton
     }
 
     /**
-     * The <tt>ButtonRepaintCallback</tt> is charged to repaint this button
-     * when the fade animation is performed.
-     */
-    private class ButtonRepaintCallback
-        implements FadeTrackerCallback
-    {
-        public void fadeEnded(FadeKind arg0)
-        {
-            repaintLater();
-        }
-
-        public void fadePerformed(FadeKind arg0, float arg1)
-        {
-            repaintLater();
-        }
-
-        private void repaintLater()
-        {
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    SIPCommTextButton.this.repaint();
-                }
-            });
-        }
-
-        public void fadeReversed(FadeKind arg0, boolean arg1, float arg2)
-        {
-        }
-    }
-
-    /**
      * Perform a fade animation on mouse over.
      */
     private class MouseRolloverHandler
@@ -250,13 +205,6 @@ public class SIPCommTextButton
             if (isEnabled())
             {
                 getModel().setRollover(false);
-
-                FadeTracker fadeTracker = FadeTracker.getInstance();
-
-                fadeTracker.trackFadeOut(FadeKind.ROLLOVER,
-                    SIPCommTextButton.this,
-                    true,
-                    new ButtonRepaintCallback());
             }
         }
 
@@ -269,13 +217,6 @@ public class SIPCommTextButton
             if (isEnabled())
             {
                 getModel().setRollover(true);
-
-                FadeTracker fadeTracker = FadeTracker.getInstance();
-
-                fadeTracker.trackFadeIn(FadeKind.ROLLOVER,
-                    SIPCommTextButton.this,
-                    true,
-                    new ButtonRepaintCallback());
             }
         }
 

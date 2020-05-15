@@ -23,7 +23,6 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.service.gui.ExtendedTooltip;
-import org.jvnet.lafwidget.animation.*;
 
 /**
  * The <tt>SIPCommButton</tt> is a very flexible <tt>JButton</tt> that allows
@@ -239,15 +238,7 @@ public class SIPCommButton
         // Paint a roll over fade out.
         if (rolloverBgImage == null)
         {
-            FadeTracker fadeTracker = FadeTracker.getInstance();
-
-            float visibility = this.getModel().isRollover() ? 1.0f : 0.0f;
-            if (fadeTracker.isTracked(this, FadeKind.ROLLOVER))
-            {
-                visibility = fadeTracker.getFade(this, FadeKind.ROLLOVER);
-            }
-
-            visibility /= 2;
+            float visibility = this.getModel().isRollover() ? 0.5f : 0.0f;
 
             g.setColor(new Color(1.0f, 1.0f, 1.0f, visibility));
 
@@ -286,8 +277,8 @@ public class SIPCommButton
                 this);
     }
 
-    /** 
-     * This method is called internally by Graphics.drawImage. This is necessary 
+    /**
+     * This method is called internally by Graphics.drawImage. This is necessary
      * for properly updating the icon image of this SIPCommButton.
      *
      * @param img the image to update
@@ -299,7 +290,7 @@ public class SIPCommButton
      */
     @Override
     public boolean imageUpdate(
-        Image img, int infoflags, int x, int y, int width, int height) 
+        Image img, int infoflags, int x, int y, int width, int height)
     {
         repaint();
         return true;
@@ -420,38 +411,6 @@ public class SIPCommButton
     }
 
     /**
-     * The <tt>ButtonRepaintCallback</tt> is charged to repaint this button
-     * when the fade animation is performed.
-     */
-    private class ButtonRepaintCallback implements FadeTrackerCallback
-    {
-        public void fadeEnded(FadeKind arg0)
-        {
-            repaintLater();
-        }
-
-        public void fadePerformed(FadeKind arg0, float arg1)
-        {
-            repaintLater();
-        }
-
-        private void repaintLater()
-        {
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    SIPCommButton.this.repaint();
-                }
-            });
-        }
-
-        public void fadeReversed(FadeKind arg0, boolean arg1, float arg2)
-        {
-        }
-    }
-
-    /**
      * Perform a fade animation on mouse over.
      */
     private class MouseRolloverHandler
@@ -467,13 +426,6 @@ public class SIPCommButton
             if (isEnabled())
             {
                 getModel().setRollover(false);
-
-                FadeTracker fadeTracker = FadeTracker.getInstance();
-
-                fadeTracker.trackFadeOut(FadeKind.ROLLOVER,
-                    SIPCommButton.this,
-                    true,
-                    new ButtonRepaintCallback());
             }
         }
 
@@ -486,13 +438,6 @@ public class SIPCommButton
             if (isEnabled())
             {
                 getModel().setRollover(true);
-
-                FadeTracker fadeTracker = FadeTracker.getInstance();
-
-                fadeTracker.trackFadeIn(FadeKind.ROLLOVER,
-                    SIPCommButton.this,
-                    true,
-                    new ButtonRepaintCallback());
             }
         }
 

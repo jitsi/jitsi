@@ -86,12 +86,6 @@ ext.libs = [
                 ]],
                 jgoodies  : ['com.jgoodies:forms:1.2.1'],
                 jmyspell  : ['org.omegat:jmyspell-core:1.0.0-beta-2'],
-                // FIXME: migrate to 'com.github.insubstantial:laf-widget:7.3'
-                lafwidget : ['net.java.dev.laf-widget:laf-widget:4.0', [
-                        'org.apache.tools.ant.*',
-                        'org.objectweb.asm.*',
-                        'com.sun.java.swing.plaf.windows'
-                ]],
                 macwidgets: ['com.explodingpixels:mac_widgets:0.9.5'],
                 // FIXME: update
                 otr4j     : ['org.jitsi:org.otr4j:0.22']

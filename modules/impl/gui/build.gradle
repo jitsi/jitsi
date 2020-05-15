@@ -1,7 +1,6 @@
 dependencies {
     implementation libs.commons.text
     implementation libs.jna.platform
-    implementation libs.lafwidget
     implementation libs.jitsi.basesvc
     implementation libs.ice4j
     implementation libs.macwidgets

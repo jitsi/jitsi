@@ -22,8 +22,6 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import org.jvnet.lafwidget.animation.*;
-
 /**
  * The <tt>SIPCommToggleButton</tt> is a flexible <tt>JToggleButton</tt> that
  * allows to configure its background, its icon, the look when a mouse is over
@@ -204,16 +202,7 @@ public class SIPCommToggleButton
             g.drawImage(pressedImage, 0, 0, this);
         }
 
-        // Paint a roll over fade out.
-        FadeTracker fadeTracker = FadeTracker.getInstance();
-
-        float visibility = getModel().isRollover() ? 1.0f : 0.0f;
-        if (fadeTracker.isTracked(this, FadeKind.ROLLOVER))
-        {
-            visibility = fadeTracker.getFade(this, FadeKind.ROLLOVER);
-        }
-        visibility /= 2;
-
+        float visibility = getModel().isRollover() ? 0.5f : 0.0f;
         g.setColor(new Color(1.0f, 1.0f, 1.0f, visibility));
 
         if (bgImage != null)
@@ -357,43 +346,10 @@ public class SIPCommToggleButton
 
     /**
      * Returns the current button index we have set, or -1 if none used.
-     * @return
      */
     public int getIndex()
     {
         return this.index;
-    }
-
-    /**
-     * The <tt>ButtonRepaintCallback</tt> is charged to repaint this button
-     * when the fade animation is performed.
-     */
-    private class ButtonRepaintCallback implements FadeTrackerCallback
-    {
-        public void fadeEnded(FadeKind arg0)
-        {
-            repaintLater();
-        }
-
-        public void fadePerformed(FadeKind arg0, float arg1)
-        {
-            repaintLater();
-        }
-
-        private void repaintLater()
-        {
-            SwingUtilities.invokeLater(new Runnable()
-            {
-                public void run()
-                {
-                    SIPCommToggleButton.this.repaint();
-                }
-            });
-        }
-
-        public void fadeReversed(FadeKind arg0, boolean arg1, float arg2)
-        {
-        }
     }
 
     /**
@@ -412,13 +368,6 @@ public class SIPCommToggleButton
             if (isEnabled())
             {
                 getModel().setRollover(false);
-
-                FadeTracker fadeTracker = FadeTracker.getInstance();
-
-                fadeTracker.trackFadeOut(FadeKind.ROLLOVER,
-                    SIPCommToggleButton.this,
-                    true,
-                    new ButtonRepaintCallback());
             }
         }
 
@@ -431,13 +380,6 @@ public class SIPCommToggleButton
             if (isEnabled())
             {
                 getModel().setRollover(true);
-
-                FadeTracker fadeTracker = FadeTracker.getInstance();
-
-                fadeTracker.trackFadeIn(FadeKind.ROLLOVER,
-                    SIPCommToggleButton.this,
-                    true,
-                    new ButtonRepaintCallback());
             }
         }
 

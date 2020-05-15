@@ -393,7 +393,7 @@ public class MainFrame
     /**
      * If hiding is possible and the option to minimize is not selected, the
      * application gets hidden on clicking 'X'.
-     * 
+     *
      * @param true if hiding is possible, i.e. a tray icon is loaded
      */
     public void updateCloseAction(boolean canHide)
