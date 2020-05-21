@@ -987,9 +987,11 @@ public class CallPeerSipImpl
     public void hangup(int reasonCode, String reason)
         throws OperationFailedException
     {
+        CallPeerState peerState = getState();
+
         // do nothing if the call is already ended
-        if (CallPeerState.DISCONNECTED.equals(getState())
-            || CallPeerState.FAILED.equals(getState()))
+        if (CallPeerState.DISCONNECTED.equals(peerState)
+            || CallPeerState.FAILED.equals(peerState))
         {
             if (logger.isDebugEnabled())
                 logger.debug("Ignoring a request to hangup a call peer "
@@ -999,8 +1001,9 @@ public class CallPeerSipImpl
 
         boolean failed = (reasonCode != HANGUP_REASON_NORMAL_CLEARING);
 
-        CallPeerState peerState = getState();
         if (peerState.equals(CallPeerState.CONNECTED)
+            || CallPeerState.CONNECTING_INCOMING_CALL.equals(peerState)
+            || CallPeerState.CONNECTING_INCOMING_CALL_WITH_MEDIA.equals(peerState)
             || CallPeerState.isOnHold(peerState))
         {
             // if we fail to send the bye, lets close the call anyway
@@ -1025,9 +1028,9 @@ public class CallPeerSipImpl
                     throw (OperationFailedException)ex;
             }
         }
-        else if (CallPeerState.CONNECTING.equals(getState())
-            || CallPeerState.CONNECTING_WITH_EARLY_MEDIA.equals(getState())
-            || CallPeerState.ALERTING_REMOTE_SIDE.equals(getState()))
+        else if (CallPeerState.CONNECTING.equals(peerState)
+            || CallPeerState.CONNECTING_WITH_EARLY_MEDIA.equals(peerState)
+            || CallPeerState.ALERTING_REMOTE_SIDE.equals(peerState))
         {
             if (getLatestInviteTransaction() != null)
             {
@@ -1224,6 +1227,8 @@ public class CallPeerSipImpl
                 return Response.REQUEST_TIMEOUT;
             case HANGUP_REASON_BUSY_HERE :
                 return Response.BUSY_HERE;
+            case HANGUP_REASON_ERROR :
+                return Response.SERVER_INTERNAL_ERROR;
             default : return -1;
         }
     }

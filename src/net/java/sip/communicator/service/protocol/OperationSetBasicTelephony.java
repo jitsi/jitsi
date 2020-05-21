@@ -123,6 +123,11 @@ public interface OperationSetBasicTelephony<T extends ProtocolProviderService>
     public static final int HANGUP_REASON_BUSY_HERE = 486;
 
     /**
+     * Reason code used to hangup peer, indicates internal server error.
+     */
+    public static final int HANGUP_REASON_ERROR = 500;
+
+    /**
      * Registers the specified CallListener with this provider so that it could
      * be notified when incoming calls are received. This method is called
      * by the implementation of the PhoneUI service.
