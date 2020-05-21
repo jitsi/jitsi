@@ -173,10 +173,9 @@ public class NeomediaActivator extends DependentActivator
     public NeomediaActivator()
     {
         super(
-            AudioNotifierService.class,
+            LibJitsi.class,
             ConfigurationService.class,
             FileAccessService.class,
-            MediaService.class,
             NotificationService.class,
             PacketLoggingService.class,
             ResourceManagementService.class
@@ -392,12 +391,9 @@ public class NeomediaActivator extends DependentActivator
      *
      * @param bundleContext the context in which the neomedia bundle is to start
      * executing
-     * @throws Exception if an error occurs while starting the execution of the
-     * neomedia bundle in the specified context
      */
     @Override
     public void startWithServices(BundleContext bundleContext)
-        throws Exception
     {
         if (logger.isDebugEnabled())
             logger.debug("Started.");
@@ -405,15 +401,20 @@ public class NeomediaActivator extends DependentActivator
         NeomediaActivator.bundleContext = bundleContext;
 
         // MediaService
-        mediaServiceImpl = (MediaServiceImpl) getService(MediaService.class);
+        mediaServiceImpl = (MediaServiceImpl) LibJitsi.getMediaService();
+
+        bundleContext.registerService(
+            MediaService.class,
+            mediaServiceImpl,
+            null);
+        logger.info("Media Service ... [REGISTERED]");
 
         mediaConfiguration = new MediaConfigurationImpl();
         bundleContext.registerService(
                 MediaConfigurationService.class.getName(),
                 getMediaConfiguration(),
                 null);
-        if (logger.isDebugEnabled())
-            logger.debug("Media Configuration ... [REGISTERED]");
+        logger.info("Media Configuration ... [REGISTERED]");
 
         ConfigurationService cfg = NeomediaActivator.getConfigurationService();
         Dictionary<String, String> mediaProps = new Hashtable<String, String>();
@@ -535,7 +536,7 @@ public class NeomediaActivator extends DependentActivator
 
         // AudioNotifierService
         AudioNotifierService audioNotifierService
-            = getService(AudioNotifierService.class);
+            = LibJitsi.getAudioNotifierService();
 
         audioNotifierService.setMute(
                 (cfg == null)
@@ -543,6 +544,13 @@ public class NeomediaActivator extends DependentActivator
                             "net.java.sip.communicator"
                                 + ".impl.sound.isSoundEnabled",
                             true));
+        bundleContext.registerService(
+            AudioNotifierService.class,
+            audioNotifierService,
+            null);
+
+        if (logger.isInfoEnabled())
+            logger.info("Audio Notifier Service ...[REGISTERED]");
 
         // Call Recording
         // If the call recording configuration form is disabled don't continue.

@@ -92,7 +92,6 @@ ext.libs = [
         ],
         ahttp      : [
                 client   : "org.apache.httpcomponents:httpclient-osgi:4.5.12",
-                clientold: 'org.apache.httpcomponents:httpclient-osgi:4.4.1',
                 core     : "org.apache.httpcomponents:httpcore-osgi:4.4.13",
         ],
         bc         : [
@@ -123,15 +122,13 @@ ext.libs = [
         // FIXME: unfork Danny's changes into upstream (https://github.com/migzai/irc-api.git)
         ircapi     : files('lib/installer-exclude/irc-api-1.0.jar'),
         jitsi      : [
-                basesvc : dependencies.create('org.jitsi:libjitsi:1.0-24-g887fe21e') {
+                basesvc : dependencies.create('org.jitsi:libjitsi:1.0-40-g49a8ab25') {
                     transitive = false
                 },
-                libjitsi: dependencies.create('org.jitsi:libjitsi:1.0-24-g887fe21e') {
-                    exclude group: 'junit', module: 'junit'
-                },
-                utils   : 'org.jitsi:jitsi-utils:1.0-39-gd481c98',
-                xmppext : 'org.jitsi:jitsi-xmpp-extensions:1.0-1-g9b2e85b',
-                fmj     : 'org.jitsi:fmj:1.0-20160225.164040-18',
+                libjitsi: dependencies.create('org.jitsi:libjitsi:1.0-40-g49a8ab25'),
+                utils   : 'org.jitsi:jitsi-utils:1.0-48-gd7e0685',
+                xmppext : 'org.jitsi:jitsi-xmpp-extensions:1.0-10-g822e97e',
+                fmj     : 'org.jitsi:fmj:1.0.0-jitsi',
                 lgpldeps: 'org.jitsi:jitsi-lgpl-dependencies:1.2-1-gfc49658',
         ],
         jmdns      : 'org.jmdns:jmdns:3.5.5',
@@ -161,7 +158,7 @@ ext.libs = [
         ],
         log4j      : "org.slf4j:log4j-over-slf4j:$slf4jversion",
         lombok     : 'org.projectlombok:lombok:1.18.4',
-        libphonenum: 'com.googlecode.libphonenumber:libphonenumber:8.10.2',
+        libphonenum: 'com.googlecode.libphonenumber:libphonenumber:8.12.4',
         orangeext  : 'com.massisframework:orange-extensions:1.3.1',
         osgi_core  : 'org.osgi:org.osgi.core:6.0.0',
         osgi_cm    : 'org.osgi:org.osgi.service.cm:1.6.0',
@@ -234,7 +231,7 @@ configurations {
             substitute module('org.apache.httpcomponents:httpcore') because 'does not have OSGi' with module(libs.ahttp.core)
             substitute module('org.reflections:reflections') because 'Guava conflict' with module('org.reflections:reflections:0.9.12')
             substitute module('com.google.guava:guava') because 'Use one Guava' with module(libs.guava)
-            substitute module('commons-logging:commons-logging') because 'Use one Guava' with module("org.slf4j:jcl-over-slf4j:$slf4jversion")
+            substitute module('commons-logging:commons-logging') because 'Use slf4j' with module("org.slf4j:jcl-over-slf4j:$slf4jversion")
         }
 
         exclude group: 'org.apache.felix', module: 'org.apache.felix.framework'
@@ -385,7 +382,6 @@ subprojects { p ->
             ':impl:dns',
             ':service:dnsservice',
             ':impl:dns',
-            //FIXME fileaccess vs. libjitsi
             ':service:globaldisplaydetails',
             ':service:hid',
             ':service:muc',

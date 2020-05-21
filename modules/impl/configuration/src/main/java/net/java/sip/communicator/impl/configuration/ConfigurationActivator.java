@@ -38,7 +38,7 @@ public class ConfigurationActivator
     extends DependentActivator
 {
     /** Property name to force a properties file based configuration. */
-    public static final String PNAME_USE_PROPFILE_CONFIG = 
+    public static final String PNAME_USE_PROPFILE_CONFIG =
         "net.java.sip.communicator.impl.configuration.USE_PROPFILE_CONFIG";
 
     /**
@@ -55,13 +55,14 @@ public class ConfigurationActivator
 
     public ConfigurationActivator()
     {
-        super(FileAccessService.class);
+        super(LibJitsi.class);
     }
 
     @Override
     public void startWithServices(BundleContext context) throws Exception
     {
-        FileAccessService fas = getService(FileAccessService.class);
+        FileAccessService fas = LibJitsi.getFileAccessService();
+        context.registerService(FileAccessService.class, fas, null);
         if (usePropFileConfigService(fas))
         {
             logger.info("Using properties file configuration store.");
