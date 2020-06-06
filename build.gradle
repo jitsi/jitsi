@@ -321,7 +321,7 @@ signing {
     String signingKey = findProperty("signingKey")
     String signingPassword = findProperty("signingPassword")
     required signingKey != null
-    useInMemoryPgpKeys signingKey, signingPassword
+    useInMemoryPgpKeys signingKey?.replace("\\n", "\n"), signingPassword
 }
 
 subprojects { p ->
