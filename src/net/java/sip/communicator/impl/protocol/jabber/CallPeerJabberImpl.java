@@ -1792,8 +1792,8 @@ public class CallPeerJabberImpl
             RtpDescriptionPacketExtension rtpDesc
                 = JingleUtils.getRtpDescription(c);
 
-            for (MediaPresenceExtension.Source src : rtpDesc
-                .getChildExtensionsOfType(MediaPresenceExtension.Source.class))
+            for (SourcePacketExtension src : rtpDesc
+                .getChildExtensionsOfType(SourcePacketExtension.class))
             {
                 SSRCInfoPacketExtension ssrcInfo
                     = src.getFirstChildOfType(SSRCInfoPacketExtension.class);
@@ -1815,7 +1815,7 @@ public class CallPeerJabberImpl
                     this.addConferenceMember(member);
                 }
 
-                member.setAudioSsrc(Long.valueOf(src.getSSRC()));
+                member.setAudioSsrc(src.getSSRC());
             }
         }
     }
