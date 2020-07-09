@@ -17,6 +17,8 @@
  */
 package net.java.sip.communicator.service.protocol;
 
+import net.java.sip.communicator.util.*;
+
 /**
  * <tt>OperationFailedException</tt> indicates an exception that occurred in the
  * API.
@@ -161,6 +163,11 @@ public class OperationFailedException
     private final int errorCode;
 
     /**
+     * Map that can be used for additional info about the failure.
+     */
+    private final DataObject dataObject = new DataObject();
+
+    /**
      * Creates an exception with the specified error message and error code.
      * @param message A message containing details on the error that caused the
      * exception
@@ -198,5 +205,14 @@ public class OperationFailedException
     public int getErrorCode()
     {
         return errorCode;
+    }
+
+    /**
+     * Obtain the <tt>DataObject</tt> that may contain additional info.
+     *
+     * @return <tt>DataObject</tt> additional info.
+     */
+    public DataObject getDataObject() {
+        return dataObject;
     }
 }
