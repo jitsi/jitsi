@@ -244,6 +244,12 @@ public class ChatRoomJabberImpl
     {
         Jid lobbyJid = null;
 
+        /**
+         * This method is used to get a Jid that represents the lobby room that the user joins when trying
+         * to join a meeting with lobby enabled. The custom <lobbyroom></lobbyroom> field is added to the error
+         * in case the user is not yet a member of the meeting that was joined initially.
+         */
+
         try
         {
             if (packet != null)
@@ -775,7 +781,14 @@ public class ChatRoomJabberImpl
 
                     Jid lobbyJid = getLobbyJidFromPacket(stanzaError);
 
-                    dataObject.setData("lobbyroomjid", lobbyJid);
+                    if (lobbyJid != null)
+                    {
+                        dataObject.setData("lobbyroomjid", lobbyJid);
+                    }
+                    else
+                    {
+                        logger.warn("No lobby Jid! But registration required!");
+                    }
                 }
 
                 throw operationFailedException;
