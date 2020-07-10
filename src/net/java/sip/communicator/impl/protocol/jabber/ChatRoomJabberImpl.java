@@ -236,6 +236,47 @@ public class ChatRoomJabberImpl
     }
 
     /**
+     * Returns a Jid for associated lobby room with this chat room.
+     *
+     * @return <tt>Jid</tt> lobby room Jid.
+     */
+    private Jid getLobbyJidFromPacket(Stanza packet)
+    {
+        Jid lobbyJid = null;
+
+        /**
+         * This method is used to get a Jid that represents the lobby room that the user joins when trying
+         * to join a meeting with lobby enabled. The custom <lobbyroom></lobbyroom> field is added to the error
+         * in case the user is not yet a member of the meeting that was joined initially.
+         */
+
+        try
+        {
+            if (packet != null)
+            {
+                ExtensionElement lobbyExtension = packet.getExtension("lobbyroom", "jabber:client");
+
+                if (lobbyExtension instanceof StandardExtensionElement)
+                {
+                    StandardExtensionElement lobbyStandardExtension = (StandardExtensionElement) lobbyExtension;
+
+                    String lobbyJidString = lobbyStandardExtension.getText();
+
+                    EntityBareJid lobbyFullJid = JidCreate.entityBareFrom(lobbyJidString);
+
+                    lobbyJid = lobbyFullJid;
+                }
+            }
+        }
+        catch(Exception ex)
+        {
+            logger.error(ex.toString());
+        }
+
+        return lobbyJid;
+    }
+
+    /**
      * Returns the MUCUser packet extension included in the packet or <tt>null</tt> if none.
      *
      * @param packet the packet that may include the MUCUser extension.
@@ -727,10 +768,30 @@ public class ChatRoomJabberImpl
 
                 logger.error(errorMessage, ex);
 
-                throw new OperationFailedException(
+                OperationFailedException operationFailedException = new OperationFailedException(
                     errorMessage,
                     OperationFailedException.REGISTRATION_REQUIRED,
                     ex);
+
+                DataObject dataObject = operationFailedException.getDataObject();
+
+                if (dataObject != null)
+                {
+                    Stanza stanzaError = ex.getXMPPError().getStanza();
+
+                    Jid lobbyJid = getLobbyJidFromPacket(stanzaError);
+
+                    if (lobbyJid != null)
+                    {
+                        dataObject.setData("lobbyroomjid", lobbyJid);
+                    }
+                    else
+                    {
+                        logger.warn("No lobby Jid! But registration required!");
+                    }
+                }
+
+                throw operationFailedException;
             }
             else
             {
