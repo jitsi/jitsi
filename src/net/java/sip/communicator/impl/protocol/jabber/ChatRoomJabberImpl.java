@@ -227,7 +227,9 @@ public class ChatRoomJabberImpl
             new SmackSubjectUpdatedListener());
         multiUserChat.addMessageListener(new SmackMessageListener());
         multiUserChat.addParticipantStatusListener(new MemberListener());
-        multiUserChat.addUserStatusListener(new UserListener());
+
+        UserListener userListener = new UserListener(this);
+        multiUserChat.addUserStatusListener(userListener);
         multiUserChat.addPresenceInterceptor(new PresenceInterceptor());
 
         this.provider.getConnection().addAsyncStanzaListener(
@@ -2522,10 +2524,38 @@ public class ChatRoomJabberImpl
      */
     private class UserListener implements UserStatusListener
     {
-        @Override
-        public void roomDestroyed(MultiUserChat multiUserChat, String s)
+        /**
+         * Used in case <tt>ChatRoomJabberImpl</tt> is not available
+         * on roomDestroyed.
+         */
+        private ChatRoomJabberImpl chatRoomJabberImpl = null;
+
+        /**
+         * Constructs new instance of <tt>UserListener</tt>.
+         *
+         * @param chatRoomJabber
+         */
+        public UserListener(ChatRoomJabberImpl chatRoomJabber)
         {
-            throw new UnsupportedOperationException();
+            this.chatRoomJabberImpl = chatRoomJabber;
+        }
+
+        /**
+         * Called when a room was destroyed. This means that the room you have
+         * joined is no longer available.
+         *
+         * @param multiUserChat <tt>MultiUserChat</tt>.
+         * @param the reason why room was destroyed.
+         */
+        @Override
+        public void roomDestroyed(MultiUserChat multiUserChat, String reason)
+        {
+            opSetMuc.fireLocalUserPresenceEvent(
+                    this.chatRoomJabberImpl,
+                    LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_ROOM_DESTROYED,
+                    reason);
+
+            this.chatRoomJabberImpl = null;
         }
 
         /**

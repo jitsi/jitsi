@@ -68,6 +68,12 @@ public class LocalUserChatRoomPresenceChangeEvent
     public static final String LOCAL_USER_DROPPED = "LocalUserDropped";
 
     /**
+     * Indicates that this event was triggered as a result of the local
+     * participant no longer being in the initially valid room.
+     */
+    public static final String LOCAL_USER_ROOM_DESTROYED = "LocalUserRoomDestroyed";
+
+    /**
      * The <tt>ChatRoom</tt> to which the change is related.
      */
     private ChatRoom chatRoom = null;
