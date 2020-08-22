@@ -23,7 +23,6 @@ import net.java.sip.communicator.service.protocol.*;
 
 import net.java.sip.communicator.service.protocol.jabber.*;
 import net.java.sip.communicator.util.*;
-import org.jivesoftware.smack.util.*;
 import org.jxmpp.jid.*;
 import org.jxmpp.jid.impl.*;
 import org.jxmpp.jid.parts.*;
@@ -51,6 +50,10 @@ public class ProtocolProviderFactoryJabberImpl
     protected ProtocolProviderFactoryJabberImpl()
     {
         super(JabberActivator.getBundleContext(), ProtocolNames.JABBER);
+
+        // Initializes smack iq and extension providers common for all protocol
+        // provider instances.
+        ProviderManagerExt.load();
     }
 
     /**
@@ -254,7 +257,7 @@ public class ProtocolProviderFactoryJabberImpl
         // and check for a password.
         this.storeAccount(accountID);
 
-        Hashtable<String, String> properties = new Hashtable<String, String>();
+        Hashtable<String, String> properties = new Hashtable<>();
         properties.put(PROTOCOL, ProtocolNames.JABBER);
         properties.put(USER_ID, accountID.getUserID());
 

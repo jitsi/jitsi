@@ -22,7 +22,6 @@ import net.java.sip.communicator.impl.protocol.jabber.*;
 import org.jitsi.service.packetlogging.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smack.tcp.*;
 
 import java.lang.reflect.*;
 import java.net.*;
@@ -105,7 +104,7 @@ public class SmackPacketDebugger
                         else
                         {
                             remoteAddress = new byte[4];
-                            localAddress = new byte[4];
+                            localAddress = new byte[] { 127, 0, 0, 1 };
                         }
                     }
 
