@@ -1018,7 +1018,7 @@ public class ChatRoomJabberImpl
         {
             // if we are already disconnected
             // leave maybe called from gui when closing chat window
-            if(connection != null)
+            if(connection != null && connection.isConnected())
                 multiUserChat.leave();
         }
         catch(Throwable e)
