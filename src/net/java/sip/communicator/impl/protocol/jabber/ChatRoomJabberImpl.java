@@ -1018,7 +1018,7 @@ public class ChatRoomJabberImpl
         {
             // if we are already disconnected
             // leave maybe called from gui when closing chat window
-            if(connection != null)
+            if(connection != null && connection.isConnected())
                 multiUserChat.leave();
         }
         catch(Throwable e)
@@ -2522,10 +2522,20 @@ public class ChatRoomJabberImpl
      */
     private class UserListener implements UserStatusListener
     {
+        /**
+         * Called when a room was destroyed. This means that the room you have
+         * joined is no longer available.
+         *
+         * @param multiUserChat <tt>MultiUserChat</tt>.
+         * @param reason why room was destroyed.
+         */
         @Override
-        public void roomDestroyed(MultiUserChat multiUserChat, String s)
+        public void roomDestroyed(MultiUserChat multiUserChat, String reason)
         {
-            throw new UnsupportedOperationException();
+            opSetMuc.fireLocalUserPresenceEvent(
+                ChatRoomJabberImpl.this,
+                LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_ROOM_DESTROYED,
+                reason);
         }
 
         /**
