@@ -2526,16 +2526,18 @@ public class ChatRoomJabberImpl
          * Called when a room was destroyed. This means that the room you have
          * joined is no longer available.
          *
-         * @param multiUserChat <tt>MultiUserChat</tt>.
+         * @param alternateMUC <tt>MultiUserChat</tt>.
          * @param reason why room was destroyed.
          */
         @Override
-        public void roomDestroyed(MultiUserChat multiUserChat, String reason)
+        public void roomDestroyed(MultiUserChat alternateMUC, String reason)
         {
             opSetMuc.fireLocalUserPresenceEvent(
                 ChatRoomJabberImpl.this,
                 LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_ROOM_DESTROYED,
-                reason);
+                reason,
+                multiUserChat != null && multiUserChat.getRoom() != null
+                    ? multiUserChat.getRoom().toString() : null);
         }
 
         /**
