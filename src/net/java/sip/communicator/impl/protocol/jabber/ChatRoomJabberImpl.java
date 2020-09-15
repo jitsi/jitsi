@@ -766,7 +766,12 @@ public class ChatRoomJabberImpl
                         + nickname
                         + ". The chat room requires registration.";
 
-                logger.error(errorMessage, ex);
+                logger.error(errorMessage);
+
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug(errorMessage, ex);
+                }
 
                 OperationFailedException operationFailedException = new OperationFailedException(
                     errorMessage,
