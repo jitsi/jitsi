@@ -2541,8 +2541,8 @@ public class ChatRoomJabberImpl
                 ChatRoomJabberImpl.this,
                 LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_ROOM_DESTROYED,
                 reason,
-                multiUserChat != null && multiUserChat.getRoom() != null
-                    ? multiUserChat.getRoom().toString() : null);
+                alternateMUC != null && alternateMUC.getRoom() != null
+                    ? alternateMUC.getRoom().toString() : null);
         }
 
         /**
