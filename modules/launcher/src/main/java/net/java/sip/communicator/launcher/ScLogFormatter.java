@@ -38,7 +38,7 @@ public class ScLogFormatter
      * Program name logging property name
      */
     private static final String PROGRAM_NAME_PROPERTY = ".programname";
-    
+
     /**
      * Disable timestamp logging property name.
      */
@@ -49,7 +49,7 @@ public class ScLogFormatter
      * Line separator used by current platform
      */
     private static String lineSeparator = System.getProperty("line.separator");
-    
+
     /**
      * Two digit <tt>DecimalFormat</tt> instance, used to format datetime
      */
@@ -71,14 +71,14 @@ public class ScLogFormatter
     private static boolean timestampDisabled = false;
 
     /**
-     * The default constructor for <tt>ScLogFormatter</tt> which loads 
+     * The default constructor for <tt>ScLogFormatter</tt> which loads
      * program name property from logging.properties file, if it exists
      */
     public ScLogFormatter()
     {
         loadConfigProperties();
     }
-    
+
     /**
      * Format the given LogRecord.
      * @param record the log record to be formatted.
@@ -87,9 +87,9 @@ public class ScLogFormatter
     @Override
     public synchronized String format(LogRecord record)
     {
-        StringBuffer sb = new StringBuffer();
-        
-        
+        StringBuilder sb = new StringBuilder();
+
+
         if (programName != null)
         {
             // Program name
@@ -200,7 +200,7 @@ public class ScLogFormatter
             }
             ix++;
         }
-        // Now search for the first frame 
+        // Now search for the first frame
         // before the SIP Communicator Logger class.
         while (ix < stack.length)
         {
@@ -250,5 +250,5 @@ public class ScLogFormatter
         String cname = ScLogFormatter.class.getName();
         programName = manager.getProperty(cname + PROGRAM_NAME_PROPERTY);
     }
-    
+
 }

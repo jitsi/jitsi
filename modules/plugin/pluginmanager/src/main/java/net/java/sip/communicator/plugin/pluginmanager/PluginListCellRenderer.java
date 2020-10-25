@@ -131,13 +131,6 @@ public class PluginListCellRenderer
         sb.append(bundleName != null ? bundleName.toString() : "unknown");
         sb.append("</b> ");
         sb.append(bundleVersion != null ? bundleVersion.toString() : "");
-        if (PluginManagerActivator.isSystemBundle(bundle))
-        {
-            sb.append(" <b>(");
-            sb.append(Resources.getString("plugin.pluginmanager.SYSTEM"));
-            sb.append(")</b>");
-        }
-
         sb.append("</nobr></html>");
         this.nameVersionLabel.setText(sb.toString());
 

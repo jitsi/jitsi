@@ -110,14 +110,14 @@ public abstract class DependentActivator
                 logger.error("Failed to start bundle with services", e);
             }
         }
-        else if (logger.isDebugEnabled())
+        else if (logger.isTraceEnabled())
         {
             Set<Class<?>> missingServices =
                 new HashSet<>(dependentServices.keySet());
             missingServices.removeIf(s -> runningServices.stream()
                 .anyMatch(rs -> s.isAssignableFrom(rs.getClass())));
             openTrackers.put(this, missingServices);
-            logger.debug("Got service "
+            logger.trace("Got service "
                 + service.getClass().getSimpleName()
                 + ", still waiting for "
                 + missingServices.size()
@@ -127,9 +127,9 @@ public abstract class DependentActivator
             );
         }
 
-        if (logger.isDebugEnabled())
+        if (logger.isTraceEnabled() && !openTrackers.isEmpty())
         {
-            logger.debug("Open service requests:\n\t"
+            logger.trace("Open service requests:\n\t"
                 + openTrackers.entrySet().stream()
                 .map(e -> e.getKey().getClass().getSimpleName()
                     + " is waiting for "

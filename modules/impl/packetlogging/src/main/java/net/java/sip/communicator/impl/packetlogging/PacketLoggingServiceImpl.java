@@ -18,7 +18,6 @@
 package net.java.sip.communicator.impl.packetlogging;
 
 import java.io.*;
-import java.util.*;
 
 import com.google.common.collect.*;
 import net.java.sip.communicator.util.*;

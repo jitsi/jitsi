@@ -31,16 +31,7 @@ import org.osgi.framework.*;
 public class PluginTableModel
     extends AbstractTableModel
 {
-    /**
-     * Serial version UID.
-     */
-    private static final long serialVersionUID = 0L;
-
     private BundleContext bundleContext = PluginManagerActivator.bundleContext;
-
-    private boolean showSystemBundles;
-
-    private final Object showSystemBundlesSync = new Object();
 
     private Bundle[] bundles = null;
 
@@ -60,61 +51,12 @@ public class PluginTableModel
      */
     public int getRowCount()
     {
-        boolean showSystem;
-        synchronized (showSystemBundlesSync)
-        {
-            showSystem = showSystemBundles;
-        }
-
         if(bundles == null)
             return 0;
         else
         {
-            if(showSystem)
-                return bundles.length;
-            else
-            {
-                int bundlesSize = 0;
-
-                for (int i = 0; i < bundles.length; i ++)
-                {
-                    Bundle bundle = bundles[i];
-
-                    if(!PluginManagerActivator.isSystemBundle(bundle))
-                        bundlesSize++;
-                }
-                return bundlesSize;
-            }
+            return bundles.length;
         }
-    }
-
-    /**
-     * Returns TRUE if the given <tt>Bundle</tt> is contained in this table,
-     * FALSE - otherwise.
-     * @param bundle the <tt>Bundle</tt> to search for
-     * @return TRUE if the given <tt>Bundle</tt> is contained in this table,
-     * FALSE - otherwise.
-     */
-    public boolean contains(Bundle bundle)
-    {
-        boolean showSystem;
-        synchronized (showSystemBundlesSync)
-        {
-            showSystem = showSystemBundles;
-        }
-
-        for (int i = 0; i < bundles.length; i ++)
-        {
-            Bundle b = bundles[i];
-
-            if(b.equals(bundle))
-            {
-                return showSystem
-                    || !PluginManagerActivator.isSystemBundle(bundle);
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -140,32 +82,7 @@ public class PluginTableModel
      */
     public Object getValueAt(int row, int column)
     {
-        boolean showSystem;
-        synchronized (showSystemBundlesSync)
-        {
-            showSystem = showSystemBundles;
-        }
-
-        if(showSystem)
-            return bundles[row];
-        else
-        {
-            int bundleCounter = 0;
-
-            for(int i = 0; i < bundles.length; i++)
-            {
-                //ignore if this is a system bundle
-                if(PluginManagerActivator.isSystemBundle(bundles[i]))
-                    continue;
-
-                if(bundleCounter == row)
-                    return bundles[i];
-
-                bundleCounter++;
-            }
-        }
-
-        return null;
+        return bundles[row];
     }
 
     /**
@@ -175,34 +92,6 @@ public class PluginTableModel
     {
         refreshSortedBundlesList();
         fireTableDataChanged();
-    }
-
-    /**
-     * Returns TRUE if system bundles are show, FALSE - otherwise.
-     * @return TRUE if system bundles are show, FALSE - otherwise
-     */
-    public boolean isShowSystemBundles()
-    {
-        boolean showSystem;
-
-        synchronized (showSystemBundlesSync)
-        {
-            showSystem = showSystemBundles;
-        }
-
-        return showSystem;
-    }
-
-    /**
-     * Sets the <tt>showSystemBundles</tt> property.
-     * @param showSystemBundles indicates if system bundles will be shown or not
-     */
-    public void setShowSystemBundles(boolean showSystemBundles)
-    {
-        synchronized (showSystemBundlesSync)
-        {
-            this.showSystemBundles = showSystemBundles;
-        }
     }
 
     /**

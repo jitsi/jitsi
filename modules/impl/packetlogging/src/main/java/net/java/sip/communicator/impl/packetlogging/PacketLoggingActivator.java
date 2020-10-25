@@ -17,9 +17,9 @@
  */
 package net.java.sip.communicator.impl.packetlogging;
 
-import net.java.sip.communicator.util.*;
+import lombok.extern.slf4j.*;
 
-import net.java.sip.communicator.util.osgi.ServiceUtils;
+import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.fileaccess.*;
 import org.jitsi.service.packetlogging.*;
@@ -32,20 +32,10 @@ import org.osgi.framework.*;
  *
  * @author Damian Minkov
  */
+@Slf4j
 public class PacketLoggingActivator
-    implements BundleActivator
+    extends DependentActivator
 {
-    /**
-     * Our logging.
-     */
-    private static Logger logger
-        = Logger.getLogger(PacketLoggingActivator.class);
-
-    /**
-     * The OSGI bundle context.
-     */
-    private static BundleContext        bundleContext         = null;
-
     /**
      * Our packet logging service instance.
      */
@@ -66,40 +56,35 @@ public class PacketLoggingActivator
      */
     final static String LOGGING_DIR_NAME = "log";
 
+    public PacketLoggingActivator()
+    {
+        super(
+            FileAccessService.class,
+            ConfigurationService.class
+        );
+    }
+
     /**
      * Creates a PacketLoggingServiceImpl, starts it, and registers it as a
      * PacketLoggingService.
      *
      * @param bundleContext  OSGI bundle context
-     * @throws Exception if starting the PacketLoggingServiceImpl.
      */
-    public void start(BundleContext bundleContext)
-            throws Exception
+    public void startWithServices(BundleContext bundleContext)
     {
-        /*
-         * PacketLoggingServiceImpl requires a FileAccessService implementation.
-         * Ideally, we'd be listening to the bundleContext and will be making
-         * the PacketLoggingService implementation available in accord with the
-         * availability of a FileAccessService implementation. Unfortunately,
-         * the real world is far from ideal.
-         */
-        fileAccessService
-            = ServiceUtils.getService(bundleContext, FileAccessService.class);
-        if (fileAccessService != null)
-        {
-            PacketLoggingActivator.bundleContext = bundleContext;
+        fileAccessService = getService(FileAccessService.class);
+        configurationService = getService(ConfigurationService.class);
 
-            packetLoggingService = new PacketLoggingServiceImpl();
-            packetLoggingService.start();
+        packetLoggingService = new PacketLoggingServiceImpl();
+        packetLoggingService.start();
 
-            bundleContext.registerService(
-                    PacketLoggingService.class.getName(),
-                    packetLoggingService,
-                    null);
+        bundleContext.registerService(
+                PacketLoggingService.class,
+                packetLoggingService,
+                null);
 
-            if (logger.isInfoEnabled())
-                logger.info("Packet Logging Service ...[REGISTERED]");
-        }
+        if (logger.isInfoEnabled())
+            logger.info("Packet Logging Service ...[REGISTERED]");
     }
 
     /**
@@ -108,10 +93,8 @@ public class PacketLoggingActivator
      * @param bundleContext  the OSGI bundle context
      */
     public void stop(BundleContext bundleContext)
-            throws Exception
     {
-        if(packetLoggingService != null)
-            packetLoggingService.stop();
+        packetLoggingService.stop();
 
         configurationService = null;
         fileAccessService = null;
@@ -130,14 +113,6 @@ public class PacketLoggingActivator
      */
     public static ConfigurationService getConfigurationService()
     {
-        if (configurationService == null)
-        {
-            ServiceReference confReference
-                = bundleContext.getServiceReference(
-                    ConfigurationService.class.getName());
-            configurationService
-                = (ConfigurationService) bundleContext.getService(confReference);
-        }
         return configurationService;
     }
 

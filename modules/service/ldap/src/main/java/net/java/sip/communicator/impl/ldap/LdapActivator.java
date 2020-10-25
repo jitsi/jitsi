@@ -19,12 +19,15 @@ package net.java.sip.communicator.impl.ldap;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.ldap.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
-import net.java.sip.communicator.util.osgi.ServiceUtils;
+import net.java.sip.communicator.util.osgi.*;
+import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
@@ -33,8 +36,7 @@ import org.osgi.framework.*;
  *
  * @author Sebastien Mazy
  */
-public class LdapActivator
-    implements BundleActivator
+public class LdapActivator extends DependentActivator
 {
     /**
      * the logger for this class
@@ -70,28 +72,40 @@ public class LdapActivator
     /**
      * List of contact source service registrations.
      */
-    private static Map<LdapContactSourceService, ServiceRegistration> cssList =
-        new HashMap<LdapContactSourceService, ServiceRegistration>();
+    private static final Map<LdapContactSourceService, ServiceRegistration<ContactSourceService>>
+        cssList = new HashMap<>();
 
     /**
      * The registered PhoneNumberI18nService.
      */
     private static PhoneNumberI18nService phoneNumberI18nService;
 
+    public LdapActivator()
+    {
+        super(
+            PhoneNumberI18nService.class,
+            ResourceManagementService.class,
+            CredentialsStorageService.class,
+            CertificateService.class,
+            ConfigurationService.class
+        );
+    }
+
     /**
      * Starts the LDAP service
      *
      * @param bundleContext BundleContext
-     * @throws Exception if something goes wrong when starting service
      */
-    public void start(BundleContext bundleContext)
-        throws Exception
+    @Override
+    public void startWithServices(BundleContext bundleContext)
     {
         LdapActivator.bundleContext = bundleContext;
 
         try
         {
             logger.logEntry();
+            resourceService = getService(ResourceManagementService.class);
+            phoneNumberI18nService = getService(PhoneNumberI18nService.class);
 
             /* Creates and starts the LDAP service. */
             ldapService =
@@ -100,7 +114,7 @@ public class LdapActivator
             ldapService.start(bundleContext);
 
             bundleContext.registerService(
-                    LdapService.class.getName(), ldapService, null);
+                    LdapService.class, ldapService, null);
 
             logger.trace("LDAP Service ...[REGISTERED]");
 
@@ -129,15 +143,13 @@ public class LdapActivator
      * Stops the LDAP service
      *
      * @param bundleContext BundleContext
-     * @throws Exception if something goes wrong when stopping service
      */
     public void stop(BundleContext bundleContext)
-        throws Exception
     {
         if(ldapService != null)
             ldapService.stop(bundleContext);
 
-        for(Map.Entry<LdapContactSourceService, ServiceRegistration> entry :
+        for(Map.Entry<LdapContactSourceService, ServiceRegistration<ContactSourceService>> entry :
             cssList.entrySet())
         {
             if (entry.getValue() != null)
@@ -165,15 +177,6 @@ public class LdapActivator
      */
     public static ResourceManagementService getResourceService()
     {
-        if(resourceService == null)
-        {
-            ServiceReference confReference
-                = bundleContext.getServiceReference(
-                        ResourceManagementService.class.getName());
-            resourceService
-                = (ResourceManagementService) bundleContext.getService(
-                        confReference);
-        }
         return resourceService;
     }
 
@@ -188,13 +191,13 @@ public class LdapActivator
     {
         LdapContactSourceService css = new LdapContactSourceService(
                 ldapDir);
-        ServiceRegistration cssServiceRegistration = null;
+        ServiceRegistration<ContactSourceService> cssServiceRegistration = null;
 
         try
         {
             cssServiceRegistration
                 = bundleContext.registerService(
-                        ContactSourceService.class.getName(),
+                        ContactSourceService.class,
                         css,
                         null);
         }
@@ -223,7 +226,7 @@ public class LdapActivator
     {
         LdapContactSourceService found = null;
 
-        for(Map.Entry<LdapContactSourceService, ServiceRegistration> entry :
+        for(Map.Entry<LdapContactSourceService, ServiceRegistration<ContactSourceService>> entry :
             cssList.entrySet())
         {
             String cssName =
@@ -256,13 +259,6 @@ public class LdapActivator
      */
     public static PhoneNumberI18nService getPhoneNumberI18nService()
     {
-        if(phoneNumberI18nService == null)
-        {
-            phoneNumberI18nService = ServiceUtils.getService(
-                bundleContext,
-                PhoneNumberI18nService.class);
-        }
-
         return phoneNumberI18nService;
     }
 }

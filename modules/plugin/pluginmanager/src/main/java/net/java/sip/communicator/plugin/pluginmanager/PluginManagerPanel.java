@@ -33,19 +33,11 @@ import org.osgi.framework.*;
 public class PluginManagerPanel
     extends TransparentPanel
 {
-    /**
-     * Serial version UID.
-     */
-    private static final long serialVersionUID = 0L;
-
     private final JTable pluginTable = new JTable();
 
     private final PluginTableModel tableModel = new PluginTableModel();
 
     private final ManageButtonsPanel buttonsPanel;
-
-    private JCheckBox showSysBundlesCheckBox = new SIPCommCheckBox(
-        Resources.getString("plugin.pluginmanager.SHOW_SYSTEM_BUNDLES"));
 
     /**
      * Creates an instance of <tt>PluginManagerPanel</tt>.
@@ -80,46 +72,12 @@ public class PluginManagerPanel
 
         this.add(buttonsPanel, BorderLayout.EAST);
 
-        this.initSystemBundleCheckBox();
-
         pluginListScrollPane.getViewport().add(pluginTable);
 
         pluginListScrollPane.getVerticalScrollBar().setUnitIncrement(30);
 
         PluginManagerActivator.bundleContext
             .addBundleListener(new PluginListBundleListener());
-    }
-
-    /**
-     * Initializes the check box used to show or hide system bundles from the
-     * list.
-     */
-    private void initSystemBundleCheckBox()
-    {
-        //Obtains previously saved value for the showSystemBundles check box.
-        String showSystemBundlesProp = PluginManagerActivator
-            .getConfigurationService().getString(
-            "net.java.sip.communicator.plugin.pluginManager.showSystemBundles");
-
-        if(showSystemBundlesProp != null)
-        {
-            boolean isShowSystemBundles
-                = new Boolean(showSystemBundlesProp).booleanValue();
-
-            this.showSysBundlesCheckBox.setSelected(isShowSystemBundles);
-
-            ((PluginTableModel)pluginTable.getModel())
-                .setShowSystemBundles(isShowSystemBundles);
-        }
-
-        this.showSysBundlesCheckBox
-            .addChangeListener(new ShowSystemBundlesChangeListener());
-
-        JPanel checkBoxPanel
-            = new TransparentPanel(new FlowLayout(FlowLayout.LEFT));
-        checkBoxPanel.add(showSysBundlesCheckBox);
-
-        this.add(checkBoxPanel, BorderLayout.SOUTH);
     }
 
     /**
@@ -135,41 +93,9 @@ public class PluginManagerPanel
             if (selectedRow == -1)
                 return;
 
-            Bundle selectedBundle =
-                (Bundle) pluginTable.getValueAt(selectedRow, 0);
-
-
-            if(PluginManagerActivator.isSystemBundle(selectedBundle))
-            {
-                buttonsPanel.enableUninstallButton(false);
-                buttonsPanel.enableDeactivateButton(false);
-
-                if (selectedBundle.getState() != Bundle.ACTIVE)
-                {
-                    buttonsPanel.enableActivateButton(true);
-                }
-                else
-                {
-                    buttonsPanel.enableActivateButton(false);
-                }
-            }
-            else
-            {
-                buttonsPanel.enableUninstallButton(true);
-
-                if (selectedBundle.getState() != Bundle.ACTIVE)
-                {
-                    buttonsPanel.enableActivateButton(true);
-                    buttonsPanel.enableDeactivateButton(false);
-                }
-                else
-                {
-                    buttonsPanel.enableActivateButton(false);
-                    buttonsPanel.enableDeactivateButton(true);
-                }
-            }
-
-            // every bundle can be updated
+            buttonsPanel.enableUninstallButton(false);
+            buttonsPanel.enableDeactivateButton(false);
+            buttonsPanel.enableActivateButton(false);
             buttonsPanel.enableUpdateButton(true);
         }
     }
@@ -184,13 +110,7 @@ public class PluginManagerPanel
         {
             if(!SwingUtilities.isEventDispatchThread())
             {
-                SwingUtilities.invokeLater(new Runnable()
-                {
-                    public void run()
-                    {
-                        bundleChanged(event);
-                    }
-                });
+                SwingUtilities.invokeLater(() -> bundleChanged(event));
                 return;
             }
 
@@ -201,45 +121,6 @@ public class PluginManagerPanel
                 pluginTable.scrollRectToVisible(new Rectangle(0, pluginTable
                     .getHeight(), 1, pluginTable.getHeight()));
             }
-        }
-    }
-
-
-    /**
-     * Adds all system bundles to the bundles list when the check box is
-     * selected and removes them when user deselect it.
-     */
-    private class ShowSystemBundlesChangeListener implements ChangeListener
-    {
-        private boolean currentValue = false;
-
-        public ShowSystemBundlesChangeListener()
-        {
-            currentValue = showSysBundlesCheckBox.isSelected();
-        }
-
-        public void stateChanged(ChangeEvent e)
-        {
-            if (currentValue == showSysBundlesCheckBox.isSelected())
-            {
-                return;
-            }
-            currentValue = showSysBundlesCheckBox.isSelected();
-            //Save the current value of the showSystemBundles check box.
-            PluginManagerActivator.getConfigurationService().setProperty(
-                "net.java.sip.communicator.plugin.pluginManager.showSystemBundles",
-                new Boolean(showSysBundlesCheckBox.isSelected()));
-
-            PluginTableModel tableModel
-                = (PluginTableModel)pluginTable.getModel();
-
-            tableModel.setShowSystemBundles(showSysBundlesCheckBox.isSelected());
-
-            tableModel.update();
-
-            // as this changes the selection to none, make the buttons
-            // at defautl state
-            buttonsPanel.defaultButtonState();
         }
     }
 }

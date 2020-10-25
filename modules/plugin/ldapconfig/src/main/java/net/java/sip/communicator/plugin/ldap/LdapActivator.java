@@ -23,7 +23,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.ldap.*;
 import net.java.sip.communicator.util.*;
 
-import net.java.sip.communicator.util.osgi.ServiceUtils;
+import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
@@ -33,13 +33,8 @@ import org.osgi.framework.*;
  *
  * @author Sebastien Vincent
  */
-public class LdapActivator implements BundleActivator
+public class LdapActivator extends DependentActivator
 {
-    /**
-     * The <tt>BundleContext</tt> in which the LDAP plug-in is started.
-     */
-    private static BundleContext bundleContext = null;
-
     /**
      * LDAP service.
      */
@@ -50,19 +45,25 @@ public class LdapActivator implements BundleActivator
      */
     private static ResourceManagementService resourceService;
 
+    public LdapActivator()
+    {
+        super(
+            ResourceManagementService.class,
+            LdapService.class
+        );
+    }
+
     /**
      * Starts the LDAP plug-in.
      *
      * @param bundleContext the <tt>BundleContext</tt> in which the LDAP
      * plug-in is to be started
-     * @throws Exception if anything goes wrong while starting the LDAP
-     * plug-in
-     * @see BundleActivator#start(BundleContext)
      */
-    public void start(BundleContext bundleContext)
-        throws Exception
+    @Override
+    public void startWithServices(BundleContext bundleContext)
     {
-        LdapActivator.bundleContext = bundleContext;
+        ldapService = getService(LdapService.class);
+        resourceService = getService(ResourceManagementService.class);
 
         /* registers the configuration form */
         Dictionary<String, String> properties =
@@ -88,27 +89,7 @@ public class LdapActivator implements BundleActivator
      */
     public static LdapService getLdapService()
     {
-        if(ldapService == null)
-        {
-            ldapService = ServiceUtils.getService(bundleContext,
-                    LdapService.class);
-        }
-
         return ldapService;
-    }
-
-    /**
-     * Stops the LDAP plug-in.
-     *
-     * @param bundleContext the <tt>BundleContext</tt> in which the LDAP
-     * plug-in is to be stopped
-     * @throws Exception if anything goes wrong while stopping the LDAP
-     * plug-in
-     * @see BundleActivator#stop(BundleContext)
-     */
-    public void stop(BundleContext bundleContext)
-        throws Exception
-    {
     }
 
     /**
@@ -121,15 +102,6 @@ public class LdapActivator implements BundleActivator
      */
     public static ResourceManagementService getResourceManagementService()
     {
-        if(resourceService == null)
-        {
-            ServiceReference confReference
-                = bundleContext.getServiceReference(
-                        ResourceManagementService.class.getName());
-            resourceService
-                = (ResourceManagementService) bundleContext.getService(
-                        confReference);
-        }
         return resourceService;
     }
 }

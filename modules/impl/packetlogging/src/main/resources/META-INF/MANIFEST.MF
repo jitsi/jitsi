@@ -5,17 +5,11 @@ Bundle-Vendor: jitsi.org
 Manifest-Version: 1.0
 Bundle-Version: 0.0.1
 Bundle-SymbolicName: net.java.sip.communicator.packetlogging
-Import-Package: net.java.sip.communicator.util.osgi,org.osgi.framework,
+Import-Package: org.slf4j,
+ net.java.sip.communicator.util.osgi,
+ org.osgi.framework,
  org.jitsi.service.configuration,
  org.jitsi.service.fileaccess,
  org.jitsi.service.packetlogging,
- net.java.sip.communicator.service.gui,
- org.jitsi.service.neomedia,
- net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.util,
- net.java.sip.communicator.plugin.desktoputil,
- javax.swing,
- javax.swing.border,
- javax.swing.event,
- javax.swing.text,
  com.google.common.collect

@@ -55,17 +55,6 @@ public class PluginManagerActivator
     private static final String DISABLED_PROP
         = "net.java.sip.communicator.plugin.pluginconfig.DISABLED";
 
-    /**
-     * Name of the property that defines which bundles are considered system.
-     */
-    private static final String SYSTEM_BUNDLES_PROP
-        = "net.java.sip.communicator.plugin.pluginmanager.SYSTEM_BUNDLES";
-
-    /**
-     * Cache for the system bundles config property.
-     */
-    private static List<String> systemBundleNames;
-
     public PluginManagerActivator()
     {
         super(
@@ -104,9 +93,6 @@ public class PluginManagerActivator
                     1000, true),
                 properties);
         }
-
-        systemBundleNames = Arrays.asList(getConfigurationService()
-            .getString(SYSTEM_BUNDLES_PROP).split("\\s*,\\s*"));
     }
 
     /**
@@ -158,27 +144,5 @@ public class PluginManagerActivator
         }
 
         return configService;
-    }
-
-    /**
-     * Determines whether <tt>bundle</tt> is system or not. We consider system
-     * bundles those that we have explicitly marked as such with the
-     * <tt>System-Bundle</tt> manifest property or those that belong to the
-     * Apache framework itself.
-     *
-     * @param bundle the bundle that we need to determine as system or not.
-     * @return true if <tt>bundle</tt> is a system bundle and <tt>false</tt>
-     * otherwise.
-     */
-    public static boolean isSystemBundle(Bundle bundle)
-    {
-        if (bundle.getBundleId() <= 1)
-        {
-            //this is one of the felix bundles
-            return true;
-        }
-
-        //ignore if this is a system bundle
-        return systemBundleNames.contains(bundle.getSymbolicName());
     }
 }
