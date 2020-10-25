@@ -45,8 +45,7 @@ public class ConfigurationActivator
      * The <tt>Logger</tt> used by the <tt>ConfigurationActivator</tt> class
      * for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(ConfigurationActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConfigurationActivator.class);
 
     /**
      * The currently registered {@link ConfigurationService} instance.

@@ -45,8 +45,7 @@ public class DynamicPayloadTypeRegistry
     /**
      * Our class logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(DynamicPayloadTypeRegistry.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DynamicPayloadTypeRegistry.class);
 
     /**
      * A field that we use to track dynamic payload numbers that we allocate.

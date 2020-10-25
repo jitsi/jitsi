@@ -17,6 +17,7 @@
  */
 package net.java.sip.communicator.util;
 
+import lombok.extern.slf4j.*;
 import org.osgi.framework.*;
 
 /**
@@ -28,14 +29,10 @@ import org.osgi.framework.*;
  *
  * @author Pawel Domas
  */
+@Slf4j
 public abstract class SimpleServiceActivator<T>
     implements BundleActivator
 {
-    /**
-     * The <tt>Logger</tt> instance used for logging output.
-     */
-    private final Logger logger;
-
     /**
      * Class of the service
      */
@@ -62,7 +59,6 @@ public abstract class SimpleServiceActivator<T>
     {
         this.serviceClass = serviceClass;
         this.serviceName = serviceName;
-        logger = Logger.getLogger(this.getClass().getName());
     }
 
     /**

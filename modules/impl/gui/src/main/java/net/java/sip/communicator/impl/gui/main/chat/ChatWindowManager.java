@@ -34,8 +34,6 @@ import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.account.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.Logger;
-
 import org.jitsi.util.*;
 
 /**
@@ -52,8 +50,7 @@ public class ChatWindowManager
      * The <tt>Logger</tt> used by the <tt>ChatWindowManager</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(ChatWindowManager.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ChatWindowManager.class);
 
     private final List<ChatPanel> chatPanels
         = new ArrayList<ChatPanel>();
@@ -100,7 +97,7 @@ public class ChatWindowManager
     /**
      * Opens the specified <tt>ChatPanel</tt> and optionally brings it to the
      * front.
-     * 
+     *
      * @param room the chat room associated with the contact.
      * @param nickname the nickname of the contact in the chat room.
      */
@@ -118,20 +115,20 @@ public class ChatWindowManager
             });
             return;
         }
-        
+
         Contact sourceContact = room.getPrivateContactByNickname(
             nickname);
-        
+
         openPrivateChatForChatRoomMember(room, sourceContact);
     }
-    
+
     /**
      * Opens the specified <tt>ChatPanel</tt> and optionally brings it to the
      * front.
      * @param room the chat room associated with the contact.
      * @param sourceContact the contact.
      */
-    public void openPrivateChatForChatRoomMember(final ChatRoom room, 
+    public void openPrivateChatForChatRoomMember(final ChatRoom room,
         final Contact sourceContact)
     {
         if (!SwingUtilities.isEventDispatchThread())
@@ -145,16 +142,16 @@ public class ChatWindowManager
             });
             return;
         }
-        
+
         MetaContact metaContact
             = GuiActivator.getContactListService()
                 .findMetaContactByContact(sourceContact);
-        
+
         room.updatePrivateContactPresenceStatus(sourceContact);
-        
+
         ChatPanel chatPanel = getContactChat(metaContact, sourceContact);
         chatPanel.setPrivateMessagingChat(true);
-    
+
         openChat(chatPanel, true);
     }
     /**
@@ -937,7 +934,7 @@ public class ChatWindowManager
     }
 
     /**
-     * Start the chat with contact which is using the supplied protocol 
+     * Start the chat with contact which is using the supplied protocol
      *provider.
      * @param contactID the contact id to start chat with
      * @param pps the protocol provider
@@ -1019,12 +1016,12 @@ public class ChatWindowManager
                     }
                     else
                     {
-                        contact = 
+                        contact =
                             presenceOpSet.createUnresolvedContact(
                                     contactString, null);
-                        metaContact = 
+                        metaContact =
                             metaContactListService.findMetaContactByContact(
-                                    contact); 
+                                    contact);
                         if (metaContact != null)
                         {
                             startChat = true;

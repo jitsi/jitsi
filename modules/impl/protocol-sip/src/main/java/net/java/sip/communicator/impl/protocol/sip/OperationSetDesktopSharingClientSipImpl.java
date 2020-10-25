@@ -48,8 +48,7 @@ public class OperationSetDesktopSharingClientSipImpl
     /**
      * Our class logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(OperationSetDesktopSharingClientSipImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetDesktopSharingClientSipImpl.class);
 
     /**
      * The <tt>CallPeerListener</tt> which listens to modifications in the

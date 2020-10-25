@@ -23,8 +23,6 @@ import java.util.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.sip.*;
-import net.java.sip.communicator.util.Logger;
-
 import org.apache.commons.lang3.StringUtils;
 import org.jitsi.utils.*;
 import org.osgi.framework.*;
@@ -59,8 +57,7 @@ public class SIPAccountRegistrationWizard
     /**
      * The logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(SIPAccountRegistrationWizard.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SIPAccountRegistrationWizard.class);
 
     /**
      * Creates an instance of <tt>IPPIAccountRegistrationWizard</tt>.

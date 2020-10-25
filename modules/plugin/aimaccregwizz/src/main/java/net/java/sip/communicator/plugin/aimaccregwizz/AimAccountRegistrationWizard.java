@@ -39,8 +39,7 @@ public class AimAccountRegistrationWizard
     /**
      * The logger.
      */
-    private final Logger logger
-        = Logger.getLogger(AimAccountRegistrationWizard.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AimAccountRegistrationWizard.class);
 
     private FirstWizardPage firstWizardPage;
 

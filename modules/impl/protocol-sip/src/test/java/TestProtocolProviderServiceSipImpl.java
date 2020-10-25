@@ -33,8 +33,7 @@ import net.java.sip.communicator.util.*;
 public class TestProtocolProviderServiceSipImpl
     extends TestCase
 {
-    private static final Logger logger =
-        Logger.getLogger(TestProtocolProviderServiceSipImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestProtocolProviderServiceSipImpl.class);
 
     private SipSlickFixture fixture = new SipSlickFixture();
 

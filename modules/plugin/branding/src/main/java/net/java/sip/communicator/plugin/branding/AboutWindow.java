@@ -285,8 +285,7 @@ public class AboutWindow
          */
         private static final long serialVersionUID = 0L;
 
-        private static final Logger logger
-            = Logger.getLogger(WindowBackground.class);
+        private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(WindowBackground.class);
 
         private Image bgImage = null;
 

@@ -30,8 +30,6 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.Logger;
-
 import org.jitsi.util.*;
 import org.json.simple.*;
 
@@ -47,8 +45,7 @@ public class ServerStoredContactListXivoImpl
     /**
      * Logger class
      */
-    private static final Logger logger =
-            Logger.getLogger(ServerStoredContactListXivoImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ServerStoredContactListXivoImpl.class);
 
     /**
      * The connection to the xivo server.

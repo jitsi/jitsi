@@ -35,7 +35,7 @@ import org.osgi.framework.*;
 public class BrandingActivator
     extends DependentActivator
 {
-    private final Logger logger = Logger.getLogger(BrandingActivator.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(BrandingActivator.class);
     private static ResourceManagementService resourcesService;
     private static BrowserLauncherService browserLauncherService;
 

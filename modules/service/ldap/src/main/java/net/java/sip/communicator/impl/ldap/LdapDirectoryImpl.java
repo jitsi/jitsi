@@ -42,13 +42,7 @@ public class LdapDirectoryImpl
     /**
      * the logger for this class
      */
-    private final static Logger logger = Logger
-        .getLogger(LdapDirectoryImpl.class);
-
-    static
-    {
-        logger.setLevelTrace();
-    }
+    private final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapDirectoryImpl.class);
 
     /**
      * The settings for this directory
@@ -982,7 +976,7 @@ public class LdapDirectoryImpl
      * searchable fields defined in the static constructor. If a custom query is
      * defined this is used instead. e.g.
      * (|(|(mail=query)(telephoneNumber=query)))
-     * 
+     *
      * @return an LDAP search filter
      */
     private String buildSearchFilter(String query)

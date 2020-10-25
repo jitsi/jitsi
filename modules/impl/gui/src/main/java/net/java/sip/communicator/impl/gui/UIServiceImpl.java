@@ -52,7 +52,6 @@ import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.shutdown.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
 
 import org.jitsi.service.resources.*;
@@ -82,7 +81,7 @@ public class UIServiceImpl
      * The <tt>Logger</tt> used by the <tt>UIServiceImpl</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger = Logger.getLogger(UIServiceImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UIServiceImpl.class);
 
     private PopupDialogImpl popupDialog;
 
@@ -441,7 +440,7 @@ public class UIServiceImpl
      * hiding (instead of minimizing or exiting) is possible). If hiding is
      * possible and the option to minimize is not selected, the application
      * gets hidden on clicking 'X'.
-     * 
+     *
      * @param canHide true if a tray icon was loaded.
      */
     public void setMainWindowCanHide(boolean canHide)
@@ -1556,10 +1555,10 @@ public class UIServiceImpl
         else
             throw new IllegalArgumentException("participants");
     }
-    
+
     /**
      * Opens a chat room window for the given <tt>ChatRoomWrapper</tt> instance.
-     * 
+     *
      * @param chatRoom the chat room associated with the chat room window
      */
     public void openChatRoomWindow(ChatRoomWrapper chatRoom)
@@ -1568,14 +1567,14 @@ public class UIServiceImpl
             = getChatWindowManager();
         ChatPanel chatPanel
             = chatWindowManager.getMultiChat(chatRoom, true);
-    
+
         chatWindowManager.openChat(chatPanel, true);
     }
-    
+
     /**
-     * Closes the chat room window for the given <tt>ChatRoomWrapper</tt> 
+     * Closes the chat room window for the given <tt>ChatRoomWrapper</tt>
      * instance.
-     * 
+     *
      * @param chatRoom the chat room associated with the chat room window.
      */
     public void closeChatRoomWindow(ChatRoomWrapper chatRoom)
@@ -1584,7 +1583,7 @@ public class UIServiceImpl
             = getChatWindowManager();
         ChatPanel chatPanel
             = chatWindowManager.getMultiChat(chatRoom, false);
-    
+
         if (chatPanel != null)
             chatWindowManager.closeChat(chatPanel);
     }
@@ -1610,7 +1609,7 @@ public class UIServiceImpl
     {
         return CallManager.getInProgressCalls();
     }
-    
+
     /**
      * Shows Add chat room dialog.
      */
@@ -1618,11 +1617,11 @@ public class UIServiceImpl
     {
         ChatRoomTableDialog.showChatRoomTableDialog();
     }
-    
+
     /**
      * Shows chat room open automatically configuration dialog.
-     * @param chatRoomId the chat room id of the chat room associated with the 
-     * dialog 
+     * @param chatRoomId the chat room id of the chat room associated with the
+     * dialog
      * @param pps the protocol provider service of the chat room
      */
     public void showChatRoomAutoOpenConfigDialog(

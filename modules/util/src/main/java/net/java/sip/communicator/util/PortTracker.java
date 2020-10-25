@@ -32,7 +32,7 @@ public class PortTracker
     /**
      * The local logger.
      */
-    private static final Logger logger = Logger.getLogger(NetworkUtils.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NetworkUtils.class);
 
     /**
      * The minimum port number that this allocator would be allocate to return.

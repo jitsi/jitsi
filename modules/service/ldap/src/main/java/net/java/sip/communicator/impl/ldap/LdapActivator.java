@@ -41,8 +41,7 @@ public class LdapActivator extends DependentActivator
     /**
      * the logger for this class
      */
-    private static Logger logger =
-        Logger.getLogger(LdapActivator.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapActivator.class);
 
     /**
      * The <tt>BundleContext</tt> in which the LDAP plug-in is started.
@@ -100,42 +99,33 @@ public class LdapActivator extends DependentActivator
     public void startWithServices(BundleContext bundleContext)
     {
         LdapActivator.bundleContext = bundleContext;
+        resourceService = getService(ResourceManagementService.class);
+        phoneNumberI18nService = getService(PhoneNumberI18nService.class);
 
-        try
+        /* Creates and starts the LDAP service. */
+        ldapService =
+            new LdapServiceImpl();
+
+        ldapService.start(bundleContext);
+
+        bundleContext.registerService(
+                LdapService.class, ldapService, null);
+
+        logger.trace("LDAP Service ...[REGISTERED]");
+
+        if(ldapService.getServerSet().size() == 0)
         {
-            logger.logEntry();
-            resourceService = getService(ResourceManagementService.class);
-            phoneNumberI18nService = getService(PhoneNumberI18nService.class);
-
-            /* Creates and starts the LDAP service. */
-            ldapService =
-                new LdapServiceImpl();
-
-            ldapService.start(bundleContext);
-
-            bundleContext.registerService(
-                    LdapService.class, ldapService, null);
-
-            logger.trace("LDAP Service ...[REGISTERED]");
-
-            if(ldapService.getServerSet().size() == 0)
-            {
-                return;
-            }
-
-            for(LdapDirectory ldapDir : getLdapService().getServerSet())
-            {
-                if(!ldapDir.getSettings().isEnabled())
-                {
-                    continue;
-                }
-
-                registerContactSource(ldapDir);
-            }
+            return;
         }
-        finally
+
+        for(LdapDirectory ldapDir : getLdapService().getServerSet())
         {
-            logger.logExit();
+            if(!ldapDir.getSettings().isEnabled())
+            {
+                continue;
+            }
+
+            registerContactSource(ldapDir);
         }
     }
 

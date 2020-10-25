@@ -44,8 +44,7 @@ public class SelectAvatarMenu
     /**
      * Logger for this class.
      */
-    private static final Logger logger =
-            Logger.getLogger(SelectAvatarMenu.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SelectAvatarMenu.class);
 
     /**
      * Name of choose button.

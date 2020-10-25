@@ -21,8 +21,6 @@ import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.notification.*;
-import net.java.sip.communicator.util.Logger;
-
 import org.apache.commons.lang3.StringUtils;
 import org.jitsi.utils.*;
 
@@ -38,8 +36,7 @@ public class CommandNotificationHandlerImpl
      * The <tt>Logger</tt> used by this <tt>CommandNotificationHandlerImpl</tt>
      * instance to log debugging information.
      */
-    private Logger logger
-        = Logger.getLogger(CommandNotificationHandlerImpl.class);
+    private org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CommandNotificationHandlerImpl.class);
 
     /**
      * {@inheritDoc}

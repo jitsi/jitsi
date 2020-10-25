@@ -74,7 +74,7 @@ public class ChatWritePanel
      * The <tt>Logger</tt> used by the <tt>ChatWritePanel</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger = Logger.getLogger(ChatWritePanel.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ChatWritePanel.class);
 
     private final JEditorPane editorPane = new JEditorPane();
 
@@ -701,14 +701,14 @@ public class ChatWritePanel
                 position++;
 
             String sequence = message.substring(position, index);
-            
+
             if (sequence.length() <= 0)
             {
                 // Do not look for matching contacts if the matching pattern is
                 // 0 chars long, since all contacts will match.
                 return;
             }
-            
+
             Iterator<ChatContact<?>> iter = chatPanel.getChatSession()
                                              .getParticipants();
             ArrayList<String> contacts = new ArrayList<String>();
@@ -1730,7 +1730,7 @@ public class ChatWritePanel
 
     /**
      * Removes the according plug-in component from this container.
-     * 
+     *
      * @param event the <tt>PluginComponentEvent</tt> that notified us
      */
     public void pluginComponentRemoved(PluginComponentEvent event)

@@ -57,7 +57,7 @@ public class MessageSourceService
     /**
      * The logger for this class.
      */
-    private static Logger logger = Logger.getLogger(MessageSourceService.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MessageSourceService.class);
 
     /**
      * The display name of this contact source.

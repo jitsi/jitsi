@@ -43,8 +43,7 @@ public class OutgoingFileTransferJabberImpl
     /**
      * The logger of this class.
      */
-    private final Logger logger
-        = Logger.getLogger(OutgoingFileTransferJabberImpl.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OutgoingFileTransferJabberImpl.class);
 
     private final String id;
 

@@ -40,8 +40,7 @@ public class MsOutlookAddrBookContactSourceService
      * <tt>MsOutlookAddrBookContactSourceService</tt> class and its instances
      * for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(MsOutlookAddrBookContactSourceService.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MsOutlookAddrBookContactSourceService.class);
 
     /**
      * The outlook address book prefix.
@@ -69,7 +68,7 @@ public class MsOutlookAddrBookContactSourceService
     private static final long MAPI_INIT_VERSION = 0;
 
     private static final long MAPI_MULTITHREAD_NOTIFICATIONS = 0x00000001;
-    
+
     private static final int NATIVE_LOGGER_LEVEL_INFO = 0;
 
     private static final int NATIVE_LOGGER_LEVEL_TRACE = 1;
@@ -151,7 +150,7 @@ public class MsOutlookAddrBookContactSourceService
     /**
      * Initializes a new <tt>MsOutlookAddrBookContactSourceService</tt>
      * instance.
-     * @param notificationDelegate the object to be notified for addressbook 
+     * @param notificationDelegate the object to be notified for addressbook
      * changes
      * @throws MsOutlookMAPIHResultException if anything goes wrong while
      * initializing the new <tt>MsOutlookAddrBookContactSourceService</tt>
@@ -163,37 +162,37 @@ public class MsOutlookAddrBookContactSourceService
         if(!isMAPIInitialized)
         {
             boolean isOutlookDefaultMailClient = isOutlookDefaultMailClient();
-            boolean showWarning 
+            boolean showWarning
                 = AddrBookActivator.getConfigService().getBoolean(
-                    PNAME_OUTLOOK_ADDR_BOOK_SHOW_DEFAULTMAILCLIENT_WARNING, 
+                    PNAME_OUTLOOK_ADDR_BOOK_SHOW_DEFAULTMAILCLIENT_WARNING,
                     true);
             if(!isOutlookDefaultMailClient && showWarning)
             {
-                DefaultMailClientMessageDialog dialog 
+                DefaultMailClientMessageDialog dialog
                     = new DefaultMailClientMessageDialog();
                 int result = dialog.showDialog();
                 if((result & DefaultMailClientMessageDialog
                     .DONT_ASK_SELECTED_MASK) != 0)
                 {
                     AddrBookActivator.getConfigService().setProperty(
-                        PNAME_OUTLOOK_ADDR_BOOK_SHOW_DEFAULTMAILCLIENT_WARNING, 
+                        PNAME_OUTLOOK_ADDR_BOOK_SHOW_DEFAULTMAILCLIENT_WARNING,
                         false);
                 }
-                
+
                 if((result & DefaultMailClientMessageDialog
                         .DEFAULT_MAIL_CLIENT_SELECTED_MASK) != 0)
                 {
                     RegistryHandler.setOutlookAsDefaultMailClient();
                 }
             }
-            
+
             if(isOutlookDefaultMailClient && !showWarning)
             {
                 AddrBookActivator.getConfigService().setProperty(
-                    PNAME_OUTLOOK_ADDR_BOOK_SHOW_DEFAULTMAILCLIENT_WARNING, 
+                    PNAME_OUTLOOK_ADDR_BOOK_SHOW_DEFAULTMAILCLIENT_WARNING,
                     true);
             }
-            
+
             String logFileName = "";
             String homeLocation = System.getProperty(
                 "net.java.sip.communicator.SC_LOG_DIR_LOCATION");
@@ -266,7 +265,7 @@ public class MsOutlookAddrBookContactSourceService
             String logFileName,
             int logLevel)
         throws MsOutlookMAPIHResultException;
-    
+
     /**
      * Uninitializes MAPI.
      */
@@ -284,7 +283,7 @@ public class MsOutlookAddrBookContactSourceService
     public static native int getOutlookBitnessVersion();
 
     public static native int getOutlookVersion();
-    
+
     private static native boolean isOutlookDefaultMailClient();
 
     /**

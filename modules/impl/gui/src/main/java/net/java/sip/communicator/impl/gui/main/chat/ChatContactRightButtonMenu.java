@@ -49,7 +49,7 @@ public class ChatContactRightButtonMenu
 {
     private static final long serialVersionUID = -4069653895234333083L;
 
-    private Logger logger = Logger.getLogger(ChatContactRightButtonMenu.class);
+    private org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ChatContactRightButtonMenu.class);
 
     private final JMenuItem kickItem
         = new JMenuItem(GuiActivator.getResources().getI18NString(
@@ -491,7 +491,7 @@ public class ChatContactRightButtonMenu
             ChatWindowManager chatWindowManager
                 = GuiActivator.getUIService()
                     .getChatWindowManager();
-            chatWindowManager.openPrivateChatForChatRoomMember(room, 
+            chatWindowManager.openPrivateChatForChatRoomMember(room,
                 chatContact.getName());
         }
     }

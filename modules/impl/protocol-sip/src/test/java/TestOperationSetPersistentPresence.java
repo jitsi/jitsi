@@ -32,8 +32,7 @@ import net.java.sip.communicator.util.*;
 public class TestOperationSetPersistentPresence
     extends TestCase
 {
-    private static final Logger logger =
-        Logger.getLogger(TestOperationSetPersistentPresence.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestOperationSetPersistentPresence.class);
 
     private SipSlickFixture fixture = new SipSlickFixture();
     private OperationSetPersistentPresence opSetPersPresence1 = null;
@@ -158,7 +157,7 @@ public class TestOperationSetPersistentPresence
             = SipSlickFixture.preInstalledBuddyList;
 
         logger.debug("============== Expected Contact List ===================");
-        logger.debug(expectedContactList);
+        logger.debug(expectedContactList.toString());
 
         //Go through the contact list retrieved by the persistence presence set
         //and remove the name of every contact and group that we find there from

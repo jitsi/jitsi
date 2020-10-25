@@ -50,7 +50,7 @@ public class DnssecPanel
      */
     private static final long serialVersionUID = 0L;
 
-    private final static Logger logger = Logger.getLogger(DnssecPanel.class);
+    private final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DnssecPanel.class);
 
     //UI Controls
     private JComboBox cboDefault;

@@ -62,8 +62,7 @@ public class CallPeerMediaHandlerSipImpl
     /**
      * Our class logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(CallPeerMediaHandlerSipImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CallPeerMediaHandlerSipImpl.class);
 
     /**
      * The last ( and maybe only ) session description that we generated for
@@ -767,7 +766,7 @@ public class CallPeerMediaHandlerSipImpl
 
             // RTCP XR
             String rtcpxr;
-            
+
             try
             {
                 /*
@@ -781,7 +780,7 @@ public class CallPeerMediaHandlerSipImpl
                 {
                     /*
                      * However, we support the receiving and sending of VoIP
-                     * Metrics Report Block only. 
+                     * Metrics Report Block only.
                      */
                     if (rtcpxr.contains(
                             RTCPExtendedReport.VoIPMetricsReportBlock
@@ -1028,7 +1027,7 @@ public class CallPeerMediaHandlerSipImpl
                  * offerer is the DTLS server and recommends setup:active to the
                  * answerer i.e the answerer is the DTLS client. If the answerer
                  * chooses setup:passive i.e. the answerer is the DTLS server,
-                 * the offerer has to become the DTLS client. 
+                 * the offerer has to become the DTLS client.
                  */
                 String setup;
 

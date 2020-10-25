@@ -58,8 +58,7 @@ public class OperationSetPersistentPresenceJabberImpl
     /**
      * The logger.
      */
-    private static final Logger logger =
-        Logger.getLogger(OperationSetPersistentPresenceJabberImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetPersistentPresenceJabberImpl.class);
 
     /**
      * Contains our current status message. Note that this field would only

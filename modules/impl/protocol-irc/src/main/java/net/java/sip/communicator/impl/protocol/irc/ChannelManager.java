@@ -47,7 +47,7 @@ public class ChannelManager
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(ChannelManager.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ChannelManager.class);
 
     /**
      * IRCApi instance.
@@ -180,9 +180,9 @@ public class ChannelManager
         {
             return null;
         }
-        if (LOGGER.isDebugEnabled())
+        if (logger.isDebugEnabled())
         {
-            LOGGER.debug("Setting ISUPPORT parameter " + param.name() + " to "
+            logger.debug("Setting ISUPPORT parameter " + param.name() + " to "
                     + value);
         }
         return new Integer(value);
@@ -201,13 +201,13 @@ public class ChannelManager
         final String rawChanLimitValue =
             state.getServerOptions().getKey(ISupport.CHANLIMIT.name());
         ISupport.parseChanLimit(destination, rawChanLimitValue);
-        if (LOGGER.isDebugEnabled())
+        if (logger.isDebugEnabled())
         {
-            LOGGER.debug("Parsed ISUPPORT CHANLIMIT parameter: "
+            logger.debug("Parsed ISUPPORT CHANLIMIT parameter: "
                 + rawChanLimitValue);
             for (Entry<Character, Integer> e : destination.entrySet())
             {
-                LOGGER.debug(e.getKey() + ":" + e.getValue());
+                logger.debug(e.getKey() + ":" + e.getValue());
             }
         }
     }
@@ -299,12 +299,12 @@ public class ChannelManager
                     + "server parameters.");
         }
 
-        LOGGER.trace("Start joining channel " + chatRoomId);
+        logger.trace("Start joining channel " + chatRoomId);
         final Result<Object, Exception> joinSignal =
             new Result<Object, Exception>();
         synchronized (joinSignal)
         {
-            LOGGER.trace("Issue join channel command to IRC library and wait "
+            logger.trace("Issue join channel command to IRC library and wait "
                 + "for join operation to complete (un)successfully.");
 
             this.joined.put(chatRoomId, null);
@@ -317,9 +317,9 @@ public class ChannelManager
                     @Override
                     public void onSuccess(final IRCChannel channel)
                     {
-                        if (LOGGER.isTraceEnabled())
+                        if (logger.isTraceEnabled())
                         {
-                            LOGGER.trace("Started callback for successful "
+                            logger.trace("Started callback for successful "
                                 + "join of channel '"
                                 + chatroom.getIdentifier() + "'.");
                         }
@@ -331,9 +331,9 @@ public class ChannelManager
                             {
                                 // We joined another chat room than the one
                                 // we requested initially.
-                                if (LOGGER.isTraceEnabled())
+                                if (logger.isTraceEnabled())
                                 {
-                                    LOGGER.trace("Callback for successful "
+                                    logger.trace("Callback for successful "
                                         + "join finished prematurely "
                                         + "since we got forwarded from '"
                                         + chatRoomId + "' to '"
@@ -392,9 +392,9 @@ public class ChannelManager
                                         LocalUserChatRoomPresenceChangeEvent
                                             .LOCAL_USER_JOINED,
                                         null);
-                                if (LOGGER.isTraceEnabled())
+                                if (logger.isTraceEnabled())
                                 {
-                                    LOGGER.trace("Finished successful join "
+                                    logger.trace("Finished successful join "
                                         + "callback for channel '" + chatRoomId
                                         + "'. Waking up original thread.");
                                 }
@@ -409,7 +409,7 @@ public class ChannelManager
                     @Override
                     public void onFailure(final Exception e)
                     {
-                        LOGGER.trace("Started callback for failed attempt to "
+                        logger.trace("Started callback for failed attempt to "
                             + "join channel '" + chatRoomId + "'.");
                         synchronized (joinSignal)
                         {
@@ -426,9 +426,9 @@ public class ChannelManager
                             }
                             finally
                             {
-                                if (LOGGER.isTraceEnabled())
+                                if (logger.isTraceEnabled())
                                 {
-                                    LOGGER.trace("Finished callback for "
+                                    logger.trace("Finished callback for "
                                         + "failed attempt to join "
                                         + "channel '" + chatRoomId
                                         + "'. Waking up original thread.");
@@ -446,19 +446,19 @@ public class ChannelManager
             {
                 while (!joinSignal.isDone())
                 {
-                    LOGGER.trace("Waiting for channel join message ...");
+                    logger.trace("Waiting for channel join message ...");
                     // Wait until async channel join operation has finished.
                     joinSignal.wait();
                 }
 
-                LOGGER
+                logger
                     .trace("Finished waiting for join operation for channel '"
                         + chatroom.getIdentifier() + "' to complete.");
                 // TODO How to handle 480 (+j): Channel throttle exceeded?
             }
             catch (InterruptedException e)
             {
-                LOGGER.error("Wait for join operation was interrupted.", e);
+                logger.error("Wait for join operation was interrupted.", e);
                 throw new OperationFailedException(e.getMessage(),
                     OperationFailedException.INTERNAL_ERROR, e);
             }
@@ -488,9 +488,9 @@ public class ChannelManager
             {
                 try
                 {
-                    if (LOGGER.isTraceEnabled())
+                    if (logger.isTraceEnabled())
                     {
-                        LOGGER.trace("Processing role " + status.getPrefix()
+                        logger.trace("Processing role " + status.getPrefix()
                             + " for member " + user.getNick() + " in channel "
                             + channel.getName());
                     }
@@ -499,7 +499,7 @@ public class ChannelManager
                 }
                 catch (UnknownModeException e)
                 {
-                    LOGGER.info(
+                    logger.info(
                         "Unknown mode encountered. This mode will be ignored.",
                         e);
                 }
@@ -544,7 +544,7 @@ public class ChannelManager
                 + "longer than " + this.isupportTopicLen
                 + " characters according to server parameters.");
         }
-        LOGGER.trace("Setting chat room topic to '" + subject + "'");
+        logger.trace("Setting chat room topic to '" + subject + "'");
         this.irc.changeTopic(chatroom.getIdentifier(), subject == null ? ""
             : subject);
     }
@@ -556,7 +556,7 @@ public class ChannelManager
      */
     public void leave(final ChatRoomIrcImpl chatroom)
     {
-        LOGGER.trace("Leaving chat room '" + chatroom.getIdentifier() + "'.");
+        logger.trace("Leaving chat room '" + chatroom.getIdentifier() + "'.");
         leave(chatroom.getIdentifier());
     }
 
@@ -578,7 +578,7 @@ public class ChannelManager
         }
         catch (ApiException e)
         {
-            LOGGER.warn("exception occurred while leaving channel", e);
+            logger.warn("exception occurred while leaving channel", e);
         }
     }
 
@@ -759,14 +759,14 @@ public class ChannelManager
                     // simultaneous creation events.
                     if (ChannelManager.this.joined.containsKey(channelName))
                     {
-                        LOGGER.trace("Chat room '" + channelName
+                        logger.trace("Chat room '" + channelName
                             + "' join event was announced or already "
                             + "finished. Stop handling this event.");
                         break;
                     }
                     // We aren't currently attempting to join, so this join is
                     // unannounced.
-                    LOGGER.trace("Starting unannounced join of chat room '"
+                    logger.trace("Starting unannounced join of chat room '"
                         + channelName + "'");
                     // Assuming that at the time that NICKS_END_OF_LIST is
                     // propagated, the channel join event has been completely
@@ -788,14 +788,14 @@ public class ChannelManager
                 }
                 catch (NullPointerException e)
                 {
-                    LOGGER.error("failed to open chat room window", e);
+                    logger.error("failed to open chat room window", e);
                 }
                 ChannelManager.this.prepareChatRoom(chatRoom, channel);
                 ChannelManager.this.provider.getMUC()
                     .fireLocalUserPresenceEvent(chatRoom,
                     LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
                     null);
-                LOGGER.trace("Unannounced join of chat room '" + channelName
+                logger.trace("Unannounced join of chat room '" + channelName
                     + "' completed.");
                 break;
 
@@ -894,7 +894,7 @@ public class ChannelManager
             }
             else
             {
-                LOGGER.info("Not activating periodic presence watcher. "
+                logger.info("Not activating periodic presence watcher. "
                     + "(away-notify capability is " + awayNotifyCapability
                     + ")");
             }
@@ -915,7 +915,7 @@ public class ChannelManager
             };
             this.presenceTaskTimer.schedule(task, TASK_INITIAL_DELAY,
                 TASK_PERIOD);
-            LOGGER.debug("Scheduled periodic task for querying member presence "
+            logger.debug("Scheduled periodic task for querying member presence "
                 + "for channel " + this.chatroom.getIdentifier());
         }
 
@@ -1007,7 +1007,7 @@ public class ChannelManager
                 }
                 catch (NullPointerException e)
                 {
-                    LOGGER.warn(
+                    logger.warn(
                         "This should not have happened. Please report this "
                             + "as it is a bug.", e);
                 }
@@ -1034,7 +1034,7 @@ public class ChannelManager
                 final String channel = raw.substring(0, raw.indexOf(" "));
                 if (isThisChatRoom(channel))
                 {
-                    LOGGER
+                    logger
                         .warn("Just discovered that we are no longer joined to "
                             + "channel "
                             + channel
@@ -1117,7 +1117,7 @@ public class ChannelManager
 
             if (!this.connectionState.isConnected())
             {
-                LOGGER.error("Not currently connected to IRC Server. "
+                logger.error("Not currently connected to IRC Server. "
                     + "Aborting message handling.");
                 return;
             }
@@ -1135,7 +1135,7 @@ public class ChannelManager
             }
             if (localUser(kickedUser))
             {
-                LOGGER.debug(
+                logger.debug(
                     "Local user is kicked. Removing chat room listener.");
                 this.irc.deleteListener(this);
                 ChannelManager.this.joined
@@ -1352,7 +1352,7 @@ public class ChannelManager
             this.presenceTaskTimer.cancel();
             this.irc.deleteListener(this);
             ChannelManager.this.joined.remove(this.chatroom.getIdentifier());
-            LOGGER.debug("Leaving chat room " + this.chatroom.getIdentifier()
+            logger.debug("Leaving chat room " + this.chatroom.getIdentifier()
                 + ". Chat room listener removed.");
             ChannelManager.this.provider.getMUC().fireLocalUserPresenceEvent(
                 this.chatroom,
@@ -1385,18 +1385,18 @@ public class ChannelManager
                     processBanChange(source, mode);
                     break;
                 case UNKNOWN:
-                    if (LOGGER.isInfoEnabled())
+                    if (logger.isInfoEnabled())
                     {
-                        LOGGER.info("Unknown mode: "
+                        logger.info("Unknown mode: "
                             + (mode.isAdded() ? "+" : "-")
                             + mode.getParams()[0] + ". Original mode string: '"
                             + msg.getModeStr() + "'");
                     }
                     break;
                 default:
-                    if (LOGGER.isInfoEnabled())
+                    if (logger.isInfoEnabled())
                     {
-                        LOGGER.info("Unsupported mode '"
+                        logger.info("Unsupported mode '"
                             + (mode.isAdded() ? "+" : "-") + mode.getMode()
                             + "' (from modestring '" + msg.getModeStr() + "')");
                     }
@@ -1521,7 +1521,7 @@ public class ChannelManager
                 }
                 catch (NumberFormatException e)
                 {
-                    LOGGER.warn("server sent incorrect limit: "
+                    logger.warn("server sent incorrect limit: "
                         + "limit is not a number", e);
                     return;
                 }

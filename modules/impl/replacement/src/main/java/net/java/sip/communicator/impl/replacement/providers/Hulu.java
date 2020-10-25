@@ -36,8 +36,7 @@ public class Hulu
     /**
      * The logger for this class.
      */
-    private static final Logger logger =
-        Logger.getLogger(Hulu.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Hulu.class);
 
     /**
      * The regex used to match the link in the message.

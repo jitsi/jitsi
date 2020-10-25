@@ -35,8 +35,7 @@ public class ChatRoomMemberIrcImpl
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger
-        .getLogger(ChatRoomMemberIrcImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ChatRoomMemberIrcImpl.class);
 
     /**
      * The ChatRoom.
@@ -237,7 +236,7 @@ public class ChatRoomMemberIrcImpl
     {
         // Ignore explicit set role operations, since we only allow
         // modifications from the IRC server.
-        LOGGER.debug("Ignoring request to set member role.");
+        logger.debug("Ignoring request to set member role.");
         return;
     }
 

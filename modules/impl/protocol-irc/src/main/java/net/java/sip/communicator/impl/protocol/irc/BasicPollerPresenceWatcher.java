@@ -33,8 +33,7 @@ class BasicPollerPresenceWatcher
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger
-        .getLogger(BasicPollerPresenceWatcher.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(BasicPollerPresenceWatcher.class);
 
     /**
      * Delay before starting the presence watcher task for the first time.
@@ -102,7 +101,7 @@ class BasicPollerPresenceWatcher
         }
         this.nickWatchList = nickWatchList;
         setUpPresenceWatcher(serverIdentity);
-        LOGGER.debug("Basic Poller presence watcher initialized.");
+        logger.debug("Basic Poller presence watcher initialized.");
     }
 
     /**
@@ -122,7 +121,7 @@ class BasicPollerPresenceWatcher
                 serverIdentity);
         presenceWatcher.schedule(task, INITIAL_PRESENCE_WATCHER_DELAY,
             PRESENCE_WATCHER_PERIOD);
-        LOGGER.trace("Basic Poller presence watcher set up.");
+        logger.trace("Basic Poller presence watcher set up.");
     }
 
     @Override
@@ -206,17 +205,17 @@ class BasicPollerPresenceWatcher
         {
             if (this.watchList.isEmpty())
             {
-                LOGGER.trace("Watch list is empty. Not querying for online "
+                logger.trace("Watch list is empty. Not querying for online "
                     + "presence.");
                 return;
             }
             if (this.serverIdentity.get() == null)
             {
-                LOGGER.trace("Server identity not available yet. Skipping "
+                logger.trace("Server identity not available yet. Skipping "
                     + "this presence status query.");
                 return;
             }
-            LOGGER
+            logger
                 .trace("Watch list contains nicks: querying presence status.");
             final StringBuilder query = new StringBuilder();
             final LinkedList<String> list;
@@ -356,7 +355,7 @@ class BasicPollerPresenceWatcher
             final String newNick = msg.getNewNick();
             if (oldNick == null || newNick == null)
             {
-                LOGGER.error("Incomplete nick change message. Old nick: '"
+                logger.error("Incomplete nick change message. Old nick: '"
                     + oldNick + "', new nick: '" + newNick + "'.");
                 return;
             }
@@ -418,7 +417,7 @@ class BasicPollerPresenceWatcher
                 final int idx = errortext.indexOf(' ');
                 if (idx == -1)
                 {
-                    LOGGER.info("ERR_NOSUCHNICK message does not have "
+                    logger.info("ERR_NOSUCHNICK message does not have "
                         + "expected format.");
                     return;
                 }

@@ -42,8 +42,7 @@ public class AutoAwayWatcher
     /**
      * The logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(AutoAwayWatcher.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AutoAwayWatcher.class);
 
     /**
      * The states of providers before going to away.

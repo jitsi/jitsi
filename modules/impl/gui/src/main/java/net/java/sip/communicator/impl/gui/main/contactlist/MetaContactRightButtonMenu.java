@@ -68,8 +68,7 @@ public class MetaContactRightButtonMenu
     /**
      * The logger of this class.
      */
-    private final Logger logger
-        = Logger.getLogger(MetaContactRightButtonMenu.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MetaContactRightButtonMenu.class);
 
     /**
      * The string shown over menu items indicating that an operation should be
@@ -523,7 +522,7 @@ public class MetaContactRightButtonMenu
                 OperationSetExtendedAuthorizations authOpSet
                     = protocolProvider.getOperationSet(
                         OperationSetExtendedAuthorizations.class);
-                
+
                 OperationSetMultiUserChat opSetMUC
                     = protocolProvider.getOperationSet(
                         OperationSetMultiUserChat.class);
@@ -726,7 +725,7 @@ public class MetaContactRightButtonMenu
         OperationSetMultiUserChat opSetMUC
             = defaultContact.getProtocolProvider().getOperationSet(
                 OperationSetMultiUserChat.class);
-        
+
         // If we have more than one request to make.
         if (authRequestItemCount > 1)
         {

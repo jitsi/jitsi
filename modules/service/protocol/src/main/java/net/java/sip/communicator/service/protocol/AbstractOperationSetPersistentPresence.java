@@ -39,8 +39,7 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
      * <tt>AbstractOperationSetPersistentPresence</tt> class and its instances
      * for logging output.
      */
-    private static final Logger logger =
-        Logger.getLogger(AbstractOperationSetPersistentPresence.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AbstractOperationSetPersistentPresence.class);
 
     /**
      * A list of listeners registered for

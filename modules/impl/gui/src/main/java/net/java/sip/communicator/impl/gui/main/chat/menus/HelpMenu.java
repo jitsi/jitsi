@@ -42,7 +42,7 @@ public class HelpMenu
     implements ActionListener,
                PluginComponentListener
 {
-    private final Logger logger = Logger.getLogger(HelpMenu.class.getName());
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HelpMenu.class.getName());
 
     /**
      * Creates an instance of <tt>HelpMenu</tt>.

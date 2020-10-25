@@ -46,8 +46,7 @@ public class SipSecurityManager
     /**
      * Our class logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(SipSecurityManager.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SipSecurityManager.class);
 
     /**
      * The SecurityAuthority instance that we could use to obtain new passwords
@@ -395,7 +394,7 @@ public class SipSecurityManager
      * containing user credentials.
      * @throws TransactionUnavailableException if we get an exception white
      * creating the new transaction
-     * @throws OperationFailedException 
+     * @throws OperationFailedException
      */
     public synchronized ClientTransaction handleForbiddenResponse(
                                     Response          forbidden,

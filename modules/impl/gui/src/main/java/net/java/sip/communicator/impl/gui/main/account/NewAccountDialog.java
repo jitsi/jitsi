@@ -51,8 +51,7 @@ public class NewAccountDialog
      * The <tt>Logger</tt> used by the <tt>NewAccountDialog</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(NewAccountDialog.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NewAccountDialog.class);
 
     private final TransparentPanel accountPanel
         = new TransparentPanel(new BorderLayout());

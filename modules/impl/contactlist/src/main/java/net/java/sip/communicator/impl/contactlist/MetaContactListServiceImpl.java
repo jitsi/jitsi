@@ -49,8 +49,7 @@ public class MetaContactListServiceImpl
      * The <tt>Logger</tt> used by the <tt>MetaContactListServiceImpl</tt> class
      * and its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(MetaContactListServiceImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MetaContactListServiceImpl.class);
 
     /**
      * The BundleContext that we got from the OSGI bus.
@@ -1119,20 +1118,20 @@ public class MetaContactListServiceImpl
                 "persistant address.");
            return;
         }
-        
+
         ProtocolProviderService provider = contact.getProtocolProvider();
-        
+
         OperationSetMultiUserChat opSetMUC
             = provider.getOperationSet(OperationSetMultiUserChat.class);
-        
+
         if(opSetMUC != null
            && opSetMUC.isPrivateMessagingContact(contact.getAddress()))
         {
-            addNewContactToMetaContact(provider, newParentMetaContact, 
+            addNewContactToMetaContact(provider, newParentMetaContact,
                 contact.getPersistableAddress());
             return;
         }
-        
+
         //get a persistent  presence operation set
         OperationSetPersistentPresence opSetPresence
             = provider.getOperationSet(OperationSetPersistentPresence.class);
@@ -1141,9 +1140,9 @@ public class MetaContactListServiceImpl
         {
             /** @todo handle non persistent presence operation sets */
         }
-        
-        
-        
+
+
+
         if (! (newParentMetaContact instanceof MetaContactImpl))
         {
             throw new IllegalArgumentException(

@@ -34,8 +34,7 @@ public class ProvisioningDiscoveryMDNSActivator
      * <tt>Logger</tt> used by this <tt>ProvisioningDiscoveryMDNSActivator</tt>
      * instance for logging output.
      */
-    private final Logger logger
-        = Logger.getLogger(ProvisioningDiscoveryMDNSActivator.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProvisioningDiscoveryMDNSActivator.class);
 
     /**
      * MDNS provisioning service.

@@ -41,7 +41,7 @@ public class PresenceFilter
      * The <tt>Logger</tt> used by the <tt>PresenceFilter</tt> class and its
      * instances to print debugging information.
      */
-    private static final Logger logger = Logger.getLogger(PresenceFilter.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PresenceFilter.class);
 
     /**
      * Indicates if this presence filter shows or hides the offline contacts.

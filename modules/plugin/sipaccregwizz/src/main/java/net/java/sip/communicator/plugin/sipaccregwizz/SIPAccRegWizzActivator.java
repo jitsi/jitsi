@@ -41,8 +41,7 @@ public class SIPAccRegWizzActivator
      */
     public static BundleContext bundleContext;
 
-    private static final Logger logger =
-        Logger.getLogger(SIPAccRegWizzActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SIPAccRegWizzActivator.class);
 
     private static WizardContainer wizardContainer;
 

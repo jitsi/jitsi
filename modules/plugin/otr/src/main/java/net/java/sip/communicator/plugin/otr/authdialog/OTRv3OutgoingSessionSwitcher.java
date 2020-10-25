@@ -40,7 +40,7 @@ import net.java.sip.communicator.util.*;
 /**
  * A special {@link JMenuBar} that controls the switching of OTRv3 outgoing
  * sessions in case the remote party is logged in multiple times.
- * 
+ *
  * @author Marin Dzhigarov
  *
  */
@@ -52,8 +52,7 @@ public class OTRv3OutgoingSessionSwitcher
                ScOtrKeyManagerListener
 {
 
-    private static final Logger logger
-        = Logger.getLogger(OTRv3OutgoingSessionSwitcher.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OTRv3OutgoingSessionSwitcher.class);
 
     private final PluginComponentFactory parentFactory;
 
@@ -73,7 +72,7 @@ public class OTRv3OutgoingSessionSwitcher
         = new HashMap<Session, JMenuItem>();
 
     /**
-     * An animated {@link JMenu} 
+     * An animated {@link JMenu}
      * @author Marin Dzhigarov
      *
      */
@@ -384,7 +383,7 @@ public class OTRv3OutgoingSessionSwitcher
             switch (session.getSessionStatus(session.getReceiverInstanceTag()))
             {
             case ENCRYPTED:
-                PublicKey pubKey = 
+                PublicKey pubKey =
                     session.getRemotePublicKey(session.getReceiverInstanceTag());
                 String fingerprint =
                     OtrActivator.scOtrKeyManager.
@@ -415,7 +414,7 @@ public class OTRv3OutgoingSessionSwitcher
                 this.menu.setSelected(selectedObject);
                 setSelected(menu.getItem(index - 1));
             }
-            
+
         }
         updateEnableStatus();
         menu.repaint();

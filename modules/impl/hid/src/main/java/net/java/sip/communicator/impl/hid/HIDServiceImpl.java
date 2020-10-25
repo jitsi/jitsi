@@ -22,8 +22,6 @@ import java.awt.*;
 import java.awt.event.*;
 
 import net.java.sip.communicator.service.hid.*;
-import net.java.sip.communicator.util.Logger;
-
 import org.jitsi.util.*;
 
 /**
@@ -38,7 +36,7 @@ public class HIDServiceImpl implements HIDService
      * The <tt>Logger</tt> used by the <tt>NeomediaActivator</tt> class and its
      * instances for logging output.
      */
-    private final Logger logger = Logger.getLogger(HIDServiceImpl.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HIDServiceImpl.class);
 
     /**
      * The robot used to perform some operations (mouse/key interactions).
@@ -85,10 +83,10 @@ public class HIDServiceImpl implements HIDService
             symbolPress("altgr");
         }
         else if(OSUtils.IS_MAC && keycode == KeyEvent.VK_WINDOWS)
-        {   // handle Windows key on MAC 
+        {   // handle Windows key on MAC
             robot.keyPress(KeyEvent.VK_META);
         }
-        else if (!OSUtils.IS_MAC && keycode == KeyEvent.VK_META) 
+        else if (!OSUtils.IS_MAC && keycode == KeyEvent.VK_META)
         {   // handle Command key on non MAC
             robot.keyPress(KeyEvent.VK_WINDOWS);
         }
@@ -118,7 +116,7 @@ public class HIDServiceImpl implements HIDService
         {   // handle Windows key on MAC
             robot.keyRelease(KeyEvent.VK_META);
         }
-        else if (!OSUtils.IS_MAC && keycode == KeyEvent.VK_META) 
+        else if (!OSUtils.IS_MAC && keycode == KeyEvent.VK_META)
         {   // handle Command key on non MAC
             robot.keyRelease(KeyEvent.VK_WINDOWS);
         }

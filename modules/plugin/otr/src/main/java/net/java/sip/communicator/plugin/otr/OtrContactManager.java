@@ -28,13 +28,13 @@ import org.osgi.framework.*;
 /**
  * The OtrContactManager is used for accessing <tt>OtrContact</tt>s in a static
  * way.
- * 
+ *
  * The <tt>OtrContact</tt> class is just a wrapper of [Contact, ContactResource]
  * pairs. Its purpose is for the otr plugin to be able to create different
  * <tt>Session</tt>s for every ContactResource that a Contact has.
- * 
+ *
  * Currently, only the Jabber protocol supports ContactResources.
- * 
+ *
  * @author Marin Dzhigarov
  *
  */
@@ -44,7 +44,7 @@ public class OtrContactManager implements ServiceListener
     /**
      * The logger
      */
-    private final Logger logger = Logger.getLogger(OtrContactManager.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OtrContactManager.class);
 
     /**
      * A map that caches OtrContacts to minimize memory usage.
@@ -57,7 +57,7 @@ public class OtrContactManager implements ServiceListener
      * [Contact, ContactResource] pairs. Its purpose is for the otr plugin to be
      * able to create different <tt>Session</tt>s for every ContactResource that
      * a Contact has.
-     * 
+     *
      * @author Marin Dzhigarov
      *
      */
@@ -109,7 +109,7 @@ public class OtrContactManager implements ServiceListener
      * Gets the <tt>OtrContact</tt> that represents this
      * [Contact, ContactResource] pair from the cache. If such pair does not
      * still exist it is then created and cached for further usage.
-     * 
+     *
      * @param contact the <tt>Contact</tt> that the returned OtrContact
      *                  represents.
      * @param resource the <tt>ContactResource</tt> that the returned OtrContact
@@ -163,7 +163,7 @@ public class OtrContactManager implements ServiceListener
 
         if (!(service instanceof ProtocolProviderService))
             return;
-    
+
         if (event.getType() == ServiceEvent.UNREGISTERING)
         {
             if (logger.isDebugEnabled())
@@ -175,11 +175,11 @@ public class OtrContactManager implements ServiceListener
 
             ProtocolProviderService provider
                 = (ProtocolProviderService) service;
-    
+
             synchronized(contactsMap)
             {
                 Iterator<Contact> i = contactsMap.keySet().iterator();
-    
+
                 while (i.hasNext())
                 {
                     if (provider.equals(i.next().getProtocolProvider()))

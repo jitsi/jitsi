@@ -18,8 +18,6 @@
 package net.java.sip.communicator.impl.browserlauncher;
 
 import net.java.sip.communicator.service.browserlauncher.*;
-import net.java.sip.communicator.util.Logger;
-
 import org.apache.commons.lang3.SystemUtils;
 import org.jitsi.service.configuration.*;
 
@@ -45,8 +43,7 @@ public class BrowserLauncherImpl
      * The <tt>Logger</tt> instance used by the <tt>BrowserLauncherImpl</tt>
      * class and its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(BrowserLauncherImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(BrowserLauncherImpl.class);
 
     /**
      * The name of the browser executable to use on linux

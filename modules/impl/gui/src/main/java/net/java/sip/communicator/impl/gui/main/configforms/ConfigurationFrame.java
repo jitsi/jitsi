@@ -28,8 +28,6 @@ import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.Logger;
-
 import org.jitsi.util.*;
 import org.osgi.framework.*;
 
@@ -57,8 +55,7 @@ public class ConfigurationFrame
      * The <tt>Logger</tt> used by the <tt>ConfigurationFrame</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(ConfigurationFrame.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConfigurationFrame.class);
 
     private static final int BORDER_SIZE = 20;
 

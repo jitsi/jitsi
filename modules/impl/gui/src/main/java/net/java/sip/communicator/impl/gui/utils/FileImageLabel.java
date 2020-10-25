@@ -37,7 +37,7 @@ import net.java.sip.communicator.util.FileUtils;
 public class FileImageLabel
     extends FileDragLabel
 {
-    private static final Logger logger = Logger.getLogger(FileImageLabel.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(FileImageLabel.class);
 
     private ImageIcon tooltipIcon;
 

@@ -32,8 +32,7 @@ import org.osgi.framework.*;
 public class NotificationServiceActivator
     extends DependentActivator
 {
-    private final Logger logger
-        = Logger.getLogger(NotificationServiceActivator.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NotificationServiceActivator.class);
 
     private ServiceRegistration<NotificationService> notificationService;
 
@@ -45,24 +44,16 @@ public class NotificationServiceActivator
     @Override
     public void startWithServices(BundleContext context)
     {
-        try
-        {
-            logger.logEntry();
-            logger.info("Notification Service...[  STARTED ]");
+        logger.info("Notification Service...[  STARTED ]");
 
-            ConfigurationService configService
-                = getService(ConfigurationService.class);
-            notificationService = context.registerService(
-                NotificationService.class,
-                new NotificationServiceImpl(configService),
-                null);
+        ConfigurationService configService
+            = getService(ConfigurationService.class);
+        notificationService = context.registerService(
+            NotificationService.class,
+            new NotificationServiceImpl(configService),
+            null);
 
-            logger.info("Notification Service ...[REGISTERED]");
-        }
-        finally
-        {
-            logger.logExit();
-        }
+        logger.info("Notification Service ...[REGISTERED]");
     }
 
     public void stop(BundleContext bc)

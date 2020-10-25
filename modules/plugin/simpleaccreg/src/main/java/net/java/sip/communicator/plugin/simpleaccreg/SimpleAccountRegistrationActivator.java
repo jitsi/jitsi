@@ -41,8 +41,7 @@ public class SimpleAccountRegistrationActivator
     extends DependentActivator
     implements ServiceListener
 {
-    private static final Logger logger
-        = Logger.getLogger(SimpleAccountRegistrationActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SimpleAccountRegistrationActivator.class);
 
     /**
      * Advanced config form class name.
@@ -173,12 +172,11 @@ public class SimpleAccountRegistrationActivator
             }
             catch (InvalidSyntaxException e)
             {
-                logger.error(e);
+                logger.error("Invalid OSGi filter", e);
             }
         }
 
-        if (logger.isInfoEnabled())
-            logger.info("SIMPLE ACCOUNT REGISTRATION ...[STARTED]");
+        logger.info("SIMPLE ACCOUNT REGISTRATION ...[STARTED]");
     }
 
     private void showDialog()

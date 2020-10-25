@@ -37,7 +37,7 @@ public class CommandFactory
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(CommandFactory.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CommandFactory.class);
 
     /**
      * Registry for commands. Contains all available commands.
@@ -74,9 +74,9 @@ public class CommandFactory
             throw new IllegalArgumentException("type cannot be null");
         }
         COMMANDS.put(command, type);
-        if (LOGGER.isDebugEnabled())
+        if (logger.isDebugEnabled())
         {
-            LOGGER.debug("Registered command '" + command + "' ("
+            logger.debug("Registered command '" + command + "' ("
                     + type.toString() + ")");
         }
     }
@@ -102,9 +102,9 @@ public class CommandFactory
                 && (command == null || command.equals(entry.getKey())))
             {
                 it.remove();
-                if (LOGGER.isDebugEnabled())
+                if (logger.isDebugEnabled())
                 {
-                    LOGGER.debug("Unregistered command '" + entry.getKey()
+                    logger.debug("Unregistered command '" + entry.getKey()
                         + "' (" + type.toString() + ")");
                 }
             }

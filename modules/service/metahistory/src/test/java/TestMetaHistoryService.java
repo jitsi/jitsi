@@ -46,7 +46,7 @@ import org.osgi.framework.*;
 public class TestMetaHistoryService
     extends TestCase
 {
-    private static final Logger logger = Logger.getLogger(TestMetaHistoryService.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestMetaHistoryService.class);
 
     static final String TEST_CONTACT_NAME_1 = "Mincho_Penchev_the_fisrt";
     static final String TEST_CONTACT_NAME_2 = "Mincho_Penchev_the_second";

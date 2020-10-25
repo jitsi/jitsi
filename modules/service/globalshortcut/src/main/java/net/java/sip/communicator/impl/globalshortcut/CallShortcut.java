@@ -42,7 +42,7 @@ public class CallShortcut
      * The <tt>Logger</tt> used by the <tt>CallShortcut</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger = Logger.getLogger(CallShortcut.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CallShortcut.class);
 
     /**
      * Lists the call actions available: ANSWER or HANGUP.

@@ -44,8 +44,7 @@ public class ReceiveFileConversationComponent
                 FileTransferStatusListener,
                 FileTransferListener
 {
-    private final Logger logger
-        = Logger.getLogger(ReceiveFileConversationComponent.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ReceiveFileConversationComponent.class);
 
     private final IncomingFileTransferRequest fileTransferRequest;
 

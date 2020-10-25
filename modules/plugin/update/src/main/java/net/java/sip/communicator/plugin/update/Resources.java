@@ -36,7 +36,7 @@ public class Resources
      * The <tt>Logger</tt> used by the <tt>Resources</tt> class for logging
      * output.
      */
-    private static Logger logger = Logger.getLogger(Resources.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Resources.class);
 
     /**
      * The name of the configuration file of the update plug-in.

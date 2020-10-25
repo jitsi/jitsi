@@ -22,7 +22,6 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
 
 import org.apache.commons.lang3.StringUtils;
@@ -46,7 +45,7 @@ public class PopupNotificationPanel
     /**
      * Logger for this class.
      **/
-    private final Logger logger = Logger.getLogger(SIPCommFrame.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SIPCommFrame.class);
 
     /**
      * An object to distinguish this <tt>PopupNotificationPanel</tt>

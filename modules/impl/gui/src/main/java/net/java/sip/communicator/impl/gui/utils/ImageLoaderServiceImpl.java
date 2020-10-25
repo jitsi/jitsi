@@ -40,8 +40,7 @@ public class ImageLoaderServiceImpl
      * The <tt>Logger</tt> used by the <tt>ImageLoaderServiceImpl</tt> class
      * and its instances for logging output.
      */
-    private static final Logger logger =
-        Logger.getLogger(ImageLoaderServiceImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ImageLoaderServiceImpl.class);
 
     /**
      * Stores all already loaded images.

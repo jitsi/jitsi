@@ -40,7 +40,7 @@ public class MessageManager
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(MessageManager.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MessageManager.class);
 
     /**
      * Index for the start of the command in a command message.
@@ -234,7 +234,7 @@ public class MessageManager
         }
         catch (RuntimeException e)
         {
-            LOGGER.error(
+            logger.error(
                 "Failed to execute command '" + command + "': "
                     + e.getMessage(), e);
         }
@@ -261,7 +261,7 @@ public class MessageManager
         final int maxMsgSize = calculateMaximumMessageSize(0, target);
         if (maxMsgSize < message.length())
         {
-            LOGGER.warn("Message for " + target
+            logger.warn("Message for " + target
                 + " is too large. At best you can send the message up to: "
                 + message.substring(0, maxMsgSize));
             throw new OperationFailedException(
@@ -271,11 +271,11 @@ public class MessageManager
         try
         {
             this.irc.message(target, message);
-            LOGGER.trace("Message delivered to server successfully.");
+            logger.trace("Message delivered to server successfully.");
         }
         catch (RuntimeException e)
         {
-            LOGGER.trace("Failed to deliver message: " + e.getMessage(), e);
+            logger.trace("Failed to deliver message: " + e.getMessage(), e);
             throw e;
         }
     }
@@ -304,7 +304,7 @@ public class MessageManager
             // Message is definitely too large to be sent to a standard IRC
             // network. Sending is not attempted, since we would send a partial
             // message, even though the user is not informed of this.
-            LOGGER.warn("Message for " + target
+            logger.warn("Message for " + target
                 + " is too large. At best you can send the message up to: "
                 + message.getContent().substring(0, maxMsgSize));
             throw new OperationFailedException(
@@ -314,11 +314,11 @@ public class MessageManager
         try
         {
             this.irc.message(target, message.getContent());
-            LOGGER.trace("Message delivered to server successfully.");
+            logger.trace("Message delivered to server successfully.");
         }
         catch (RuntimeException e)
         {
-            LOGGER.trace("Failed to deliver message: " + e.getMessage(), e);
+            logger.trace("Failed to deliver message: " + e.getMessage(), e);
             throw e;
         }
     }
@@ -404,16 +404,16 @@ public class MessageManager
             switch (msg.getNumericCode())
             {
             case ERR_NO_SUCH_NICK_CHANNEL:
-                if (LOGGER.isTraceEnabled())
+                if (logger.isTraceEnabled())
                 {
-                    LOGGER.trace("Message did not get delivered: "
+                    logger.trace("Message did not get delivered: "
                         + msg.asRaw());
                 }
                 final String msgText = msg.getText();
                 final int endOfTargetIndex = msgText.indexOf(' ');
                 if (endOfTargetIndex == -1)
                 {
-                    LOGGER.trace("Expected target nick in error message, but "
+                    logger.trace("Expected target nick in error message, but "
                         + "it cannot be found. Stop parsing.");
                     break;
                 }
@@ -484,7 +484,7 @@ public class MessageManager
             }
             catch (RuntimeException e)
             {
-                LOGGER.error(
+                logger.error(
                     "Error occurred while delivering private message from user"
                         + " '" + user + "': " + msg.getText(), e);
             }

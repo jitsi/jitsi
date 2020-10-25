@@ -18,8 +18,6 @@
 package net.java.sip.communicator.impl.galagonotification;
 
 import java.awt.image.*;
-import net.java.sip.communicator.util.Logger;
-
 /**
  * Declares the native functions required by the galagonotification bundle.
  *
@@ -27,8 +25,7 @@ import net.java.sip.communicator.util.Logger;
  */
 public final class GalagoNotification
 {
-    private static final Logger logger
-        = Logger.getLogger(GalagoNotification.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GalagoNotification.class);
 
     public static final boolean isLoaded;
 

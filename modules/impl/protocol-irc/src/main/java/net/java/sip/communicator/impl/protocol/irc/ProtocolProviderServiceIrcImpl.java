@@ -44,8 +44,7 @@ public class ProtocolProviderServiceIrcImpl
     /**
      * Logger.
      */
-    private static final Logger LOGGER
-        = Logger.getLogger(ProtocolProviderServiceIrcImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProtocolProviderServiceIrcImpl.class);
 
     /**
      * The irc server.
@@ -98,9 +97,9 @@ public class ProtocolProviderServiceIrcImpl
      */
     public ProtocolProviderServiceIrcImpl()
     {
-        if (LOGGER.isTraceEnabled())
+        if (logger.isTraceEnabled())
         {
-            LOGGER.trace("Creating a irc provider.");
+            logger.trace("Creating a irc provider.");
         }
     }
 
@@ -416,9 +415,9 @@ public class ProtocolProviderServiceIrcImpl
         {
             return;
         }
-        if (LOGGER.isTraceEnabled())
+        if (logger.isTraceEnabled())
         {
-            LOGGER.trace("Killing the Irc Protocol Provider.");
+            logger.trace("Killing the Irc Protocol Provider.");
         }
 
         try
@@ -433,7 +432,7 @@ public class ProtocolProviderServiceIrcImpl
         catch (OperationFailedException ex)
         {
             // we're shutting down so we need to silence the exception here
-            LOGGER.error("Failed to properly unregister before shutting down. "
+            logger.error("Failed to properly unregister before shutting down. "
                 + getAccountID(), ex);
         }
     }

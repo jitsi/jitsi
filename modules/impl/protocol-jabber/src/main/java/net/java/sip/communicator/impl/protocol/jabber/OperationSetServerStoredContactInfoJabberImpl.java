@@ -32,8 +32,7 @@ public class OperationSetServerStoredContactInfoJabberImpl
     /**
      * The logger.
      */
-    private static final Logger logger =
-        Logger.getLogger(OperationSetServerStoredContactInfoJabberImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetServerStoredContactInfoJabberImpl.class);
 
     private InfoRetreiver infoRetreiver = null;
 

@@ -40,8 +40,7 @@ public class CredentialsStorageServiceImpl
      * The <tt>Logger</tt> used by this <tt>CredentialsStorageServiceImpl</tt>
      * for logging output.
      */
-    private final Logger logger
-        = Logger.getLogger(CredentialsStorageServiceImpl.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CredentialsStorageServiceImpl.class);
 
     /**
      * The name of a property which represents an encrypted password.
@@ -292,7 +291,7 @@ public class CredentialsStorageServiceImpl
         }
         catch (CryptoException ce)
         {
-            logger.debug(ce);
+            logger.debug("Failed to change master password", ce);
             crypto = null;
             passwords = null;
             return false;

@@ -38,8 +38,7 @@ public abstract class AbstractProtocolProviderService
      * <tt>AbstractProtocolProviderService</tt> class and its instances for
      * logging output.
      */
-    private static final Logger logger =
-        Logger.getLogger(AbstractProtocolProviderService.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AbstractProtocolProviderService.class);
 
     /**
      * A list of all listeners registered for

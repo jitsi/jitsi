@@ -30,8 +30,7 @@ import org.osgi.framework.*;
  */
 public class PhoneNumberServiceActivator extends DependentActivator
 {
-    private static Logger logger
-        = Logger.getLogger(PhoneNumberServiceActivator.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PhoneNumberServiceActivator.class);
 
     public PhoneNumberServiceActivator()
     {

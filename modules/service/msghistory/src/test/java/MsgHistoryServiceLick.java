@@ -28,7 +28,7 @@ import org.osgi.framework.*;
  * @author Damian Minkov
  */
 public class MsgHistoryServiceLick extends TestSuite implements BundleActivator {
-    private static Logger logger = Logger.getLogger(MsgHistoryServiceLick.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MsgHistoryServiceLick.class);
 
     protected static BundleContext bc = null;
 

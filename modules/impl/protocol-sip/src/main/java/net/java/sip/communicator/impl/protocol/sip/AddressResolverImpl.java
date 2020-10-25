@@ -42,8 +42,7 @@ public class AddressResolverImpl
     /**
      * Our class logger
      */
-    private static final Logger logger
-        = Logger.getLogger(AddressResolverImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AddressResolverImpl.class);
 
     /**
      * Implements the actual resolving. This is where we do the DNS queries.

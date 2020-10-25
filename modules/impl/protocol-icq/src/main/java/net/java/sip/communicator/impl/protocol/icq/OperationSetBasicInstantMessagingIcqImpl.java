@@ -42,8 +42,7 @@ import net.kano.joustsim.oscar.oscar.service.icbm.*;
 public class OperationSetBasicInstantMessagingIcqImpl
     extends AbstractOperationSetBasicInstantMessaging
 {
-    private static final Logger logger =
-        Logger.getLogger(OperationSetBasicInstantMessagingIcqImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetBasicInstantMessagingIcqImpl.class);
 
     /**
      * The icq provider that created us.

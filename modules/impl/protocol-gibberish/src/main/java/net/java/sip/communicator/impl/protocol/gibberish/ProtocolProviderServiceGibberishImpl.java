@@ -30,8 +30,7 @@ import net.java.sip.communicator.util.*;
 public class ProtocolProviderServiceGibberishImpl
     extends AbstractProtocolProviderService
 {
-    private static final Logger logger
-        = Logger.getLogger(ProtocolProviderServiceGibberishImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProtocolProviderServiceGibberishImpl.class);
 
     /**
      * The name of this protocol.

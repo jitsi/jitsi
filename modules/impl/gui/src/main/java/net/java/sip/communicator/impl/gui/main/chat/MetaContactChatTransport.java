@@ -42,8 +42,7 @@ public class MetaContactChatTransport
     /**
      * The logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(MetaContactChatTransport.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MetaContactChatTransport.class);
 
     /**
      * The parent <tt>ChatSession</tt>, where this transport is available.

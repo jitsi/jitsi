@@ -58,8 +58,7 @@ public class CallTransferHandler
     /**
      * The logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(CallTransferHandler.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CallTransferHandler.class);
 
     /**
      * The <tt>CallConference</tt> into which the dropped callees are to be

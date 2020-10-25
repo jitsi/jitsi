@@ -39,8 +39,7 @@ public class NetworkEventDispatcher
     /**
      * Our class logger.
      */
-    private static Logger logger =
-        Logger.getLogger(NetworkEventDispatcher.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NetworkEventDispatcher.class);
 
     /**
      * Listeners for network configuration changes.

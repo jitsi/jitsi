@@ -39,8 +39,6 @@ import net.java.sip.communicator.service.protocol.account.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.Logger;
-
 import org.apache.commons.lang3.StringUtils;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.codec.*;
@@ -64,7 +62,7 @@ public class CallManager
      * The <tt>Logger</tt> used by the <tt>CallManager</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger = Logger.getLogger(CallManager.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CallManager.class);
 
     /**
      * The name of the property which indicates whether the user should be
@@ -2415,7 +2413,7 @@ public class CallManager
          * The chat room associated with the call.
          */
         private final ChatRoom chatRoom;
-        
+
         /**
          * Creates an instance of <tt>CreateCallThread</tt>.
          *

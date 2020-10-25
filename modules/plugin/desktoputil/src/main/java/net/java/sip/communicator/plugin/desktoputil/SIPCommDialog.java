@@ -22,8 +22,6 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.util.Logger;
-
 import org.jitsi.service.configuration.*;
 import org.jitsi.util.*;
 
@@ -43,7 +41,7 @@ public class SIPCommDialog
      * The <tt>Logger</tt> used by the <tt>SIPCommDialog</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger = Logger.getLogger(SIPCommDialog.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SIPCommDialog.class);
 
     /**
      * The action map of this dialog.

@@ -42,8 +42,7 @@ public class NetworkConfigurationWatcher
     /**
      * Our class logger.
      */
-    private static  Logger logger =
-        Logger.getLogger(NetworkConfigurationWatcher.class);
+    private static  org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NetworkConfigurationWatcher.class);
 
     /**
      * The current active interfaces.

@@ -39,9 +39,9 @@ import net.java.sip.communicator.util.skin.*;
 
 /**
  * The <tt>ContactSearchFieldUI</tt> class is used to draw the SearchField UI.
- * The class extends <tt>SearchFieldUI</tt> and adds custom behavior for the 
+ * The class extends <tt>SearchFieldUI</tt> and adds custom behavior for the
  * icons in the search field.
- * 
+ *
  * @author Marin Dzhigarov
  * @author Hristo Terezov
  */
@@ -52,8 +52,7 @@ public class ContactSearchFieldUI
     /**
      * Class logger.
      */
-    private final static Logger logger
-        = Logger.getLogger(ContactSearchFieldUI.class);
+    private final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ContactSearchFieldUI.class);
 
     /**
      * Indicates whether the call button should be enabled or not.
@@ -68,26 +67,26 @@ public class ContactSearchFieldUI
     /**
      * Listener for registration state change for the protocol provider service.
      */
-    private ProtocolProviderRegistrationStateListener 
-        providerRegistrationStateListener 
-            = new ProtocolProviderRegistrationStateListener(); 
-    
+    private ProtocolProviderRegistrationStateListener
+        providerRegistrationStateListener
+            = new ProtocolProviderRegistrationStateListener();
+
     /**
-     * List of protocol providers that added <tt>ContactSearchFieldUI</tt> as 
+     * List of protocol providers that added <tt>ContactSearchFieldUI</tt> as
      * listener.
      */
-    private List<ProtocolProviderService> providers 
+    private List<ProtocolProviderService> providers
         = new LinkedList<ProtocolProviderService>();
-    
+
     /**
      * Listener for registration state change for the protocol provider service.
      */
-    private ProtocolProviderRegListener 
+    private ProtocolProviderRegListener
         providerRegListener = null;
-    
+
     /**
      * Creates a UI for a SearchFieldUI.
-     * 
+     *
      * @param c the text field
      * @return the UI
      */
@@ -110,10 +109,10 @@ public class ContactSearchFieldUI
             // search field is disabled.
             setCallButtonEnabled(!Boolean.parseBoolean(callButtonEnabledString));
         }
-        
+
         loadSkin();
     }
-    
+
     /**
      * Setups the listeners used in <tt>ContactSearchFieldUI</tt>.
      */
@@ -129,7 +128,7 @@ public class ContactSearchFieldUI
         catch (InvalidSyntaxException e)
         {
             // this should really not happen
-            logger.error(e);
+            logger.error("Invalid OSGi filter", e);
             return;
         }
 
@@ -138,7 +137,7 @@ public class ContactSearchFieldUI
         {
             for(AccountID accountID : providerFactory.getRegisteredAccounts())
             {
-                ProtocolProviderService pps 
+                ProtocolProviderService pps
                     = GuiActivator.bundleContext.getService(
                             providerFactory.getProviderForAccount(accountID));
                 providers.add(pps);
@@ -148,7 +147,7 @@ public class ContactSearchFieldUI
         }
         setCallButtonEnabled(isCallButtonEnabled);
     }
-    
+
     @Override
     public void setCallButtonEnabled(boolean isEnabled)
     {
@@ -165,7 +164,7 @@ public class ContactSearchFieldUI
 
     /**
      * Paints the background of the associated component.
-     * 
+     *
      * @param g the <tt>Graphics</tt> object used for painting
      */
     @Override
@@ -183,7 +182,7 @@ public class ContactSearchFieldUI
 
     /**
      * Creates a call when the mouse is clicked on the call icon.
-     * 
+     *
      * @param ev the mouse event that has prompted us to create the call.
      */
     @Override
@@ -216,7 +215,7 @@ public class ContactSearchFieldUI
             }
         }
     }
-    
+
     /**
      * Listens for <tt>ProtocolProviderService</tt> registrations.
      */
@@ -252,11 +251,11 @@ public class ContactSearchFieldUI
             }
         }
     }
-    
+
     /**
      * Listener for the provider registration state.
      */
-    private class ProtocolProviderRegistrationStateListener 
+    private class ProtocolProviderRegistrationStateListener
         implements RegistrationStateChangeListener
     {
 
@@ -290,7 +289,7 @@ public class ContactSearchFieldUI
             GuiActivator.bundleContext.removeServiceListener(providerRegListener);
             providerRegListener = null;
         }
-        
+
         if(providers.size() != 0 && providerRegistrationStateListener != null)
         {
             for(ProtocolProviderService pps : providers)

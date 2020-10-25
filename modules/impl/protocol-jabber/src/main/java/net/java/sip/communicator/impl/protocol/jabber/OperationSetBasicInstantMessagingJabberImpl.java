@@ -64,8 +64,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
     /**
      * Our class logger
      */
-    private static final Logger logger =
-        Logger.getLogger(OperationSetBasicInstantMessagingJabberImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetBasicInstantMessagingJabberImpl.class);
 
     /**
      * A table mapping contact addresses to full jids that can be used to
@@ -691,7 +690,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 cm.enableCarbons();
                 cm.addCarbonCopyReceivedListener(new CarbonCopyReceivedListener()
                 {
-                    
+
                     @Override
                     public void onCarbonCopyReceived(Direction direction,
                         org.jivesoftware.smack.packet.Message carbonCopy,

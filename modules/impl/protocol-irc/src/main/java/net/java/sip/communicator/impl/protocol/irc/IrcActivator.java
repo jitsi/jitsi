@@ -45,7 +45,7 @@ public class IrcActivator
     /**
      * LOGGER instance.
      */
-    private static final Logger LOGGER = Logger.getLogger(IrcActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(IrcActivator.class);
 
     /**
      * A reference to the IRC protocol provider factory.
@@ -111,9 +111,9 @@ public class IrcActivator
                     ircProviderFactory,
                     hashtable);
 
-        if (LOGGER.isInfoEnabled())
+        if (logger.isInfoEnabled())
         {
-            LOGGER.info("IRC protocol implementation [STARTED].");
+            logger.info("IRC protocol implementation [STARTED].");
         }
     }
 
@@ -142,9 +142,9 @@ public class IrcActivator
     public void stop(final BundleContext context)
         throws Exception
     {
-        if (LOGGER.isInfoEnabled())
+        if (logger.isInfoEnabled())
         {
-            LOGGER.info("IRC protocol implementation [STOPPED].");
+            logger.info("IRC protocol implementation [STOPPED].");
         }
     }
 

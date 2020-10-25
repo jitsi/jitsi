@@ -46,8 +46,7 @@ public class ProtocolProviderServiceIcqImpl
     /**
      * This class logger.
      */
-    private static final Logger logger =
-        Logger.getLogger(ProtocolProviderServiceIcqImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProtocolProviderServiceIcqImpl.class);
 
     /**
      * Application session.

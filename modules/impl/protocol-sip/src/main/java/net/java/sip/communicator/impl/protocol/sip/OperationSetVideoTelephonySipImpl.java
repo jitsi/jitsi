@@ -58,8 +58,7 @@ public class OperationSetVideoTelephonySipImpl
      * <tt>OperationSetTelephonyConferencingSipImpl</tt> class and its instances
      * for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(OperationSetVideoTelephonySipImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetVideoTelephonySipImpl.class);
 
     /**
      * Initializes a new <tt>OperationSetVideoTelephonySipImpl</tt> instance

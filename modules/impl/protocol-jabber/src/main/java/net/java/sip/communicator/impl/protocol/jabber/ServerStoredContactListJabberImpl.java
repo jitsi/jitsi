@@ -61,8 +61,7 @@ public class ServerStoredContactListJabberImpl
     /**
      * The logger.
      */
-    private static final Logger logger =
-        Logger.getLogger(ServerStoredContactListJabberImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ServerStoredContactListJabberImpl.class);
 
     /**
      * The jabber list that we encapsulate

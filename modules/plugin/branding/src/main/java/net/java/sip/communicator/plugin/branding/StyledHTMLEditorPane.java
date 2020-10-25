@@ -28,7 +28,7 @@ import net.java.sip.communicator.util.*;
 public class StyledHTMLEditorPane
     extends JEditorPane
 {
-    private final Logger logger = Logger.getLogger(StyledHTMLEditorPane.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(StyledHTMLEditorPane.class);
 
     private final HTMLDocument document;
 

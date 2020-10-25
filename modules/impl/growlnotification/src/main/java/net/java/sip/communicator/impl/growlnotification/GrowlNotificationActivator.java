@@ -39,8 +39,7 @@ public class GrowlNotificationActivator
      * The <tt>Logger</tt> used by the <tt>GrowlNotificationActivator</tt> class
      * and its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(GrowlNotificationActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GrowlNotificationActivator.class);
 
     /**
      * A reference to the resource management service.

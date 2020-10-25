@@ -44,7 +44,7 @@ public class ConfigHeaders
     /**
      * The logger for this class
      */
-    public final static Logger logger = Logger.getLogger(ConfigHeaders.class);
+    public final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConfigHeaders.class);
 
     /**
      * The account property holding all the custom pre-configured headers.

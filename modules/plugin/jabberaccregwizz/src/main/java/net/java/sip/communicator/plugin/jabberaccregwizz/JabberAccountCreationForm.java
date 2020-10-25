@@ -49,8 +49,7 @@ public class JabberAccountCreationForm
      */
     private static final long serialVersionUID = 0L;
 
-    private static final Logger logger = Logger
-        .getLogger(JabberAccountCreationForm.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JabberAccountCreationForm.class);
 
     private JabberServerChooserDialog jabberServerChooserDialog;
 
@@ -216,7 +215,7 @@ public class JabberAccountCreationForm
         char[] password = passField.getPassword();
         char[] password2 = pass2Field.getPassword();
         String server = serverField.getText();
-        int port = 5222; // default port 
+        int port = 5222; // default port
         try
         {
             // custom port, if exists
@@ -237,7 +236,7 @@ public class JabberAccountCreationForm
                 return new NewAccount(
                     getCompleteUserID(userID, server),
                     password,
-                    server, 
+                    server,
                     String.valueOf(port));
             }
         }

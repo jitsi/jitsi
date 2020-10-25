@@ -52,8 +52,7 @@ public class SipMessageFactory
     /**
      * The logger for this class
      */
-    public final static Logger logger
-        = Logger.getLogger(SipMessageFactory.class);
+    public final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SipMessageFactory.class);
 
     /**
      * The service this <tt>SipMessageFactory</tt> belongs to;

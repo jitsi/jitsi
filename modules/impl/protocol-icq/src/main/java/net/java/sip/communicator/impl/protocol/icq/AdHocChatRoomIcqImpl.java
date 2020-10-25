@@ -35,8 +35,7 @@ import net.kano.joustsim.oscar.oscar.service.chatrooms.*;
 public class AdHocChatRoomIcqImpl
     implements AdHocChatRoom
 {
-    private static final Logger logger =
-        Logger.getLogger(AdHocChatRoomIcqImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AdHocChatRoomIcqImpl.class);
 
     /**
      * Listeners that will be notified of changes in member status in the room

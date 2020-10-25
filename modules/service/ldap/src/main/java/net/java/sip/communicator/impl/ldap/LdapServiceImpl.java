@@ -51,8 +51,7 @@ public class LdapServiceImpl
     /**
      * The logger for this class.
      */
-    private static Logger logger = Logger
-        .getLogger(LdapServiceImpl.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapServiceImpl.class);
 
     /**
      * BundleContext from the OSGI bus.

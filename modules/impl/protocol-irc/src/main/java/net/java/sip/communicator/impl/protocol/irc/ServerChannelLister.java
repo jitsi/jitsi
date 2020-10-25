@@ -36,8 +36,7 @@ public class ServerChannelLister
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger
-        .getLogger(ServerChannelLister.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ServerChannelLister.class);
 
     /**
      * Clean-up delay. The clean up task clears any remaining chat room list
@@ -106,7 +105,7 @@ public class ServerChannelLister
      */
     public List<String> getList()
     {
-        LOGGER.trace("Start retrieve server chat room list.");
+        logger.trace("Start retrieve server chat room list.");
         if (!connectionState.isConnected())
         {
             throw new IllegalStateException("Not connected to an IRC server.");
@@ -118,7 +117,7 @@ public class ServerChannelLister
                 this.channellist.get(CHAT_ROOM_LIST_CACHE_EXPIRATION);
             if (list == null)
             {
-                LOGGER
+                logger
                     .trace("Chat room list null or outdated. Start retrieving "
                         + "new chat room list.");
                 Result<List<String>, Exception> listSignal =
@@ -133,19 +132,19 @@ public class ServerChannelLister
                         this.irc.rawMessage("LIST");
                         while (!listSignal.isDone())
                         {
-                            LOGGER.trace("Waiting for list ...");
+                            logger.trace("Waiting for list ...");
                             listSignal.wait();
                         }
-                        LOGGER.trace("Done waiting for list.");
+                        logger.trace("Done waiting for list.");
                     }
                     catch (InterruptedException e)
                     {
-                        LOGGER.warn("INTERRUPTED while waiting for list.", e);
+                        logger.warn("INTERRUPTED while waiting for list.", e);
                     }
                 }
                 list = listSignal.getValue();
                 this.channellist.set(list);
-                LOGGER.trace("Finished retrieving server chat room list.");
+                logger.trace("Finished retrieving server chat room list.");
 
                 // Set timer to clean up the cache after use, since otherwise
                 // this data could stay in memory for a long time.
@@ -153,14 +152,14 @@ public class ServerChannelLister
             }
             else
             {
-                LOGGER.trace("Using cached list of server chat rooms.");
+                logger.trace("Using cached list of server chat rooms.");
             }
 
-            if (LOGGER.isDebugEnabled())
+            if (logger.isDebugEnabled())
             {
                 // Report on number of channels to give an impression of the
                 // kind of result that will be returned.
-                LOGGER.debug("Server channel list contains " + list.size()
+                logger.debug("Server channel list contains " + list.size()
                     + " channels.");
             }
 
@@ -239,7 +238,7 @@ public class ServerChannelLister
                 // the clean up.
                 if (this.container.getTimestamp() != this.timestamp)
                 {
-                    LOGGER.trace("Not cleaning up channel list cache. The "
+                    logger.trace("Not cleaning up channel list cache. The "
                         + "timestamp does not match.");
                     return;
                 }
@@ -247,7 +246,7 @@ public class ServerChannelLister
             }
             // We cannot clear the list itself, since the contents might still
             // be in use by the UI, inside the immutable wrapper.
-            LOGGER.debug("Old channel list cache has been cleared.");
+            logger.debug("Old channel list cache has been cleared.");
         }
     }
 

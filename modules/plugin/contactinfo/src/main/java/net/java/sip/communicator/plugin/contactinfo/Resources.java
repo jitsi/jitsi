@@ -37,7 +37,7 @@ import org.jitsi.service.resources.*;
  */
 public class Resources {
 
-    private static Logger log = Logger.getLogger(Resources.class);
+    private static org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Resources.class);
 
     private static ResourceManagementService resourcesService;
 

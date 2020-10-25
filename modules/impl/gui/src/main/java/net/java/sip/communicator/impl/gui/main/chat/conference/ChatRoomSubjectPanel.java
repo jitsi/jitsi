@@ -50,8 +50,7 @@ public class ChatRoomSubjectPanel
      * The <tt>Logger</tt> used by the <tt>ChatRoomSubjectPanel</tt> class and
      * its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(ChatRoomSubjectPanel.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ChatRoomSubjectPanel.class);
 
     /**
      * The corresponding chat session.

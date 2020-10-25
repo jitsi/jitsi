@@ -37,8 +37,7 @@ public class NetaddrActivator
     /**
      * The logger for this class.
      */
-    private static Logger logger =
-        Logger.getLogger(NetworkAddressManagerServiceImpl.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NetworkAddressManagerServiceImpl.class);
 
     /**
      * The OSGi bundle context.
@@ -65,35 +64,25 @@ public class NetaddrActivator
     public void start(ConfigurationService dependentService) throws Exception
     {
         configurationService = dependentService;
-        try{
+        //in here we load static properties that should be else where
+        //System.setProperty("java.net.preferIPv4Stack", "false");
+        //System.setProperty("java.net.preferIPv6Addresses", "true");
+        //end ugly property set
 
-            logger.logEntry();
+        //Create and start the network address manager.
+        networkAMS =
+            new NetworkAddressManagerServiceImpl();
 
-            //in here we load static properties that should be else where
-            //System.setProperty("java.net.preferIPv4Stack", "false");
-            //System.setProperty("java.net.preferIPv6Addresses", "true");
-            //end ugly property set
+        // give references to the NetworkAddressManager implementation
+        networkAMS.start();
 
-            //Create and start the network address manager.
-            networkAMS =
-                new NetworkAddressManagerServiceImpl();
+        if (logger.isInfoEnabled())
+            logger.info("Network Address Manager         ...[  STARTED ]");
 
-            // give references to the NetworkAddressManager implementation
-            networkAMS.start();
+        bundleContext.registerService(
+            NetworkAddressManagerService.class.getName(), networkAMS, null);
 
-            if (logger.isInfoEnabled())
-                logger.info("Network Address Manager         ...[  STARTED ]");
-
-            bundleContext.registerService(
-                NetworkAddressManagerService.class.getName(), networkAMS, null);
-
-            if (logger.isInfoEnabled())
-                logger.info("Network Address Manager Service ...[REGISTERED]");
-        }
-        finally
-        {
-            logger.logExit();
-        }
+        logger.info("Network Address Manager Service ...[REGISTERED]");
     }
 
     @Override

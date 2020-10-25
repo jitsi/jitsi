@@ -33,7 +33,7 @@ import org.osgi.framework.*;
 public class ExamplePluginActivator
     implements BundleActivator
 {
-    Logger logger = Logger.getLogger(ExamplePluginActivator.class);
+    org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ExamplePluginActivator.class);
 
     /**
      * Called when this bundle is started so the Framework can perform the

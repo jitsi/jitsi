@@ -48,8 +48,7 @@ public class CreateIppiAccountForm
     /**
      * The logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(CreateIppiAccountForm.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CreateIppiAccountForm.class);
 
     /**
      * The user name text field.

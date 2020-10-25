@@ -615,8 +615,7 @@ public class MediaConfigurationImpl
      * The <tt>Logger</tt> used by the <tt>MediaConfigurationServiceImpl</tt>
      * class for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(MediaConfigurationImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MediaConfigurationImpl.class);
 
     /**
      * The <tt>MediaService</tt> implementation used by

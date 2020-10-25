@@ -42,8 +42,7 @@ public class SoundNotificationHandlerImpl
     /**
      * The logger that will be used to log messages.
      */
-    private static Logger logger
-        = Logger.getLogger(SoundNotificationHandlerImpl.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SoundNotificationHandlerImpl.class);
 
     /**
      * The indicator which determines whether this

@@ -48,7 +48,6 @@ import net.java.sip.communicator.service.replacement.*;
 import net.java.sip.communicator.service.replacement.directimage.*;
 import net.java.sip.communicator.service.replacement.smilies.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
 
 import org.apache.commons.lang3.*;
@@ -78,8 +77,7 @@ public class ChatConversationPanel
      * The <tt>Logger</tt> used by the <tt>ChatConversationPanel</tt> class and
      * its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(ChatConversationPanel.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ChatConversationPanel.class);
 
     /**
      * The regular expression (in the form of compiled <tt>Pattern</tt>) which

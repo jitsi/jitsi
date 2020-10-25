@@ -27,7 +27,6 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.service.httputil.*;
 import net.java.sip.communicator.service.notification.*;
-import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.plugin.desktoputil.*;
 
 import org.apache.commons.lang3.StringUtils;
@@ -52,8 +51,7 @@ public class LoggingConfigForm
     /**
      * Our Logger.
      */
-    private static final Logger logger
-            = Logger.getLogger(LoggingConfigForm.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LoggingConfigForm.class);
 
     /**
      * Upload location property.

@@ -65,7 +65,7 @@ public class SingleWindowContainer
     /**
      * The <tt>Logger</tt> used by this instance for logging output.
      */
-    private final Logger logger = Logger.getLogger(SingleWindowContainer.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SingleWindowContainer.class);
 
     /**
      * The main toolbar.

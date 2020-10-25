@@ -42,7 +42,7 @@ public class DemuxContactSource
     /**
      * The logger for this class.
      */
-    private final Logger logger = Logger.getLogger(DemuxContactSource.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DemuxContactSource.class);
 
     /**
      * The underlying contact source service.
@@ -246,7 +246,7 @@ public class DemuxContactSource
         {
             sourceQuery.cancel();
         }
-        
+
         @Override
         public void start()
         {

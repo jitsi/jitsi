@@ -47,8 +47,7 @@ public class InviteContactTransferHandler
     /**
      * The logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(InviteContactTransferHandler.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(InviteContactTransferHandler.class);
 
     /**
      * The data flavor used when transferring <tt>UIContact</tt>s.

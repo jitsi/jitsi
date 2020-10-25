@@ -68,7 +68,7 @@ public class GuiActivator extends DependentActivator
      * The <tt>Logger</tt> used by the <tt>GuiActivator</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger = Logger.getLogger(GuiActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GuiActivator.class);
 
     private static UIServiceImpl uiService = null;
 
@@ -120,11 +120,11 @@ public class GuiActivator extends DependentActivator
     private static GlobalDisplayDetailsService globalDisplayDetailsService;
 
     private static AlertUIService alertUIService;
-    
+
     private static CredentialsStorageService credentialsService;
-    
+
     private static MUCService mucService;
-    
+
     private static MessageHistoryService messageHistoryService;
 
     private static final Map<Object, ProtocolProviderFactory>
@@ -180,7 +180,7 @@ public class GuiActivator extends DependentActivator
             MessageHistoryService.class
             );
     }
-    
+
     /**
      * Called when this bundle is started.
      *
@@ -193,68 +193,59 @@ public class GuiActivator extends DependentActivator
         isStarted = true;
         GuiActivator.bundleContext = bContext;
 
-        try
+        alertUIService = new AlertUIServiceImpl();
+        // Registers an implementation of the AlertUIService.
+        bundleContext.registerService(  AlertUIService.class.getName(),
+                                        alertUIService,
+                                        null);
+
+        // Registers an implementation of the ImageLoaderService.
+        bundleContext.registerService(  ImageLoaderService.class.getName(),
+                                        new ImageLoaderServiceImpl(),
+                                        null);
+
+        // Create the ui service
+        uiService = new UIServiceImpl();
+
+        SwingUtilities.invokeLater(new Runnable()
         {
-            alertUIService = new AlertUIServiceImpl();
-            // Registers an implementation of the AlertUIService.
-            bundleContext.registerService(  AlertUIService.class.getName(),
-                                            alertUIService,
-                                            null);
-
-            // Registers an implementation of the ImageLoaderService.
-            bundleContext.registerService(  ImageLoaderService.class.getName(),
-                                            new ImageLoaderServiceImpl(),
-                                            null);
-
-            // Create the ui service
-            uiService = new UIServiceImpl();
-
-            SwingUtilities.invokeLater(new Runnable()
+            @Override
+            public void run()
             {
-                @Override
-                public void run()
+                uiService.loadApplicationGui();
+
+                GuiActivator.getConfigurationService()
+                            .addPropertyChangeListener(uiService);
+
+                bundleContext.addServiceListener(uiService);
+
+                // don't block the ui thread with registering services, as
+                // they are executed in the same thread as registering
+                new Thread()
                 {
-                    uiService.loadApplicationGui();
-
-                    GuiActivator.getConfigurationService()
-                                .addPropertyChangeListener(uiService);
-
-                    bundleContext.addServiceListener(uiService);
-
-                    // don't block the ui thread with registering services, as
-                    // they are executed in the same thread as registering
-                    new Thread()
+                    @Override
+                    public void run()
                     {
-                        @Override
-                        public void run()
-                        {
-                            if (logger.isInfoEnabled())
-                                logger.info("UI Service...[  STARTED ]");
+                        if (logger.isInfoEnabled())
+                            logger.info("UI Service...[  STARTED ]");
 
-                            bundleContext.registerService(
-                                    UIService.class.getName(),
-                                    uiService,
-                                    null);
+                        bundleContext.registerService(
+                                UIService.class.getName(),
+                                uiService,
+                                null);
 
-                            if (logger.isInfoEnabled())
-                                logger.info("UI Service ...[REGISTERED]");
+                        if (logger.isInfoEnabled())
+                            logger.info("UI Service ...[REGISTERED]");
 
-                            // UIServiceImpl also implements ShutdownService.
-                            bundleContext.registerService(
-                                    ShutdownService.class.getName(),
-                                    uiService,
-                                    null);
-                        }
-                    }.start();
-                }
-            });
-
-            logger.logEntry();
-        }
-        finally
-        {
-            logger.logExit();
-        }
+                        // UIServiceImpl also implements ShutdownService.
+                        bundleContext.registerService(
+                                ShutdownService.class.getName(),
+                                uiService,
+                                null);
+                    }
+                }.start();
+            }
+        });
     }
 
     /**
@@ -277,7 +268,7 @@ public class GuiActivator extends DependentActivator
         {
             GuiActivator.getConfigurationService()
                 .removePropertyChangeListener(uiService);
-    
+
             bContext.removeServiceListener(uiService);
         }
 
@@ -686,7 +677,7 @@ public class GuiActivator extends DependentActivator
     /**
      * Returns the <tt>DirectImageReplacementService</tt> obtained from the
      * bundle context.
-     * 
+     *
      * @return the <tt>DirectImageReplacementService</tt> implementation
      * obtained from the bundle context
      */
@@ -910,7 +901,7 @@ public class GuiActivator extends DependentActivator
         }
         return mucService;
     }
-    
+
     /**
      * Gets the service giving access to message history.
      *
@@ -919,7 +910,7 @@ public class GuiActivator extends DependentActivator
     public static MessageHistoryService getMessageHistoryService()
     {
         if (messageHistoryService == null)
-            messageHistoryService = ServiceUtils.getService(bundleContext, 
+            messageHistoryService = ServiceUtils.getService(bundleContext,
                 MessageHistoryService.class);
         return messageHistoryService;
     }

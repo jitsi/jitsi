@@ -37,8 +37,7 @@ public class ProvisioningDiscoveryServiceDHCPImpl
     /**
      * Logger.
      */
-    private final Logger logger
-        = Logger.getLogger(ProvisioningDiscoveryServiceDHCPImpl.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProvisioningDiscoveryServiceDHCPImpl.class);
 
     /**
      * DHCP provisioning discover object.

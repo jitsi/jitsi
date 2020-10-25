@@ -37,8 +37,7 @@ public class ChatRoomDestroyReasonDialog extends MessageDialog
      * The <tt>Logger</tt> used by the <tt>ChatRoomDestroyReasonDialog</tt>
      * class and its instances for logging output.
      */
-    private static Logger logger
-        = Logger.getLogger(ChatRoomDestroyReasonDialog.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ChatRoomDestroyReasonDialog.class);
 
     /**
      * Serial id.

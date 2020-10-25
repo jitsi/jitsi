@@ -63,8 +63,7 @@ public class LanguageMenuBar
     private static final HashMap<Parameters.Locale, ImageIcon>
         UNAVAILABLE_FLAGS = new HashMap<Parameters.Locale, ImageIcon>();
 
-    private static final Logger logger = Logger
-        .getLogger(LanguageMenuBar.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LanguageMenuBar.class);
 
     private static final ImageIcon BLANK_FLAG_ICON = Resources
         .getImage("plugin.spellcheck.BLANK_FLAG");
@@ -693,7 +692,7 @@ public class LanguageMenuBar
 
     /**
      * Returns the index indicating the position of this menu in its container.
-     * 
+     *
      * @return -1 to indicate that this menu should take the last position
      */
     @Override

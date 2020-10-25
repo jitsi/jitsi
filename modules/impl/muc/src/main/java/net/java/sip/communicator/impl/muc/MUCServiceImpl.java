@@ -51,7 +51,7 @@ public class MUCServiceImpl
      * The <tt>Logger</tt> used by the <tt>MUCServiceImpl</tt> class and its
      * instances for logging output.
      */
-    private static Logger logger = Logger.getLogger(MUCServiceImpl.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MUCServiceImpl.class);
 
     /**
      * Called to accept an incoming invitation. Adds the invitation chat room

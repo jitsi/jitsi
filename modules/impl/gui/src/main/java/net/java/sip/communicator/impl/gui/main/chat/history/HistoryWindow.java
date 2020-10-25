@@ -60,7 +60,7 @@ public class HistoryWindow
                 ChatRoomMessageListener,
                 Skinnable
 {
-    private static final Logger logger = Logger.getLogger(HistoryWindow.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HistoryWindow.class);
 
     private static final Class<?>[] HISTORY_FILTER
         = new Class<?>[]

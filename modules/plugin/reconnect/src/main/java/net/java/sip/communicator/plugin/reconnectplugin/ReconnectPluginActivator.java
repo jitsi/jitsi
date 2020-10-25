@@ -46,8 +46,7 @@ public class ReconnectPluginActivator
     /**
      * Logger of this class
      */
-    private static final Logger logger
-        = Logger.getLogger(ReconnectPluginActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ReconnectPluginActivator.class);
 
     /**
      * The current BundleContext.
@@ -163,16 +162,7 @@ public class ReconnectPluginActivator
     @Override
     public void startWithServices(BundleContext bundleContext)
     {
-        try
-        {
-            logger.logEntry();
-            ReconnectPluginActivator.bundleContext = bundleContext;
-        }
-        finally
-        {
-            logger.logExit();
-        }
-
+        ReconnectPluginActivator.bundleContext = bundleContext;
         bundleContext.addServiceListener(this);
 
         this.networkAddressManagerService

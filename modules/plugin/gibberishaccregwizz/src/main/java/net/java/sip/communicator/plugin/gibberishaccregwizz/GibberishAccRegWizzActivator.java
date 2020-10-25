@@ -34,8 +34,7 @@ import org.osgi.framework.*;
 public class GibberishAccRegWizzActivator
     extends DependentActivator
 {
-    private static final Logger logger =
-        Logger.getLogger(GibberishAccRegWizzActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GibberishAccRegWizzActivator.class);
 
     /**
      * A currently valid bundle context.
@@ -111,7 +110,7 @@ public class GibberishAccRegWizzActivator
         }
         catch (InvalidSyntaxException ex)
         {
-            logger.error(ex);
+            logger.error("Invalid OSGi filter", ex);
         }
 
         return (ProtocolProviderFactory) bundleContext.getService(serRefs[0]);

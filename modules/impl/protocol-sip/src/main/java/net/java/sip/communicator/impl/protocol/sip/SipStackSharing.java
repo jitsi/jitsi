@@ -34,8 +34,6 @@ import net.java.sip.communicator.service.netaddr.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.Logger;
-
 import org.jitsi.util.*;
 
 /**
@@ -67,8 +65,7 @@ public class SipStackSharing
     /**
      * Logger for this class.
      */
-    private static final Logger logger
-        = Logger.getLogger(SipStackSharing.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SipStackSharing.class);
 
     /**
      * Our SIP stack (provided by JAIN-SIP).
@@ -177,7 +174,7 @@ public class SipStackSharing
         }
         catch(Exception ex)
         {
-            logger.fatal("Failed to get SIP Factory.", ex);
+            logger.error("Failed to get SIP Factory.", ex);
             throw new OperationFailedException("Failed to get SIP Factory"
                     , OperationFailedException.INTERNAL_ERROR
                     , ex);
@@ -490,7 +487,7 @@ public class SipStackSharing
         }
         catch(ObjectInUseException ex)
         {
-            logger.fatal("Failed to stop listening", ex);
+            logger.error("Failed to stop listening", ex);
         }
     }
 
@@ -627,7 +624,7 @@ public class SipStackSharing
         try
         {
             if (logger.isTraceEnabled())
-                logger.trace(event);
+                logger.trace(event.toString());
 
             // impossible to dispatch, log here
             if (logger.isDebugEnabled())
@@ -1070,7 +1067,7 @@ public class SipStackSharing
                 // Proxy check is disabled all connections are
                 // ok (HA sipXecs, sipXcom, ...)
                 continue;
-            } 
+            }
             if(candidate.getRegistrarConnection() == null)
             {
                 //RegistrarLess connections are ok

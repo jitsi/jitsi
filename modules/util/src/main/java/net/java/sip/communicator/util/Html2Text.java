@@ -36,8 +36,7 @@ public class Html2Text
      * The <tt>Logger</tt> used by the <tt>Html2Text</tt> class for logging
      * output.
      */
-    private static final Logger logger
-        = Logger.getLogger(Html2Text.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Html2Text.class);
 
     /**
      * The HTML parser used by {@link #extractText(String)} to parse HTML so

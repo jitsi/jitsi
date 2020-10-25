@@ -54,8 +54,7 @@ public class HistoryServiceImpl
     /**
      * The logger for this class.
      */
-    private static final Logger logger =
-        Logger.getLogger(HistoryServiceImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HistoryServiceImpl.class);
 
     // Note: Hashtable is SYNCHRONIZED
     private final Map<HistoryID, History> histories =
@@ -86,7 +85,7 @@ public class HistoryServiceImpl
 
     /**
      * Constructor.
-     * 
+     *
      * @throws Exception if something went wrong during initialization
      */
     public HistoryServiceImpl(ConfigurationService configService,

@@ -40,8 +40,7 @@ public abstract class ServerStoredContactList
     /**
      * Logger class
      */
-    private static final Logger logger =
-            Logger.getLogger(ServerStoredContactList.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ServerStoredContactList.class);
 
     /**
      * Root group name.

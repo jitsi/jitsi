@@ -45,7 +45,6 @@ import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
 
 import org.apache.commons.lang3.*;
@@ -82,7 +81,7 @@ public class ChatPanel
      * The <tt>Logger</tt> used by the <tt>CallPanel</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger = Logger.getLogger(ChatPanel.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ChatPanel.class);
 
     private final JSplitPane messagePane
         = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -103,8 +102,8 @@ public class ChatPanel
     private final ChatWritePanel writeMessagePanel;
 
     private ChatRoomMemberListPanel chatContactListPanel;
-    
-    private TransparentPanel conferencePanel 
+
+    private TransparentPanel conferencePanel
         = new TransparentPanel(new BorderLayout());
 
     private final ChatContainer chatContainer;
@@ -174,7 +173,7 @@ public class ChatPanel
      * The ID of the last sent message in this chat.
      */
     private String lastSentMessageUID = null;
-    
+
     /**
      * Indicates whether the chat is private messaging chat or not.
      */
@@ -274,13 +273,13 @@ public class ChatPanel
                 = new TransparentPanel(new BorderLayout());
             contactsPanel.setMinimumSize(chatContactsListsPanelSize);
             contactsPanel.setPreferredSize(chatContactsListsPanelSize);
-            
+
             conferencePanel.setMinimumSize(chatConferencesListsPanelSize);
             conferencePanel.setPreferredSize(chatConferencesListsPanelSize);
-            
+
             this.chatContactListPanel = new ChatRoomMemberListPanel(this);
             this.chatContactListPanel.setOpaque(false);
-            
+
             topSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
             topSplitPane.setBorder(null); // remove default borders
             topSplitPane.setOneTouchExpandable(true);
@@ -315,11 +314,11 @@ public class ChatPanel
 
             localUserLabelPanel.add(localUserLabel, BorderLayout.CENTER);
             localUserLabelPanel.setBackground(msgNameBackground);
-            
-            
+
+
             JButton joinConference = new JButton(GuiActivator.getResources()
                 .getI18NString("service.gui.JOIN_VIDEO"));
-            
+
             joinConference.addActionListener(new ActionListener()
             {
                 @Override
@@ -330,15 +329,15 @@ public class ChatPanel
             });
             contactsPanel.add(localUserLabelPanel, BorderLayout.NORTH);
             contactsPanel.add(chatContactListPanel, BorderLayout.CENTER);
-            
+
             conferencePanel.add(joinConference, BorderLayout.CENTER);
-            
+
             rightPanel.add(conferencePanel, BorderLayout.NORTH);
             rightPanel.add(contactsPanel, BorderLayout.CENTER);
-            
+
             topSplitPane.setLeftComponent(conversationPanelContainer);
             topSplitPane.setRightComponent(rightPanel);
-            
+
             topPanel.add(topSplitPane);
 
         }
@@ -397,7 +396,7 @@ public class ChatPanel
             confSession.addLocalUserRoleListener(this);
             confSession.addMemberRoleListener(this);
 
-            ChatRoom room 
+            ChatRoom room
                 = ((ChatRoomWrapper) chatSession.getDescriptor()).getChatRoom();
             room.addMemberPropertyChangeListener(this);
 
@@ -425,22 +424,22 @@ public class ChatPanel
         }
     }
 
-    
+
     public void showChatConferenceDialog()
     {
         if(chatConferencesDialog  == null)
         {
-            chatConferencesDialog 
+            chatConferencesDialog
                 = new ChatConferenceCallDialog(ChatPanel.this);
             chatConferencesDialog.initConferences();
         }
-        
+
         chatConferencesDialog.setVisible(true);
-        
+
         chatConferencesDialog.toFront();
         chatConferencesDialog.pack();
     }
-    
+
     /**
      * Returns the chat session associated with this chat panel.
      * @return the chat session associated with this chat panel
@@ -795,9 +794,9 @@ public class ChatPanel
     }
 
     /**
-     * Returns <tt>true</tt> if the chat is private messaging chat and 
+     * Returns <tt>true</tt> if the chat is private messaging chat and
      * <tt>false</tt> if not.
-     * @return <tt>true</tt> if the chat is private messaging chat and 
+     * @return <tt>true</tt> if the chat is private messaging chat and
      * <tt>false</tt> if not.
      */
     public boolean isPrivateMessagingChat()
@@ -1349,16 +1348,16 @@ public class ChatPanel
     }
 
     /**
-     * Sets the visibility of conferences panel to <tt>true</tt> or 
+     * Sets the visibility of conferences panel to <tt>true</tt> or
      * <tt>false</tt>
-     * 
+     *
      * @param isVisible if <tt>true</tt> the panel is visible.
      */
     public void setConferencesPanelVisible(boolean isVisible)
     {
         conferencePanel.setVisible(isVisible);
     }
-    
+
     /**
      * Implements the <tt>Chat.isChatFocused</tt> method. Returns TRUE if this
      * chat panel is the currently selected panel and if the chat window, where
@@ -1834,10 +1833,10 @@ public class ChatPanel
     }
 
     /**
-     * Sets the property which identifies whether the chat is private messaging 
+     * Sets the property which identifies whether the chat is private messaging
      * chat or not.
-     * 
-     * @param isPrivateMessagingChat if <tt>true</tt> the chat panel will be 
+     *
+     * @param isPrivateMessagingChat if <tt>true</tt> the chat panel will be
      * private messaging chat panel.
      */
     public void setPrivateMessagingChat(boolean isPrivateMessagingChat)
@@ -2310,9 +2309,9 @@ public class ChatPanel
         if (chatContactListPanel != null)
             chatContactListPanel.removeContact(chatContact);
     }
-    
+
     /**
-     * Adds the given <tt>conferenceDescription</tt> to the list of chat 
+     * Adds the given <tt>conferenceDescription</tt> to the list of chat
      * conferences in this chat panel chat.
      * @param conferenceDescription the conference to add.
      */
@@ -2327,12 +2326,12 @@ public class ChatPanel
     }
 
     /**
-     * Removes the given <tt>conferenceDescription</tt> from the list of chat 
+     * Removes the given <tt>conferenceDescription</tt> from the list of chat
      * conferences in this chat panel chat.
      * @param conferenceDescription the conference to remove.
      */
     @Override
-    public void removeChatConferenceCall(ConferenceDescription 
+    public void removeChatConferenceCall(ConferenceDescription
         conferenceDescription)
     {
         if(chatConferencesDialog != null)
@@ -3109,10 +3108,10 @@ public class ChatPanel
     }
 
     /**
-     * Changes the chat conference dialog layout. This method is called when the 
+     * Changes the chat conference dialog layout. This method is called when the
      * local user publishes a <tt>ConferenceDescription</tt> instance.
-     * 
-     * @param conferenceDescription the <tt>ConferenceDescription</tt> instance 
+     *
+     * @param conferenceDescription the <tt>ConferenceDescription</tt> instance
      * associated with the conference.
      */
     @Override

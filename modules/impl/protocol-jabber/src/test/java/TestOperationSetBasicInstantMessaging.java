@@ -34,8 +34,7 @@ import net.java.sip.communicator.util.*;
 public class TestOperationSetBasicInstantMessaging
     extends TestCase
 {
-    private static final Logger logger =
-        Logger.getLogger(TestOperationSetBasicInstantMessaging.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestOperationSetBasicInstantMessaging.class);
 
     private JabberSlickFixture fixture = new JabberSlickFixture();
 

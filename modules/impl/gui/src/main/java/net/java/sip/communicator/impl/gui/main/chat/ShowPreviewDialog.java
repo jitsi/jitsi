@@ -49,8 +49,7 @@ public class ShowPreviewDialog
      * The <tt>Logger</tt> used by the <tt>ShowPreviewDialog</tt> class and
      * its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(ShowPreviewDialog.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ShowPreviewDialog.class);
 
     /**
      * The Ok button.
@@ -187,7 +186,7 @@ public class ShowPreviewDialog
             {
                 /**
                  * Called on the event dispatching thread
-                 * (not on the worker thread) after the 
+                 * (not on the worker thread) after the
                  * <code>construct</code> method has returned.
                  */
                 @Override

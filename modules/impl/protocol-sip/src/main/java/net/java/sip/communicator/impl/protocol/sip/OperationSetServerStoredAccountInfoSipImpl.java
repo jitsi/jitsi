@@ -39,8 +39,7 @@ public class OperationSetServerStoredAccountInfoSipImpl
     /**
      * Logger class.
      */
-    private static final Logger logger =
-            Logger.getLogger(OperationSetServerStoredAccountInfoSipImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetServerStoredAccountInfoSipImpl.class);
 
     /**
      * The provider that is on top of us.
@@ -443,11 +442,11 @@ public class OperationSetServerStoredAccountInfoSipImpl
      * (non-Javadoc)
      * @see net.java.sip.communicator.service.protocol.OperationSetServerStoredAccountInfo#save()
      * This method is currently unimplemented.
-     * The idea behind this method is for users to call it only once, meaning 
+     * The idea behind this method is for users to call it only once, meaning
      * that all ServerStoredDetails previously modified by addDetail/removeDetail
      * and/or replaceDetail will be saved online on the server in one step.
      * Currently, addDetail/removeDetail/replaceDetail methods are doing the
-     * actual saving but in the future the saving part must be carried here. 
+     * actual saving but in the future the saving part must be carried here.
      */
     public void save() throws OperationFailedException {}
 

@@ -40,8 +40,7 @@ public class ConfigurationUtils
     /**
      * The logger for this class.
      */
-    private static final Logger logger
-        = Logger.getLogger(ConfigurationUtils.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConfigurationUtils.class);
 
     /**
      * The send message command defined by the Enter key.
@@ -2667,7 +2666,9 @@ public class ConfigurationUtils
             }
             catch (IOException e)
             {
-                logger.error(e);
+                logger.error(
+                    "Failed to obtain enabled SSL protocols, returning all available",
+                    e);
                 return getAvailableSslProtocols();
             }
         }
@@ -2690,7 +2691,9 @@ public class ConfigurationUtils
         }
         catch (IOException e)
         {
-            logger.error(e);
+            logger.error(
+                "Failed to get supported SSL protocols, returning none supported",
+                e);
             return new String[]{};
         }
     }

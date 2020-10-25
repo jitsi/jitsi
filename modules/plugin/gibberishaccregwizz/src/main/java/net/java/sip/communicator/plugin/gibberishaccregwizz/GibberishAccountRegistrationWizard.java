@@ -36,8 +36,7 @@ import org.osgi.framework.*;
 public class GibberishAccountRegistrationWizard
     extends DesktopAccountRegistrationWizard
 {
-    private final Logger logger
-        = Logger.getLogger(GibberishAccountRegistrationWizard.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GibberishAccountRegistrationWizard.class);
 
     /**
      * The first page of the gibberish account registration wizard.

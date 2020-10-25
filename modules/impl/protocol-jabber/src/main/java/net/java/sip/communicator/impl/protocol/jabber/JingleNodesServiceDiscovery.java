@@ -21,8 +21,6 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.*;
 
-import net.java.sip.communicator.util.Logger;
-
 import org.jitsi.util.*;
 import org.jitsi.utils.*;
 import org.jivesoftware.smack.*;
@@ -45,8 +43,7 @@ public class JingleNodesServiceDiscovery
     /**
      * Logger of this class
      */
-    private static final Logger logger =
-        Logger.getLogger(JingleNodesServiceDiscovery.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JingleNodesServiceDiscovery.class);
 
     /**
      * Property containing jingle nodes prefix to search for.

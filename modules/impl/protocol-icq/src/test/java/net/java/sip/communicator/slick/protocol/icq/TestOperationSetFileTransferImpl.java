@@ -33,8 +33,7 @@ import org.osgi.framework.*;
 public class TestOperationSetFileTransferImpl
     extends TestOperationSetFileTransfer
 {
-    private static final Logger logger =
-        Logger.getLogger(TestOperationSetFileTransferImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestOperationSetFileTransferImpl.class);
 
     private static IcqSlickFixture fixture = null;
 

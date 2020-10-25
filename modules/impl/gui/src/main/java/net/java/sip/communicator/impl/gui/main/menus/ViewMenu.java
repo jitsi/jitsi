@@ -43,7 +43,7 @@ public class ViewMenu
     /**
      * The logger.
      */
-    private final Logger logger = Logger.getLogger(ViewMenu.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ViewMenu.class);
 
     /**
      * Creates an instance of <tt>ViewMenu</tt>.

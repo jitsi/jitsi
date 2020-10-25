@@ -36,8 +36,7 @@ import org.osgi.framework.*;
 public class ProtocolProviderFactoryJabberImpl
     extends ProtocolProviderFactory
 {
-    private static final Logger logger
-        = Logger.getLogger(ProtocolProviderFactoryJabberImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProtocolProviderFactoryJabberImpl.class);
 
     /**
      * Indicates if ICE should be used.

@@ -33,8 +33,7 @@ public class OperationSetServerStoredContactInfoIcqImpl
     /**
      * The logger.
      */
-    private static final Logger logger =
-        Logger.getLogger(OperationSetServerStoredContactInfoIcqImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetServerStoredContactInfoIcqImpl.class);
 
     private InfoRetreiver infoRetreiver;
 

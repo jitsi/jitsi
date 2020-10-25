@@ -34,8 +34,7 @@ import net.java.sip.communicator.util.*;
 public class TestOperationSetBasicInstantMessaging
     extends TestCase
 {
-    private static final Logger logger =
-        Logger.getLogger(TestOperationSetBasicInstantMessaging.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestOperationSetBasicInstantMessaging.class);
 
     private SipSlickFixture fixture = new SipSlickFixture();
 
@@ -249,9 +248,9 @@ public class TestOperationSetBasicInstantMessaging
     /**
      * Send an instant message from the testing operation set and assert
      * reception by the tested one.
-     * @throws OperationFailedException 
-     * @throws IllegalArgumentException 
-     * @throws IllegalStateException 
+     * @throws OperationFailedException
+     * @throws IllegalArgumentException
+     * @throws IllegalStateException
      */
     public void firstTestReceiveMessage() throws IllegalStateException,
         IllegalArgumentException,
@@ -319,9 +318,9 @@ public class TestOperationSetBasicInstantMessaging
     /**
      * Send an instant message from the tester agent and assert reception by
      * the tested implementation
-     * @throws OperationFailedException 
-     * @throws IllegalArgumentException 
-     * @throws IllegalStateException 
+     * @throws OperationFailedException
+     * @throws IllegalArgumentException
+     * @throws IllegalStateException
      */
     public void thenTestSendMessage() throws IllegalStateException,
         IllegalArgumentException,
@@ -552,9 +551,9 @@ public class TestOperationSetBasicInstantMessaging
     /**
      * A method that would simply send messages to a group of people so that
      * they would get notified that tests are being run.
-     * @throws OperationFailedException 
-     * @throws IllegalArgumentException 
-     * @throws IllegalStateException 
+     * @throws OperationFailedException
+     * @throws IllegalArgumentException
+     * @throws IllegalStateException
      */
     public void reportingSendFunMessages() throws IllegalStateException,
         IllegalArgumentException,

@@ -41,7 +41,7 @@ class OtrContactMenu
                ScOtrEngineListener,
                ScOtrKeyManagerListener
 {
-    private final Logger logger = Logger.getLogger(OtrContactMenu.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OtrContactMenu.class);
 
     private static final String ACTION_COMMAND_AUTHENTICATE_BUDDY =
         "AUTHENTICATE_BUDDY";

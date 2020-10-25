@@ -30,7 +30,7 @@ import org.osgi.framework.*;
 public class VersionActivator
     implements BundleActivator
 {
-    private final Logger logger = Logger.getLogger(VersionActivator.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(VersionActivator.class);
 
     /**
      * Called when this bundle is started so the Framework can perform the

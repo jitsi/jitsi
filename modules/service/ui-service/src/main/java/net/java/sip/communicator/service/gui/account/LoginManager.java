@@ -45,7 +45,7 @@ public class LoginManager
                 RegistrationStateChangeListener,
                 AccountManagerListener
 {
-    private static final Logger logger = Logger.getLogger(LoginManager.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LoginManager.class);
 
     private boolean manuallyDisconnected = false;
 

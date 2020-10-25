@@ -51,14 +51,13 @@ public class ContactListTransferHandler
     /**
      * The logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(ContactListTransferHandler.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ContactListTransferHandler.class);
 
     /**
      * The contact list, where this transfer happens.
      */
     private final DefaultTreeContactList contactList;
-    
+
     /**
      * The transferred object.
      */
@@ -98,7 +97,7 @@ public class ContactListTransferHandler
             return new ContactListTransferable(
                 tree.getRowForPath(selectionPath),
                 selectionPath.getLastPathComponent());
-            
+
         }
 
         return super.createTransferable(component);
@@ -137,7 +136,7 @@ public class ContactListTransferHandler
                 }
             }
         }
-        
+
         for (int i = 0, n = flavor.length; i < n; i++)
         {
             if (flavor[i].equals(uiContactDataFlavor))

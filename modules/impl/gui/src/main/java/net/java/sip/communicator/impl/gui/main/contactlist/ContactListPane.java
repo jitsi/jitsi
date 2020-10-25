@@ -72,7 +72,7 @@ public class ContactListPane
 
     private CommonRightButtonMenu commonRightButtonMenu;
 
-    private final Logger logger = Logger.getLogger(ContactListPane.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ContactListPane.class);
 
     private final ChatWindowManager chatWindowManager;
 
@@ -188,32 +188,32 @@ public class ContactListPane
 
             ProtocolProviderService defaultProvider
                 = defaultContact.getProtocolProvider();
-    
+
             OperationSetBasicInstantMessaging
                 defaultIM = defaultProvider.getOperationSet(
                               OperationSetBasicInstantMessaging.class);
-    
+
             ProtocolProviderService protoContactProvider;
             OperationSetBasicInstantMessaging protoContactIM;
-    
+
             boolean isOfflineMessagingSupported
                 = defaultIM != null && !defaultIM.isOfflineMessagingSupported();
-    
+
             if (defaultContact.getPresenceStatus().getStatus() < 1
                     && (!isOfflineMessagingSupported
                         || !defaultProvider.isRegistered()))
             {
                 Iterator<Contact> protoContacts = metaContact.getContacts();
-    
+
                 while(protoContacts.hasNext())
                 {
                     Contact contact = protoContacts.next();
-    
+
                     protoContactProvider = contact.getProtocolProvider();
-    
+
                     protoContactIM = protoContactProvider.getOperationSet(
                                         OperationSetBasicInstantMessaging.class);
-    
+
                     if(protoContactIM != null
                             && protoContactIM.isOfflineMessagingSupported()
                             && protoContactProvider.isRegistered())
@@ -370,9 +370,9 @@ public class ContactListPane
      * @param eventType the event type
      * @param timestamp the timestamp of the event
      * @param correctedMessageUID the identifier of the corrected message
-     * @param isPrivateMessaging if <tt>true</tt> the message is received from 
+     * @param isPrivateMessaging if <tt>true</tt> the message is received from
      * private messaging contact.
-     * @param privateContactRoom the chat room associated with the private 
+     * @param privateContactRoom the chat room associated with the private
      * messaging contact.
      */
     private void messageReceived(final Contact protocolContact,
@@ -381,7 +381,7 @@ public class ContactListPane
                                  final Message message,
                                  final int eventType,
                                  final Date timestamp,
-                                 final String correctedMessageUID, 
+                                 final String correctedMessageUID,
                                  final boolean isPrivateMessaging,
                                  final ChatRoom privateContactRoom)
     {
@@ -456,14 +456,14 @@ public class ContactListPane
         if(isPrivateMessaging)
         {
             chatWindowManager.openPrivateChatForChatRoomMember(
-                privateContactRoom, 
+                privateContactRoom,
                 protocolContact);
         }
         else
         {
             chatWindowManager.openChat(chatPanel, false);
         }
-        
+
         ChatTransport chatTransport
             = chatPanel.getChatSession()
                 .findChatTransportForDescriptor(protocolContact, resourceName);

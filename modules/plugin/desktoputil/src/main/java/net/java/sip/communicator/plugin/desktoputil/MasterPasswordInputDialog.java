@@ -39,8 +39,7 @@ public class MasterPasswordInputDialog
      * The <tt>Logger</tt> used by the <tt>MasterPasswordInputDialog</tt> class
      * and its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(MasterPasswordInputDialog.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MasterPasswordInputDialog.class);
 
     /**
      * Serial version UID.

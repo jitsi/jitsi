@@ -28,8 +28,6 @@ import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.Logger;
-
 import org.ice4j.*;
 import org.ice4j.ice.*;
 import org.ice4j.ice.harvest.*;
@@ -59,8 +57,7 @@ public class IceUdpTransportManager
      * The <tt>Logger</tt> used by the <tt>IceUdpTransportManager</tt>
      * class and its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(IceUdpTransportManager.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(IceUdpTransportManager.class);
 
     /**
      * Default STUN server address.

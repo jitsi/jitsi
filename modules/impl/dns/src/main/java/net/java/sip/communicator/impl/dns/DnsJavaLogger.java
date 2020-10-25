@@ -35,8 +35,7 @@ public class DnsJavaLogger
     /**
      * The logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(DnsJavaLogger.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DnsJavaLogger.class);
 
     /**
      * The packet logging service.

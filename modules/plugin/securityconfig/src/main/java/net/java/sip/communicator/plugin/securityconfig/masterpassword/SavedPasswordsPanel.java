@@ -38,8 +38,7 @@ public class SavedPasswordsPanel
     /**
      * The logger.
      */
-    private static Logger logger
-        = Logger.getLogger(SavedPasswordsPanel.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SavedPasswordsPanel.class);
 
     /**
      * Serial version UID.

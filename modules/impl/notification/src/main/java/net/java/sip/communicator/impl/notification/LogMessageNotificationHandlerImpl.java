@@ -34,8 +34,7 @@ public class LogMessageNotificationHandlerImpl
     /**
      * The logger that will be used to log messages.
      */
-    private Logger logger
-        = Logger.getLogger(LogMessageNotificationHandlerImpl.class);
+    private org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LogMessageNotificationHandlerImpl.class);
 
     /**
      * {@inheritDoc}

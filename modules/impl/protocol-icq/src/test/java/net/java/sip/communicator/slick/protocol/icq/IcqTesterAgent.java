@@ -51,8 +51,7 @@ import net.kano.joustsim.oscar.oscar.service.ssi.*;
  */
 public class IcqTesterAgent
 {
-    private static final Logger logger =
-        Logger.getLogger(IcqTesterAgent.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(IcqTesterAgent.class);
     /**
      * We use this field to determine whether registration has gone ok.
      */

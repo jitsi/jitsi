@@ -53,14 +53,13 @@ public class SelectScreenDialog
     /**
      * The object used for logging.
      */
-    private final static Logger logger
-        = Logger.getLogger(SelectScreenDialog.class);
+    private final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SelectScreenDialog.class);
 
     /**
      * The combo box containing screen choice.
      */
     private final DeviceComboBoxField deviceComboBox;
-    
+
     /**
      * Wrapper for the device list field.
      */
@@ -91,7 +90,7 @@ public class SelectScreenDialog
          * @param desktopDevices list with the available devices.
          * @param devicePanel the container of the field.
          */
-        public DeviceComboBoxField(Container devicePanel, 
+        public DeviceComboBoxField(Container devicePanel,
             List<MediaDevice> desktopDevices)
         {
             if(!OSUtils.IS_WINDOWS)
@@ -134,7 +133,7 @@ public class SelectScreenDialog
             return (deviceComboBox != null)?
                 deviceComboBox.getSelectedItem() : deviceList.getSelectedValue();
         }
-        
+
         /**
          * Adds a listener to the field.
          * @param listener the listener to be added.
@@ -295,7 +294,7 @@ public class SelectScreenDialog
         preview.setPreferredSize(new Dimension(WIDTH, 280));
         preview.setMaximumSize(new Dimension(WIDTH, 280));
 
-        final DeviceComboBoxField.Listener comboBoxListener 
+        final DeviceComboBoxField.Listener comboBoxListener
             = new DeviceComboBoxField.Listener()
         {
             public void onAction()

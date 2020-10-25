@@ -36,8 +36,7 @@ public class OperationSetDTMFJabberImpl
     /**
      * Our class logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(OperationSetDTMFJabberImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetDTMFJabberImpl.class);
 
     /**
      * Constructor.

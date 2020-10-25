@@ -24,8 +24,7 @@ import net.java.sip.communicator.util.*;
 public class PredictableTransformLayer
     implements TransformLayer
 {
-    private static final Logger logger =
-        Logger.getLogger(PredictableTransformLayer.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PredictableTransformLayer.class);
 
     public MessageDeliveredEvent messageDelivered(MessageDeliveredEvent evt)
     {

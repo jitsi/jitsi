@@ -43,8 +43,7 @@ public class OperationSetBasicInstantMessagingSipImpl
     /**
      * Our class logger.
      */
-    private static final Logger logger
-    = Logger.getLogger(OperationSetBasicInstantMessagingSipImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetBasicInstantMessagingSipImpl.class);
 
     /**
      * A list of processors registered for incoming sip messages.

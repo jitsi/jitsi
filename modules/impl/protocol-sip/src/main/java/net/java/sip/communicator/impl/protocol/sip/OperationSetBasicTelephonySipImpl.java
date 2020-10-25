@@ -54,8 +54,7 @@ public class OperationSetBasicTelephonySipImpl
     /**
      * Our class logger.
      */
-    private static final Logger logger =
-        Logger.getLogger(OperationSetBasicTelephonySipImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetBasicTelephonySipImpl.class);
 
     /**
      * A reference to the <tt>ProtocolProviderServiceSipImpl</tt> instance that

@@ -37,8 +37,7 @@ public class Bliptv
     /**
      * The logger for this class.
      */
-    private static final Logger logger =
-        Logger.getLogger(Bliptv.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Bliptv.class);
 
     /**
      * The regex used to match the link in the message.

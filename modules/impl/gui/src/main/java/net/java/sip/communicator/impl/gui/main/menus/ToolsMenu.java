@@ -40,7 +40,6 @@ import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.account.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
 
 import org.jitsi.service.configuration.*;
@@ -76,7 +75,7 @@ public class ToolsMenu
     /**
      * Local logger.
      */
-    private final Logger logger = Logger.getLogger(ToolsMenu.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ToolsMenu.class);
 
     /**
      * Property to disable auto answer menu.
@@ -476,14 +475,14 @@ public class ToolsMenu
     /**
      * Inserts the given <tt>JMenuItem</tt> at the end of the specified section.
      * Sections are ordered in the following matter: 0 0 0 | 1 1 | 2 2 ...
-     * 
+     *
      * @param item The <tt>JMenuItem</tt> that we insert
-     * 
+     *
      * @param section The section index in which we want to insert the specified
      * <tt>JMenuItem</tt>. If section is < 0 or section is >= the
      * <tt>JSeparator</tt>s count in this menu, this item will be inserted at
      * the end of the menu.
-     * 
+     *
      * @return The inserted <tt>JMenuItem</tt>
      */
     private JMenuItem insertInSection(JMenuItem item, int section)

@@ -21,8 +21,6 @@ import gov.nist.javax.sip.header.*;
 import gov.nist.javax.sip.header.extensions.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.Logger;
-
 import org.apache.commons.lang3.StringUtils;
 import org.jitsi.util.*;
 import org.jitsi.utils.*;
@@ -50,8 +48,7 @@ public class OperationSetTelephonyBLFSipImpl
     /**
      * Our class logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(OperationSetTelephonyBLFSipImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetTelephonyBLFSipImpl.class);
 
     /**
      * Account property to enable/disable OperationSetTelephonyBLF.
@@ -347,7 +344,7 @@ public class OperationSetTelephonyBLFSipImpl
 
         telOpSet.createOutgoingCall(targetAddress, null, null);
     }
-    
+
     private boolean asteriskMode(LineDetails details)
     {
         return StringUtils.isEmpty(details.callID)

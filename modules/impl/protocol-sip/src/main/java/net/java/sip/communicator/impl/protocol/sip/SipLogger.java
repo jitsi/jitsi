@@ -44,8 +44,7 @@ public class SipLogger
     /**
      * All messages will be passed to this logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(SipLogger.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SipLogger.class);
 
     /**
      * SipStack to use.

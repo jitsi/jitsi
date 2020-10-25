@@ -41,8 +41,7 @@ public class OperationSetChangePasswordJabberImpl
     /**
      * The logger used by <tt>OperationSetChangePasswordJabberImpl</tt>.
      */
-    private static final Logger logger =
-        Logger.getLogger(OperationSetChangePasswordJabberImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetChangePasswordJabberImpl.class);
 
     /**
      * Sets the object protocolProvider to the one given.

@@ -38,8 +38,7 @@ import net.java.sip.communicator.util.*;
 public class ManualProxyConnection
     extends ProxyConnection
 {
-    private final static Logger logger
-        = Logger.getLogger(ManualProxyConnection.class);
+    private final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ManualProxyConnection.class);
 
     private String address;
     private int port;

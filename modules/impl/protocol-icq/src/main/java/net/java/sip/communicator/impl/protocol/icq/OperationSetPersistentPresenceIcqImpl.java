@@ -50,8 +50,7 @@ import net.kano.joustsim.trust.*;
 public class OperationSetPersistentPresenceIcqImpl
     extends AbstractOperationSetPersistentPresence<ProtocolProviderServiceIcqImpl>
 {
-    private static final Logger logger =
-        Logger.getLogger(OperationSetPersistentPresenceIcqImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetPersistentPresenceIcqImpl.class);
 
     /**
      * This one should actually be in joscar. But since it isn't we might as

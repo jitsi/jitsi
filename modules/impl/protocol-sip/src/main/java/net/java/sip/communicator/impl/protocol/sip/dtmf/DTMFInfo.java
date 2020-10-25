@@ -48,8 +48,7 @@ public class DTMFInfo
      * The <tt>Logger</tt> used by the <tt>DTMFInfo</tt> class and its instances
      * for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(DTMFInfo.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DTMFInfo.class);
 
     /**
      * The sub-type of the content of the <tt>Request</tt>s being sent by

@@ -42,8 +42,7 @@ public abstract class AbstractOperationSetContactCapabilities<
      * <tt>AbstractOperationSetContactCapabilities</tt> class and its instances
      * for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(AbstractOperationSetContactCapabilities.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AbstractOperationSetContactCapabilities.class);
 
     /**
      * The list of <tt>ContactCapabilitiesListener</tt>s registered to be

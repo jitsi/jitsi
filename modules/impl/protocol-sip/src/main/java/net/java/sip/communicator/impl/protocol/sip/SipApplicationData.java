@@ -55,8 +55,7 @@ public class SipApplicationData
     /**
      * Logger for this class.
      */
-    private static final Logger logger
-        = Logger.getLogger(SipApplicationData.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SipApplicationData.class);
 
     /**
      * Internal representation of the store.

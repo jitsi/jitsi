@@ -39,8 +39,7 @@ public class ProtocolMediaActivator
      * The <tt>Logger</tt> used by the <tt>ProtocolMediaActivator</tt> class and
      * its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(ProtocolMediaActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProtocolMediaActivator.class);
 
     /**
      * Bundle context from OSGi.

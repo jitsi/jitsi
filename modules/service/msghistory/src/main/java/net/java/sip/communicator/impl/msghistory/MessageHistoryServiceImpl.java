@@ -24,6 +24,7 @@ import java.io.*;
 import java.text.*;
 import java.util.*;
 
+import lombok.extern.slf4j.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.history.*;
@@ -52,6 +53,7 @@ import org.osgi.framework.*;
  * @author Lubomir Marinov
  * @author Valentin Martinet
  */
+@Slf4j
 public class MessageHistoryServiceImpl
     implements  MessageHistoryService,
                 MessageHistoryAdvancedService,
@@ -62,12 +64,6 @@ public class MessageHistoryServiceImpl
                 LocalUserChatRoomPresenceListener,
                 LocalUserAdHocChatRoomPresenceListener
 {
-    /**
-     * The logger for this class.
-     */
-    private static Logger logger = Logger
-            .getLogger(MessageHistoryServiceImpl.class);
-
     static String[] STRUCTURE_NAMES
         = new String[] { "dir", "msg_CDATA", "msgTyp", "enc", "uid", "sub",
             "receivedTimestamp", "msgSubTyp" };
@@ -1071,7 +1067,7 @@ public class MessageHistoryServiceImpl
         // We're adding a property change listener in order to
         // listen for modifications of the isMessageHistoryEnabled property.
         msgHistoryPropListener = new MessageHistoryPropertyChangeListener();
-        
+
         // Load the "IS_MESSAGE_HISTORY_ENABLED" property.
         isHistoryLoggingEnabled = configService.getBoolean(
             MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED,
@@ -3028,7 +3024,7 @@ public class MessageHistoryServiceImpl
         if(this.messageSourceService != null)
             this.messageSourceService.eraseLocallyStoredHistory(room);
     }
-    
+
     /**
      * Returns <code>true</code> if the "IS_MESSAGE_HISTORY_ENABLED"
      * property is true, otherwise - returns <code>false</code>.

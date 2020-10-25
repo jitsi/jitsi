@@ -48,8 +48,7 @@ public abstract class AbstractCallPeer<T extends Call,
     /**
      * Our class logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(AbstractCallPeer.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AbstractCallPeer.class);
 
     /**
      * The constant which describes an empty set of <tt>ConferenceMember</tt>s
@@ -276,7 +275,7 @@ public abstract class AbstractCallPeer<T extends Call,
                             conferenceMember));
         }
     }
-    
+
     /**
      * Fires
      * <tt>CallPeerConferenceEvent#CONFERENCE_MEMBER_ERROR_RECEIVED</tt> to
@@ -292,10 +291,10 @@ public abstract class AbstractCallPeer<T extends Call,
                 + " null or empty string.");
             return;
         }
-        
+
         fireCallPeerConferenceEvent(
             new CallPeerConferenceEvent(
-                this, 
+                this,
                 CallPeerConferenceEvent
                     .CONFERENCE_MEMBER_ERROR_RECEIVED,
                 null,

@@ -32,8 +32,7 @@ import net.java.sip.communicator.util.*;
 public class TestOperationSetBasicTelephonySipImpl
     extends TestCase
 {
-    private static final Logger logger
-        = Logger.getLogger(TestOperationSetBasicTelephonySipImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestOperationSetBasicTelephonySipImpl.class);
 
     /**
      *

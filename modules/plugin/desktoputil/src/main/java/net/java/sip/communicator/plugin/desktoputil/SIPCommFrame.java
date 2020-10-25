@@ -27,8 +27,6 @@ import java.util.List;
 import javax.swing.*;
 
 import net.java.sip.communicator.service.keybindings.*;
-import net.java.sip.communicator.util.Logger;
-
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
@@ -64,7 +62,7 @@ public class SIPCommFrame
      * The <tt>Logger</tt> used by the <tt>SIPCommFrame</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger = Logger.getLogger(SIPCommFrame.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SIPCommFrame.class);
 
     /**
      * The action map of this dialog.

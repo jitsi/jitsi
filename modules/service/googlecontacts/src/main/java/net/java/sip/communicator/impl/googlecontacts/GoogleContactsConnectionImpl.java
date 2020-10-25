@@ -40,8 +40,7 @@ public class GoogleContactsConnectionImpl
     /**
      * Logger.
      */
-    private static final Logger logger =
-        Logger.getLogger(GoogleContactsConnectionImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GoogleContactsConnectionImpl.class);
 
     /**
      * The credential store to pass around.

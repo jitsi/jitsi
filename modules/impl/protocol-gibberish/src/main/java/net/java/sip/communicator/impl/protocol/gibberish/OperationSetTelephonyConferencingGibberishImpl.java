@@ -33,8 +33,7 @@ public class OperationSetTelephonyConferencingGibberishImpl
     implements OperationSetTelephonyConferencing,
                CallChangeListener
 {
-    private static final Logger logger
-        = Logger.getLogger(OperationSetTelephonyConferencingGibberishImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetTelephonyConferencingGibberishImpl.class);
 
     /**
      * A reference to the <tt>ProtocolProviderServiceGibberishImpl</tt> instance

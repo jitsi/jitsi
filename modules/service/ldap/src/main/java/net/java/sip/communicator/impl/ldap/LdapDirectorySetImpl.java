@@ -40,8 +40,7 @@ public class LdapDirectorySetImpl
     /**
      * the logger for this class
      */
-    private static Logger logger
-        = Logger.getLogger(LdapDirectorySetImpl.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapDirectorySetImpl.class);
 
     /**
      * internal data structure used to store LdapDirectory(s)

@@ -41,7 +41,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
 
 import org.jitsi.service.neomedia.*;
@@ -114,7 +113,7 @@ public class CallPanel
     /**
      * The logger for this class.
      */
-    private static final Logger logger = Logger.getLogger(CallDialog.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CallDialog.class);
 
     /**
      * The hang up button name.
@@ -198,7 +197,7 @@ public class CallPanel
      * Property to disable the desktop sharing button.
      */
     private static final String HIDE_DESKTOP_SHARING_BUTON_PROP
-        = "net.java.sip.communicator.impl.gui.main.call.HIDE_DESKTOP_SHARING_BUTTON"; 
+        = "net.java.sip.communicator.impl.gui.main.call.HIDE_DESKTOP_SHARING_BUTTON";
 
     /**
      * Property to disable the full screen button.
@@ -1723,11 +1722,11 @@ public class CallPanel
     /**
      * Tests a provided boolean property name, returning false if it should be
      * hidden.
-     * 
-     * Used in {@link #initializeUserInterfaceHierarchy()} 
+     *
+     * Used in {@link #initializeUserInterfaceHierarchy()}
      * @param buttonHidePropertyName the name of the boolean property to check.
      * @return false if the button should be hidden, true otherwise.
-     * 
+     *
      */
     private boolean isButtonEnabled(String buttonHidePropertyName)
     {

@@ -23,6 +23,7 @@ import java.util.*;
 
 import javax.swing.*;
 
+import lombok.extern.slf4j.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -47,6 +48,7 @@ import org.jitsi.service.resources.*;
  * @author Lyubomir Marinov
  * @author Adam Netocny
  */
+@Slf4j
 public class ConferencePeerPanel
     extends BasicConferenceParticipantPanel<Object>
     implements ConferenceCallPeerRenderer,
@@ -611,8 +613,7 @@ public class ConferencePeerPanel
             }
             catch(OperationFailedException ex)
             {
-                Logger.getLogger(getClass())
-                    .error("Failed to hangup peer", ex);
+                logger.error("Failed to hangup peer", ex);
             }
         }
     }

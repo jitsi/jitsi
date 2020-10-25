@@ -19,7 +19,6 @@ package net.java.sip.communicator.plugin.busylampfield;
 
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.Logger;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jitsi.utils.*;
@@ -38,8 +37,7 @@ public class BLFContactSourceService
      * The <tt>Logger</tt> used by the
      * <tt>ConfCallsContactSource</tt> class for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(BLFContactSourceService.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(BLFContactSourceService.class);
 
     /**
      * Type of a recent messages source.

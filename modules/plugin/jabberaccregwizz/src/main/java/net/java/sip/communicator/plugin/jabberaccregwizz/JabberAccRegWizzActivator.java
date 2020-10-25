@@ -44,8 +44,7 @@ public class JabberAccRegWizzActivator
      */
     public static BundleContext bundleContext;
 
-    private static final Logger logger =
-        Logger.getLogger(JabberAccRegWizzActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JabberAccRegWizzActivator.class);
 
     private static BrowserLauncherService browserLauncherService;
 

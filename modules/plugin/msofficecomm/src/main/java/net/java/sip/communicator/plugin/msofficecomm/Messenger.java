@@ -48,7 +48,7 @@ public class Messenger
      * The <tt>Logger</tt> used by the <tt>Messenger</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger = Logger.getLogger(Messenger.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Messenger.class);
 
     static final int CONVERSATION_TYPE_AUDIO = 8;
 
@@ -73,7 +73,7 @@ public class Messenger
      * client user is on the phone.
      */
     static final int MISTATUS_ON_THE_PHONE = 0x0032;
-    
+
     static final int MISTATUS_IN_A_MEETING = 0x0052;
 
     static final int MISTATUS_ONLINE = 0x0002;

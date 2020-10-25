@@ -41,7 +41,7 @@ public class GlobalProxyPluginActivator
     /**
      * Our logger.
      */
-    private Logger logger = Logger.getLogger(GlobalProxyPluginActivator.class);
+    private org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GlobalProxyPluginActivator.class);
 
     /**
      * The Configuration service.

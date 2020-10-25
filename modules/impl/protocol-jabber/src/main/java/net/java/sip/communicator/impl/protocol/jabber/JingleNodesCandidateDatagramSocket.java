@@ -38,8 +38,7 @@ public class JingleNodesCandidateDatagramSocket extends DatagramSocket
      * <tt>JingleNodesCandidateDatagramSocket</tt> class and its instances for
      * logging output.
      */
-    private static final Logger logger
-            = Logger.getLogger(JingleNodesCandidateDatagramSocket.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JingleNodesCandidateDatagramSocket.class);
 
     /**
      * Determines whether a packet should be logged, given the number of sent

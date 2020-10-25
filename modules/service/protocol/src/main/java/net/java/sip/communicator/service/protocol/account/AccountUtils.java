@@ -37,7 +37,7 @@ public class AccountUtils
     /**
      * The logger.
      */
-    private static Logger logger = Logger.getLogger(AccountUtils.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AccountUtils.class);
 
     /**
      * Returns an iterator over a list of all stored <tt>AccountID</tt>-s.

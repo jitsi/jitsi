@@ -49,7 +49,7 @@ class SpellChecker
      * The <tt>Logger</tt> used by the <tt>SpellChecker</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger = Logger.getLogger(SpellChecker.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SpellChecker.class);
 
     private static final String LOCALE_CONFIG_PARAM =
         "net.java.sip.communicator.plugin.spellchecker.LOCALE";
@@ -465,10 +465,10 @@ class SpellChecker
 
     /**
      * Gets the file object for user-installed dictionaries.
-     * 
+     *
      * @param locale The locale whose filename is needed.
      * @return The file object of the locale.
-     * @throws Exception 
+     * @throws Exception
      */
     File getLocalDictForLocale(Parameters.Locale locale) throws Exception
     {

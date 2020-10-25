@@ -40,8 +40,7 @@ public class JabberStatusEnum
      * The <tt>Logger</tt> used by the <tt>JabberStatusEnum</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(JabberStatusEnum.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JabberStatusEnum.class);
 
     /**
      * The Online status. Indicate that the user is able and willing to
@@ -72,7 +71,7 @@ public class JabberStatusEnum
      * Indicates that the user is talking to the phone.
      */
     public static final String ON_THE_PHONE = "On the phone";
-    
+
     /**
      * In meeting Chat status.
      * Indicates that the user is in meeting.
@@ -129,7 +128,7 @@ public class JabberStatusEnum
      * Indicates an On The Phone status.
      */
     private final JabberPresenceStatus onThePhoneStatus;
-    
+
     /**
      * Indicates an On The Phone status.
      */
@@ -199,7 +198,7 @@ public class JabberStatusEnum
         this.onThePhoneStatus =
             new JabberPresenceStatus(31, ON_THE_PHONE, loadIcon(iconPath
                 + "/status16x16-phone.png"));
-        
+
         this.inMeetingStatus =
             new JabberPresenceStatus(32, IN_A_MEETING, loadIcon(iconPath
                 + "/status16x16-meeting.png"));

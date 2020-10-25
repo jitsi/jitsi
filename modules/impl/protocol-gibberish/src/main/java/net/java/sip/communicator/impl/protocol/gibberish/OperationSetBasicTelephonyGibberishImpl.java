@@ -33,8 +33,7 @@ public class OperationSetBasicTelephonyGibberishImpl
     extends AbstractOperationSetBasicTelephony<ProtocolProviderServiceGibberishImpl>
     implements CallChangeListener
 {
-    private static final Logger logger
-        = Logger.getLogger(OperationSetBasicTelephonyGibberishImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetBasicTelephonyGibberishImpl.class);
 
     /**
      * A reference to the <tt>ProtocolProviderServiceSipImpl</tt> instance

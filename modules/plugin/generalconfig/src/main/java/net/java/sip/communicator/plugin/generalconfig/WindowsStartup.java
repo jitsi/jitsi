@@ -35,8 +35,7 @@ public class WindowsStartup
     /**
      * The logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(WindowsStartup.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(WindowsStartup.class);
 
     /**
      * The key under which startup keys are placed.

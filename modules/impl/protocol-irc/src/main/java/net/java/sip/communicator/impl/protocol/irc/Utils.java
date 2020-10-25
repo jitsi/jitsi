@@ -31,7 +31,7 @@ public final class Utils
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(Utils.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Utils.class);
 
     /**
      * Index indicating the end of the foreground color code.
@@ -158,14 +158,14 @@ public final class Utils
         {
             // Abort parsing background color. Assume only
             // foreground color available.
-            LOGGER.trace("Abort parsing background color because text ended. "
+            logger.trace("Abort parsing background color because text ended. "
                 + "Assuming only foreground color was available.");
             return null;
         }
         catch (NumberFormatException e)
         {
             // No background color defined, ignoring ...
-            LOGGER.trace("No background color defined. Ignoring ...");
+            logger.trace("No background color defined. Ignoring ...");
             return null;
         }
     }
@@ -187,13 +187,13 @@ public final class Utils
         catch (StringIndexOutOfBoundsException e)
         {
             // Invalid control code, since text has ended.
-            LOGGER.trace("ArrayIndexOutOfBounds during foreground "
+            logger.trace("ArrayIndexOutOfBounds during foreground "
                 + "color control code parsing.");
             return null;
         }
         catch (NumberFormatException e)
         {
-            LOGGER.trace("Invalid foreground color code encountered.", e);
+            logger.trace("Invalid foreground color code encountered.", e);
             return null;
         }
     }

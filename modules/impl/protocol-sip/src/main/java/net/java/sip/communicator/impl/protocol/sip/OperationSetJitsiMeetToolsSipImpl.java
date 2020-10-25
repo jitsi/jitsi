@@ -62,7 +62,7 @@ public class OperationSetJitsiMeetToolsSipImpl
     /**
     * Default encoding for incoming messages.
     */
-    public static final String DEFAULT_MIME_ENCODING = "UTF-8"; 
+    public static final String DEFAULT_MIME_ENCODING = "UTF-8";
 
     /**
      * Name of extra INVITE header which specifies name of MUC room that is
@@ -80,8 +80,7 @@ public class OperationSetJitsiMeetToolsSipImpl
     /**
      * The logger used by this class.
      */
-    private final static Logger logger
-        = Logger.getLogger(OperationSetJitsiMeetToolsSipImpl.class);
+    private final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetJitsiMeetToolsSipImpl.class);
 
     /**
      * The list of {@link JitsiMeetRequestListener}.
@@ -242,10 +241,10 @@ public class OperationSetJitsiMeetToolsSipImpl
                 ContentLength cl = new ContentLength(content.length());
 
                 info.setContentLength(cl);
-    
+
                 info.setContent(content.getBytes(), ct);
 
-                ClientTransaction clientTransaction = 
+                ClientTransaction clientTransaction =
                     peer.getJainSipProvider()
                         .getNewClientTransaction(info);
 
@@ -328,7 +327,7 @@ public class OperationSetJitsiMeetToolsSipImpl
                         request.getRawContent(),
                         charset);
 
-                    JSONObject receivedJson = 
+                    JSONObject receivedJson =
                         (JSONObject) (new JSONParser()).parse(contentString);
 
                     OperationSetBasicTelephonySipImpl telephony
@@ -339,7 +338,7 @@ public class OperationSetJitsiMeetToolsSipImpl
 
                     // Find call peer
                     CallPeerSipImpl callPeer = null;
-                    for (Iterator<CallSipImpl> activeCalls 
+                    for (Iterator<CallSipImpl> activeCalls
                             = telephony.getActiveCalls();
                         activeCalls.hasNext();)
                     {
@@ -361,7 +360,7 @@ public class OperationSetJitsiMeetToolsSipImpl
                         }
                     }
 
-                    HashMap<String, Object> params = 
+                    HashMap<String, Object> params =
                         new HashMap<String, Object>() {{
                             put(VIA_PARAMETER, VIA_SIP_INFO);
                     }};

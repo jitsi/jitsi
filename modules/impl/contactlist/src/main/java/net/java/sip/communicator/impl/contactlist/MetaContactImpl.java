@@ -37,8 +37,7 @@ public class MetaContactImpl
     /**
      * Logger for <tt>MetaContactImpl</tt>.
      */
-    private static final Logger logger
-        = Logger.getLogger(MetaContactImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MetaContactImpl.class);
 
     /**
      * A vector containing all protocol specific contacts merged in this
@@ -424,7 +423,7 @@ public class MetaContactImpl
                     {
                         List<Contact> capContacts
                             = capabilities.get(operationSet.getName());
-    
+
                         if (capContacts == null
                                 || !capContacts.contains(protoContact))
                         {
@@ -1136,7 +1135,7 @@ public class MetaContactImpl
                 .stream()
                 .filter(e -> !contactNewCaps.contains(e.getKey()))
                 .forEach(e -> e.getValue().remove(contact));
-    
+
             // remove opSets that have no associated contact
             capabilities.entrySet().removeIf(e -> e.getValue().size() == 0);
         }

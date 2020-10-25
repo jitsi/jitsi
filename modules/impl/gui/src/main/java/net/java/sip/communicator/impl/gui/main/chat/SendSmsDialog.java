@@ -37,7 +37,7 @@ import net.java.sip.communicator.util.*;
 public class SendSmsDialog
     extends SIPCommDialog
 {
-    private Logger logger = Logger.getLogger(SendSmsDialog.class);
+    private org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SendSmsDialog.class);
 
     private String title
         = GuiActivator.getResources().getI18NString("service.gui.SEND_SMS");

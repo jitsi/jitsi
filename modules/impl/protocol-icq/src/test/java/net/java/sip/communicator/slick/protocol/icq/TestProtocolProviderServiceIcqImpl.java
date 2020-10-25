@@ -44,8 +44,7 @@ import net.java.sip.communicator.util.*;
  */
 public class TestProtocolProviderServiceIcqImpl extends TestCase
 {
-    private static final Logger logger =
-        Logger.getLogger(TestProtocolProviderServiceIcqImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestProtocolProviderServiceIcqImpl.class);
 
     private IcqSlickFixture fixture = new IcqSlickFixture();
 

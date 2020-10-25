@@ -26,8 +26,6 @@ import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.Logger;
-
 import net.java.sip.communicator.util.osgi.ServiceUtils;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
@@ -60,7 +58,7 @@ public class OtrActivator
      * The <tt>Logger</tt> used by the <tt>OtrActivator</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger = Logger.getLogger(OtrActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OtrActivator.class);
 
     /**
      * Indicates if the security/chat config form should be disabled, i.e.
@@ -109,7 +107,7 @@ public class OtrActivator
      * The <tt>MetaContactListService</tt> reference.
      */
     private static MetaContactListService metaCListService;
-    
+
     /**
      * The message history service.
      */
@@ -119,7 +117,7 @@ public class OtrActivator
      * The {@link OtrContactManager} of the {@link OtrActivator}.
      */
     private static OtrContactManager otrContactManager;
-    
+
     /**
      * Gets an {@link AccountID} by its UID.
      *
@@ -492,7 +490,7 @@ public class OtrActivator
         }
         return messageHistoryService;
     }
-    
+
     /**
      * The factory that will be registered in OSGi and will create OTR menu
      * instances.

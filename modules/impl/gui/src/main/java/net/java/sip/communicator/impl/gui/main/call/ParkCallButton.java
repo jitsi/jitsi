@@ -39,7 +39,7 @@ public class ParkCallButton
     /**
      * Our class logger.
      */
-    private static final Logger logger = Logger.getLogger(ParkCallButton.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ParkCallButton.class);
 
     /**
      * The <tt>Call</tt> to be parked.

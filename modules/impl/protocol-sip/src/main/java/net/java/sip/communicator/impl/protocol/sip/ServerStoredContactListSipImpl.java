@@ -52,8 +52,7 @@ public class ServerStoredContactListSipImpl
     /**
      * Logger class
      */
-    private static final Logger logger =
-            Logger.getLogger(ServerStoredContactListSipImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ServerStoredContactListSipImpl.class);
 
     /**
      * Presence content for image.
@@ -1286,7 +1285,8 @@ public class ServerStoredContactListSipImpl
                 }
                 catch (ParseException e)
                 {
-                    logger.error(e);
+                    logger.error("Failed to parse server {}",
+                        serverEntry.getUri(), e);
                     continue;
                 }
                 newContact = new ContactSipImpl(sipAddress, sipProvider);

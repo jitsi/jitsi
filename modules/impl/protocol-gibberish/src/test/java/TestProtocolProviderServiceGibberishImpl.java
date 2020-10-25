@@ -31,8 +31,7 @@ import net.java.sip.communicator.util.*;
 public class TestProtocolProviderServiceGibberishImpl
     extends TestCase
 {
-    private static final Logger logger =
-        Logger.getLogger(TestProtocolProviderServiceGibberishImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestProtocolProviderServiceGibberishImpl.class);
 
     private GibberishSlickFixture fixture = new GibberishSlickFixture();
 

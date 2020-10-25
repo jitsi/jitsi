@@ -19,19 +19,16 @@
 import java.util.*;
 
 import junit.framework.*;
+import lombok.extern.slf4j.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.slick.protocol.generic.*;
 import net.java.sip.communicator.util.*;
 
+@Slf4j
 public class TestOperationSetInstantMessageTransformJabberImpl
     extends TestCase
 {
-
-    private static final Logger logger =
-        Logger
-            .getLogger(TestOperationSetInstantMessageTransformJabberImpl.class);
-
     private JabberSlickFixture fixture = new JabberSlickFixture();
 
     private OperationSetBasicInstantMessaging opSetBasicIM1 = null;

@@ -26,7 +26,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.service.notification.*;
-import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.plugin.desktoputil.*;
 
 import org.jitsi.service.audionotifier.*;
@@ -48,8 +47,7 @@ public class NotificationConfigurationPanel
 {
     private static final long serialVersionUID = 5784331951722787598L;
 
-    private final Logger logger
-            = Logger.getLogger(NotificationConfigurationPanel.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NotificationConfigurationPanel.class);
 
     private NotificationsTable notificationList;
 

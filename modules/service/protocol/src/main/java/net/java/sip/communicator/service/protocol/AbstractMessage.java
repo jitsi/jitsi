@@ -36,8 +36,7 @@ public abstract class AbstractMessage
      * The <tt>Logger</tt> used by the <tt>AbstractMessage</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(AbstractMessage.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AbstractMessage.class);
 
     private static boolean equals(String a, String b)
     {

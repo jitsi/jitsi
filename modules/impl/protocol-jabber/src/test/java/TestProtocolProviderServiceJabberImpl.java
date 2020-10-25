@@ -34,8 +34,7 @@ import net.java.sip.communicator.util.*;
 public class TestProtocolProviderServiceJabberImpl
     extends TestCase
 {
-    private static final Logger logger =
-        Logger.getLogger(TestProtocolProviderServiceJabberImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestProtocolProviderServiceJabberImpl.class);
 
     private JabberSlickFixture fixture = new JabberSlickFixture();
 

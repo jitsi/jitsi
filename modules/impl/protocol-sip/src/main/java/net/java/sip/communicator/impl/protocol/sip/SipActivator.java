@@ -43,7 +43,7 @@ import org.osgi.framework.*;
 public class SipActivator
     extends DependentActivator
 {
-    private Logger logger = Logger.getLogger(SipActivator.class);
+    private org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SipActivator.class);
 
     private        ServiceRegistration  sipPpFactoryServReg   = null;
             static BundleContext        bundleContext         = null;

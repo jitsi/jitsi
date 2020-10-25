@@ -31,8 +31,6 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.transparent.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.Logger;
-
 import org.jitsi.service.neomedia.*;
 import org.jitsi.util.*;
 
@@ -45,8 +43,7 @@ public class DesktopSharingFrame
     /**
      * Used for logging.
      */
-    private static final Logger logger
-        = Logger.getLogger(DesktopSharingFrame.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DesktopSharingFrame.class);
 
     /**
      * The icon shown to indicate the resize drag area.
@@ -218,7 +215,7 @@ public class DesktopSharingFrame
                          * Disposes of the frame related to the ended call.
                          *
                          * @param ev a <tt>CallEvent</tt> which identifies the
-                         * ended call 
+                         * ended call
                          */
                         public void callEnded(CallEvent ev)
                         {

@@ -48,8 +48,7 @@ public abstract class FileTransferConversationComponent
     /**
      * The logger for this class.
      */
-    private final Logger logger
-        = Logger.getLogger(FileTransferConversationComponent.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(FileTransferConversationComponent.class);
 
     /**
      * Image default width.

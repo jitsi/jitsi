@@ -32,8 +32,7 @@ public class OperationSetCusaxUtilsSipImpl
     /**
      * Our class logger.
      */
-    private static final Logger logger =
-        Logger.getLogger(OperationSetCusaxUtilsSipImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetCusaxUtilsSipImpl.class);
 
     /**
      * The parent jabber protocol provider.

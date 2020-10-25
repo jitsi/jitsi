@@ -52,8 +52,7 @@ public class ScServiceDiscoveryManager
      * The <tt>Logger</tt> used by the <tt>ScServiceDiscoveryManager</tt>
      * class and its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(ScServiceDiscoveryManager.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ScServiceDiscoveryManager.class);
 
     /**
      * The flag which indicates whether we are currently storing non-caps.

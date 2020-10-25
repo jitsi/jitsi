@@ -38,8 +38,7 @@ public abstract class AbstractOperationSetServerStoredAccountInfo
      * <tt>AbstractOperationSetPersistentPresence</tt> class and its instances
      * for logging output.
      */
-    private static final Logger logger =
-        Logger.getLogger(AbstractOperationSetServerStoredAccountInfo.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AbstractOperationSetServerStoredAccountInfo.class);
 
     /**
      * A list of listeners registered for

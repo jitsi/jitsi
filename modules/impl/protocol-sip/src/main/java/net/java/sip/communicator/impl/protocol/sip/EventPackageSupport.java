@@ -42,8 +42,7 @@ public class EventPackageSupport
      * The <tt>Logger</tt> used by the <tt>EventPackageSupport</tt> class and
      * its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(EventPackageSupport.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EventPackageSupport.class);
 
     /**
      * The sub-type of the content type of the response bodies announced,

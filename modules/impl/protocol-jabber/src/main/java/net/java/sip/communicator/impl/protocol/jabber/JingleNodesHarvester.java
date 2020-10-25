@@ -43,8 +43,7 @@ public class JingleNodesHarvester
      * The <tt>Logger</tt> used by the <tt>JingleNodesHarvester</tt> class and
      * its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(JingleNodesHarvester.class.getName());
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JingleNodesHarvester.class.getName());
 
     /**
      * XMPP connection.

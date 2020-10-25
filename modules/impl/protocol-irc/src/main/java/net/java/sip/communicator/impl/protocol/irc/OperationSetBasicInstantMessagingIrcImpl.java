@@ -37,8 +37,7 @@ public class OperationSetBasicInstantMessagingIrcImpl
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger
-        .getLogger(OperationSetBasicInstantMessagingIrcImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetBasicInstantMessagingIrcImpl.class);
 
     /**
      * IRC protocol provider service.
@@ -95,7 +94,7 @@ public class OperationSetBasicInstantMessagingIrcImpl
     {
         if (!(original instanceof MessageIrcImpl))
         {
-            LOGGER.error("Invalid class of Message implementation received. "
+            logger.error("Invalid class of Message implementation received. "
                 + "Not sending message.");
             return;
         }
@@ -117,7 +116,7 @@ public class OperationSetBasicInstantMessagingIrcImpl
 
         if (msgDeliveryPendingEvts.length == 0)
         {
-            LOGGER.warn("Message transformation result does not contain a "
+            logger.warn("Message transformation result does not contain a "
                 + "single message. Nothing to send.");
             return;
         }
@@ -156,7 +155,7 @@ public class OperationSetBasicInstantMessagingIrcImpl
                         }
                         catch (BadCommandException e)
                         {
-                            LOGGER.error("Error during command execution. "
+                            logger.error("Error during command execution. "
                                 + "This is most likely due to a bug in the "
                                 + "implementation of the command.", e);
                             fireMessageDeliveryFailed(message, to,
@@ -195,7 +194,7 @@ public class OperationSetBasicInstantMessagingIrcImpl
                 }
                 catch (RuntimeException e)
                 {
-                    LOGGER.debug("Failed to deliver (raw) message: " + message);
+                    logger.debug("Failed to deliver (raw) message: " + message);
                     throw e;
                 }
             }
@@ -209,7 +208,7 @@ public class OperationSetBasicInstantMessagingIrcImpl
         }
         catch (RuntimeException e)
         {
-            LOGGER.warn("Failed to deliver message: " + original, e);
+            logger.warn("Failed to deliver message: " + original, e);
             fireMessageDeliveryFailed(original, to,
                 MessageDeliveryFailedEvent.NETWORK_FAILURE);
         }

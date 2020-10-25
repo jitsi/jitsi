@@ -34,8 +34,7 @@ public class Youtube
     /**
      * The logger for this class.
      */
-    private static final Logger logger =
-        Logger.getLogger(Youtube.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Youtube.class);
 
     /**
      * The regex used to match the link in the message.
@@ -77,7 +76,7 @@ public class Youtube
             = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
         Matcher matcher = compiledPattern.matcher(sourceString);
         String thumbUrl = sourceString;
-        
+
         while (matcher.find())
         {
             String videoID = "";

@@ -36,8 +36,7 @@ public class MDNSProvisioningDiscover
     /**
      * Logger.
      */
-    private final Logger logger
-        = Logger.getLogger(MDNSProvisioningDiscover.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MDNSProvisioningDiscover.class);
 
     /**
      * MDNS timeout (in milliseconds).

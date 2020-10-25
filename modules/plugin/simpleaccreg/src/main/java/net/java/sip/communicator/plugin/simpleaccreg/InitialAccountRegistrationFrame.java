@@ -58,8 +58,7 @@ public class InitialAccountRegistrationFrame
      * The <tt>Logger</tt> used by this <tt>InitialAccountRegistrationFrame</tt>
      * for logging output.
      */
-    private final Logger logger
-        = Logger.getLogger(InitialAccountRegistrationFrame.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(InitialAccountRegistrationFrame.class);
 
     private final TransparentPanel mainAccountsPanel
         = new TransparentPanel(new BorderLayout(10, 10));

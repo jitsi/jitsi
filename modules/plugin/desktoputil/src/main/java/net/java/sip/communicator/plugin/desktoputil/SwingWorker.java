@@ -47,7 +47,7 @@ import net.java.sip.communicator.util.*;
 public abstract class SwingWorker
 {
     /** Logging instance for SwingWorker */
-    private final static Logger logger = Logger.getLogger(SwingWorker.class);
+    private final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SwingWorker.class);
 
     /**
      * The <tt>ExecutorService</tt> which is shared by the <tt>SwingWorker</tt>

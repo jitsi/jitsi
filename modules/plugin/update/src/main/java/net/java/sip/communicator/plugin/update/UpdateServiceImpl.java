@@ -31,8 +31,6 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.FileUtils;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.httputil.*;
-import net.java.sip.communicator.util.Logger;
-
 import net.java.sip.communicator.util.osgi.ServiceUtils;
 import org.jitsi.service.resources.*;
 import org.jitsi.utils.version.*;
@@ -82,8 +80,7 @@ public class UpdateServiceImpl
      * The <tt>Logger</tt> used by the <tt>UpdateServiceImpl</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(UpdateServiceImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateServiceImpl.class);
 
     /**
      * The name of the property which specifies the update link in the
@@ -113,7 +110,7 @@ public class UpdateServiceImpl
 
         scrollPane.setViewportView(editorPane);
 
-        // Navigate the user interface to the specified URL. 
+        // Navigate the user interface to the specified URL.
         try
         {
             Document document = editorPane.getDocument();
@@ -327,7 +324,7 @@ public class UpdateServiceImpl
      *
      * @param notifyAboutNewestVersion <tt>true</tt> to notify the user in case
      * she is running the newest/latest version available already; otherwise,
-     * <tt>false</tt> 
+     * <tt>false</tt>
      */
     private static void runInCheckForUpdatesThread(
             boolean notifyAboutNewestVersion)

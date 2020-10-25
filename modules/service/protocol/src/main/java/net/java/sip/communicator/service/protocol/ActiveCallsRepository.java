@@ -40,8 +40,7 @@ public abstract class ActiveCallsRepository<T extends Call,
      * The <tt>Logger</tt> used by the <tt>ActiveCallsRepository</tt>
      * class and its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(ActiveCallsRepository.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ActiveCallsRepository.class);
 
     /**
      * A table mapping call ids against call instances.

@@ -61,8 +61,7 @@ public abstract class MediaAwareCallPeer
      * The <tt>Logger</tt> used by the <tt>MediaAwareCallPeer</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(MediaAwareCallPeer.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MediaAwareCallPeer.class);
 
     /**
      * The call this peer belongs to.
@@ -493,7 +492,7 @@ public abstract class MediaAwareCallPeer
             mediaHandler.setCsrcAudioLevelListener(this);
         }
     }
-    
+
     /**
      * Dummy implementation of {@link CallPeerConferenceListener
      * #conferenceMemberErrorReceived(CallPeerConferenceEvent)}.

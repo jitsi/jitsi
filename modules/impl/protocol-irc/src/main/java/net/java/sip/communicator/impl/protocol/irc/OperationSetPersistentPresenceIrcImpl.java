@@ -36,8 +36,7 @@ public class OperationSetPersistentPresenceIrcImpl
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger
-        .getLogger(OperationSetPersistentPresenceIrcImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetPersistentPresenceIrcImpl.class);
 
     /**
      * Root contact group for IRC contacts.
@@ -201,7 +200,7 @@ public class OperationSetPersistentPresenceIrcImpl
         }
         catch (RuntimeException e)
         {
-            LOGGER.debug("Failed to subscribe to contact.", e);
+            logger.debug("Failed to subscribe to contact.", e);
             fireSubscriptionEvent(newContact, contactGroup,
                 SubscriptionEvent.SUBSCRIPTION_FAILED);
         }
@@ -244,7 +243,7 @@ public class OperationSetPersistentPresenceIrcImpl
         }
         catch (RuntimeException e)
         {
-            LOGGER.debug("Failed to unsubscribe from contact.", e);
+            logger.debug("Failed to unsubscribe from contact.", e);
             fireSubscriptionEvent(ircContact, parentGroup,
                 SubscriptionEvent.SUBSCRIPTION_FAILED);
         }
@@ -262,7 +261,7 @@ public class OperationSetPersistentPresenceIrcImpl
     public void createServerStoredContactGroup(final ContactGroup parent,
         final String groupName) throws OperationFailedException
     {
-        LOGGER.trace("createServerStoredContactGroup(...) called");
+        logger.trace("createServerStoredContactGroup(...) called");
         if (!(parent instanceof ContactGroupIrcImpl))
         {
             throw new IllegalArgumentException(
@@ -291,7 +290,7 @@ public class OperationSetPersistentPresenceIrcImpl
     public void removeServerStoredContactGroup(final ContactGroup group)
         throws OperationFailedException
     {
-        LOGGER.trace("removeServerStoredContactGroup called");
+        logger.trace("removeServerStoredContactGroup called");
         if (!(group instanceof ContactGroupIrcImpl))
         {
             throw new IllegalArgumentException(
@@ -314,7 +313,7 @@ public class OperationSetPersistentPresenceIrcImpl
     public void renameServerStoredContactGroup(final ContactGroup group,
         final String newName)
     {
-        LOGGER.trace("renameServerStoredContactGroup called");
+        logger.trace("renameServerStoredContactGroup called");
         ((ContactGroupIrcImpl) group).setGroupName(newName);
     }
 
@@ -329,7 +328,7 @@ public class OperationSetPersistentPresenceIrcImpl
     public void moveContactToGroup(final Contact contactToMove,
         final ContactGroup newParent) throws OperationFailedException
     {
-        LOGGER.trace("moveContactToGroup called");
+        logger.trace("moveContactToGroup called");
         if (!(contactToMove instanceof ContactIrcImpl))
         {
             throw new IllegalArgumentException(
@@ -620,7 +619,7 @@ public class OperationSetPersistentPresenceIrcImpl
         if (contact == null)
         {
             contact = createVolatileContact(id);
-            LOGGER.debug("No existing contact found. Created volatile contact"
+            logger.debug("No existing contact found. Created volatile contact"
                 + " for nick name '" + id + "'.");
         }
         return contact;
@@ -635,12 +634,12 @@ public class OperationSetPersistentPresenceIrcImpl
     void updateNickContactPresence(final String nick,
         final PresenceStatus newStatus)
     {
-        LOGGER.trace("Received presence update for nick '" + nick
+        logger.trace("Received presence update for nick '" + nick
             + "', status: " + newStatus.getStatus());
         final Contact contact = findContactByID(nick);
         if (contact == null)
         {
-            LOGGER.trace("null contact instance found: presence will not be "
+            logger.trace("null contact instance found: presence will not be "
                 + "processed.");
             return;
         }

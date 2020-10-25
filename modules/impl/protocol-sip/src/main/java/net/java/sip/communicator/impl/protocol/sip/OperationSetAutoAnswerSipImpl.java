@@ -29,8 +29,6 @@ import javax.sip.message.*;
 
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.Logger;
-
 import org.apache.commons.lang3.StringUtils;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.utils.*;
@@ -52,8 +50,7 @@ public class OperationSetAutoAnswerSipImpl
     /**
      * Our class logger.
      */
-    private static final Logger logger =
-        Logger.getLogger(OperationSetBasicTelephonySipImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetBasicTelephonySipImpl.class);
 
     /**
      * Should we answer on existence of some header and/or name.

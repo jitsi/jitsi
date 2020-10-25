@@ -49,8 +49,7 @@ public class AdvancedConfigurationPanel
      * The <tt>Logger</tt> used by this <tt>AdvancedConfigurationPanel</tt> for
      * logging output.
      */
-    private final Logger logger
-        = Logger.getLogger(AdvancedConfigurationPanel.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AdvancedConfigurationPanel.class);
 
     /**
      * The configuration list.

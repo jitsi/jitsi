@@ -49,8 +49,7 @@ public class GeneralConfigPluginActivator
     /**
      * The logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(GeneralConfigPluginActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GeneralConfigPluginActivator.class);
 
     /**
      * The configuration service.
@@ -387,7 +386,7 @@ public class GeneralConfigPluginActivator
         }
         catch (InvalidSyntaxException ex)
         {
-            logger.error(ex);
+            logger.error("Invalid OSGi filter", ex);
         }
 
         if (serRefs == null || serRefs[0] == null)
@@ -422,7 +421,7 @@ public class GeneralConfigPluginActivator
                 ResourceManagementService.class);
         return resourceService;
     }
-    
+
     /**
      * Gets the service giving access to message history.
      *
@@ -431,7 +430,7 @@ public class GeneralConfigPluginActivator
     public static MessageHistoryService getMessageHistoryService()
     {
         if (messageHistoryService == null)
-            messageHistoryService = ServiceUtils.getService(bundleContext, 
+            messageHistoryService = ServiceUtils.getService(bundleContext,
                 MessageHistoryService.class);
         return messageHistoryService;
     }

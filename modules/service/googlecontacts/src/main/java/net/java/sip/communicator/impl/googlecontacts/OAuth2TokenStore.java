@@ -59,8 +59,7 @@ public class OAuth2TokenStore
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger
-        .getLogger(OAuth2TokenStore.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OAuth2TokenStore.class);
 
     /**
      * Symbol for refresh token in token server response.
@@ -136,10 +135,10 @@ public class OAuth2TokenStore
      * Get the credential from the store. In case a credential does not (yet)
      * exist, acquire one preferrably from the password store. Optionally,
      * involve the user if a credential is not yet stored.
-     * 
+     *
      * @param identity The identity of the API token.
      * @return Returns the credential.
-     * @throws FailedAcquireCredentialException 
+     * @throws FailedAcquireCredentialException
      * @throws MalformedURLException In case requesting authn token failed.
      */
     public synchronized Credential get(final String identity)
@@ -174,15 +173,15 @@ public class OAuth2TokenStore
      * @param identity the identity to which the refresh token belongs
      * @return Acquires and returns the credential instance.
      * @throws URISyntaxException In case of bad redirect URI.
-     * @throws IOException 
-     * @throws ClientProtocolException 
+     * @throws IOException
+     * @throws ClientProtocolException
      */
     private static void acquireCredential(
         final AtomicReference<Credential> store, final String identity)
         throws URISyntaxException, ClientProtocolException, IOException
     {
         final TokenData token;
-        LOGGER.info("No credentials available yet. Requesting user to "
+        logger.info("No credentials available yet. Requesting user to "
             + "approve access to Contacts API for identity " + identity
             + " using URL: " + APPROVAL_URL);
         // Synchronize on OAuth approval dialog CLASS, to ensure that only
@@ -273,14 +272,14 @@ public class OAuth2TokenStore
         }
         if (!credential.refreshToken())
         {
-            LOGGER.warn("Refresh of OAuth2 authentication token failed.");
+            logger.warn("Refresh of OAuth2 authentication token failed.");
             throw new FailedTokenRefreshException();
         }
     }
 
     /**
      * Create credential instance suitable for use in Google Contacts API.
-     * 
+     *
      * @param store reference to the credential store for updating credential
      *            data upon refreshing and other cases
      * @param approvalCode the approval code received from Google by the user
@@ -313,16 +312,16 @@ public class OAuth2TokenStore
                         (RefreshTokenRequest) data;
                     content.put("client_id", GOOGLE_API_CLIENT_ID);
                     content.put("client_secret", GOOGLE_API_CLIENT_SECRET);
-                    LOGGER.info("Inserting client authentication data into "
+                    logger.info("Inserting client authentication data into "
                         + "refresh token request.");
-                    if (LOGGER.isDebugEnabled())
+                    if (logger.isDebugEnabled())
                     {
-                        LOGGER.debug("Request: " + content.toString());
+                        logger.debug("Request: " + content.toString());
                     }
                 }
                 else
                 {
-                    LOGGER.debug("Unexpected type of request found.");
+                    logger.debug("Unexpected type of request found.");
                 }
             }
         });
@@ -333,7 +332,7 @@ public class OAuth2TokenStore
             public void onTokenResponse(Credential credential,
                 TokenResponse tokenResponse) throws IOException
             {
-                LOGGER.debug("Successful token refresh response: "
+                logger.debug("Successful token refresh response: "
                     + tokenResponse.toPrettyString());
                 store.set(credential);
             }
@@ -342,12 +341,12 @@ public class OAuth2TokenStore
             public void onTokenErrorResponse(Credential credential,
                 TokenErrorResponse tokenErrorResponse) throws IOException
             {
-                if (LOGGER.isDebugEnabled())
+                if (logger.isDebugEnabled())
                 {
-                    LOGGER.debug("Failed token refresh response: "
+                    logger.debug("Failed token refresh response: "
                         + tokenErrorResponse.toPrettyString());
                 }
-                LOGGER.error("Failed to refresh OAuth2 token: "
+                logger.error("Failed to refresh OAuth2 token: "
                     + tokenErrorResponse.getError() + ": "
                     + tokenErrorResponse.getErrorDescription());
             }
@@ -362,7 +361,7 @@ public class OAuth2TokenStore
     /**
      * Request an authentication token using the approval code received from the
      * user.
-     * 
+     *
      * @param approvalCode the approval code
      * @return Returns the acquired token data from OAuth 2 token server.
      * @throws IOException
@@ -481,7 +480,7 @@ public class OAuth2TokenStore
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
-                    LOGGER.info("Requesting user for approval via web page: "
+                    logger.info("Requesting user for approval via web page: "
                         + APPROVAL_URL);
                     GoogleContactsActivator.getBrowserLauncherService()
                         .openURL(APPROVAL_URL);
@@ -616,7 +615,7 @@ public class OAuth2TokenStore
     /**
      * Exception for error case where we failed to acquire initial credential
      * for OAuth 2 authentication and authorization.
-     * 
+     *
      * @author Danny van Heumen
      */
     public static class FailedAcquireCredentialException
@@ -633,7 +632,7 @@ public class OAuth2TokenStore
     /**
      * Exception for error case where we failed to refresh the OAuth 2 authn
      * token.
-     * 
+     *
      * @author Danny van Heumen
      */
     public static class FailedTokenRefreshException

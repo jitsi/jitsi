@@ -41,8 +41,7 @@ class WatchPresenceWatcher
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger
-        .getLogger(WatchPresenceWatcher.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(WatchPresenceWatcher.class);
 
     /**
      * IRCApi instance.
@@ -93,7 +92,7 @@ class WatchPresenceWatcher
         this.nickWatchList = nickWatchList;
         this.irc.addListener(new WatchReplyListener(monitored, operationSet));
         setUpWatch(this.irc, this.nickWatchList, maxListSize);
-        LOGGER.debug("WATCH presence watcher initialized.");
+        logger.debug("WATCH presence watcher initialized.");
     }
 
     /**
@@ -141,7 +140,7 @@ class WatchPresenceWatcher
     @Override
     public void add(final String nick)
     {
-        LOGGER.trace("Adding nick '" + nick + "' to WATCH watch list.");
+        logger.trace("Adding nick '" + nick + "' to WATCH watch list.");
         this.nickWatchList.add(nick);
         this.irc.rawMessage("WATCH +" + nick);
     }
@@ -149,7 +148,7 @@ class WatchPresenceWatcher
     @Override
     public void remove(final String nick)
     {
-        LOGGER.trace("Removing nick '" + nick + "' from WATCH watch list.");
+        logger.trace("Removing nick '" + nick + "' from WATCH watch list.");
         this.nickWatchList.remove(nick);
         this.irc.rawMessage("WATCH -" + nick);
     }
@@ -273,7 +272,7 @@ class WatchPresenceWatcher
                 monitoredNickList.remove(nick);
                 break;
             case IRC_ERR_LISTFULL:
-                LOGGER.debug("WATCH list is full. Nick was not added. "
+                logger.debug("WATCH list is full. Nick was not added. "
                     + "Fall back Basic Poller will be used if it is enabled. ("
                     + msg.getText() + ")");
                 break;

@@ -55,8 +55,7 @@ class KeybindingsServiceImpl
      * <tt>KeybindingsServiceImpl</tt> class and its instances for logging
      * output.
      */
-    private static final Logger logger =
-        Logger.getLogger(KeybindingsServiceImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeybindingsServiceImpl.class);
 
     /**
      * Name of the directory that holds custom bindings.

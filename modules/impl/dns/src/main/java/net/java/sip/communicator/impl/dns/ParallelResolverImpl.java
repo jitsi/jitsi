@@ -56,8 +56,7 @@ public class ParallelResolverImpl
      * The <tt>Logger</tt> used by the <tt>ParallelResolver</tt>
      * class and its instances for logging output.
      */
-    private static final Logger logger = Logger
-                    .getLogger(ParallelResolverImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ParallelResolverImpl.class);
 
     /**
      * Indicates whether we are currently in a mode where all DNS queries are
@@ -153,7 +152,8 @@ public class ParallelResolverImpl
             catch (UnknownHostException e)
             {
                 // this shouldn't happen, but log anyway
-                logger.error(e);
+                logger.error("Could not get an address for resolver {}",
+                    customResolverIP, e);
             }
         }
 

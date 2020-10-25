@@ -30,7 +30,7 @@ import org.osgi.framework.*;
  * @author Alexander Pelov
  */
 public class HistoryServiceLick extends TestSuite implements BundleActivator {
-    private static Logger logger = Logger.getLogger(HistoryServiceLick.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HistoryServiceLick.class);
 
     protected static BundleContext bc = null;
 

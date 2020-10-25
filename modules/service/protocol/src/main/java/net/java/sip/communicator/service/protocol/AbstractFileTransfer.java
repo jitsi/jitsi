@@ -34,8 +34,7 @@ import net.java.sip.communicator.util.*;
 public abstract class AbstractFileTransfer
     implements FileTransfer
 {
-    private static final Logger logger =
-        Logger.getLogger(AbstractFileTransfer.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AbstractFileTransfer.class);
 
     /**
      * A list of listeners registered for file transfer status events.

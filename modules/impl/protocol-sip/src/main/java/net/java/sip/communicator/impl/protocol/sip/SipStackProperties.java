@@ -24,8 +24,6 @@ import java.util.logging.*;
 import javax.net.ssl.*;
 
 import net.java.sip.communicator.impl.protocol.sip.net.*;
-import net.java.sip.communicator.util.Logger;
-
 import org.apache.commons.lang3.StringUtils;
 import org.jitsi.util.*;
 import org.jitsi.utils.*;
@@ -41,8 +39,7 @@ public class SipStackProperties
 {
     private static final long serialVersionUID = 0L;
 
-    private static final Logger logger
-        = Logger.getLogger(SipStackProperties.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SipStackProperties.class);
 
     /**
      * The name of the property under which the jain-sip-ri would expect to find

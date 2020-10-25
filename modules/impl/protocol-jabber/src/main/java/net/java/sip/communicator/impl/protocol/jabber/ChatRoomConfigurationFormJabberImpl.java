@@ -38,8 +38,7 @@ public class ChatRoomConfigurationFormJabberImpl
     /**
      * The logger of this class.
      */
-    private Logger logger
-        = Logger.getLogger(ChatRoomConfigurationFormJabberImpl.class);
+    private org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ChatRoomConfigurationFormJabberImpl.class);
 
     /**
      * The smack chat room configuration form.

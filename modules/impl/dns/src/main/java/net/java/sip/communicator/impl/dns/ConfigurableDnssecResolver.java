@@ -28,7 +28,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.service.dns.*;
 import net.java.sip.communicator.service.notification.*;
-import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.plugin.desktoputil.*;
 
 import org.apache.commons.lang3.StringUtils;
@@ -48,8 +47,7 @@ public class ConfigurableDnssecResolver
     extends ValidatingResolver
     implements CustomResolver
 {
-    private final static Logger logger
-        = Logger.getLogger(ConfigurableDnssecResolver.class);
+    private final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConfigurableDnssecResolver.class);
 
     /**
      * Name of the property that defines the default DNSSEC validation

@@ -25,8 +25,6 @@ import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.shutdown.*;
 import net.java.sip.communicator.service.systray.*;
-import net.java.sip.communicator.util.Logger;
-
 import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
@@ -55,8 +53,7 @@ public class OsDependentActivator
      * The <tt>Logger</tt> used by the <tt>OsDependentActivator</tt> class and
      * its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(OsDependentActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OsDependentActivator.class);
 
     private static ResourceManagementService resourcesService;
 
@@ -167,46 +164,36 @@ public class OsDependentActivator
     {
         bundleContext = bc;
 
-        try
-        {
-            // Adds a MacOSX specific dock icon listener in order to show main
-            // contact list window on dock icon click.
-            if (OSUtils.IS_MAC)
-                MacOSXDockIcon.addDockIconListener();
+        // Adds a MacOSX specific dock icon listener in order to show main
+        // contact list window on dock icon click.
+        if (OSUtils.IS_MAC)
+            MacOSXDockIcon.addDockIconListener();
 
-            // Create the notification service implementation
-            SystrayService systrayService = new SystrayServiceJdicImpl();
+        // Create the notification service implementation
+        SystrayService systrayService = new SystrayServiceJdicImpl();
 
-            if (logger.isInfoEnabled())
-                logger.info("Systray Service...[  STARTED ]");
+        if (logger.isInfoEnabled())
+            logger.info("Systray Service...[  STARTED ]");
 
-            bundleContext.registerService(
-                    SystrayService.class.getName(),
-                    systrayService,
-                    null);
+        bundleContext.registerService(
+                SystrayService.class.getName(),
+                systrayService,
+                null);
 
-            if (logger.isInfoEnabled())
-                logger.info("Systray Service ...[REGISTERED]");
+        if (logger.isInfoEnabled())
+            logger.info("Systray Service ...[REGISTERED]");
 
-            // Create the desktop service implementation
-            DesktopService desktopService = new DesktopServiceImpl();
+        // Create the desktop service implementation
+        DesktopService desktopService = new DesktopServiceImpl();
 
-            if (logger.isInfoEnabled())
-                logger.info("Desktop Service...[  STARTED ]");
+        if (logger.isInfoEnabled())
+            logger.info("Desktop Service...[  STARTED ]");
 
-            bundleContext.registerService(
-                    DesktopService.class.getName(),
-                    desktopService,
-                    null);
+        bundleContext.registerService(
+                DesktopService.class.getName(),
+                desktopService,
+                null);
 
-            if (logger.isInfoEnabled())
-                logger.info("Desktop Service ...[REGISTERED]");
-
-            logger.logEntry();
-        }
-        finally
-        {
-            logger.logExit();
-        }
+        logger.info("Desktop Service ...[REGISTERED]");
     }
 }

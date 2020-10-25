@@ -40,8 +40,7 @@ public class ActiveCallsRepositorySipImpl
     /**
      * Our class logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(ActiveCallsRepositorySipImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ActiveCallsRepositorySipImpl.class);
 
     /**
      * Creates a new instance of this repository.

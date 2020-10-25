@@ -41,8 +41,7 @@ class MonitorPresenceWatcher
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger
-        .getLogger(MonitorPresenceWatcher.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MonitorPresenceWatcher.class);
 
     /**
      * IRCApi instance.
@@ -108,7 +107,7 @@ class MonitorPresenceWatcher
         this.irc.addListener(new MonitorReplyListener(this.monitoredList,
             operationSet));
         setUpMonitor(this.irc, this.nickWatchList, maxListSize);
-        LOGGER.debug("MONITOR presence watcher initialized.");
+        logger.debug("MONITOR presence watcher initialized.");
     }
 
     /**
@@ -156,7 +155,7 @@ class MonitorPresenceWatcher
     @Override
     public void add(final String nick)
     {
-        LOGGER.trace("Adding nick '" + nick + "' to MONITOR watch list.");
+        logger.trace("Adding nick '" + nick + "' to MONITOR watch list.");
         this.nickWatchList.add(nick);
         this.irc.rawMessage("MONITOR + " + nick);
     }
@@ -164,7 +163,7 @@ class MonitorPresenceWatcher
     @Override
     public void remove(final String nick)
     {
-        LOGGER.trace("Removing nick '" + nick + "' from MONITOR watch list.");
+        logger.trace("Removing nick '" + nick + "' from MONITOR watch list.");
         this.nickWatchList.remove(nick);
         this.irc.rawMessage("MONITOR - " + nick);
         // 'MONITOR - nick' command does not send confirmation, so immediately
@@ -270,7 +269,7 @@ class MonitorPresenceWatcher
                 monitoredNickList.addAll(acknowledged);
                 break;
             case IRC_ERR_MONLISTFULL:
-                LOGGER.debug("MONITOR list full. Nick was not added. "
+                logger.debug("MONITOR list full. Nick was not added. "
                     + "Fall back Basic Poller will be used if it is enabled. ("
                     + msg.getText() + ")");
                 break;

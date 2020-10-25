@@ -47,8 +47,7 @@ public class AccountRegWizardContainerImpl
     implements  WizardContainer,
                 ServiceListener
 {
-    private static final Logger logger =
-        Logger.getLogger(AccountRegWizardContainerImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AccountRegWizardContainerImpl.class);
 
     private final AccountRegSummaryPage summaryPage;
 

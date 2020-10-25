@@ -21,8 +21,6 @@ import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.FileUtils;
 import net.java.sip.communicator.service.browserlauncher.*;
-import net.java.sip.communicator.util.Logger;
-
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
@@ -50,8 +48,7 @@ public class OpenH264Retriever
      * The <tt>Logger</tt> used by the <tt>OpenH264Retriever</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(OpenH264Retriever.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OpenH264Retriever.class);
 
     /**
      * The current version.

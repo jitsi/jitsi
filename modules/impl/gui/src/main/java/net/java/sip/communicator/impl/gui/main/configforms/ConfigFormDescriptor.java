@@ -34,7 +34,7 @@ import net.java.sip.communicator.util.*;
  */
 public class ConfigFormDescriptor
 {
-    private final Logger logger = Logger.getLogger(ConfigFormDescriptor.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConfigFormDescriptor.class);
 
     private final ConfigurationForm configForm;
 

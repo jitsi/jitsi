@@ -38,8 +38,7 @@ public class OperationSetDTMFSipImpl
     /**
      * Our class logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(OperationSetDTMFSipImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetDTMFSipImpl.class);
 
     /**
      * DTMF mode sending DTMF as sip info.

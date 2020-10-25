@@ -34,8 +34,7 @@ public class GlobalStatusMessageMenu
     /**
      * Our logger.
      */
-    private final static Logger logger
-        = Logger.getLogger(GlobalStatusMessageMenu.class);
+    private final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GlobalStatusMessageMenu.class);
 
     /**
      * Creates an instance of <tt>GlobalStatusMessageMenu</tt>.

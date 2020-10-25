@@ -42,7 +42,7 @@ public class ManageButtonsPanel
      */
     private static final long serialVersionUID = 0L;
 
-    private Logger logger = Logger.getLogger(ManageButtonsPanel.class);
+    private org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ManageButtonsPanel.class);
 
     /**
      * The deactivate skin button.

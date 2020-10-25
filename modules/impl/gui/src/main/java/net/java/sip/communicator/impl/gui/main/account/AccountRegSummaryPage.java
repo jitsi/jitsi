@@ -38,7 +38,7 @@ public class AccountRegSummaryPage
     extends SIPCommScrollPane
     implements WizardPage
 {
-    private final Logger logger = Logger.getLogger(AccountRegSummaryPage.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AccountRegSummaryPage.class);
 
     private final JPanel keysPanel
         = new TransparentPanel(new GridLayout(0, 1, 10, 10));

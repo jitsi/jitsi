@@ -39,8 +39,7 @@ public abstract class AbstractIrcMessageListener
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger
-        .getLogger(AbstractIrcMessageListener.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AbstractIrcMessageListener.class);
 
     /**
      * IRC client library instance.
@@ -89,7 +88,7 @@ public abstract class AbstractIrcMessageListener
             return;
         }
         // User is local user. Remove listener.
-        LOGGER.debug("Local user's QUIT message received: removing "
+        logger.debug("Local user's QUIT message received: removing "
             + this.getClass().getCanonicalName());
         this.irc.deleteListener(this);
     }
@@ -104,7 +103,7 @@ public abstract class AbstractIrcMessageListener
     {
         // Errors signal fatal situation, so assume connection is lost and
         // unregister.
-        LOGGER.debug("Local user received ERROR message: removing "
+        logger.debug("Local user received ERROR message: removing "
             + this.getClass().getCanonicalName());
         this.irc.deleteListener(this);
     }
@@ -120,7 +119,7 @@ public abstract class AbstractIrcMessageListener
     {
         // Errors signal fatal situation, so assume connection is lost and
         // unregister.
-        LOGGER.debug("Local user received ERROR message: removing "
+        logger.debug("Local user received ERROR message: removing "
             + this.getClass().getCanonicalName());
         this.irc.deleteListener(this);
     }

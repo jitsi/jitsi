@@ -40,7 +40,7 @@ import net.java.sip.communicator.util.*;
  */
 public class Constants
 {
-    private static final Logger logger = Logger.getLogger(Constants.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Constants.class);
 
     /*
      * ===================================================================

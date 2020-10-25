@@ -55,8 +55,7 @@ public class CallPeerSipImpl
     /**
      * Our class logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(CallPeerSipImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CallPeerSipImpl.class);
 
     /**
      * The sub-type of the content carried by SIP INFO <tt>Requests</tt> for the

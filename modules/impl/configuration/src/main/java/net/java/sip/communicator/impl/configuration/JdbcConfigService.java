@@ -27,7 +27,6 @@ import java.util.regex.*;
 import org.apache.commons.lang3.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.fileaccess.*;
-import org.jitsi.utils.logging.*;
 
 /**
  * Implementation of the {@link ConfigurationService} based on JDBC.
@@ -40,8 +39,7 @@ public final class JdbcConfigService
     /**
      * The <tt>Logger</tt> used by this class.
      */
-    private final Logger logger
-        = Logger.getLogger(JdbcConfigService.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JdbcConfigService.class);
 
     /**
      * Name of the file containing default properties.
@@ -347,7 +345,7 @@ public final class JdbcConfigService
         }
         catch (SQLException e)
         {
-            logger.error(e);
+            logger.error("SQL failure", e);
             throw new RuntimeException(e);
         }
 
@@ -408,7 +406,7 @@ public final class JdbcConfigService
         }
         catch (SQLException e)
         {
-            logger.error(e);
+            logger.error("SQL failure", e);
             throw new RuntimeException(e);
         }
 
@@ -770,7 +768,7 @@ public final class JdbcConfigService
         }
         catch (SQLException e)
         {
-            logger.error(e);
+            logger.error("SQL failure", e);
         }
         finally
         {
@@ -805,7 +803,7 @@ public final class JdbcConfigService
         }
         catch (SQLException e)
         {
-            logger.error(e);
+            logger.error("SQL failure", e);
             throw new RuntimeException(e);
         }
     }

@@ -51,8 +51,7 @@ public class OperationSetTypingNotificationsJabberImpl
     /**
      * The logger.
      */
-    private static final Logger logger =
-        Logger.getLogger(OperationSetTypingNotificationsJabberImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetTypingNotificationsJabberImpl.class);
 
     /**
      * An active instance of the opSetPersPresence operation set. We're using

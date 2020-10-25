@@ -50,8 +50,7 @@ public class JabberServerChooserDialog
      */
     private static final long serialVersionUID = 0L;
 
-    private static final Logger logger = Logger
-        .getLogger(JabberServerChooserDialog.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JabberServerChooserDialog.class);
 
     // Servers Table
     private JTable serversTable;

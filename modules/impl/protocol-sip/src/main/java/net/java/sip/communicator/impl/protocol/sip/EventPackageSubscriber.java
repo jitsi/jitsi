@@ -43,8 +43,7 @@ public class EventPackageSubscriber
     /**
      * Out class logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(EventPackageSubscriber.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(EventPackageSubscriber.class);
 
     /**
      * The number of seconds before a subscription managed by this instance

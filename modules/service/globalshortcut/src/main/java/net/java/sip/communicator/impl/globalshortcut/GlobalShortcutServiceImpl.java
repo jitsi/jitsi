@@ -23,8 +23,6 @@ import java.util.List;
 
 import net.java.sip.communicator.service.globalshortcut.*;
 import net.java.sip.communicator.service.keybindings.*;
-import net.java.sip.communicator.util.Logger;
-
 import org.jitsi.util.*;
 // disambiguation
 
@@ -42,7 +40,7 @@ public class GlobalShortcutServiceImpl
      * The <tt>Logger</tt> used by the <tt>GlobalShortcutServiceImpl</tt> class
      * and its instances for logging output.
      */
-    private static final Logger logger = Logger.getLogger(
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(
         GlobalShortcutServiceImpl.class);
 
     /**

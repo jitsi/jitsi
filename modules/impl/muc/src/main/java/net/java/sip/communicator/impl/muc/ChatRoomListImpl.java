@@ -39,7 +39,7 @@ public class ChatRoomListImpl
     /**
      * The logger.
      */
-    private static final Logger logger = Logger.getLogger(ChatRoomListImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ChatRoomListImpl.class);
 
     /**
      * The list containing all chat servers and rooms.
@@ -52,7 +52,7 @@ public class ChatRoomListImpl
      */
     private final List<ChatRoomProviderWrapperListener> providerChangeListeners
         = new ArrayList<ChatRoomProviderWrapperListener>();
-    
+
     /**
      * A list of all <tt>ChatRoomListChangeListener</tt>-s.
      */
@@ -60,7 +60,7 @@ public class ChatRoomListImpl
         = new Vector<ChatRoomListChangeListener>();
 
     /**
-     * Constructs and initializes new <tt>ChatRoomListImpl</tt> objects. Adds 
+     * Constructs and initializes new <tt>ChatRoomListImpl</tt> objects. Adds
      * the created object as service lister to the bundle context.
      */
     public ChatRoomListImpl()
@@ -68,7 +68,7 @@ public class ChatRoomListImpl
         loadList();
         MUCActivator.bundleContext.addServiceListener(this);
     }
-    
+
     /**
      * Initializes the list of chat rooms.
      */
@@ -133,7 +133,7 @@ public class ChatRoomListImpl
             listChangeListeners.remove(l);
         }
     }
-    
+
 
     /**
      * Notifies all interested listeners that a change in the chat room list
@@ -153,7 +153,7 @@ public class ChatRoomListImpl
             l.contentChanged(evt);
         }
     }
-    
+
     /**
      * Adds a chat server which is registered and all its existing chat rooms.
      *
@@ -295,7 +295,7 @@ public class ChatRoomListImpl
                 }
             }
         }
-        
+
         for(int i = 0; i < chatRoomProvider.countChatRooms(); i++)
         {
             ChatRoomWrapper wrapper = chatRoomProvider.getChatRoom(i);
@@ -307,7 +307,7 @@ public class ChatRoomListImpl
 
         // clears listeners added by the system chat room
         chatRoomProvider.getSystemRoomWrapper().removeListeners();
-        
+
         fireProviderWrapperRemoved(chatRoomProvider);
     }
 
@@ -334,7 +334,7 @@ public class ChatRoomListImpl
                 chatRoomWrapper.getChatRoomID(),
                 chatRoomWrapper.getChatRoomName());
         }
-        
+
         fireChatRoomListChangedEvent(
             chatRoomWrapper,
             ChatRoomListChangeEvent.CHAT_ROOM_ADDED);
@@ -361,7 +361,7 @@ public class ChatRoomListImpl
                 chatRoomWrapper.getChatRoomID(),
                 null,   // The new identifier.
                 null);   // The name of the chat room.
-            
+
             chatRoomWrapper.removeListeners();
             fireChatRoomListChangedEvent(
                 chatRoomWrapper,
@@ -418,9 +418,9 @@ public class ChatRoomListImpl
 
         return null;
     }
-    
+
     /**
-     * Returns the <tt>ChatRoomWrapper</tt> that correspond to the given id of 
+     * Returns the <tt>ChatRoomWrapper</tt> that correspond to the given id of
      * chat room and provider. If the list of chat rooms doesn't contain a
      * corresponding wrapper - returns null.
      *
@@ -441,7 +441,7 @@ public class ChatRoomListImpl
             ChatRoomWrapper systemRoomWrapper = provider.getSystemRoomWrapper();
             ChatRoom systemRoom = systemRoomWrapper.getChatRoom();
 
-            if ((systemRoom != null) 
+            if ((systemRoom != null)
                 && systemRoom.getIdentifier().equals(chatRoomID))
             {
                 return systemRoomWrapper;
@@ -450,7 +450,7 @@ public class ChatRoomListImpl
             {
                 ChatRoomWrapper chatRoomWrapper
                     = provider.findChatRoomWrapperForChatRoomID(chatRoomID);
-                
+
                 return chatRoomWrapper;
             }
         }

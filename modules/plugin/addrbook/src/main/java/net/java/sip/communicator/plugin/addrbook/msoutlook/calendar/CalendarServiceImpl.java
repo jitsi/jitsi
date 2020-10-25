@@ -230,8 +230,7 @@ public class CalendarServiceImpl implements CalendarService
      * The <tt>Logger</tt> used by the <tt>CalendarServiceImpl</tt>
      * class and its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(CalendarServiceImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CalendarServiceImpl.class);
 
     /**
      * A list with currently active <tt>CalendarItemTimerTask</tt>s
@@ -257,17 +256,17 @@ public class CalendarServiceImpl implements CalendarService
      */
     private InMeetingStatusPolicy inMeetingStatusPolicy
         = new InMeetingStatusPolicy();
-    
-    public ProviderPresenceStatusListener presenceStatusListener 
+
+    public ProviderPresenceStatusListener presenceStatusListener
         = new ProviderPresenceStatusListener()
         {
-            
+
             @Override
             public void providerStatusMessageChanged(PropertyChangeEvent evt)
             {
-                
+
             }
-            
+
             @Override
             public void providerStatusChanged(ProviderPresenceStatusChangeEvent evt)
             {
@@ -793,17 +792,17 @@ public class CalendarServiceImpl implements CalendarService
                     if (pps == null)
                         continue;
 
-                    handleProtocolProvider(pps, isInMeeting, 
+                    handleProtocolProvider(pps, isInMeeting,
                         onThePhoneStatusChanged, false);
                 }
             }
         }
 
         public void handleProtocolProvider(ProtocolProviderService pps,
-            Boolean isInMeeting, boolean onThePhoneStatusChanged, 
+            Boolean isInMeeting, boolean onThePhoneStatusChanged,
             boolean dontAddListeners)
         {
-            
+
             if(isInMeeting == null)
                 isInMeeting = isInMeeting();
 

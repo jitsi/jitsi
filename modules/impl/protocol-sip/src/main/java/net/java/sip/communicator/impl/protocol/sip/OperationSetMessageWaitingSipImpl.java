@@ -29,8 +29,6 @@ import javax.sip.message.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.Logger;
-
 import org.apache.commons.lang3.StringUtils;
 import org.jitsi.utils.*;
 
@@ -47,8 +45,7 @@ public class OperationSetMessageWaitingSipImpl
     /**
      * Our class logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(OperationSetMessageWaitingSipImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetMessageWaitingSipImpl.class);
 
     /**
      * The provider that created us.

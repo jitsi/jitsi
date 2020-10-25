@@ -60,7 +60,7 @@ public class HistorySelectorBox
     /**
      * The logger.
      */
-    private Logger logger = Logger.getLogger(HistorySelectorBox.class);
+    private org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HistorySelectorBox.class);
 
     /**
      * PopupMenu

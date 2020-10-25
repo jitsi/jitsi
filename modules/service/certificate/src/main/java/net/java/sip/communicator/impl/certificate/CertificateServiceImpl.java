@@ -82,8 +82,7 @@ public class CertificateServiceImpl
     // ------------------------------------------------------------------------
     // services
     // ------------------------------------------------------------------------
-    private static final Logger logger =
-        Logger.getLogger(CertificateServiceImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertificateServiceImpl.class);
 
     private final ResourceManagementService R =
         CertificateVerificationActivator.getResources();

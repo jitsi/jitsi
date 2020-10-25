@@ -59,8 +59,7 @@ public class OperationSetDesktopSharingServerJabberImpl
     /**
      * Our class logger.
      */
-    private static final Logger logger = Logger
-            .getLogger(OperationSetDesktopSharingServerJabberImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetDesktopSharingServerJabberImpl.class);
 
     /**
      * The <tt>CallPeerListener</tt> which listens to modifications in the

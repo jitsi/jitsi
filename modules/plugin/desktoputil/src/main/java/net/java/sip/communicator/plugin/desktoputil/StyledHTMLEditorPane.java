@@ -41,7 +41,7 @@ public class StyledHTMLEditorPane
     /**
      * The logger for this class.
      */
-    private final Logger logger = Logger.getLogger(StyledHTMLEditorPane.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(StyledHTMLEditorPane.class);
 
     /**
      * The editor kit of this editor pane.

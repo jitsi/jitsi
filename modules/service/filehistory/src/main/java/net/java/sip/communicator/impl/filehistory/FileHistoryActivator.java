@@ -35,8 +35,7 @@ public class FileHistoryActivator
      * The <tt>Logger</tt> instance used by the
      * <tt>FileHistoryActivator</tt> class and its instances for logging output.
      */
-    private static Logger logger
-        = Logger.getLogger(FileHistoryActivator.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(FileHistoryActivator.class);
 
     /**
      * A <tt>FileHistoryService</tt> service reference.
@@ -57,32 +56,21 @@ public class FileHistoryActivator
     @Override
     public void startWithServices(BundleContext bundleContext) throws Exception
     {
-        try{
+        HistoryService historyService = getService(HistoryService.class);
 
-            logger.logEntry();
+        //Create and start the file history service.
+        fileHistoryService = new FileHistoryServiceImpl();
+        // set the history service
+        fileHistoryService.setHistoryService(historyService);
 
-            HistoryService historyService = getService(HistoryService.class);
+        fileHistoryService.start(bundleContext);
 
-            //Create and start the file history service.
-            fileHistoryService = new FileHistoryServiceImpl();
-            // set the history service
-            fileHistoryService.setHistoryService(historyService);
+        bundleContext.registerService(
+                FileHistoryService.class.getName(),
+                fileHistoryService,
+                null);
 
-            fileHistoryService.start(bundleContext);
-
-            bundleContext.registerService(
-                    FileHistoryService.class.getName(),
-                    fileHistoryService,
-                    null);
-
-            if (logger.isInfoEnabled())
-                logger.info("File History Service ...[REGISTERED]");
-        }
-        finally
-        {
-            logger.logExit();
-        }
-
+        logger.info("File History Service ...[REGISTERED]");
     }
 
     /**

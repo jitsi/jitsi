@@ -31,7 +31,6 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.certificate.*;
-import net.java.sip.communicator.util.Logger;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jitsi.service.resources.*;
@@ -51,8 +50,7 @@ public class CertConfigEntryDialog
     // Fields and services
     // ------------------------------------------------------------------------
     private static final long serialVersionUID = 8361336563239745007L;
-    private static final Logger logger = Logger
-        .getLogger(CertConfigEntryDialog.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertConfigEntryDialog.class);
     private ResourceManagementService R = CertConfigActivator.R;
     private CertificateService cs = CertConfigActivator.getCertService();
     private CertificateConfigEntry entry;

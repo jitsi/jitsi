@@ -34,8 +34,7 @@ import org.osgi.framework.*;
 public class GibberishActivator
     implements BundleActivator
 {
-    private static final Logger logger
-        = Logger.getLogger(GibberishActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GibberishActivator.class);
 
     /**
      * A reference to the registration of our Gibberish protocol provider

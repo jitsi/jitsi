@@ -59,8 +59,7 @@ public class RFC5922Matcher
     }
 
     /** Our class logger. */
-    private static final Logger logger = Logger
-        .getLogger(CertificateMatcher.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CertificateMatcher.class);
 
     /*
      * (non-Javadoc)

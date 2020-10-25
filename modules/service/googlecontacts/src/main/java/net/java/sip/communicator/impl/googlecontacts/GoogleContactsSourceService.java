@@ -36,8 +36,7 @@ public class GoogleContactsSourceService
     /**
      * Logger.
      */
-    private static final Logger logger =
-        Logger.getLogger(GoogleContactsSourceService.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GoogleContactsSourceService.class);
 
     /**
      * The <tt>List</tt> of <tt>GoogleContactsQuery</tt> instances
@@ -164,7 +163,7 @@ public class GoogleContactsSourceService
 
     /**
      * Removes query from the list of queries.
-     * 
+     *
      * @param query the query that will be removed.
      */
     public synchronized void removeQuery(ContactQuery query)
@@ -172,7 +171,7 @@ public class GoogleContactsSourceService
         if (queries.remove(query))
             queries.notify();
     }
-    
+
     /**
      * Returns the Google Contacts connection.
      *

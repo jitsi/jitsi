@@ -49,8 +49,7 @@ public abstract class AbstractOperationSetBasicTelephony
      * <tt>AbstractOperationSetBasicTelephony</tt> class and its instances for
      * logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(AbstractOperationSetBasicTelephony.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AbstractOperationSetBasicTelephony.class);
 
     /**
      * A list of listeners registered for call events.

@@ -25,8 +25,7 @@ import net.java.sip.communicator.util.*;
 
 public class ContactListUtils
 {
-    private static final Logger logger
-        = Logger.getLogger(ContactListUtils.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ContactListUtils.class);
 
     public static void addContact(
                                 final ProtocolProviderService protocolProvider,
@@ -47,7 +46,7 @@ public class ContactListUtils
                 }
                 catch (MetaContactListException ex)
                 {
-                    logger.error(ex);
+                    logger.error("Could not create metacontact", ex);
                     ex.printStackTrace();
                     int errorCode = ex.getErrorCode();
 

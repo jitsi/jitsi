@@ -34,8 +34,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.Logger;
-
 import org.apache.commons.lang3.StringUtils;
 import org.jitsi.utils.*;
 import org.osgi.framework.*;
@@ -63,8 +61,7 @@ public class ConferenceChatManager
     /**
      * The object used for logging.
      */
-    private static final Logger logger
-        = Logger.getLogger(ConferenceChatManager.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConferenceChatManager.class);
 
     /**
      * Maps each history window to a <tt>ChatRoomWrapper</tt>.

@@ -575,7 +575,7 @@ public class ScOtrEngineImpl
     /**
      * The logger
      */
-    private final Logger logger = Logger.getLogger(ScOtrEngineImpl.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ScOtrEngineImpl.class);
 
     private final OtrEngineHost otrEngineHost = new ScOtrEngineHost();
 
@@ -682,7 +682,7 @@ public class ScOtrEngineImpl
                     // show info whether history is on or off
                     String otrAndHistoryMessage;
                     if(!OtrActivator.getMessageHistoryService()
-                        .isHistoryLoggingEnabled() || 
+                        .isHistoryLoggingEnabled() ||
                         !isHistoryLoggingEnabled(contact))
                     {
                         otrAndHistoryMessage =
@@ -915,7 +915,7 @@ public class ScOtrEngineImpl
     /**
      * Manages the scheduling of TimerTasks that are used to set Contact's
      * ScSessionStatus after a period of time.
-     * 
+     *
      * @author Marin Dzhigarov
      */
     private class ScSessionStatusScheduler
@@ -959,14 +959,14 @@ public class ScOtrEngineImpl
 
             if (!(service instanceof ProtocolProviderService))
                 return;
-    
+
             if (ev.getType() == ServiceEvent.UNREGISTERING)
             {
                 ProtocolProviderService provider
                     = (ProtocolProviderService) service;
-    
+
                 Iterator<OtrContact> i = tasks.keySet().iterator();
-    
+
                 while (i.hasNext())
                 {
                     OtrContact otrContact = i.next();

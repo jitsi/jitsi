@@ -35,8 +35,7 @@ import org.osgi.framework.*;
 public class ProtocolIconGibberishImpl
     implements ProtocolIcon
 {
-    private static Logger logger
-        = Logger.getLogger(ProtocolIconGibberishImpl.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProtocolIconGibberishImpl.class);
 
     private static ResourceManagementService resourcesService;
 

@@ -41,8 +41,7 @@ public class CredentialsStorageActivator
      * The <tt>Logger</tt> used by the <tt>CredentialsStorageActivator</tt>
      * class and its instances.
      */
-    private static final Logger logger
-        = Logger.getLogger(CredentialsStorageActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CredentialsStorageActivator.class);
 
     /**
      * Returns service to show master password input dialog.
@@ -108,7 +107,6 @@ public class CredentialsStorageActivator
      */
     public void stop(BundleContext bundleContext) throws Exception
     {
-        logger.logEntry();
         impl.stop();
         logger.info(
                 "The CredentialsStorageService stop method has been called.");

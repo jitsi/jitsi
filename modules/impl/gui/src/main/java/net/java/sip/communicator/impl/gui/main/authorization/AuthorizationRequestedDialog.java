@@ -42,8 +42,7 @@ public class AuthorizationRequestedDialog
     implements  ActionListener,
                 Skinnable
 {
-    private final Logger logger
-        = Logger.getLogger(AuthorizationRequestedDialog.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthorizationRequestedDialog.class);
 
     public static final int UNDEFINED_CODE = -2;
 

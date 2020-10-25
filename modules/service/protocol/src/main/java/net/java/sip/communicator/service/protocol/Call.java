@@ -43,7 +43,7 @@ public abstract class Call
     /**
      * Our class logger.
      */
-    private static final Logger logger = Logger.getLogger(Call.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Call.class);
 
     /**
      * The name of the <tt>Call</tt> property which represents its telephony

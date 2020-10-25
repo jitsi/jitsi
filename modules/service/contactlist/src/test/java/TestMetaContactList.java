@@ -59,8 +59,7 @@ public class TestMetaContactList
      */
     private String renamedGroupName = "RenamedContactGroup";
 
-    private static final Logger logger =
-        Logger.getLogger(TestMetaContactList.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestMetaContactList.class);
 
     /**
      * Creates a unit test with the specified name.

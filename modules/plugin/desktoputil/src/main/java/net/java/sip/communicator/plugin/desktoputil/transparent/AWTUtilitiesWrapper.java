@@ -28,8 +28,7 @@ import net.java.sip.communicator.util.*;
  */
 public class AWTUtilitiesWrapper
 {
-    private static final Logger logger
-        = Logger.getLogger(AWTUtilitiesWrapper.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AWTUtilitiesWrapper.class);
 
     private static Class<?> awtUtilitiesClass;
     private static Class<?> translucencyClass;

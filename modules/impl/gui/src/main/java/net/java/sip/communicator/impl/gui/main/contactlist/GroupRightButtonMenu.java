@@ -49,7 +49,7 @@ public class GroupRightButtonMenu
                 PluginComponentListener,
                 Skinnable
 {
-    private final Logger logger = Logger.getLogger(GroupRightButtonMenu.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GroupRightButtonMenu.class);
 
     private final JMenuItem addContactItem
         = new JMenuItem(GuiActivator.getResources().getI18NString(

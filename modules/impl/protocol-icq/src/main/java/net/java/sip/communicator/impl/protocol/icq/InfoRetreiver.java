@@ -32,8 +32,7 @@ import net.kano.joscar.snaccmd.icq.*;
  */
 public class InfoRetreiver
 {
-    private static final Logger logger =
-        Logger.getLogger(InfoRetreiver.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(InfoRetreiver.class);
 
     /**
      * A callback to the ICQ provider that created us.

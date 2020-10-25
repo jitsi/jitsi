@@ -43,8 +43,7 @@ public class PluginContainer
      * The <tt>Logger</tt> used by the <tt>PluginContainer</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(PluginContainer.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PluginContainer.class);
 
     /**
      * The <code>JComponent</code> which contains the components of the

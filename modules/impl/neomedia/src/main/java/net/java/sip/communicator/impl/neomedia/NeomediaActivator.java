@@ -384,7 +384,7 @@ public class NeomediaActivator extends DependentActivator
      * The <tt>Logger</tt> used by the <tt>NeomediaActivator</tt> class and its
      * instances for logging output.
      */
-    private final Logger logger = Logger.getLogger(NeomediaActivator.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NeomediaActivator.class);
 
     /**
      * Starts the execution of the neomedia bundle in the specified context.

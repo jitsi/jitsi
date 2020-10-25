@@ -45,8 +45,7 @@ public abstract class ProtocolProviderFactory
      * The <tt>Logger</tt> used by the <tt>ProtocolProviderFactory</tt> class
      * and its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(ProtocolProviderFactory.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProtocolProviderFactory.class);
 
     /**
      * Then name of a property which represents a password.
@@ -1322,7 +1321,7 @@ public abstract class ProtocolProviderFactory
         catch (InvalidSyntaxException ex)
         {
             serRefs = null;
-            logger.error(ex);
+            logger.error("Invalid OSGi service filter", ex);
         }
         if ((serRefs == null) || serRefs.isEmpty())
             return null;

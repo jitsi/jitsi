@@ -38,7 +38,7 @@ import org.osgi.framework.*;
 /**
  * AccountRightButtonMenu is the menu that opens when user right clicks on any
  * of his accounts in the account list section.
- * 
+ *
  * @author Marin Dzhigarov
  */
 public class AccountRightButtonMenu
@@ -55,8 +55,7 @@ public class AccountRightButtonMenu
     /**
      * The logger of this class.
      */
-    private final Logger logger
-        = Logger.getLogger(AccountRightButtonMenu.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AccountRightButtonMenu.class);
 
     /**
      * The Account that is clicked on.

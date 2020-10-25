@@ -23,8 +23,6 @@ import java.lang.reflect.*;
 import java.net.*;
 
 import net.java.sip.communicator.impl.osdependent.systemtray.SystemTray;
-import net.java.sip.communicator.util.Logger;
-
 /**
  * The <tt>Desktop</tt> class handles desktop operations through the default
  * desktop implementation.
@@ -33,7 +31,7 @@ import net.java.sip.communicator.util.Logger;
  */
 public class Desktop
 {
-    private static final Logger logger = Logger.getLogger(SystemTray.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SystemTray.class);
 
     private static Desktop defaultDesktop;
 

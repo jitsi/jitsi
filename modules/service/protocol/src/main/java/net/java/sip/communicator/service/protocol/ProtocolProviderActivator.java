@@ -41,8 +41,7 @@ public class ProtocolProviderActivator
     /**
      * The object used for logging.
      */
-    private final static Logger logger
-        = Logger.getLogger(ProtocolProviderActivator.class);
+    private final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProtocolProviderActivator.class);
 
     /**
      * The <code>ServiceRegistration</code> of the <code>AccountManager</code>

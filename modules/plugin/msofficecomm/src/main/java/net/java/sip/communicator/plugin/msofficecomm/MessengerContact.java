@@ -31,8 +31,7 @@ public class MessengerContact
      * The <tt>Logger</tt> used by the <tt>MessengerContact</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(MessengerContact.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MessengerContact.class);
 
     /**
      * The sign-in name associated with the native <tt>IMessengerContact</tt>

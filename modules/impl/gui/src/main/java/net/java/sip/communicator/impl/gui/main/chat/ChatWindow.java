@@ -35,7 +35,6 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
 
 import org.jitsi.util.*;
@@ -69,7 +68,7 @@ public class ChatWindow
      * The <tt>Logger</tt> used by the <tt>ChatWindow</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger = Logger.getLogger(ChatWindow.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ChatWindow.class);
 
     private ConversationTabbedPane chatTabbedPane = null;
 
@@ -755,7 +754,7 @@ public class ChatWindow
             }
         }
         else
-        {     
+        {
             if(ConfigurationUtils.isMultiChatWindowEnabled())
             {
                 GuiActivator
@@ -764,11 +763,11 @@ public class ChatWindow
             else
             {
                 ChatPanel chatPanel = getCurrentChat();
-    
+
                 if(chatPanel == null
                     || chatPanel.getChatConversationPanel() == null)
                     return;
-                
+
                 GuiActivator
                     .getUIService().getChatWindowManager().closeChat(chatPanel);
             }

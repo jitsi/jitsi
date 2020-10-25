@@ -71,8 +71,7 @@ class NotificationServiceImpl
     private final Map<String, NotificationHandler> handlers
         = new HashMap<String, NotificationHandler>();
 
-    private final Logger logger
-        = Logger.getLogger(NotificationServiceImpl.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NotificationServiceImpl.class);
 
     /**
      * Queue to cache fired notifications before all handlers are registered.

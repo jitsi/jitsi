@@ -32,8 +32,7 @@ import net.java.sip.communicator.util.*;
 public class GibberishStatusEnum
     extends PresenceStatus
 {
-    private static final Logger logger
-        = Logger.getLogger(GibberishStatusEnum.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GibberishStatusEnum.class);
 
     /**
      * Indicates an Offline status or status with 0 connectivity.

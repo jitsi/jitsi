@@ -45,8 +45,7 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      * The <tt>Logger</tt> used by the <tt>TransportManager</tt>
      * class and its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(TransportManager.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TransportManager.class);
 
     /**
      * The port tracker that we should use when binding generic media streams.

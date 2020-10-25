@@ -33,7 +33,7 @@ public class FileUtils
     /**
      * Logger.
      */
-    private static final Logger logger = Logger.getLogger(FileUtils.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(FileUtils.class);
 
     /**
      * Returns <code>true</code> if the file given by <tt>fileName</tt> is an

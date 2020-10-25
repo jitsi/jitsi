@@ -41,7 +41,7 @@ public class GroupNode
      * The <tt>Logger</tt> used by the <tt>GroupNode</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger = Logger.getLogger(GroupNode.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GroupNode.class);
 
     /**
      * The parent contact list model.
@@ -175,14 +175,14 @@ public class GroupNode
 
             if (contactNode == null)
                 return;
-        
+
             index = getIndex(contactNode);
         }
 
         // not found
         if(index == -1)
             return;
-        
+
         int selectedIndex = getLeadSelectionRow();
 
         // We remove the node directly from the list, thus skipping all
@@ -237,7 +237,7 @@ public class GroupNode
     public void removeContactGroup(UIGroupImpl uiGroup)
     {
         GroupNode groupNode;
-        
+
         synchronized (uiGroup)
         {
             groupNode = uiGroup.getGroupNode();
@@ -263,7 +263,7 @@ public class GroupNode
         {
             uiGroup.setGroupNode(null);
         }
-        
+
         fireNodeRemoved(groupNode, index);
 
         refreshSelection(selectedIndex, getLeadSelectionRow());
@@ -406,13 +406,13 @@ public class GroupNode
 
             if (treeNode instanceof ContactNode)
             {
-                UIContactImpl  contact 
+                UIContactImpl  contact
                     = ((ContactNode) treeNode).getContactDescriptor();
                 synchronized (contact)
                 {
                     contact.setContactNode(null);
                 }
-                    
+
             }
             else if (treeNode instanceof GroupNode)
             {
@@ -422,7 +422,7 @@ public class GroupNode
                 {
                     group.setGroupNode(null);
                 }
-                    
+
                 ((GroupNode) treeNode).clear();
             }
         }

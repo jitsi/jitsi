@@ -25,8 +25,6 @@ import org.jitsi.xmpp.extensions.jingle.*;
 import org.jitsi.xmpp.extensions.jingle.ContentPacketExtension.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.Logger;
-
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.format.*;
 import org.jitsi.utils.*;
@@ -45,7 +43,7 @@ public class JingleUtils
      * The <tt>Logger</tt> used by the <tt>JingleUtils</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger = Logger.getLogger(JingleUtils.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JingleUtils.class);
 
     /**
      * Extracts and returns an {@link RtpDescriptionPacketExtension} provided

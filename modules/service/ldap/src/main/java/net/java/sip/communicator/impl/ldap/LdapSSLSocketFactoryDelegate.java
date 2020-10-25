@@ -44,8 +44,7 @@ public class LdapSSLSocketFactoryDelegate
     /**
      * Logger for this class.
      */
-    private final static Logger logger =
-        Logger.getLogger(LdapSSLSocketFactoryDelegate.class);
+    private final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LdapSSLSocketFactoryDelegate.class);
 
     /**
      * Get default SSL socket factory delegate.

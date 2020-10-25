@@ -35,8 +35,7 @@ public abstract class AbstractOperationSetBasicAutoAnswer
     /**
      * Our class logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(AbstractOperationSetBasicAutoAnswer.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AbstractOperationSetBasicAutoAnswer.class);
 
     /**
      * The parent Protocol Provider.

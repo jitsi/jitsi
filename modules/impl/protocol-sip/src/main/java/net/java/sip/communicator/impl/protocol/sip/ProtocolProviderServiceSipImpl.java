@@ -36,8 +36,6 @@ import net.java.sip.communicator.service.dns.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.Logger;
-
 import org.apache.commons.lang3.StringUtils;
 import org.jitsi.utils.*;
 import org.jitsi.utils.version.Version;
@@ -59,8 +57,7 @@ public class ProtocolProviderServiceSipImpl
     /**
      * Our class logger.
      */
-    private static final Logger logger =
-        Logger.getLogger(ProtocolProviderServiceSipImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProtocolProviderServiceSipImpl.class);
 
     /**
      * The identifier of the account that this provider represents.
@@ -249,7 +246,7 @@ public class ProtocolProviderServiceSipImpl
     /**
      * Validates the contact identifier and returns an error message if
      * applicable and a suggested correction
-     * 
+     *
      * @param contactId the contact identifier to validate
      * @param result Must be supplied as an empty a list. Implementors add
      *            items:
@@ -2644,10 +2641,10 @@ public class ProtocolProviderServiceSipImpl
      * @throws OperationFailedException the exception that we wanted this method
      * to throw.
      */
-    public static void throwOperationFailedException( String    message,
-                                                      int       errorCode,
-                                                      Throwable cause,
-                                                      Logger    logger)
+    public static void throwOperationFailedException(String message,
+        int errorCode,
+        Throwable cause,
+        org.slf4j.Logger logger)
         throws OperationFailedException
     {
         logger.error(message, cause);

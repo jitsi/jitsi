@@ -44,7 +44,7 @@ public class WebcamDialog
      * The <tt>Logger</tt> used by the <tt>WebcamDialog</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger = Logger.getLogger(WebcamDialog.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(WebcamDialog.class);
 
     private Component videoContainer;
 

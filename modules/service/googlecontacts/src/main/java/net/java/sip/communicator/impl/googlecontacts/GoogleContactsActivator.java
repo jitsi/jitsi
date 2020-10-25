@@ -44,7 +44,7 @@ public class GoogleContactsActivator implements BundleActivator
      * The <tt>Logger</tt> used by the <tt>GoogleContactsActivator</tt> class
      * and its instances for logging output.
      */
-    private final Logger logger = Logger.getLogger(
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(
             GoogleContactsActivator.class);
 
     /**

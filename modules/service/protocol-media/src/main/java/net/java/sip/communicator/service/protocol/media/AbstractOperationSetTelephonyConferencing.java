@@ -70,8 +70,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
      * <tt>AbstractOperationSetTelephonyConferencing</tt> class and its
      * instances.
      */
-    private static final Logger logger
-        = Logger.getLogger(AbstractOperationSetTelephonyConferencing.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AbstractOperationSetTelephonyConferencing.class);
 
     /**
      * The name of the conference-info XML element <tt>display-text</tt>.

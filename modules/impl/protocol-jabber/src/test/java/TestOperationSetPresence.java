@@ -42,8 +42,7 @@ import net.java.sip.communicator.util.*;
 public class TestOperationSetPresence
     extends TestCase
 {
-    private static final Logger logger =
-        Logger.getLogger(TestOperationSetPresence.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestOperationSetPresence.class);
 
     private JabberSlickFixture fixture = new JabberSlickFixture();
     private OperationSetPresence operationSetPresence1 = null;

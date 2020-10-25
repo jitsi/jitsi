@@ -41,8 +41,7 @@ import org.osgi.framework.*;
 public class TestMsgHistoryServiceMultiChat
     extends TestCase
 {
-    private static final Logger logger
-        = Logger.getLogger(TestMsgHistoryServiceMultiChat.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestMsgHistoryServiceMultiChat.class);
 
     static final String TEST_CONTACT_NAME_1 = "Mincho_Penchev_the_fisrt";
     static final String TEST_CONTACT_NAME_2 = "Mincho_Penchev_the_second";
@@ -83,7 +82,7 @@ public class TestMsgHistoryServiceMultiChat
 
     private static Date controlDate1 = null;
     private static Date controlDate2 = null;
-    
+
     private static Object lock = new Object();
 
     public TestMsgHistoryServiceMultiChat(String name)

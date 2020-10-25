@@ -24,8 +24,6 @@ import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
-import net.java.sip.communicator.util.Logger;
-
 import net.java.sip.communicator.util.osgi.*;
 import org.apache.commons.lang3.StringUtils;
 import org.jitsi.service.configuration.*;
@@ -47,8 +45,7 @@ public class DnsUtilActivator
     DnsConfigService
 {
     /** Class logger */
-    private static final Logger logger
-        = Logger.getLogger(DnsUtilActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DnsUtilActivator.class);
 
     /**
      * The name of the property that sets custom nameservers to use for all DNS
@@ -129,9 +126,6 @@ public class DnsUtilActivator
         context.addServiceListener(this);
         configurationService = getService(ConfigurationService.class);
         bundleContext.registerService(DnsConfigService.class, this, null);
-
-        if(Logger.getLogger("org.xbill").isTraceEnabled())
-            Options.set("verbose", "1");
 
         Lookup.setPacketLogger(new DnsJavaLogger());
 

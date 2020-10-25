@@ -33,8 +33,7 @@ import net.kano.joustsim.oscar.oscar.service.chatrooms.*;
 public class OperationSetAdHocMultiUserChatIcqImpl
     implements OperationSetAdHocMultiUserChat
 {
-    private static final Logger logger =
-        Logger.getLogger(OperationSetAdHocMultiUserChatIcqImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetAdHocMultiUserChatIcqImpl.class);
 
     /**
      * The currently valid ICQ protocol provider service implementation.

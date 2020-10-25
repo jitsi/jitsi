@@ -48,8 +48,7 @@ public class OperationSetTypingNotificationsSipImpl
     /**
      * The logger.
      */
-    private static final Logger logger =
-        Logger.getLogger(OperationSetTypingNotificationsSipImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetTypingNotificationsSipImpl.class);
 
     /**
      * A reference to the persistent presence operation set that we use

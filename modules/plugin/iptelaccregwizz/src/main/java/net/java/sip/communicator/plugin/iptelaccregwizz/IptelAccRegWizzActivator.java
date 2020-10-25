@@ -46,8 +46,7 @@ public class IptelAccRegWizzActivator
      * The <tt>Logger</tt> used by the <tt>IptelAccRegWizzActivator</tt> class
      * and its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(IptelAccRegWizzActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(IptelAccRegWizzActivator.class);
 
     private static BrowserLauncherService browserLauncherService;
 

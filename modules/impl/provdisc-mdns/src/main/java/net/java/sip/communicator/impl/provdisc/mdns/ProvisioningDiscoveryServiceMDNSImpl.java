@@ -33,8 +33,7 @@ public class ProvisioningDiscoveryServiceMDNSImpl
     /**
      * Logger.
      */
-    private final Logger logger
-        = Logger.getLogger(ProvisioningDiscoveryServiceMDNSImpl.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProvisioningDiscoveryServiceMDNSImpl.class);
 
     /**
      * Name of the method used to retrieve provisioning URL.

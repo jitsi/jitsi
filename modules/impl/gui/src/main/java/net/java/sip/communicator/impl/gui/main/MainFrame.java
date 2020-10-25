@@ -42,7 +42,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.OperationSetMessageWaiting.MessageType;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
 
 import org.jitsi.service.configuration.*;
@@ -78,7 +77,7 @@ public class MainFrame
     /**
      * The logger.
      */
-    private final Logger logger = Logger.getLogger(MainFrame.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MainFrame.class);
 
     /**
      * The main container.

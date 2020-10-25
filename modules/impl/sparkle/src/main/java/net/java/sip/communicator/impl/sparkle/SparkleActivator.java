@@ -31,7 +31,7 @@ import org.osgi.framework.*;
 public class SparkleActivator
     extends DependentActivator
 {
-    private static final Logger logger = Logger.getLogger(SparkleActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SparkleActivator.class);
 
     /**
      * Native method declaration

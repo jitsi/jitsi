@@ -75,8 +75,7 @@ public class AddrBookActivator
      * The <tt>Logger</tt> used by the <tt>AddrBookActivator</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(AddrBookActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AddrBookActivator.class);
 
     /**
      * The <tt>BundleContext</tt> in which the addrbook plug-in is started.
@@ -187,7 +186,7 @@ public class AddrBookActivator
             ResourceManagementService.class
         );
     }
-    
+
     /**
      * Gets the <tt>ResourceManagementService</tt> to be used by the
      * functionality of the addrbook plug-in.
@@ -449,7 +448,7 @@ public class AddrBookActivator
             }
         }
     }
-    
+
     private static void checkImDefaultSettings()
     {
         if (!configService.getBoolean(

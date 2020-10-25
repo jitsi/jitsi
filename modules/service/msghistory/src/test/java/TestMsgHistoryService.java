@@ -43,7 +43,7 @@ import com.google.common.xml.*;
 public class TestMsgHistoryService
     extends TestCase
 {
-    private static final Logger logger = Logger.getLogger(TestMsgHistoryService.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestMsgHistoryService.class);
 
     static final String TEST_CONTACT_NAME_1 = "Mincho_Penchev_the_fisrt";
     static final String TEST_CONTACT_NAME_2 = "Mincho_Penchev_the_second";
@@ -84,7 +84,7 @@ public class TestMsgHistoryService
 
     private static Date controlDate1 = null;
     private static Date controlDate2 = null;
-    
+
     private static Object lock = new Object();
 
     public TestMsgHistoryService(String name)

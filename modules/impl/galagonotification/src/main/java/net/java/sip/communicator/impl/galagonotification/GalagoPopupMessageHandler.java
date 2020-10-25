@@ -39,8 +39,7 @@ public class GalagoPopupMessageHandler
      * The <tt>Logger</tt> used by the <tt>GalagoPopupMessageHandler</tt> class
      * and its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(GalagoPopupMessageHandler.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GalagoPopupMessageHandler.class);
 
     /**
      * The indicator which determines whether the freedesktop.org Desktop

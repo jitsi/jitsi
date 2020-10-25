@@ -39,8 +39,7 @@ class VerifyCertificateDialogImpl
     /**
      * Our logger.
      */
-    private static final Logger logger =
-        Logger.getLogger(VerifyCertificateDialogImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(VerifyCertificateDialogImpl.class);
 
     /**
      * Serial version UID.

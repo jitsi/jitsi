@@ -37,8 +37,7 @@ import org.osgi.framework.*;
 public class TestAccountUninstallation
     extends TestCase
 {
-    private static final Logger logger =
-        Logger.getLogger(TestAccountUninstallation.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestAccountUninstallation.class);
 
     private SipSlickFixture fixture = new SipSlickFixture();
 

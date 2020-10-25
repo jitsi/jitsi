@@ -53,8 +53,7 @@ public class ClientCapabilities
      * The <tt>Logger</tt> used by the <tt>ClientCapabilities</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(ClientCapabilities.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ClientCapabilities.class);
 
     /**
      * The protocol provider that created us.
@@ -237,8 +236,6 @@ public class ClientCapabilities
         {
             try
             {
-                logger.logEntry();
-
                 //From
                 FromHeader fromHeader = null;
                 try

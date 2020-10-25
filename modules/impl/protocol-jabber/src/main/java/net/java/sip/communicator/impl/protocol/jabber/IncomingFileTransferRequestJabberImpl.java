@@ -45,9 +45,8 @@ public class IncomingFileTransferRequestJabberImpl
     /**
      * The logger for this class.
      */
-    private static final Logger logger =
-        Logger.getLogger(IncomingFileTransferRequestJabberImpl.class);
-    
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(IncomingFileTransferRequestJabberImpl.class);
+
     /** Thread to fetch thumbnails in the background, one at a time */
     private static ExecutorService thumbnailCollector
         = Executors.newSingleThreadExecutor();
@@ -111,8 +110,8 @@ public class IncomingFileTransferRequestJabberImpl
                 privateContactRoom.updatePrivateContactPresenceStatus(sender);
             }
         }
-        
-        
+
+
         this.id = String.valueOf( System.currentTimeMillis())
                     + String.valueOf(hashCode());
     }

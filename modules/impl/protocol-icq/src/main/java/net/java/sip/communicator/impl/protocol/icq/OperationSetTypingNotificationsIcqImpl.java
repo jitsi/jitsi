@@ -34,8 +34,7 @@ import net.kano.joustsim.oscar.oscar.service.icbm.*;
 public class OperationSetTypingNotificationsIcqImpl
     extends AbstractOperationSetTypingNotifications<ProtocolProviderServiceIcqImpl>
 {
-    private static final Logger logger =
-        Logger.getLogger(OperationSetTypingNotificationsIcqImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetTypingNotificationsIcqImpl.class);
 
     /**
      * An active instance of the opSetPersPresence operation set. We're using

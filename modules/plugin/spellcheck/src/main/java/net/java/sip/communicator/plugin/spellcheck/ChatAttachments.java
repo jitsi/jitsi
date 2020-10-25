@@ -40,8 +40,7 @@ import org.jitsi.service.resources.*;
  */
 class ChatAttachments
 {
-    private static final Logger logger = Logger
-        .getLogger(ChatAttachments.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ChatAttachments.class);
 
     private static final ImageIcon ADD_WORD_ICON = Resources
         .getImage(Resources.ADD_WORD_ICON);

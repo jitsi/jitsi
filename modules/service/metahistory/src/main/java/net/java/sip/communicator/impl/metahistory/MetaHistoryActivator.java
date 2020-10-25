@@ -34,8 +34,7 @@ public class MetaHistoryActivator
      * The <tt>Logger</tt> instance used by the
      * <tt>MetaHistoryActivator</tt> class and its instances for logging output.
      */
-    private static Logger logger =
-        Logger.getLogger(MetaHistoryActivator.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MetaHistoryActivator.class);
 
     /**
      * The <tt>MetaHistoryService</tt> reference.
@@ -50,27 +49,16 @@ public class MetaHistoryActivator
      */
     public void start(BundleContext bundleContext) throws Exception
     {
-        try{
+        //Create and start the meta history service.
+        metaHistoryService =
+            new MetaHistoryServiceImpl();
 
-            logger.logEntry();
+        metaHistoryService.start(bundleContext);
 
-            //Create and start the meta history service.
-            metaHistoryService =
-                new MetaHistoryServiceImpl();
+        bundleContext.registerService(
+            MetaHistoryService.class.getName(), metaHistoryService, null);
 
-            metaHistoryService.start(bundleContext);
-
-            bundleContext.registerService(
-                MetaHistoryService.class.getName(), metaHistoryService, null);
-
-            if (logger.isInfoEnabled())
-                logger.info("Meta History Service ...[REGISTERED]");
-        }
-        finally
-        {
-            logger.logExit();
-        }
-
+        logger.info("Meta History Service ...[REGISTERED]");
     }
 
     /**

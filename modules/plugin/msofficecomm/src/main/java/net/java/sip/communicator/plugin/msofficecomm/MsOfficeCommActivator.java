@@ -35,14 +35,13 @@ public class MsOfficeCommActivator
      * The <tt>Logger</tt> used by the <tt>MsOfficeCommActivator</tt> class and
      * its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(MsOfficeCommActivator.class);
-    
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MsOfficeCommActivator.class);
+
     /**
      * The <tt>ResourceManagementService</tt> through which we access resources.
      */
     private static ResourceManagementService resourceService;
-    
+
     /**
      * The <tt>BundleContext</tt> in which the msofficecomm plug-in is started.
      */
@@ -63,7 +62,7 @@ public class MsOfficeCommActivator
         // The msofficecomm bundle is available on Windows only.
         if (!OSUtils.IS_WINDOWS)
             return;
-        
+
         MsOfficeCommActivator.bundleContext = bundleContext;
         if (Messenger.isLoaded)
         {
@@ -73,9 +72,9 @@ public class MsOfficeCommActivator
         {
             return;
         }
-        
+
         boolean stopMessenger = true;
-        
+
         try
         {
             int hresult = OutOfProcessServer.start();
@@ -129,8 +128,8 @@ public class MsOfficeCommActivator
         if (logger.isInfoEnabled())
             logger.info("MsOfficeComm plugin ... [UNREGISTERED]");
     }
-    
-    
+
+
     /**
      * Gets the <tt>ResourceManagementService</tt> to be used by the
      * functionality of the plug-in.

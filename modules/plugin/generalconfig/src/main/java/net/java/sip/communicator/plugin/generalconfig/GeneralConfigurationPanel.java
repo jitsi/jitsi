@@ -33,8 +33,6 @@ import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.Logger;
-
 import net.java.sip.communicator.util.osgi.ServiceUtils;
 import org.jitsi.service.resources.ResourceManagementService;
 import org.jitsi.util.*;
@@ -57,8 +55,7 @@ public class GeneralConfigurationPanel
      * The <tt>Logger</tt> used by this <tt>GeneralConfigurationPanel</tt> for
      * logging output.
      */
-    private final Logger logger
-        = Logger.getLogger(GeneralConfigurationPanel.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GeneralConfigurationPanel.class);
 
      /**
       * Indicates if the Startup configuration panel should be disabled, i.e.
@@ -104,7 +101,7 @@ public class GeneralConfigurationPanel
      * Indicates if the systray config panel should be disabled, i.e. not
      * visible to the user.
      */
-    private static final String SYSTRAY_CONFIG_DISABLED_PROP = 
+    private static final String SYSTRAY_CONFIG_DISABLED_PROP =
         "net.java.sip.communicator.plugin.generalconfig.systrayconfig.DISABLED";
 
      /**
@@ -246,7 +243,7 @@ public class GeneralConfigurationPanel
         }
         catch (Exception e)
         {
-            logger.error(e);
+            logger.error("Could not set autostart", e);
         }
 
         return autoStartCheckBox;
@@ -790,7 +787,7 @@ public class GeneralConfigurationPanel
 
             return this;
         }
-    } 
+    }
 
     /**
      * Initializes the local configuration panel.

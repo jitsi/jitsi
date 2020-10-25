@@ -38,7 +38,7 @@ public class AimStatusEnum
     extends PresenceStatus
 {
 
-    private static Logger logger = Logger.getLogger(AimStatusEnum.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AimStatusEnum.class);
 
     /**
      * The Online AIM status. Indicate that the user is able and willing to

@@ -26,8 +26,6 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.Logger;
-
 import org.apache.commons.lang3.StringUtils;
 import org.jitsi.util.*;
 import org.jitsi.utils.*;
@@ -51,8 +49,7 @@ public class OneToOneCallPanel
     /**
      * Logger for the OneToOneCallPanel.
      */
-    private static final Logger logger
-        = Logger.getLogger(OneToOneCallPanel.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OneToOneCallPanel.class);
 
     /**
      * Serial version UID.

@@ -52,8 +52,7 @@ public class ChatRoomIrcImpl
     /**
      * The object used for logging.
      */
-    private static final Logger LOGGER
-        = Logger.getLogger(ChatRoomIrcImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ChatRoomIrcImpl.class);
 
     /**
      * The parent protocol service provider.
@@ -215,9 +214,9 @@ public class ChatRoomIrcImpl
         }
         else
         {
-            if (LOGGER.isTraceEnabled())
+            if (logger.isTraceEnabled())
             {
-                LOGGER.trace("Automatically added " + DEFAULT_CHANNEL_PREFIX
+                logger.trace("Automatically added " + DEFAULT_CHANNEL_PREFIX
                     + " channel prefix.");
             }
             return verifyName(channelTypes, DEFAULT_CHANNEL_PREFIX + name);
@@ -403,9 +402,9 @@ public class ChatRoomIrcImpl
      */
     public void joinAs(final String nickname) throws OperationFailedException
     {
-        if (LOGGER.isDebugEnabled())
+        if (logger.isDebugEnabled())
         {
-            LOGGER.debug("Not setting nick name upon chat room join, since a "
+            logger.debug("Not setting nick name upon chat room join, since a "
                 + "nick change is not limited to a single chat room.");
         }
         this.join();
@@ -429,9 +428,9 @@ public class ChatRoomIrcImpl
     public void joinAs(final String nickname, final byte[] password)
         throws OperationFailedException
     {
-        if (LOGGER.isDebugEnabled())
+        if (logger.isDebugEnabled())
         {
-            LOGGER.debug("Not setting nick name upon chat room join, since a "
+            logger.debug("Not setting nick name upon chat room join, since a "
                 + "nick change is not limited to a single chat room.");
         }
         this.join(password);
@@ -497,7 +496,7 @@ public class ChatRoomIrcImpl
     {
         if (!(chatRoomMember instanceof ChatRoomMemberIrcImpl))
         {
-            LOGGER
+            logger
                 .trace("Cannot ban chat room member that is not an instance of "
                     + ChatRoomMemberIrcImpl.class.getCanonicalName());
             return;
@@ -1025,7 +1024,7 @@ public class ChatRoomIrcImpl
                 }
                 catch (BadCommandException e)
                 {
-                    LOGGER.error("An error occurred while constructing "
+                    logger.error("An error occurred while constructing "
                         + "the command. This is most likely due to a bug "
                         + "in the implementation of the command. Message: "
                         + message + "'", e);
@@ -1145,7 +1144,7 @@ public class ChatRoomIrcImpl
             }
             catch (RuntimeException e)
             {
-                LOGGER.error(String.format(
+                logger.error(String.format(
                     "Listener '%s' threw a runtime exception during execution."
                         + " This is probably due to a bug in the listener's "
                         + "implementation.",
@@ -1189,7 +1188,7 @@ public class ChatRoomIrcImpl
             }
             catch (RuntimeException e)
             {
-                LOGGER.error(String.format(
+                logger.error(String.format(
                     "Listener '%s' threw a runtime exception during execution."
                         + " This is probably due to a bug in the listener's "
                         + "implementation.",
@@ -1229,7 +1228,7 @@ public class ChatRoomIrcImpl
             }
             catch (RuntimeException e)
             {
-                LOGGER.error(String.format(
+                logger.error(String.format(
                     "Listener '%s' threw a runtime exception during execution."
                         + " This is probably due to a bug in the listener's "
                         + "implementation.",
@@ -1330,9 +1329,9 @@ public class ChatRoomIrcImpl
                 this, member, eventID, eventReason);
         }
 
-        if (LOGGER.isTraceEnabled())
+        if (logger.isTraceEnabled())
         {
-            LOGGER.trace("Will dispatch the following ChatRoom event: " + evt);
+            logger.trace("Will dispatch the following ChatRoom event: " + evt);
         }
 
         Iterable<ChatRoomMemberPresenceListener> listeners;
@@ -1368,9 +1367,9 @@ public class ChatRoomIrcImpl
                                                 previousRole,
                                                 newRole);
 
-        if (LOGGER.isTraceEnabled())
+        if (logger.isTraceEnabled())
         {
-            LOGGER.trace("Will dispatch the following ChatRoom event: " + evt);
+            logger.trace("Will dispatch the following ChatRoom event: " + evt);
         }
 
         Iterable<ChatRoomMemberRoleListener> listeners;
@@ -1468,7 +1467,7 @@ public class ChatRoomIrcImpl
     {
         if (this.user == null)
         {
-            LOGGER.trace("User's chat room member instance is not set yet. "
+            logger.trace("User's chat room member instance is not set yet. "
                 + "Assuming default role SILENT_MEMBER.");
             return ChatRoomMemberRole.SILENT_MEMBER;
         }
@@ -1696,9 +1695,9 @@ public class ChatRoomIrcImpl
     @Override
     public Contact getPrivateContactByNickname(final String name)
     {
-        if (LOGGER.isDebugEnabled())
+        if (logger.isDebugEnabled())
         {
-            LOGGER.debug("Getting private contact for nick name '" + name
+            logger.debug("Getting private contact for nick name '" + name
                 + "'.");
         }
         // TODO Also register contact address as interesting contact for

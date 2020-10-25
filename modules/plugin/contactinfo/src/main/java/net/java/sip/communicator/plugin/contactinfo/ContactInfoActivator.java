@@ -37,7 +37,7 @@ import org.osgi.framework.*;
 public class ContactInfoActivator
     extends DependentActivator
 {
-    private Logger logger = Logger.getLogger(ContactInfoActivator.class);
+    private org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ContactInfoActivator.class);
 
     /**
      * Indicates if the contact info button is enabled in the chat window.

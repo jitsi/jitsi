@@ -46,8 +46,7 @@ public abstract class ChatConversationComponent
     /**
      * The logger for this class.
      */
-    private static final Logger logger
-        = Logger.getLogger(ChatConversationComponent.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ChatConversationComponent.class);
 
     /**
      * The constraints used to layout this component.

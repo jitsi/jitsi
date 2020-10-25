@@ -34,7 +34,7 @@ public class HIDActivator
      * The <tt>Logger</tt> used by the <tt>HIDActivator</tt> class and its
      * instances for logging output.
      */
-    private final Logger logger = Logger.getLogger(HIDActivator.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HIDActivator.class);
 
     /**
      * The OSGi <tt>ServiceRegistration</tt> of <tt>HIDServiceImpl</tt>.

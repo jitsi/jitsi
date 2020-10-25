@@ -52,8 +52,7 @@ public class OperationSetPresenceSipImpl
     /**
      * Our class logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(OperationSetPresenceSipImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetPresenceSipImpl.class);
 
 
     private ServerStoredContactList ssContactList;

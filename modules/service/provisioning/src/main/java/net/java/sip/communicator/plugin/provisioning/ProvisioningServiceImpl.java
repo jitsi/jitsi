@@ -29,7 +29,6 @@ import javax.swing.*;
 import net.java.sip.communicator.service.httputil.*;
 import net.java.sip.communicator.service.provisioning.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.plugin.desktoputil.*;
 
 import org.apache.commons.lang3.StringUtils;
@@ -51,8 +50,7 @@ public class ProvisioningServiceImpl
     /**
      * Logger of this class
      */
-    private static final Logger logger
-        = Logger.getLogger(ProvisioningServiceImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProvisioningServiceImpl.class);
 
     /**
      * Name of the UUID property.

@@ -30,7 +30,7 @@ public class IcqProtocolProviderSlick
     extends TestSuite
     implements BundleActivator
 {
-    private Logger logger = Logger.getLogger(getClass().getName());
+    private org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(getClass().getName());
 
     /**
      * The name of the system property that contains the id of the account

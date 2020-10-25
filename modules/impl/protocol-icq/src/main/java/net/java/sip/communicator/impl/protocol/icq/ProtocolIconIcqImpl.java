@@ -35,7 +35,7 @@ import org.osgi.framework.*;
 public class ProtocolIconIcqImpl
     implements ProtocolIcon
 {
-    private static Logger logger = Logger.getLogger(ProtocolIconIcqImpl.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProtocolIconIcqImpl.class);
 
     private static ResourceManagementService resourcesService;
 

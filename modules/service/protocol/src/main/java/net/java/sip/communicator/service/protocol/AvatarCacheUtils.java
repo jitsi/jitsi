@@ -19,7 +19,6 @@ package net.java.sip.communicator.service.protocol;
 
 import java.io.*;
 
-import net.java.sip.communicator.util.Logger;
 import org.jitsi.service.fileaccess.*;
 
 /**
@@ -33,8 +32,7 @@ public class AvatarCacheUtils
     /**
      * The logger for this class.
      */
-    private final static Logger logger
-        = Logger.getLogger(AvatarCacheUtils.class);
+    private final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AvatarCacheUtils.class);
 
     /**
      * The name (i.e. not the whole path) of the directory in which the avatar

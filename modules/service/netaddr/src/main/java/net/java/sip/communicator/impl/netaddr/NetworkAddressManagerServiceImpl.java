@@ -50,8 +50,7 @@ public class NetworkAddressManagerServiceImpl
     /**
      * Our class logger.
      */
-    private static  Logger logger =
-        Logger.getLogger(NetworkAddressManagerServiceImpl.class);
+    private static  org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NetworkAddressManagerServiceImpl.class);
 
     /**
      * The socket that we use for dummy connections during selection of a local
@@ -114,15 +113,8 @@ public class NetworkAddressManagerServiceImpl
       */
      public void stop()
      {
-         try
-         {
-             if(networkConfigurationWatcher != null)
-                 networkConfigurationWatcher.stop();
-         }
-         finally
-         {
-             logger.logExit();
-         }
+         if(networkConfigurationWatcher != null)
+             networkConfigurationWatcher.stop();
      }
 
     /**
@@ -413,7 +405,7 @@ public class NetworkAddressManagerServiceImpl
             {
                 if (exc.getMessage().indexOf("Address already in use") == -1)
                 {
-                    logger.fatal("An exception occurred while trying to create"
+                    logger.error("An exception occurred while trying to create"
                                  + "a local host discovery socket.", exc);
                     return null;
                 }

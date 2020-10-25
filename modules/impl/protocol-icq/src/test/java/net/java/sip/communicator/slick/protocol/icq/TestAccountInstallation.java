@@ -32,8 +32,7 @@ import org.osgi.framework.*;
  */
 public class TestAccountInstallation extends TestCase
 {
-    private static final Logger logger =
-        Logger.getLogger(TestAccountInstallation.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestAccountInstallation.class);
     /**
      * The lock that we wait on until registration is finalized.
      */

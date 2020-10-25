@@ -38,8 +38,7 @@ public class MetaContactGroupImpl
      * The <tt>Logger</tt> used by the class <tt>MetaContactGroupImpl</tt> and
      * its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(MetaContactGroupImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MetaContactGroupImpl.class);
 
     /**
      * All the subgroups that this group contains.

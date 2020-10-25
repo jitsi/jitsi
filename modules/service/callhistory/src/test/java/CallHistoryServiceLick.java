@@ -28,7 +28,7 @@ import org.osgi.framework.*;
  * @author Damian Minkov
  */
 public class CallHistoryServiceLick extends TestSuite implements BundleActivator {
-    private static Logger logger = Logger.getLogger(CallHistoryServiceLick.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CallHistoryServiceLick.class);
 
     protected static BundleContext bc = null;
 

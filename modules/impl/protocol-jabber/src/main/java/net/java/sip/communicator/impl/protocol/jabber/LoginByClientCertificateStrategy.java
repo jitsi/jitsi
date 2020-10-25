@@ -40,8 +40,7 @@ import java.security.*;
 class LoginByClientCertificateStrategy
     implements JabberLoginStrategy
 {
-    private final static Logger logger
-        = Logger.getLogger(LoginByClientCertificateStrategy.class);
+    private final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LoginByClientCertificateStrategy.class);
     private AccountID accountID;
     private ConnectionConfiguration.Builder ccBuilder;
 

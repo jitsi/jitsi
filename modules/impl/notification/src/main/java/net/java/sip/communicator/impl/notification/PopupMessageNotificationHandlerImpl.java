@@ -20,8 +20,6 @@ package net.java.sip.communicator.impl.notification;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
-import net.java.sip.communicator.util.Logger;
-
 import org.apache.commons.lang3.StringUtils;
 import org.jitsi.utils.*;
 
@@ -36,8 +34,7 @@ public class PopupMessageNotificationHandlerImpl
     /**
      * The logger that will be used to log messages.
      */
-    private Logger logger
-        = Logger.getLogger(PopupMessageNotificationHandlerImpl.class);
+    private org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PopupMessageNotificationHandlerImpl.class);
 
     /**
      * {@inheritDoc}

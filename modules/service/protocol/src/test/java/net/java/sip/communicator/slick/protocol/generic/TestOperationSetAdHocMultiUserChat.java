@@ -30,7 +30,7 @@ import net.java.sip.communicator.util.*;
  */
 public abstract class TestOperationSetAdHocMultiUserChat extends TestCase
 {
-    private Logger logger = Logger.getLogger(
+    private org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(
         TestOperationSetAdHocMultiUserChat.class);
 
     /**

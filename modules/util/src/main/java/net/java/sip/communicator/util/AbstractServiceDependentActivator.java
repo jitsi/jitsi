@@ -28,8 +28,7 @@ import org.osgi.framework.*;
 public abstract class AbstractServiceDependentActivator<T>
     implements BundleActivator
 {
-    private static final Logger logger
-        = Logger.getLogger(AbstractServiceDependentActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AbstractServiceDependentActivator.class);
 
     /**
      * The service we are dependent on.

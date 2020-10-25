@@ -74,7 +74,7 @@ public class UserSearchActivator
      * The <tt>Logger</tt> used by the
      * <tt>UserSearchActivator</tt> class for logging output.
      */
-    private static Logger logger = Logger.getLogger(UserSearchActivator.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserSearchActivator.class);
 
     /**
      * Contact source instance.

@@ -51,8 +51,7 @@ public class DesktopUtilActivator
      * The <tt>Logger</tt> used by the <tt>SwingUtilActivator</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(DesktopUtilActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DesktopUtilActivator.class);
 
     private static ConfigurationService configurationService;
 
@@ -383,7 +382,7 @@ public class DesktopUtilActivator
         }
         return audioNotifierService;
     }
-    
+
     /**
      * Returns the <tt>GlobalDisplayDetailsService</tt> obtained from the bundle
      * context.

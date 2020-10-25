@@ -30,8 +30,7 @@ import net.java.sip.communicator.util.*;
 
 public class MessageDigestAlgorithm
 {
-    private static final  Logger logger
-        = Logger.getLogger(MessageDigestAlgorithm.class);
+    private static final  org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MessageDigestAlgorithm.class);
 
     /**
      * Calculates an http authentication response in accordance with rfc2617.

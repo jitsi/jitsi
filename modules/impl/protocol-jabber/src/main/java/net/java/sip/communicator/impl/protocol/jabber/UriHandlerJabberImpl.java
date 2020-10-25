@@ -42,8 +42,7 @@ public class UriHandlerJabberImpl
     /**
      * The logger of this class.
      */
-    private static final Logger logger =
-        Logger.getLogger(UriHandlerJabberImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UriHandlerJabberImpl.class);
 
     /**
      * The protocol provider factory that created us.

@@ -49,7 +49,7 @@ public class ErrorDialog
      * The <tt>Logger</tt> used by the <tt>ErrorDialog</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger = Logger.getLogger(ErrorDialog.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ErrorDialog.class);
 
     private JButton okButton
         = new JButton(

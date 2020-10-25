@@ -37,7 +37,7 @@ import org.osgi.framework.*;
  */
 public class Resources
 {
-    private static Logger logger = Logger.getLogger(Resources.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Resources.class);
 
     private static ResourceManagementService resourceService;
 

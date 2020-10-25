@@ -38,8 +38,7 @@ import org.osgi.framework.*;
 public class ConnectionInfoActivator
     extends DependentActivator
 {
-    private static final Logger logger =
-        Logger.getLogger(ConnectionInfoActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConnectionInfoActivator.class);
 
     /**
      * The OSGi bundle context.

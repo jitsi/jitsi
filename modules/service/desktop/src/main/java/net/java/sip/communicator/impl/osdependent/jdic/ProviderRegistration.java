@@ -43,8 +43,7 @@ public class ProviderRegistration
     /**
      * The logger for this class.
      */
-    private Logger logger
-        = Logger.getLogger(ProviderRegistration.class.getName());
+    private org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProviderRegistration.class.getName());
 
     /**
      * Creates an instance of <tt>ProviderRegistration</tt>.

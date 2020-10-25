@@ -55,7 +55,7 @@ public class CallJabberImpl
      * The <tt>Logger</tt> used by the <tt>CallJabberImpl</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger = Logger.getLogger(CallJabberImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CallJabberImpl.class);
 
     /**
      * The Jitsi Videobridge conference which the local peer represented by this

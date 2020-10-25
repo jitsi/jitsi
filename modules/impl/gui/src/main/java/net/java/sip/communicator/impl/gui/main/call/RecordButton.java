@@ -25,8 +25,6 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.Logger;
-
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.recording.*;
@@ -46,7 +44,7 @@ public class RecordButton
      * The logger used by the <tt>RecordButton</tt> class and its instances for
      * logging output.
      */
-    private static final Logger logger = Logger.getLogger(RecordButton.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RecordButton.class);
 
     /**
      * The date format used in file names.

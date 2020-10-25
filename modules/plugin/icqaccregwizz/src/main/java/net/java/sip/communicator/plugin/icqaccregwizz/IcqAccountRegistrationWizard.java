@@ -39,8 +39,7 @@ public class IcqAccountRegistrationWizard
     /**
      * The logger.
      */
-    private final Logger logger
-        = Logger.getLogger(IcqAccountRegistrationWizard.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(IcqAccountRegistrationWizard.class);
 
     private FirstWizardPage firstWizardPage;
 

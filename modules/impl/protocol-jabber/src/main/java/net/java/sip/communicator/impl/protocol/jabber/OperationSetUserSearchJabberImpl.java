@@ -44,8 +44,7 @@ public class OperationSetUserSearchJabberImpl
     /**
      * The logger.
      */
-    private static final Logger logger =
-        Logger.getLogger(OperationSetUserSearchJabberImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetUserSearchJabberImpl.class);
 
     /**
      * The <tt>UserSearchManager</tt> instance which actually implements the
@@ -238,7 +237,7 @@ public class OperationSetUserSearchJabberImpl
             | InterruptedException
             | NoResponseException e)
         {
-           logger.error(e);
+           logger.error("Failed to search for {}", serviceName, e);
            return null;
         }
 

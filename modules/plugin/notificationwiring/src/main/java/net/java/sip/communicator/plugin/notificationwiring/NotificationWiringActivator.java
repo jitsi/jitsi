@@ -34,8 +34,7 @@ import org.osgi.framework.*;
 public class NotificationWiringActivator
     extends DependentActivator
 {
-    private final Logger logger =
-        Logger.getLogger(NotificationWiringActivator.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NotificationWiringActivator.class);
 
     protected static BundleContext bundleContext;
 
@@ -60,27 +59,19 @@ public class NotificationWiringActivator
     public void startWithServices(BundleContext bc)
     {
         bundleContext = bc;
-        try
-        {
-            logger.logEntry();
-            logger.info("Notification wiring plugin...[  STARTED ]");
+        logger.info("Notification wiring plugin...[  STARTED ]");
 
 
-            // Get the notification service implementation
-            ServiceReference notifReference = bundleContext
-                .getServiceReference(NotificationService.class.getName());
+        // Get the notification service implementation
+        ServiceReference notifReference = bundleContext
+            .getServiceReference(NotificationService.class.getName());
 
-            notificationService = (NotificationService) bundleContext
-                .getService(notifReference);
+        notificationService = (NotificationService) bundleContext
+            .getService(notifReference);
 
-            new NotificationManager().init();
+        new NotificationManager().init();
 
-            logger.info("Notification wiring plugin ...[REGISTERED]");
-        }
-        finally
-        {
-            logger.logExit();
-        }
+        logger.info("Notification wiring plugin ...[REGISTERED]");
     }
 
     public void stop(BundleContext bc) throws Exception

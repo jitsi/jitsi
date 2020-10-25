@@ -48,7 +48,7 @@ public class IrcStack implements IrcConnectionListener
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(IrcStack.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(IrcStack.class);
 
     /**
      * Parent provider for IRC.
@@ -142,7 +142,7 @@ public class IrcStack implements IrcConnectionListener
 
                 final IRCApi irc = new IRCApiImpl(true);
 
-                if (LOGGER.isTraceEnabled())
+                if (logger.isTraceEnabled())
                 {
                     // If tracing is enabled, register another listener that
                     // logs all IRC messages as published by the IRC client
@@ -164,7 +164,7 @@ public class IrcStack implements IrcConnectionListener
         {
             if (isCausedByCertificateException(e))
             {
-                LOGGER.info("Connection aborted due to server certificate.");
+                logger.info("Connection aborted due to server certificate.");
                 // If it is caused by a certificate exception, it is because the
                 // user doesn't trust the certificate. Set to unregistered
                 // instead of indicating a failure to connect.
@@ -202,7 +202,7 @@ public class IrcStack implements IrcConnectionListener
         {
             // For any other (unexpected error) first log the error itself for
             // debugging purposes. Then rethrow.
-            LOGGER.error("Unanticipated exception occurred!", e);
+            logger.error("Unanticipated exception occurred!", e);
             this.provider.setCurrentRegistrationState(
                 RegistrationState.CONNECTION_FAILED,
                 RegistrationStateChangeEvent.REASON_INTERNAL_ERROR);
@@ -331,7 +331,7 @@ public class IrcStack implements IrcConnectionListener
         }
         catch (GeneralSecurityException e)
         {
-            LOGGER.error("failed to create custom SSL context", e);
+            logger.error("failed to create custom SSL context", e);
         }
         return context;
     }
@@ -390,7 +390,7 @@ public class IrcStack implements IrcConnectionListener
         @Override
         public void onMessage(final IMessage aMessage)
         {
-            LOGGER.trace("(" + aMessage + ") " + aMessage.asRaw());
+            logger.trace("(" + aMessage + ") " + aMessage.asRaw());
         }
     }
 
@@ -542,11 +542,11 @@ public class IrcStack implements IrcConnectionListener
         {
             // Interruption was intended: instance either nulled or a new
             // instance is already set.
-            LOGGER.debug("Interrupted connection is not the current connection"
+            logger.debug("Interrupted connection is not the current connection"
                 + ", so assuming that connection interruption was intended.");
             return;
         }
-        LOGGER.warn("IRC connection interrupted unexpectedly.");
+        logger.warn("IRC connection interrupted unexpectedly.");
         this.provider.setCurrentRegistrationState(
             RegistrationState.CONNECTION_FAILED,
             RegistrationStateChangeEvent.REASON_NOT_SPECIFIED);

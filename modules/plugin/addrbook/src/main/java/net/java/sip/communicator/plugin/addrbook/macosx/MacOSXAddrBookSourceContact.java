@@ -39,8 +39,7 @@ public class MacOSXAddrBookSourceContact
      * The <tt>Logger</tt> used by the <tt>MacOSXAddrBookSourceContact</tt>
      * class and its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(MacOSXAddrBookSourceContact.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MacOSXAddrBookSourceContact.class);
 
     /**
      * Boolean used to temporarily lock the access to a single modification

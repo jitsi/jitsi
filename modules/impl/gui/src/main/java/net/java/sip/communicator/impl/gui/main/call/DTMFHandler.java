@@ -231,7 +231,7 @@ public class DTMFHandler
      * The <tt>Logger</tt> used by the <tt>DTMFHandler</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger = Logger.getLogger(DTMFHandler.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DTMFHandler.class);
 
     /**
      * Load the defaults for DTMF tones.

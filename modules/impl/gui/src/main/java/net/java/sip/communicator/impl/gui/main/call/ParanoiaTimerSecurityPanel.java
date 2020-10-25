@@ -24,6 +24,7 @@ import java.util.Timer;
 
 import javax.swing.*;
 
+import lombok.extern.slf4j.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -35,6 +36,7 @@ import org.jitsi.service.neomedia.*;
  * @author Damian Minkov
  * @author Yana Stamcheva
  */
+@Slf4j
 public class ParanoiaTimerSecurityPanel<T extends SrtpControl>
     extends SecurityPanel<SrtpControl>
 {
@@ -163,7 +165,7 @@ public class ParanoiaTimerSecurityPanel<T extends SrtpControl>
             }
             catch(OperationFailedException ex)
             {
-                Logger.getLogger(getClass()).error("Failed to hangup peer", ex);
+                logger.error("Failed to hangup peer", ex);
             }
         }
     }

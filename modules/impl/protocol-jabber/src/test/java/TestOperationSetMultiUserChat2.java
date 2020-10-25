@@ -40,8 +40,7 @@ public class TestOperationSetMultiUserChat2
     /**
      * logger for <tt>TestOperationSetMultiUserChat2</tt> class
      */
-    private static final Logger logger =
-        Logger.getLogger(TestOperationSetMultiUserChat2.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestOperationSetMultiUserChat2.class);
 
     /**
      * Room name for each test will be testRoomBaseName + roomID
@@ -565,7 +564,7 @@ public class TestOperationSetMultiUserChat2
         }
         catch (Exception ex)
         {
-            logger.warn(ex);
+            logger.warn("Failed to find room {}", testRoomName, ex);
         }
         assertNotNull("failed to find an existing room on server", foundRoom);
 

@@ -32,13 +32,12 @@ import org.osgi.framework.*;
 public class ContactlistActivator
     extends AbstractServiceDependentActivator<ResourceManagementService>
 {
-    private static final Logger logger =
-        Logger.getLogger(ContactlistActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ContactlistActivator.class);
 
     private MetaContactListServiceImpl mclServiceImpl  = null;
 
     private static AccountManager accountManager;
-    
+
     private static BundleContext bundleContext;
 
     @Override
@@ -88,7 +87,7 @@ public class ContactlistActivator
         if(mclServiceImpl != null)
             mclServiceImpl.stop(context);
     }
-    
+
     /**
      * Returns the <tt>AccountManager</tt> obtained from the bundle context.
      * @return the <tt>AccountManager</tt> obtained from the bundle context

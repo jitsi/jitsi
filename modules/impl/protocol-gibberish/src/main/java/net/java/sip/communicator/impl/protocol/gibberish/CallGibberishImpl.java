@@ -33,8 +33,7 @@ public class CallGibberishImpl
     extends AbstractCall<CallPeerGibberishImpl, ProtocolProviderServiceGibberishImpl>
     implements CallPeerListener
 {
-    private static final Logger logger
-        = Logger.getLogger(CallGibberishImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CallGibberishImpl.class);
 
     /**
      * Creates a <tt>CallGibberishImpl</tt> by specifying the

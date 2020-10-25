@@ -57,8 +57,7 @@ public class CallPeerMediaHandlerJabberImpl
      * The <tt>Logger</tt> used by the <tt>CallPeerMediaHandlerJabberImpl</tt>
      * class and its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(CallPeerMediaHandlerJabberImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CallPeerMediaHandlerJabberImpl.class);
 
     /**
      * Determines whether a specific XMPP feature is supported by both a

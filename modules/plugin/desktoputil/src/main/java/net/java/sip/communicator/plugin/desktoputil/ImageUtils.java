@@ -40,7 +40,7 @@ public class ImageUtils
      * The <tt>Logger</tt> used by the <tt>ImageUtils</tt> class for logging
      * output.
      */
-    private static final Logger logger = Logger.getLogger(ImageUtils.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ImageUtils.class);
 
     /**
      * Different shapes that an image can be cropped to.

@@ -46,7 +46,7 @@ public class IrcConnection
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(IrcConnection.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(IrcConnection.class);
 
     /**
      * Set of characters with special meanings for IRC, such as: ',' used as
@@ -270,7 +270,7 @@ public class IrcConnection
                 {
                     synchronized (result)
                     {
-                        LOGGER.trace("IRC connected successfully!");
+                        logger.trace("IRC connected successfully!");
                         result.setDone(state);
                         result.notifyAll();
                     }
@@ -281,7 +281,7 @@ public class IrcConnection
                 {
                     synchronized (result)
                     {
-                        LOGGER.trace("IRC connection FAILED!", e);
+                        logger.trace("IRC connection FAILED!", e);
                         result.setDone(e);
                         result.notifyAll();
                     }
@@ -293,7 +293,7 @@ public class IrcConnection
 
             while (!result.isDone())
             {
-                LOGGER.trace("Waiting for the connection to be "
+                logger.trace("Waiting for the connection to be "
                     + "established ...");
                 result.wait();
             }
@@ -352,7 +352,7 @@ public class IrcConnection
         {
             // Disconnect might throw ChannelClosedException. Shouldn't be a
             // problem, but for now lets log it just to be sure.
-            LOGGER.debug("exception occurred while disconnecting", e);
+            logger.debug("exception occurred while disconnecting", e);
         }
     }
 
@@ -435,7 +435,7 @@ public class IrcConnection
         @Override
         public void onServerNotice(final ServerNotice msg)
         {
-            LOGGER.debug("NOTICE: " + msg.getText());
+            logger.debug("NOTICE: " + msg.getText());
         }
 
         /**
@@ -447,15 +447,15 @@ public class IrcConnection
         @Override
         public void onError(final ErrorMessage msg)
         {
-            if (LOGGER.isDebugEnabled())
+            if (logger.isDebugEnabled())
             {
-                LOGGER
+                logger
                     .debug("SERVER ERROR: " + msg.getSource() + ": " + msg.getText());
             }
 
             // Errors signal fatal situation, so unregister and assume
             // connection lost.
-            LOGGER.debug("Local user received ERROR message: removing server "
+            logger.debug("Local user received ERROR message: removing server "
                 + "listener.");
             IrcConnection.this.irc.deleteListener(this);
 
@@ -479,16 +479,16 @@ public class IrcConnection
         @Override
         public void onClientError(ClientErrorMessage msg)
         {
-            if (LOGGER.isDebugEnabled())
+            if (logger.isDebugEnabled())
             {
-                LOGGER.debug(
+                logger.debug(
                     "CLIENT ERROR: " + msg.getException().getMessage(),
                     msg.getException());
             }
 
             // Errors signal fatal situation, so unregister and assume
             // connection lost.
-            LOGGER.debug("Local user received CLIENT ERROR message: removing "
+            logger.debug("Local user received CLIENT ERROR message: removing "
                 + "server listener.");
             IrcConnection.this.irc.deleteListener(this);
 
@@ -517,7 +517,7 @@ public class IrcConnection
                 return;
             }
 
-            LOGGER.debug("Local user's QUIT message received: removing "
+            logger.debug("Local user's QUIT message received: removing "
                 + "server listener.");
             IrcConnection.this.irc.deleteListener(this);
 
@@ -556,7 +556,7 @@ public class IrcConnection
         @Override
         public void acknowledge(Capability cap)
         {
-            LOGGER.info("Capability " + cap.getId() + " acknowledged.");
+            logger.info("Capability " + cap.getId() + " acknowledged.");
             if (AWAY_NOTIFY.equals(cap.getId()))
             {
                 this.awayNotify = true;
@@ -566,7 +566,7 @@ public class IrcConnection
         @Override
         public void reject(Capability cap)
         {
-            LOGGER.info("Capability " + cap.getId() + " rejected.");
+            logger.info("Capability " + cap.getId() + " rejected.");
             if (AWAY_NOTIFY.equals(cap.getId()))
             {
                 this.awayNotify = false;

@@ -42,7 +42,7 @@ public class AccountPanel
      */
     private static final long serialVersionUID = 0L;
 
-    private final Logger logger = Logger.getLogger(AccountPanel.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AccountPanel.class);
 
     private final JPanel labelsPanel
         = new TransparentPanel(new GridLayout(0, 1));

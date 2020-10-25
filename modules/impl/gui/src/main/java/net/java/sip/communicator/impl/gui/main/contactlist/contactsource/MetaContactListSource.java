@@ -98,8 +98,7 @@ public class MetaContactListSource
     /**
      * The logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(MetaContactListSource.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MetaContactListSource.class);
 
     /**
      * Returns the <tt>UIContact</tt> corresponding to the given
@@ -201,7 +200,7 @@ public class MetaContactListSource
 
     /**
      * Starts the query.
-     * 
+     *
      * @param filterPattern the pattern to filter through
      * @param query the query to be started
      */
@@ -272,23 +271,23 @@ public class MetaContactListSource
                     UIContact newUIContact;
                     synchronized (metaContact)
                     {
-                        newUIContact 
+                        newUIContact
                             = MetaContactListSource.getUIContact(metaContact);
-    
+
                         if (newUIContact == null)
                         {
                             newUIContact
                                 = MetaContactListSource
                                     .createUIContact(metaContact);
                         }
-                        
+
                         GuiActivator.getContactList().addContact(
                             newUIContact,
                             uiGroup,
                             true,
                             true);
                     }
-                    
+
                     query.setInitialResultCount(resultCount);
                 }
                 else
@@ -490,7 +489,7 @@ public class MetaContactListSource
                 if (groupNode != null)
                     groupNode.sort(treeModel);
             }
-           
+
         }
     }
 
@@ -534,7 +533,7 @@ public class MetaContactListSource
         if (currentFilter.isMatching(uiContact))
         {
             UIGroup uiGroup = null;
-            
+
             if (!MetaContactListSource.isRootGroup(parentGroup))
             {
                 uiGroup = MetaContactListSource.getUIGroup(parentGroup);
@@ -623,9 +622,9 @@ public class MetaContactListSource
 
                 if (groupNode != null)
                     GuiActivator.getContactList().getTreeModel()
-                        .nodeChanged(groupNode); 
+                        .nodeChanged(groupNode);
             }
-            
+
         }
     }
 
@@ -727,16 +726,16 @@ public class MetaContactListSource
 
             // Add the contact to the new place.
             uiContact = MetaContactListSource.createUIContact(metaContact);
-            
+
 
             UIGroup newUIGroup = null;
-            
+
             if (!MetaContactListSource.isRootGroup(newParent))
             {
                 synchronized (newParent)
                 {
                     newUIGroup = MetaContactListSource.getUIGroup(newParent);
-                    
+
                     if (newUIGroup == null)
                         newUIGroup
                             = MetaContactListSource.createUIGroup(newParent);
@@ -748,7 +747,7 @@ public class MetaContactListSource
 
             synchronized (uiContact)
             {
-                if (currentFilter.isMatching(uiContact) 
+                if (currentFilter.isMatching(uiContact)
                     && uiContact.getContactNode() == null)
                     GuiActivator.getContactList()
                         .addContact(uiContact, newUIGroup, true, true);
@@ -829,7 +828,7 @@ public class MetaContactListSource
                 if (contactNode != null)
                     GuiActivator.getContactList().nodeChanged(contactNode);
             }
-            
+
         }
     }
 
@@ -861,14 +860,14 @@ public class MetaContactListSource
         {
             ContactListFilter currentFilter
                 = GuiActivator.getContactList().getCurrentFilter();
-            
+
             if (currentFilter.isMatching(parentUIContact))
             {
                 MetaContactGroup parentGroup
                     = metaContact.getParentMetaContactGroup();
 
                 UIGroup uiGroup = null;
-                
+
                 if (!MetaContactListSource
                         .isRootGroup(parentGroup))
                 {
@@ -881,7 +880,7 @@ public class MetaContactListSource
                                 .createUIGroup(parentGroup);
                     }
                 }
-                
+
                 GuiActivator.getContactList()
                     .addContact(parentUIContact, uiGroup, true, true);
             }
@@ -968,7 +967,7 @@ public class MetaContactListSource
                     = newParent.getParentMetaContactGroup();
 
                 UIGroup uiGroup = null;
-                
+
                 if (!MetaContactListSource
                         .isRootGroup(parentGroup))
                 {

@@ -51,7 +51,7 @@ public class AccountList
     /**
      * The logger.
      */
-    private final Logger logger = Logger.getLogger(AccountList.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AccountList.class);
 
     /**
      * Property that is changed when an account is enabled/disabled.

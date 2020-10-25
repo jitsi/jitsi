@@ -44,7 +44,7 @@ public class ProxyRouter
     /**
      * Logger for this class.
      */
-    private static final Logger logger = Logger.getLogger(ProxyRouter.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProxyRouter.class);
 
     /**
      * The running JAIN-SIP stack.
@@ -113,7 +113,7 @@ public class ProxyRouter
 
         // Emil: we are not quite certain in which cases this method is needed
         // so we are logging a stack trace here.
-        logger.fatal("If you see this then please please describe your SIP "
+        logger.error("If you see this then please please describe your SIP "
             + "setup and send the following stack trace to"
             + "dev@jitsi.org", new Exception());
         return null;

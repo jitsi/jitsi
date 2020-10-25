@@ -23,8 +23,6 @@ import java.util.concurrent.*;
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.shutdown.*;
-import net.java.sip.communicator.util.Logger;
-
 import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
@@ -44,8 +42,7 @@ public class UpdateActivator
      * The <tt>Logger</tt> used by the <tt>UpdateActivator</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(UpdateActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UpdateActivator.class);
 
     /**
      * The name of the configuration property which indicates whether the

@@ -56,8 +56,7 @@ public class OperationSetFileTransferJabberImpl
     /**
      * The logger for this class.
      */
-    private static final Logger logger =
-        Logger.getLogger(OperationSetFileTransferJabberImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetFileTransferJabberImpl.class);
 
      /**
      * The provider that created us.

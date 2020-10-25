@@ -59,8 +59,7 @@ public class MclStorageManager
     /**
      * Our logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(MclStorageManager.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MclStorageManager.class);
 
     /**
      * The property to enable multi tenant mode. When changing profiles/accounts
@@ -633,8 +632,7 @@ public class MclStorageManager
             {
                 // If there is no root, there is definitely something wrong
                 // really broken file will create it again
-                logger
-                    .fatal("The contactlist file is recreated cause its broken");
+                logger.error("The contactlist file is recreated cause its broken");
 
                 DocumentBuilderFactory factory =
                     DocumentBuilderFactory.newInstance();

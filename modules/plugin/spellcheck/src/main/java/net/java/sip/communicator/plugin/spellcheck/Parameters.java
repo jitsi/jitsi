@@ -35,7 +35,7 @@ import org.xml.sax.*;
  */
 class Parameters
 {
-    private static final Logger logger = Logger.getLogger(Parameters.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Parameters.class);
 
     private static final String RESOURCE_LOC =
         "parameters.xml";
@@ -257,7 +257,7 @@ class Parameters
          * Gets the ICU locale, which is a combination of the ISO code and the
          * country variant. English for the United States is therefore en_US,
          * German for Switzerland de_CH.
-         * 
+         *
          * @return ICU locale
          */
         public String getIcuLocale()

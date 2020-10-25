@@ -40,8 +40,7 @@ public class SMSManager
      * The <tt>Logger</tt> used by the <tt>ChatWindowManager</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(SMSManager.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SMSManager.class);
 
     /**
      * Sends sms, chooses provider and sends the sms.

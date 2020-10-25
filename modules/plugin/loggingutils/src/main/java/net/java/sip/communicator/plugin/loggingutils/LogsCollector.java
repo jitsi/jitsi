@@ -23,8 +23,6 @@ import java.util.*;
 import java.util.regex.*;
 import java.util.zip.*;
 
-import net.java.sip.communicator.util.Logger;
-
 import org.jitsi.service.fileaccess.*;
 import org.jitsi.util.*;
 
@@ -37,8 +35,7 @@ public class LogsCollector
     /**
      * Our Logger.
      */
-    private static final Logger logger
-            = Logger.getLogger(LogsCollector.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LogsCollector.class);
 
     /**
      * The name of the log dir.

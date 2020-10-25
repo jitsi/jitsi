@@ -44,7 +44,7 @@ public class NetworkUtils
      * The <tt>Logger</tt> used by the <tt>NetworkUtils</tt> class for logging
      * output.
      */
-    private static final Logger logger = Logger.getLogger(NetworkUtils.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NetworkUtils.class);
 
     /**
      * A string containing the "any" local address for IPv6.
@@ -585,7 +585,7 @@ public class NetworkUtils
             for (int i = 0; i < srvRecords.length; i++)
             {
                 if (logger.isTraceEnabled())
-                    logger.trace(srvRecords[i]);
+                    logger.trace("Found SRV record: {}", srvRecords[i]);
             }
         }
         return srvRecords;

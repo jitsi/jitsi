@@ -37,8 +37,7 @@ import org.osgi.framework.*;
 public class OperationSetPersistentPresenceGibberishImpl
     extends AbstractOperationSetPersistentPresence<ProtocolProviderServiceGibberishImpl>
 {
-    private static final Logger logger =
-        Logger.getLogger(OperationSetPersistentPresenceGibberishImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetPersistentPresenceGibberishImpl.class);
 
     /**
      * The root of the gibberish contact list.

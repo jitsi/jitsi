@@ -50,14 +50,13 @@ import net.java.sip.communicator.util.*;
 
 /**
  * System tray icon implementation based on libappindicator1.
- * 
+ *
  * @author Ingo Bauersachs
  */
 class AppIndicatorTrayIcon implements TrayIcon
 {
-    private static final Logger logger =
-        Logger.getLogger(AppIndicatorTrayIcon.class);
-    
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AppIndicatorTrayIcon.class);
+
     // shortcuts
     private static Gobject gobject = Gobject.INSTANCE;
     private static Gtk gtk = Gtk.INSTANCE;
@@ -439,7 +438,7 @@ class AppIndicatorTrayIcon implements TrayIcon
         peer.gtkImage = gtk.gtk_image_new_from_pixbuf(peer.gtkPixbuf);
 
         // Now that the image ref's the buffer, we can release our own ref and
-        // the buffer will be free'd along with the image 
+        // the buffer will be free'd along with the image
         gobject.g_object_unref(peer.gtkPixbuf);
     }
 

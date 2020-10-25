@@ -39,8 +39,7 @@ import org.osgi.framework.*;
 public class ShutdownTimeout
     implements BundleActivator
 {
-    private static final Logger logger
-        = Logger.getLogger(ShutdownTimeout.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ShutdownTimeout.class);
 
     /**
      * The system property which can be used to set custom timeout.

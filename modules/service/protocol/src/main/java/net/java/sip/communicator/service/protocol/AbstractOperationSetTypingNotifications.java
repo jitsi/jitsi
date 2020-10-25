@@ -41,8 +41,7 @@ public abstract class AbstractOperationSetTypingNotifications<T extends Protocol
      * <tt>AbstractOperationSetTypingNotifications</tt> class and its instances
      * for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(AbstractOperationSetTypingNotifications.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AbstractOperationSetTypingNotifications.class);
 
     /**
      * The provider that created us.

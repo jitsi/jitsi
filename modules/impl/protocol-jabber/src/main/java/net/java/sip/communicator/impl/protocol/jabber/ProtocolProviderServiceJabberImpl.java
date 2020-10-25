@@ -47,8 +47,6 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabber.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.Logger;
-
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.neomedia.*;
 import org.jivesoftware.smack.*;
@@ -89,8 +87,7 @@ public class ProtocolProviderServiceJabberImpl
     /**
      * Logger of this class
      */
-    private static final Logger logger =
-        Logger.getLogger(ProtocolProviderServiceJabberImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProtocolProviderServiceJabberImpl.class);
 
     /**
      * Jingle's Discovery Info common URN.
@@ -2819,10 +2816,10 @@ public class ProtocolProviderServiceJabberImpl
      * @throws OperationFailedException the exception that we wanted this method
      * to throw.
      */
-    public static void throwOperationFailedException( String    message,
-                                                      int       errorCode,
-                                                      Throwable cause,
-                                                      Logger    logger)
+    public static void throwOperationFailedException(String message,
+        int errorCode,
+        Throwable cause,
+        org.slf4j.Logger logger)
         throws OperationFailedException
     {
         logger.error(message, cause);

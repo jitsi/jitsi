@@ -42,8 +42,7 @@ public abstract class AbstractSystrayService
     /**
      * The logger
      */
-    private final Logger logger
-            = Logger.getLogger(AbstractSystrayService.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AbstractSystrayService.class);
 
     /**
      * OSGI bundle context
@@ -130,7 +129,7 @@ public abstract class AbstractSystrayService
 
     /**
      * Stub method that does nothing.
-     * @param count ignored 
+     * @param count ignored
      */
     @Override
     public void setNotificationCount(int count)

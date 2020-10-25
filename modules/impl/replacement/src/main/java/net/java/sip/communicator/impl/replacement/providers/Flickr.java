@@ -38,8 +38,7 @@ public class Flickr
     /**
      * The logger for this class.
      */
-    private static final Logger logger =
-        Logger.getLogger(Flickr.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Flickr.class);
 
     /**
      * The regex used to match the link in the message.

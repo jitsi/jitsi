@@ -27,8 +27,7 @@ import net.java.sip.communicator.util.*;
 public class ImEventCollector
     implements MessageListener
 {
-    private static final Logger logger =
-        Logger.getLogger(ImEventCollector.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ImEventCollector.class);
 
     public List<EventObject> collectedEvents = new LinkedList<EventObject>();
 

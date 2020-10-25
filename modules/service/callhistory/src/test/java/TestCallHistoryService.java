@@ -39,7 +39,7 @@ import org.osgi.framework.*;
 public class TestCallHistoryService
     extends TestCase
 {
-    private static final Logger logger = Logger.getLogger(TestCallHistoryService.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestCallHistoryService.class);
 
     /**
      * The provider that we use to make a dummy server-stored contactlist

@@ -39,8 +39,7 @@ public class IncomingFileTransferRequestIcqImpl
     /**
      * Logger
      */
-    private static final Logger logger =
-        Logger.getLogger(IncomingFileTransferRequestIcqImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(IncomingFileTransferRequestIcqImpl.class);
 
     /**
      * The icq provider.

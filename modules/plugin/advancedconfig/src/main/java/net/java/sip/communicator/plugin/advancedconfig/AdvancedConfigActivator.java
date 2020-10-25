@@ -40,8 +40,7 @@ public class AdvancedConfigActivator
     /**
      * The logger.
      */
-    private static final Logger logger
-        = Logger.getLogger(AdvancedConfigActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AdvancedConfigActivator.class);
 
     /**
      * The bundle context.

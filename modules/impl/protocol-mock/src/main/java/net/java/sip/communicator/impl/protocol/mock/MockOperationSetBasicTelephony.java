@@ -34,8 +34,7 @@ public class MockOperationSetBasicTelephony
     extends AbstractOperationSetBasicTelephony<MockProvider>
     implements CallChangeListener
 {
-    private static final Logger logger
-        = Logger.getLogger(MockOperationSetBasicTelephony.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MockOperationSetBasicTelephony.class);
 
     /**
      * A reference to the <tt>ProtocolProviderServiceSipImpl</tt> instance

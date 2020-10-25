@@ -37,8 +37,7 @@ public class OperationSetJitsiMeetToolsJabberImpl
 {
     private final ProtocolProviderServiceJabberImpl parentProvider;
 
-    private final static Logger logger
-        = Logger.getLogger(OperationSetJitsiMeetToolsJabberImpl.class);
+    private final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetJitsiMeetToolsJabberImpl.class);
 
     /**
      * The list of {@link JitsiMeetRequestListener}.

@@ -50,8 +50,7 @@ public class PresenceManager
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger
-        .getLogger(PresenceManager.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PresenceManager.class);
 
     /**
      * IRC client library instance.
@@ -254,13 +253,13 @@ public class PresenceManager
             state.getServerOptions().getKey(ISupport.AWAYLEN.name());
         if (value == null)
         {
-            LOGGER.trace("No ISUPPORT parameter " + ISupport.AWAYLEN.name()
+            logger.trace("No ISUPPORT parameter " + ISupport.AWAYLEN.name()
                 + " available.");
             return null;
         }
-        if (LOGGER.isDebugEnabled())
+        if (logger.isDebugEnabled())
         {
-            LOGGER.debug("Setting ISUPPORT parameter "
+            logger.debug("Setting ISUPPORT parameter "
                 + ISupport.AWAYLEN.name() + " to " + value);
         }
         try
@@ -269,7 +268,7 @@ public class PresenceManager
         }
         catch (RuntimeException e)
         {
-            LOGGER.warn("Failed to parse AWAYLEN value.", e);
+            logger.warn("Failed to parse AWAYLEN value.", e);
             return null;
         }
     }
@@ -288,13 +287,13 @@ public class PresenceManager
             state.getServerOptions().getKey(ISupport.MONITOR.name());
         if (value == null)
         {
-            LOGGER.trace("No ISUPPORT parameter " + ISupport.MONITOR.name()
+            logger.trace("No ISUPPORT parameter " + ISupport.MONITOR.name()
                 + " available.");
             return null;
         }
-        if (LOGGER.isDebugEnabled())
+        if (logger.isDebugEnabled())
         {
-            LOGGER.debug("Setting ISUPPORT parameter "
+            logger.debug("Setting ISUPPORT parameter "
                 + ISupport.MONITOR.name() + " to " + value);
         }
         try
@@ -303,7 +302,7 @@ public class PresenceManager
         }
         catch (RuntimeException e)
         {
-            LOGGER.warn("Failed to parse MONITOR value.", e);
+            logger.warn("Failed to parse MONITOR value.", e);
             return null;
         }
     }
@@ -322,13 +321,13 @@ public class PresenceManager
             state.getServerOptions().getKey(ISupport.WATCH.name());
         if (value == null)
         {
-            LOGGER.trace("No ISUPPORT parameter " + ISupport.WATCH.name()
+            logger.trace("No ISUPPORT parameter " + ISupport.WATCH.name()
                 + " available.");
             return null;
         }
-        if (LOGGER.isDebugEnabled())
+        if (logger.isDebugEnabled())
         {
-            LOGGER.debug("Setting ISUPPORT parameter " + ISupport.WATCH.name()
+            logger.debug("Setting ISUPPORT parameter " + ISupport.WATCH.name()
                 + " to " + value);
         }
         try
@@ -337,7 +336,7 @@ public class PresenceManager
         }
         catch (RuntimeException e)
         {
-            LOGGER.warn("Failed to parse WATCH value.", e);
+            logger.warn("Failed to parse WATCH value.", e);
             return null;
         }
     }
@@ -439,7 +438,7 @@ public class PresenceManager
                 + IdentityManager.checkNick(nick, null));
             while (!result.isDone())
             {
-                LOGGER.debug("Waiting for presence status based on WHOIS "
+                logger.debug("Waiting for presence status based on WHOIS "
                     + "reply ...");
                 result.wait();
             }
@@ -536,7 +535,7 @@ public class PresenceManager
                 PresenceManager.this.away = false;
                 operationSet.updatePresenceStatus(IrcStatusEnum.AWAY,
                     IrcStatusEnum.ONLINE);
-                LOGGER.debug("Away status disabled.");
+                logger.debug("Away status disabled.");
                 break;
             case IRC_RPL_NOWAWAY:
                 PresenceManager.this.currentMessage =
@@ -544,7 +543,7 @@ public class PresenceManager
                 PresenceManager.this.away = true;
                 operationSet.updatePresenceStatus(IrcStatusEnum.ONLINE,
                     IrcStatusEnum.AWAY);
-                LOGGER.debug("Away status enabled with message \""
+                logger.debug("Away status enabled with message \""
                     + PresenceManager.this.currentMessage + "\"");
                 break;
             default:

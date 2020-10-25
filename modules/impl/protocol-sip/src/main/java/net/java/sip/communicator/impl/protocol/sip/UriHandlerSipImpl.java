@@ -56,8 +56,7 @@ public class UriHandlerSipImpl
      * The <tt>Logger</tt> used by the <tt>UriHandlerSipImpl</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(UriHandlerSipImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UriHandlerSipImpl.class);
 
     /**
      * The protocol provider factory that created us.
@@ -398,7 +397,7 @@ public class UriHandlerSipImpl
      */
     protected void handleUri(String uri, ProtocolProviderService provider)
     {
-        //handle "sip://" URIs as "sip:" 
+        //handle "sip://" URIs as "sip:"
         if(uri != null)
             uri = uri.replace("sip://", "sip:");
 

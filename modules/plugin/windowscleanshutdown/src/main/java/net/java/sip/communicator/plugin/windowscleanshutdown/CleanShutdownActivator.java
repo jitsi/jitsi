@@ -37,8 +37,7 @@ import java.util.concurrent.*;
 public class CleanShutdownActivator
     implements BundleActivator, ServiceListener
 {
-    private static final Logger logger
-        = Logger.getLogger(CleanShutdownActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CleanShutdownActivator.class);
 
     /**
      * Used to wait for stop.

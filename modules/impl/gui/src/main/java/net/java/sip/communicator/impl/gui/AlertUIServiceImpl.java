@@ -44,8 +44,7 @@ public class AlertUIServiceImpl
      * The <tt>Logger</tt> used by the <tt>AlertUIServiceImpl</tt> class and
      * its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(AlertUIServiceImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AlertUIServiceImpl.class);
 
     /**
      * Shows an alert dialog with the given title and message.
@@ -79,7 +78,7 @@ public class AlertUIServiceImpl
      * @param message the message to be displayed
      * @param e the exception corresponding to the error
      */
-    public void showAlertDialog(final String title, final String message, 
+    public void showAlertDialog(final String title, final String message,
         final Throwable e)
     {
         if(!SwingUtilities.isEventDispatchThread())
@@ -106,7 +105,7 @@ public class AlertUIServiceImpl
      * @param message the message to be displayed
      * @param type the dialog type (warning or error)
      */
-    public void showAlertDialog(final String title, final String message, 
+    public void showAlertDialog(final String title, final String message,
         final int type)
     {
         if(!SwingUtilities.isEventDispatchThread())
@@ -180,7 +179,7 @@ public class AlertUIServiceImpl
      * @param e the exception that can be shown in the error dialog
      */
     public void showAlertPopup(final String title, final String message,
-        final String errorDialogTitle, final String errorDialogMessage, 
+        final String errorDialogTitle, final String errorDialogMessage,
         final Throwable e)
     {
         if(!SwingUtilities.isEventDispatchThread())
@@ -189,7 +188,7 @@ public class AlertUIServiceImpl
             {
                 public void run()
                 {
-                    showAlertPopup(title, message, errorDialogTitle, 
+                    showAlertPopup(title, message, errorDialogTitle,
                         errorDialogMessage, e);
                 }
             });

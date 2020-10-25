@@ -38,8 +38,7 @@ public class MsOutlookAddrBookContactQuery
      * The <tt>Logger</tt> used by the <tt>MsOutlookAddrBookContactQuery</tt>
      * class and its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(MsOutlookAddrBookContactQuery.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MsOutlookAddrBookContactQuery.class);
 
     public static final int dispidEmail1EmailAddress = 12;
 
@@ -870,7 +869,7 @@ public class MsOutlookAddrBookContactQuery
         catch(MsOutlookMAPIHResultException ex)
         {
             String hresult = ex.getHresultString();
-            
+
             if (logger.isTraceEnabled())
             {
                 logger.trace(
@@ -878,7 +877,7 @@ public class MsOutlookAddrBookContactQuery
                             + "#onMailUser(String)",
                         ex);
             }
-            
+
             if("MAPI_E_0x57".equals(hresult))
             {
                 if (!firstIMAPIPropGetPropFailureLogged)
@@ -891,7 +890,7 @@ public class MsOutlookAddrBookContactQuery
             {
                 throw ex;
             }
-            
+
             return true;
         }
 

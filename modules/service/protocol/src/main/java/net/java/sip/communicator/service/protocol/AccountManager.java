@@ -74,7 +74,7 @@ public class AccountManager
      * The <tt>Logger</tt> used by this <tt>AccountManagerImpl</tt> instance for
      * logging output.
      */
-    private final Logger logger = Logger.getLogger(AccountManager.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AccountManager.class);
 
     /**
      * The list of <tt>AccountID</tt>s, corresponding to all stored accounts.

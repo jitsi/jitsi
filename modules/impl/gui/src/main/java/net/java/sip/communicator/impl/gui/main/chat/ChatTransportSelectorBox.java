@@ -29,7 +29,6 @@ import org.jitsi.utils.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
-import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
 
 /**
@@ -46,8 +45,7 @@ public class ChatTransportSelectorBox
     implements  ActionListener,
                 Skinnable
 {
-    private static final Logger logger
-        = Logger.getLogger(ChatTransportSelectorBox.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ChatTransportSelectorBox.class);
 
     private static final long serialVersionUID = 0L;
 

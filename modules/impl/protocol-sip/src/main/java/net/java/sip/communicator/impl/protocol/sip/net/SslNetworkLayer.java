@@ -50,8 +50,7 @@ public class SslNetworkLayer
      /**
      * Our class logger.
      */
-     private static final Logger logger =
-         Logger.getLogger(SslNetworkLayer.class);
+     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SslNetworkLayer.class);
 
      /**
       * SIP DSCP configuration property name.

@@ -40,7 +40,7 @@ public class ReadonlyStatusItem
     /**
      * Our logger.
      */
-    private final Logger logger = Logger.getLogger(ReadonlyStatusItem.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ReadonlyStatusItem.class);
 
     /**
      * The connecting icon.

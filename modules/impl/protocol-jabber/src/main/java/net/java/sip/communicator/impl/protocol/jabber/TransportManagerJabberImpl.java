@@ -50,8 +50,7 @@ public abstract class TransportManagerJabberImpl
      * The <tt>Logger</tt> used by the <tt>TransportManagerJabberImpl</tt> class
      * and its instances to print debug messages.
      */
-    private static final Logger logger
-        = Logger.getLogger(TransportManagerJabberImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TransportManagerJabberImpl.class);
 
     /**
      * The ID that we will be assigning to our next candidate. We use

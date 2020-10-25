@@ -40,7 +40,7 @@ public class NewBundleDialog
     /**
      * The object used for logging.
      */
-    private Logger logger = Logger.getLogger(NewBundleDialog.class);
+    private org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NewBundleDialog.class);
 
     private static final long serialVersionUID = 7638976584338100969L;
 

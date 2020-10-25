@@ -39,8 +39,7 @@ public class ProtocolIconIrcImpl
      * The <tt>Logger</tt> used by the <tt>ProtocolIconIrcImpl</tt> class and
      * its instances for logging output.
      */
-    private static final Logger LOGGER
-        = Logger.getLogger(ProtocolIconIrcImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProtocolIconIrcImpl.class);
 
     /**
      * A hash table containing the protocol icon in different sizes.
@@ -179,7 +178,7 @@ public class ProtocolIconIrcImpl
             }
             catch (IOException e)
             {
-                LOGGER.error("Failed to load image:" + imageID, e);
+                logger.error("Failed to load image:" + imageID, e);
             }
         }
         return image;

@@ -55,7 +55,7 @@ public class CallSipImpl
     /**
      * Our class logger.
      */
-    private static final Logger logger = Logger.getLogger(CallSipImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CallSipImpl.class);
 
     /**
      * Custom header included in initial desktop sharing call creation.

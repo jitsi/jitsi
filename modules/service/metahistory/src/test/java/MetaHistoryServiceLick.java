@@ -31,7 +31,7 @@ public class MetaHistoryServiceLick
     extends TestSuite
     implements BundleActivator
 {
-    private static Logger logger = Logger.getLogger(MetaHistoryServiceLick.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MetaHistoryServiceLick.class);
 
     protected static BundleContext bc = null;
 

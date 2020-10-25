@@ -24,7 +24,6 @@ import java.util.*;
 
 import javax.net.ssl.*;
 
-import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.service.gui.*;
 
 import org.apache.commons.lang3.StringUtils;
@@ -60,7 +59,7 @@ public class HttpUtils
      * The <tt>Logger</tt> used by the <tt>HttpUtils</tt> class for logging
      * output.
      */
-    private static final Logger logger = Logger.getLogger(HttpUtils.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(HttpUtils.class);
 
     /**
      * The prefix used when storing credentials for sites when no property

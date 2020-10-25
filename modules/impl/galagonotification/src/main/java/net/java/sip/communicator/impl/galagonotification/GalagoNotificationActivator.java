@@ -41,8 +41,7 @@ public class GalagoNotificationActivator
      * The <tt>Logger</tt> used by the <tt>GalagoNotificationActivator</tt>
      * class and its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(GalagoNotificationActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GalagoNotificationActivator.class);
 
     /**
      * The context in which the galagonotification bundle is executing.

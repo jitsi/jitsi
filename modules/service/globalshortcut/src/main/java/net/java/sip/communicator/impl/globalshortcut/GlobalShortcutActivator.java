@@ -38,8 +38,7 @@ public class GlobalShortcutActivator
      * The <tt>Logger</tt> used by the <tt>GlobalShortcutActivator</tt> class
      * and its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(GlobalShortcutActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GlobalShortcutActivator.class);
 
     /**
      * The <tt>GlobalShortcutServiceImpl</tt>.
@@ -125,7 +124,7 @@ public class GlobalShortcutActivator
                     GlobalShortcutService.class,
                     globalShortcutService,
                     null);
-    
+
             globalShortcutService.reloadGlobalShortcuts();
         }
         catch (UnsatisfiedLinkError e)

@@ -35,7 +35,7 @@ import net.java.sip.communicator.util.*;
 abstract class DocUnderliner
     implements DocumentListener
 {
-    private static final Logger logger = Logger.getLogger(DocUnderliner.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DocUnderliner.class);
 
     private static final Color UNDERLINE_COLOR = new Color(255, 100, 100);
 

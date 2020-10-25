@@ -62,8 +62,7 @@ public class OperationSetTelephonyConferencingJabberImpl
      * <tt>OperationSetTelephonyConferencingJabberImpl</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(OperationSetTelephonyConferencingJabberImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetTelephonyConferencingJabberImpl.class);
 
     /**
      * The minimum interval in milliseconds between COINs sent to a single

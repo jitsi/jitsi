@@ -31,8 +31,7 @@ import net.java.sip.communicator.util.*;
 public class TestOperationSetTypingNotifications
     extends TestCase
 {
-    private static final Logger logger =
-        Logger.getLogger(TestOperationSetTypingNotifications.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestOperationSetTypingNotifications.class);
 
     private JabberSlickFixture fixture = new JabberSlickFixture();
     private OperationSetTypingNotifications opSetTypingNotifs1 = null;

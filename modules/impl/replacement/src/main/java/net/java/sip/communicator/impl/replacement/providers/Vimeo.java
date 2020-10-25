@@ -38,8 +38,7 @@ public class Vimeo
     /**
      * The logger for this class.
      */
-    private static final Logger logger =
-        Logger.getLogger(Vimeo.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Vimeo.class);
 
     /**
      * The regex used to match the link in the message.

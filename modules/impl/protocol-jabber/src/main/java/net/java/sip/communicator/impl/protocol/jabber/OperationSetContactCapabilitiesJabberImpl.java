@@ -51,8 +51,7 @@ public class OperationSetContactCapabilitiesJabberImpl
      * <tt>OperationSetContactCapabilitiesJabberImpl</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(OperationSetContactCapabilitiesJabberImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetContactCapabilitiesJabberImpl.class);
 
     /**
      * The name of the property used to control whether to use

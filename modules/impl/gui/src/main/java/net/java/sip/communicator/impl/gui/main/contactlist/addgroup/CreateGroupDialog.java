@@ -36,8 +36,7 @@ public class CreateGroupDialog
     extends SIPCommDialog
     implements ActionListener, WindowFocusListener
 {
-    private final Logger logger
-        = Logger.getLogger(CreateGroupDialog.class.getName());
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CreateGroupDialog.class.getName());
 
     private CreateGroupPanel groupPanel = new CreateGroupPanel();
 
@@ -214,7 +213,7 @@ public class CreateGroupDialog
             }
             catch (MetaContactListException ex)
             {
-                logger.error(ex);
+                logger.error("Could not create group", ex);
                 int errorCode = ex.getErrorCode();
 
                 if (errorCode

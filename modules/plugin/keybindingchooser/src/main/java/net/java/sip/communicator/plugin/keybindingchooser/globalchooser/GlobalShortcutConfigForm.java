@@ -48,7 +48,7 @@ public class GlobalShortcutConfigForm
     /**
      * The logger for this class.
      */
-    private static Logger logger = Logger.getLogger(
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(
         GlobalShortcutConfigForm.class);
 
     /**

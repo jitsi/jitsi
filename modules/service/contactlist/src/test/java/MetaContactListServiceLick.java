@@ -38,8 +38,7 @@ public class MetaContactListServiceLick
     extends TestSuite
     implements BundleActivator
 {
-    private static final Logger logger =
-        Logger.getLogger(MetaContactListServiceLick.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MetaContactListServiceLick.class);
 
     //Convenience referenes to some groups and contacts.
     static final String topLevelGroupName = "SomePeople";

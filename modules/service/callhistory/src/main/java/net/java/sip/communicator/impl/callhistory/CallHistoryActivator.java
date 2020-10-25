@@ -42,8 +42,7 @@ public class CallHistoryActivator
      * The <tt>Logger</tt> used by the <tt>CallHistoryActivator</tt> class and
      * its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(CallHistoryActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CallHistoryActivator.class);
 
     /**
      * The bundle context.
@@ -85,35 +84,24 @@ public class CallHistoryActivator
     public void startWithServices(BundleContext bc) throws Exception
     {
         bundleContext = bc;
+        HistoryService historyService = getService(HistoryService.class);
 
-        try{
-            logger.logEntry();
+        //Create and start the call history service.
+        callHistoryService =
+            new CallHistoryServiceImpl();
+        // set the configuration and history service
+        callHistoryService.setHistoryService(historyService);
 
-            HistoryService historyService = getService(HistoryService.class);
+        callHistoryService.start(bundleContext);
 
-            //Create and start the call history service.
-            callHistoryService =
-                new CallHistoryServiceImpl();
-            // set the configuration and history service
-            callHistoryService.setHistoryService(historyService);
+        bundleContext.registerService(
+            CallHistoryService.class.getName(), callHistoryService, null);
 
-            callHistoryService.start(bundleContext);
+        bundleContext.registerService(
+            ContactSourceService.class.getName(),
+            new CallHistoryContactSource(), null);
 
-            bundleContext.registerService(
-                CallHistoryService.class.getName(), callHistoryService, null);
-
-            bundleContext.registerService(
-                ContactSourceService.class.getName(),
-                new CallHistoryContactSource(), null);
-
-            if (logger.isInfoEnabled())
-                logger.info("Call History Service ...[REGISTERED]");
-        }
-        finally
-        {
-            logger.logExit();
-        }
-
+        logger.info("Call History Service ...[REGISTERED]");
     }
 
     /**

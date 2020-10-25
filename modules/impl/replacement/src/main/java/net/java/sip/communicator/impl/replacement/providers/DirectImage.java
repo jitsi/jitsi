@@ -38,8 +38,7 @@ public class DirectImage
     /**
      * The logger for this class.
      */
-    private static final Logger logger =
-        Logger.getLogger(DirectImage.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DirectImage.class);
 
     /**
      * The regex used to match the link in the message.
@@ -56,7 +55,7 @@ public class DirectImage
      * Source name; also used as property label.
      */
     public static final String SOURCE_NAME = "DIRECTIMAGE";
-    
+
     private static final int DEFAULT_IMG_MAX_SIZE = 2 * 1024 * 1024;
 
     /**
@@ -65,10 +64,10 @@ public class DirectImage
     private int imgMaxSize;
 
     /**
-    * Configuration property name for maximum allowed size of the image in 
+    * Configuration property name for maximum allowed size of the image in
     * bytes.
     */
-    private static final String MAX_IMG_SIZE = 
+    private static final String MAX_IMG_SIZE =
         "net.java.sip.communicator.impl.replacement.directimage.MAX_IMG_SIZE";
 
     /**
@@ -129,7 +128,7 @@ public class DirectImage
         int length = -1;
         try
         {
-            
+
             URL url = new URL(sourceString);
             String protocol = url.getProtocol();
             if (protocol.equals("http") || protocol.equals("https"))
@@ -145,7 +144,7 @@ public class DirectImage
                 length = ftp.getSize();
                 ftp.disconnect();
             }
-            
+
             if (length > imgMaxSize)
             {
                 length = -1;

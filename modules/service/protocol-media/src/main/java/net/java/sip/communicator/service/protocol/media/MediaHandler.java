@@ -49,7 +49,7 @@ public class MediaHandler
      * The <tt>Logger</tt> used by the <tt>MediaHandler</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger = Logger.getLogger(MediaHandler.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MediaHandler.class);
 
     /**
      * The <tt>AudioMediaStream</tt> which this instance uses to send and
@@ -1000,7 +1000,7 @@ public class MediaHandler
             dbgMessage.append(pt).append("=").append(fmt).append("; ");
             stream.addDynamicRTPPayloadType(pt, fmt);
         }
-        logger.info(dbgMessage);
+        logger.info(dbgMessage.toString());
 
         dbgMessage = new StringBuffer("PT overrides [");
         //now register whatever overrides we have for the above mappings
@@ -1017,7 +1017,7 @@ public class MediaHandler
         }
 
         dbgMessage.append("]");
-        logger.info(dbgMessage);
+        logger.info(dbgMessage.toString());
 
 
     }

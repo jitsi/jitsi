@@ -29,11 +29,10 @@ import org.osgi.framework.*;
  * Activator for the swing notification service.
  * @author Symphorien Wanko
  */
-public class SwingNotificationActivator 
+public class SwingNotificationActivator
     extends DependentActivator
 {
-    private static final Logger logger =
-        Logger.getLogger(SwingNotificationActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SwingNotificationActivator.class);
 
     public SwingNotificationActivator()
     {

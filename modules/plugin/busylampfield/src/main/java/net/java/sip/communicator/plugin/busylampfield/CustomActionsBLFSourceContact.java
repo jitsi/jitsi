@@ -38,7 +38,7 @@ public class CustomActionsBLFSourceContact
     /**
      * Our logger.
      */
-    private final Logger logger = Logger.getLogger(
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(
         CustomActionsBLFSourceContact.class);
 
     /**

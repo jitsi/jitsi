@@ -40,8 +40,7 @@ public class SwingExtendedTooltip
                WindowFocusListener,
                ExtendedTooltip
 {
-    private static final Logger logger
-        = Logger.getLogger(SwingExtendedTooltip.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SwingExtendedTooltip.class);
 
     /**
      * Class id key used in UIDefaults.

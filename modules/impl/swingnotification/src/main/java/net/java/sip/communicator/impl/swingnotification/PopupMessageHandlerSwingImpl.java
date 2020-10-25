@@ -38,8 +38,7 @@ public class PopupMessageHandlerSwingImpl
     extends AbstractPopupMessageHandler
 {
     /** logger for the <tt>PopupMessageHandlerSwingImpl</tt> class */
-    private static final Logger logger
-        = Logger.getLogger(PopupMessageHandlerSwingImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PopupMessageHandlerSwingImpl.class);
 
     private ResourceManagementService resourceManagementService;
 

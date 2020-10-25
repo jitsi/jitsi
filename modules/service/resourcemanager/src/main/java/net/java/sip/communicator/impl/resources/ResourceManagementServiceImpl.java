@@ -39,8 +39,7 @@ public class ResourceManagementServiceImpl
     /**
      * The logger
      */
-    private static final Logger logger =
-            Logger.getLogger(ResourceManagementServiceImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ResourceManagementServiceImpl.class);
 
     private final ConfigurationService configService;
 

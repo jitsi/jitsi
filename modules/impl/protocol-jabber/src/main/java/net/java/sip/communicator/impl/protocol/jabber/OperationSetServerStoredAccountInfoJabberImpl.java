@@ -47,8 +47,7 @@ public class OperationSetServerStoredAccountInfoJabberImpl
     /**
      * The logger.
      */
-    private static final Logger logger =
-        Logger.getLogger(OperationSetServerStoredAccountInfoJabberImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetServerStoredAccountInfoJabberImpl.class);
 
     /**
      * The info retriever.

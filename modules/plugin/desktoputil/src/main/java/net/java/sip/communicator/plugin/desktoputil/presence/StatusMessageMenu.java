@@ -19,7 +19,6 @@ package net.java.sip.communicator.plugin.desktoputil.presence;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.Logger;
 
 import java.beans.*;
 
@@ -36,8 +35,7 @@ public class StatusMessageMenu
     /**
      * Our logger.
      */
-    private final static Logger logger
-        = Logger.getLogger(StatusMessageMenu.class);
+    private final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(StatusMessageMenu.class);
 
     private ProtocolProviderService protocolProvider;
 

@@ -31,8 +31,7 @@ import net.java.sip.communicator.util.*;
 public class ChatRoomProviderWrapperImpl
     implements ChatRoomProviderWrapper
 {
-    private static final Logger logger
-        = Logger.getLogger(ChatRoomProviderWrapperImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ChatRoomProviderWrapperImpl.class);
 
     private final ProtocolProviderService protocolProvider;
 
@@ -166,7 +165,7 @@ public class ChatRoomProviderWrapperImpl
     {
         return findChatRoomWrapperForChatRoomID(chatRoom.getIdentifier());
     }
-    
+
     /**
      * Returns the chat room wrapper contained in this provider that corresponds
      * to the chat room with the given id.

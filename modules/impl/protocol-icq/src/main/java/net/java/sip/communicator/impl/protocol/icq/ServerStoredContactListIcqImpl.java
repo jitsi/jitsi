@@ -44,8 +44,7 @@ public class ServerStoredContactListIcqImpl
      * The <tt>Logger</tt> used by the <tt>ServerStoredContactListIcqImpl</tt>
      * class and its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(ServerStoredContactListIcqImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ServerStoredContactListIcqImpl.class);
 
     /**
      * The joustsim buddy list that we encapsulate

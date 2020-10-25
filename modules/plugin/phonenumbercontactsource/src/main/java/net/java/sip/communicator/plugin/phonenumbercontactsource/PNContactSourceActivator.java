@@ -40,8 +40,7 @@ public class PNContactSourceActivator
      * The <tt>Logger</tt> used by the
      * <tt>PNContactSourceActivator</tt> class for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(PNContactSourceActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PNContactSourceActivator.class);
 
     /**
      * The bundle context.

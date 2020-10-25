@@ -33,8 +33,7 @@ import org.jivesoftware.smack.SmackException.*;
 public class QualityControlWrapper
     extends AbstractQualityControlWrapper<CallPeerJabberImpl>
 {
-    private final static Logger logger
-        = Logger.getLogger(QualityControlWrapper.class);
+    private final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(QualityControlWrapper.class);
 
     /**
      * Creates quality control for peer.

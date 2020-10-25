@@ -31,8 +31,7 @@ import net.java.sip.communicator.util.*;
 public class TestOperationSetServerStoredInfo
     extends TestCase
 {
-    private static final Logger logger =
-        Logger.getLogger(TestOperationSetServerStoredInfo.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestOperationSetServerStoredInfo.class);
 
     private IcqSlickFixture fixture = new IcqSlickFixture();
 

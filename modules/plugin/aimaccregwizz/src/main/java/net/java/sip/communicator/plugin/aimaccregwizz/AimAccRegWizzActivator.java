@@ -39,7 +39,7 @@ public class AimAccRegWizzActivator
      */
     public static BundleContext bundleContext;
 
-    private static Logger logger = Logger.getLogger(
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(
         AimAccRegWizzActivator.class);
 
     private static BrowserLauncherService browserLauncherService;

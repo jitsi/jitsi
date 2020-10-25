@@ -21,6 +21,7 @@ import java.io.*;
 import java.security.*;
 import java.util.*;
 
+import lombok.extern.slf4j.*;
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.records.*;
 import net.java.sip.communicator.util.*;
@@ -32,11 +33,10 @@ import org.w3c.dom.*;
  * @author Alexander Pelov
  * @author Yana Stamcheva
  */
+@Slf4j
 public class HistoryImpl
     implements History
 {
-    private static Logger log = Logger.getLogger(HistoryImpl.class);
-
     /**
      * The supported filetype.
      */
@@ -75,27 +75,21 @@ public class HistoryImpl
             HistoryRecordStructure historyRecordStructure,
             HistoryServiceImpl historyServiceImpl)
     {
-        try {
-            log.logEntry();
+        // TODO: Assert: Assert.assertNonNull(historyServiceImpl, "The
+        // historyServiceImpl should be non-null.");
+        // TODO: Assert: Assert.assertNonNull(id, "The ID should be
+        // non-null.");
+        // TODO: Assert: Assert.assertNonNull(historyRecordStructure, "The
+        // structure should be non-null.");
 
-            // TODO: Assert: Assert.assertNonNull(historyServiceImpl, "The
-            // historyServiceImpl should be non-null.");
-            // TODO: Assert: Assert.assertNonNull(id, "The ID should be
-            // non-null.");
-            // TODO: Assert: Assert.assertNonNull(historyRecordStructure, "The
-            // structure should be non-null.");
+        this.id = id;
+        this.directory = directory;
+        this.historyServiceImpl = historyServiceImpl;
+        this.historyRecordStructure = historyRecordStructure;
+        this.reader = null;
+        this.writer = null;
 
-            this.id = id;
-            this.directory = directory;
-            this.historyServiceImpl = historyServiceImpl;
-            this.historyRecordStructure = historyRecordStructure;
-            this.reader = null;
-            this.writer = null;
-
-            this.reloadDocumentList();
-        } finally {
-            log.logExit();
-        }
+        this.reloadDocumentList();
     }
 
     /**
@@ -133,7 +127,7 @@ public class HistoryImpl
         }
         catch (IOException e)
         {
-            log.debug("Could not create new history structure");
+            logger.debug("Could not create new history structure");
         }
     }
     public HistoryReader getReader()
@@ -298,7 +292,7 @@ public class HistoryImpl
 //                    throw new RuntimeException("Error occured while "
 //                            + "parsing XML document.", e);
 //                    log.error("Error occured while parsing XML document.", e);
-                    log.error("Error occured while parsing XML document.", e);
+                    logger.error("Error occured while parsing XML document.", e);
 
                     // will try to fix the xml file
                     retVal = getFixedDocument(file);
@@ -332,7 +326,7 @@ public class HistoryImpl
      */
     public Document getFixedDocument(File file)
     {
-        log.info("Will try to fix file : " + file);
+        logger.info("Will try to fix file : " + file);
         StringBuffer resultDocStr = new StringBuffer("<history>");
 
         try
@@ -357,7 +351,7 @@ public class HistoryImpl
         }
         catch (Exception ex1)
         {
-            log.error("File cannot be fixed. Erro reading! " +
+            logger.error("File cannot be fixed. Erro reading! " +
                       ex1.getLocalizedMessage());
         }
 
@@ -370,7 +364,7 @@ public class HistoryImpl
                     resultDocStr.toString().getBytes("UTF-8")));
 
             // parsing is ok . lets overwrite with correct values
-            log.trace("File fixed will write to disk!");
+            logger.trace("File fixed will write to disk!");
             XMLUtils.writeXML(result, file);
 
             return result;
@@ -412,7 +406,7 @@ public class HistoryImpl
         }
         catch (IOException ex)
         {
-            log.info("Error reading record " + ex.getLocalizedMessage());
+            logger.info("Error reading record " + ex.getLocalizedMessage());
             return null;
         }
     }
@@ -431,7 +425,7 @@ public class HistoryImpl
         }
         catch (Exception ex)
         {
-            log.error("not valid xml " + str + " " + ex.getMessage());
+            logger.error("not valid xml " + str + " " + ex.getMessage());
             return false;
         }
 

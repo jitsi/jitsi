@@ -44,8 +44,7 @@ public class ChatConfigActivator
     /**
      * The <tt>Logger</tt> used by the <tt>ChatConfigActivator</tt> class.
      */
-    private final static Logger logger =
-        Logger.getLogger(ChatConfigActivator.class);
+    private final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ChatConfigActivator.class);
 
     /**
      * The currently valid bundle context.

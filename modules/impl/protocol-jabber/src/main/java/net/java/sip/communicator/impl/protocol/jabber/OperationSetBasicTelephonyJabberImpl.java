@@ -66,8 +66,7 @@ public class OperationSetBasicTelephonyJabberImpl
      * <tt>OperationSetBasicTelephonyJabberImpl</tt> class and its instances for
      * logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(OperationSetBasicTelephonyJabberImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetBasicTelephonyJabberImpl.class);
 
     /**
      * A reference to the <tt>ProtocolProviderServiceJabberImpl</tt> instance
@@ -1064,11 +1063,11 @@ public class OperationSetBasicTelephonyJabberImpl
                     };
 
                     operationSetJitsiMeetTools
-                        .notifySessionStartMuted(startMutedFlags);    
+                        .notifySessionStartMuted(startMutedFlags);
                 }
                 else
                 {
-                    logger.warn("StartMutedPacketExtension not handled!" + 
+                    logger.warn("StartMutedPacketExtension not handled!" +
                                     "OperationSetJitsiMeetTools not available.");
                 }
             }

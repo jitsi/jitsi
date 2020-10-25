@@ -41,7 +41,7 @@ public class IcqStatusEnum
      * The <tt>Logger</tt> used by the <tt>IcqStatusEnum</tt> class and its
      * instances for logging output.
      */
-    private static Logger logger = Logger.getLogger(IcqStatusEnum.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(IcqStatusEnum.class);
 
     /**
      * The Free For Chat ICQ status. Indicates that the user is eager to

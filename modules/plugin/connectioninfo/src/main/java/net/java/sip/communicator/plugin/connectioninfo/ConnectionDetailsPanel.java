@@ -27,7 +27,6 @@ import net.java.sip.communicator.plugin.connectioninfo.ConnectionInfoMenuItemCom
 import net.java.sip.communicator.plugin.desktoputil.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.Logger;
 import org.jitsi.service.resources.*;
 
 /**
@@ -55,7 +54,7 @@ public class ConnectionDetailsPanel
     /**
      * The logger
      */
-    private final Logger logger = Logger.getLogger(
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(
             ConnectionDetailsPanel.class);
 
     private final ResourceManagementService R;

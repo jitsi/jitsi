@@ -35,8 +35,7 @@ import net.kano.joustsim.oscar.oscar.service.icbm.*;
 public class TestOperationSetTypingNotifications
     extends TestCase
 {
-    private static final Logger logger =
-        Logger.getLogger(TestOperationSetTypingNotifications.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestOperationSetTypingNotifications.class);
 
     private IcqSlickFixture fixture = new IcqSlickFixture();
     private OperationSetTypingNotifications opSetTypingNotifs = null;

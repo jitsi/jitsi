@@ -38,8 +38,7 @@ public abstract class AbstractOperationSetAvatar<T extends ProtocolProviderServi
      * The <tt>Logger</tt> used by the <tt>AbstractOperationSetAvatar</tt> class
      * and its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(AbstractOperationSetAvatar.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AbstractOperationSetAvatar.class);
 
     /**
      * The maximum avatar width. Zero mean no maximum

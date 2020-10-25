@@ -25,8 +25,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
-import net.java.sip.communicator.util.Logger;
-
 import org.jitsi.impl.neomedia.recording.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.neomedia.recording.*;
@@ -47,8 +45,7 @@ public class CallRecordingConfigForm
      * The <tt>Logger</tt> used by the <tt>CallRecordingConfigForm</tt> class
      * and its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(CallRecordingConfigForm.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CallRecordingConfigForm.class);
 
     /**
      * The resource service.

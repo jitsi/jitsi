@@ -49,7 +49,7 @@ public class OtrMetaContactButton
     /**
      * The logger
      */
-    private final Logger logger = Logger.getLogger(OtrMetaContactButton.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OtrMetaContactButton.class);
 
     private SIPCommButton button;
 
@@ -337,7 +337,7 @@ public class OtrMetaContactButton
                         otrContact.contact, fingerprint)
                     ? verifiedLockedPadlockImage
                     : unverifiedLockedPadlockImage;
-            tipKey = 
+            tipKey =
                 OtrActivator.scOtrKeyManager.isVerified(
                         otrContact.contact, fingerprint)
                 ? "plugin.otr.menu.VERIFIED"

@@ -68,8 +68,7 @@ public class ChatRoomJabberImpl
     /**
      * The logger of this class.
      */
-    private static final Logger logger
-        = Logger.getLogger(ChatRoomJabberImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ChatRoomJabberImpl.class);
 
     /**
      * The multi user chat smack object that we encapsulate in this room.

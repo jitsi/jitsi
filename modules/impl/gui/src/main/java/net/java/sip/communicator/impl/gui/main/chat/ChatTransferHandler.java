@@ -33,7 +33,6 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.Logger;
 import org.jitsi.util.*;
 
 /**
@@ -59,8 +58,7 @@ public class ChatTransferHandler
     /**
      * This class logger.
      */
-    private final static Logger logger
-        = Logger.getLogger(ChatTransferHandler.class);
+    private final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ChatTransferHandler.class);
 
     /**
      * The data flavor used when transferring <tt>File</tt>s under Linux.

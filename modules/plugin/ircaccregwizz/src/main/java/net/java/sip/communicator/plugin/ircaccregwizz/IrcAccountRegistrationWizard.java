@@ -82,8 +82,7 @@ public class IrcAccountRegistrationWizard
     /**
      * Logger.
      */
-    private final Logger logger
-        = Logger.getLogger(IrcAccountRegistrationWizard.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(IrcAccountRegistrationWizard.class);
 
     /**
      * The first page of the IRC account registration wizard.
@@ -205,7 +204,7 @@ public class IrcAccountRegistrationWizard
         {
             port = ":" + port;
         }
-        
+
         final String yes = Resources.getString("service.gui.YES");
         final String no = Resources.getString("service.gui.NO");
 

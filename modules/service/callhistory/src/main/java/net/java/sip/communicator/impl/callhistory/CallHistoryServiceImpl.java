@@ -51,8 +51,7 @@ public class CallHistoryServiceImpl
     /**
      * The logger for this class.
      */
-    private static final Logger logger =
-        Logger.getLogger(CallHistoryServiceImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CallHistoryServiceImpl.class);
 
     private static String[] STRUCTURE_NAMES =
         new String[] { "accountUID", "callStart", "callEnd", "dir",

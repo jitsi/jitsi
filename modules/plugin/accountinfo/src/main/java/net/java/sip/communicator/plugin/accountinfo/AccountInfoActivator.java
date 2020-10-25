@@ -38,8 +38,7 @@ import org.osgi.framework.*;
 public class AccountInfoActivator
     extends DependentActivator
 {
-    private static final Logger logger =
-        Logger.getLogger(AccountInfoActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AccountInfoActivator.class);
 
     /**
      * Property to disable account info in tools menu.

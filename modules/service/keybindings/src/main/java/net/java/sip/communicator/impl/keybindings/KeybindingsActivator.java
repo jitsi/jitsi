@@ -38,8 +38,7 @@ public class KeybindingsActivator
      * <tt>KeybindingsActivator</tt> class and its instances for logging
      * output.
      */
-    private static final Logger logger =
-        Logger.getLogger(KeybindingsActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(KeybindingsActivator.class);
 
     /**
      * The <tt>KeybindingsService</tt> reference.

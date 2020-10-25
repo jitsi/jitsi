@@ -24,7 +24,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.Logger;
 
 import org.jitsi.util.*;
 
@@ -44,7 +43,7 @@ public class AuthenticationWindow
     /**
      * Used for logging.
      */
-    private static Logger logger = Logger.getLogger(AuthenticationWindow.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AuthenticationWindow.class);
 
     /**
      * Info text area.
@@ -774,7 +773,7 @@ public class AuthenticationWindow
         });
         return subscribeLabel;
     }
-    
+
 
     /**
      * Returns the icon corresponding to the given <tt>protocolProvider</tt>.

@@ -50,8 +50,7 @@ public class GoogleContactsServiceImpl
     /**
      * Logger.
      */
-    private static final Logger logger =
-        Logger.getLogger(GoogleContactsServiceImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GoogleContactsServiceImpl.class);
 
     /**
      * Google Contacts feed URL string.

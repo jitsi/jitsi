@@ -33,7 +33,7 @@ public class MockCall
      * The <tt>Logger</tt> used by the <tt>MockCall</tt> class and its instances
      * for logging output.
      */
-    private static final Logger logger = Logger.getLogger(MockCall.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MockCall.class);
 
     /**
      * Constructs a new <tt>MockCall</tt>.

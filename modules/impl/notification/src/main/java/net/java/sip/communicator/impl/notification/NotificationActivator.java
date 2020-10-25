@@ -36,8 +36,7 @@ import org.osgi.framework.*;
  */
 public class NotificationActivator extends DependentActivator
 {
-    private final Logger logger =
-        Logger.getLogger(NotificationActivator.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NotificationActivator.class);
 
     protected static BundleContext bundleContext;
 
@@ -76,35 +75,27 @@ public class NotificationActivator extends DependentActivator
     public void startWithServices(BundleContext bc) throws Exception
     {
         bundleContext = bc;
-        try
-        {
-            logger.logEntry();
-            logger.info("Notification handler Service...[  STARTED ]");
+        logger.info("Notification handler Service...[  STARTED ]");
 
 
-            // Get the notification service implementation
-            ServiceReference notifReference = bundleContext
-                .getServiceReference(NotificationService.class.getName());
+        // Get the notification service implementation
+        ServiceReference notifReference = bundleContext
+            .getServiceReference(NotificationService.class.getName());
 
-            notificationService = (NotificationService) bundleContext
-                .getService(notifReference);
+        notificationService = (NotificationService) bundleContext
+            .getService(notifReference);
 
-            commandHandler = new CommandNotificationHandlerImpl();
-            logMessageHandler = new LogMessageNotificationHandlerImpl();
-            popupMessageHandler = new PopupMessageNotificationHandlerImpl();
-            soundHandler = new SoundNotificationHandlerImpl();
+        commandHandler = new CommandNotificationHandlerImpl();
+        logMessageHandler = new LogMessageNotificationHandlerImpl();
+        popupMessageHandler = new PopupMessageNotificationHandlerImpl();
+        soundHandler = new SoundNotificationHandlerImpl();
 
-            notificationService.addActionHandler(commandHandler);
-            notificationService.addActionHandler(logMessageHandler);
-            notificationService.addActionHandler(popupMessageHandler);
-            notificationService.addActionHandler(soundHandler);
+        notificationService.addActionHandler(commandHandler);
+        notificationService.addActionHandler(logMessageHandler);
+        notificationService.addActionHandler(popupMessageHandler);
+        notificationService.addActionHandler(soundHandler);
 
-            logger.info("Notification handler Service ...[REGISTERED]");
-        }
-        finally
-        {
-            logger.logExit();
-        }
+        logger.info("Notification handler Service ...[REGISTERED]");
     }
 
     public void stop(BundleContext bc) throws Exception

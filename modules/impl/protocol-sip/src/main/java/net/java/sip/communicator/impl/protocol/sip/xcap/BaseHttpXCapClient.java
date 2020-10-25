@@ -52,8 +52,7 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
     /**
      * Class logger.
      */
-    private static final Logger logger =
-            Logger.getLogger(BaseHttpXCapClient.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(BaseHttpXCapClient.class);
 
     /**
      * HTTP Content-Type header.

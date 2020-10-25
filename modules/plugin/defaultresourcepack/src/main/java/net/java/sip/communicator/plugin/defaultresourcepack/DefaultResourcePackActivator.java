@@ -29,8 +29,7 @@ import org.osgi.framework.*;
 public class DefaultResourcePackActivator
     implements BundleActivator
 {
-    private final Logger logger =
-        Logger.getLogger(DefaultResourcePackActivator.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DefaultResourcePackActivator.class);
 
     static BundleContext bundleContext;
 

@@ -37,8 +37,7 @@ public class SystemActivityEventDispatcher
     /**
      * Our class logger.
      */
-    private static Logger logger =
-        Logger.getLogger(SystemActivityEventDispatcher.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SystemActivityEventDispatcher.class);
 
     /**
      * A list of listeners registered for system activity events.

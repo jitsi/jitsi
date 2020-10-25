@@ -53,7 +53,7 @@ public class PresenceStatusMenu
      */
     private static final long serialVersionUID = 0L;
 
-    private final Logger logger = Logger.getLogger(PresenceStatusMenu.class);
+    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PresenceStatusMenu.class);
 
     /**
      * The area will display the account display name.

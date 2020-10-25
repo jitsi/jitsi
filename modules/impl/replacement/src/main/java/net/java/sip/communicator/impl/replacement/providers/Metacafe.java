@@ -34,8 +34,7 @@ public class Metacafe
     /**
      * The logger for this class.
      */
-    private static final Logger logger =
-        Logger.getLogger(Metacafe.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Metacafe.class);
 
     /**
      * The regex used to match the link in the message.

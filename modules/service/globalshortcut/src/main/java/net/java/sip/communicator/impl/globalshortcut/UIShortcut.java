@@ -39,7 +39,7 @@ public class UIShortcut
      * The <tt>Logger</tt> used by the <tt>UIShortcut</tt> class
      * and its instances for logging output.
      */
-    private static final Logger logger = Logger.getLogger(UIShortcut.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UIShortcut.class);
 
     /**
      * Keybindings service.

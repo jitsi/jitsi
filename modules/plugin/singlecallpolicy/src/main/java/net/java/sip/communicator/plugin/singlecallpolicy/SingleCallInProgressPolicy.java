@@ -50,8 +50,7 @@ public class SingleCallInProgressPolicy
     /**
      * Our class logger
      */
-    private static final Logger logger
-        = Logger.getLogger(SingleCallInProgressPolicy.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SingleCallInProgressPolicy.class);
 
     /**
      * The name of the configuration property which specifies whether call

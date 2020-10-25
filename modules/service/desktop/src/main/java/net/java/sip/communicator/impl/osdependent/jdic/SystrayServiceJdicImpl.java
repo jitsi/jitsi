@@ -34,8 +34,6 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
-import net.java.sip.communicator.util.Logger;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.jitsi.util.*;
 import org.osgi.framework.*;
@@ -74,8 +72,7 @@ public class SystrayServiceJdicImpl
      * The <tt>Logger</tt> used by the <tt>SystrayServiceJdicImpl</tt> class and
      * its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(SystrayServiceJdicImpl.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SystrayServiceJdicImpl.class);
 
     /**
      * The various icons used on the systray

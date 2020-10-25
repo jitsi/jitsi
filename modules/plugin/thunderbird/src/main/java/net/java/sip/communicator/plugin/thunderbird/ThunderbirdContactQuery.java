@@ -39,8 +39,7 @@ public class ThunderbirdContactQuery
     extends AsyncContactQuery<ThunderbirdContactSourceService>
 {
     /** Class logger */
-    private final static Logger logger = Logger
-        .getLogger(ThunderbirdContactQuery.class);
+    private final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ThunderbirdContactQuery.class);
 
     /**
      * Creates a new instance of this class.

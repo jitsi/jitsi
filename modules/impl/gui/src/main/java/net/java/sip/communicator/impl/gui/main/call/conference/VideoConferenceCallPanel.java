@@ -48,8 +48,7 @@ public class VideoConferenceCallPanel
      * The <tt>Logger</tt> used by the <tt>VideoConferenceCallPanel</tt> class
      * and its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(VideoConferenceCallPanel.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(VideoConferenceCallPanel.class);
 
     /**
      * The compile-time flag which indicates whether each video displayed by

@@ -36,8 +36,7 @@ public class UtilActivator
      * The <tt>Logger</tt> used by the <tt>UtilActivator</tt> class and its
      * instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(UtilActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UtilActivator.class);
 
     private static ConfigurationService configurationService;
 

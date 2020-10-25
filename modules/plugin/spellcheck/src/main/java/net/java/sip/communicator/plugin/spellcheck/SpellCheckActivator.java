@@ -39,8 +39,7 @@ public class SpellCheckActivator
     /**
      * Our Logger.
      */
-    private static final Logger logger = Logger
-            .getLogger(SpellCheckActivator.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SpellCheckActivator.class);
 
     static BundleContext bundleContext;
 

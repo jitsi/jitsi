@@ -35,8 +35,7 @@ public class ProvisioningDiscoveryDHCPActivator
     * <tt>Logger</tt> used by this <tt>ProvisioningDiscoveryDHCPActivator</tt>
     * instance for logging output.
     */
-   private final Logger logger
-       = Logger.getLogger(ProvisioningDiscoveryDHCPActivator.class);
+   private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProvisioningDiscoveryDHCPActivator.class);
 
    /**
     * DHCP provisioning service.

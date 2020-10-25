@@ -37,8 +37,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.plugin.accountinfo.AccountInfoMenuItemComponent.*;
 
-import net.java.sip.communicator.util.Logger;
-
 import com.toedter.calendar.*;
 
 /**
@@ -64,7 +62,7 @@ public class AccountDetailsPanel
     /**
      * The logger
      */
-    private Logger logger = Logger.getLogger(AccountDetailsPanel.class);
+    private org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AccountDetailsPanel.class);
 
     /**
      * Mapping between all supported by this plugin <tt>ServerStoredDetails</tt>
@@ -169,7 +167,7 @@ public class AccountDetailsPanel
     private CountryDetail countryDetail;
 
     private PhoneNumberDetail phoneDetail;
-    
+
     private WorkPhoneDetail workPhoneDetail;
 
     private MobilePhoneDetail mobilePhoneDetail;
@@ -376,7 +374,7 @@ public class AccountDetailsPanel
         valuesPanel.add(middleNameField, second);
         first.gridy = ++second.gridy;
         detailToTextField.put(MiddleNameDetail.class, middleNameField);
- 
+
         lastNameField = new JTextField();
         valuesPanel.add(new JLabel(
             Resources.getString("plugin.accountinfo.LAST_NAME"))
@@ -624,7 +622,7 @@ public class AccountDetailsPanel
                     }
 
                     public void replace(FilterBypass fb, int offs,
-                                   int length, 
+                                   int length,
                                    String str, AttributeSet a)
                     throws BadLocationException {
                     //This rejects the entire replacement if it would make

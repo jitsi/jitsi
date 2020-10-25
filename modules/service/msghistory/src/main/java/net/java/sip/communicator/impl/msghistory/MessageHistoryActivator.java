@@ -40,8 +40,7 @@ public class MessageHistoryActivator
      * <tt>MessageHistoryActivator</tt> class and its instances for logging
      * output.
      */
-    private static Logger logger =
-        Logger.getLogger(MessageHistoryActivator.class);
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MessageHistoryActivator.class);
 
     /**
      * The <tt>MessageHistoryService</tt> reference.
@@ -89,31 +88,20 @@ public class MessageHistoryActivator
     public void startWithServices(BundleContext bc) throws Exception
     {
         bundleContext = bc;
-        try
-        {
-            logger.logEntry();
+        HistoryService historyService = getService(HistoryService.class);
 
-            HistoryService historyService = getService(HistoryService.class);
+        //Create and start the message history service.
+        msgHistoryService =
+            new MessageHistoryServiceImpl();
 
-            //Create and start the message history service.
-            msgHistoryService =
-                new MessageHistoryServiceImpl();
+        msgHistoryService.setHistoryService(historyService);
 
-            msgHistoryService.setHistoryService(historyService);
+        msgHistoryService.start(bundleContext);
 
-            msgHistoryService.start(bundleContext);
+        bundleContext.registerService(
+            MessageHistoryService.class.getName(), msgHistoryService, null);
 
-            bundleContext.registerService(
-                MessageHistoryService.class.getName(), msgHistoryService, null);
-
-            if (logger.isInfoEnabled())
-                logger.info("Message History Service ...[REGISTERED]");
-        }
-        finally
-        {
-            logger.logExit();
-        }
-
+        logger.info("Message History Service ...[REGISTERED]");
     }
 
     /**

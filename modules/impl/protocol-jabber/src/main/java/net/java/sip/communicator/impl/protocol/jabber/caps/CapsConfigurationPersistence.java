@@ -40,8 +40,7 @@ public class CapsConfigurationPersistence
      * The <tt>Logger</tt> used by the <tt>CapsConfigurationPersistence</tt>
      * class and its instances for logging output.
      */
-    private static final Logger logger
-        = Logger.getLogger(CapsConfigurationPersistence.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CapsConfigurationPersistence.class);
 
     /**
      * Configuration service instance used by this class.

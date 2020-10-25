@@ -34,7 +34,7 @@ import org.osgi.framework.*;
 public class IrcAccRegWizzActivator
     extends AbstractServiceDependentActivator
 {
-    private static Logger logger = Logger.getLogger(
+    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(
         IrcAccRegWizzActivator.class.getName());
 
     /**
@@ -129,7 +129,7 @@ public class IrcAccRegWizzActivator
         }
         catch (InvalidSyntaxException ex)
         {
-            logger.error(ex);
+            logger.error("Invalid OSGi filter", ex);
         }
 
         return (ProtocolProviderFactory) bundleContext.getService(serRefs[0]);

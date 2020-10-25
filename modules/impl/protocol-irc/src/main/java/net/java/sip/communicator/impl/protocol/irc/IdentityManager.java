@@ -47,8 +47,7 @@ public class IdentityManager
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger
-        .getLogger(IdentityManager.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(IdentityManager.class);
 
     /**
      * Pattern of a valid nick.
@@ -138,7 +137,7 @@ public class IdentityManager
                 }
                 catch (final RuntimeException e)
                 {
-                    LOGGER.error("Failed to deliver WHOIS message.", e);
+                    logger.error("Failed to deliver WHOIS message.", e);
                 }
             };
         }.start();
@@ -159,9 +158,9 @@ public class IdentityManager
         {
             return null;
         }
-        if (LOGGER.isDebugEnabled())
+        if (logger.isDebugEnabled())
         {
-            LOGGER.debug("Setting ISUPPORT parameter "
+            logger.debug("Setting ISUPPORT parameter "
                 + ISupport.NICKLEN.name() + " to " + value);
         }
         return new Integer(value);
@@ -301,7 +300,7 @@ public class IdentityManager
                 whoismsg.substring(endUserIndex + 1, endHostIndex);
             IdentityManager.this.identity.setHost(host);
             IdentityManager.this.identity.setUser(user);
-            LOGGER.debug(String.format("Current identity: %s!%s@%s",
+            logger.debug(String.format("Current identity: %s!%s@%s",
                 this.connectionState.getNickname(), user, host));
         }
     }
@@ -339,7 +338,7 @@ public class IdentityManager
             final String newNick = msg.getNewNick();
             if (oldNick == null || newNick == null)
             {
-                LOGGER.error("Incomplete nick change message. Old nick: '"
+                logger.error("Incomplete nick change message. Old nick: '"
                     + oldNick + "', new nick: '" + newNick + "'.");
                 return;
             }
