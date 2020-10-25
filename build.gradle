@@ -105,8 +105,8 @@ ext.libs = [
         ],
         dbus       : 'com.github.hypfvieh:dbus-java-osgi:3.2.0',
         dhcp4java  : 'com.helger:dhcp4java:1.1.0',
-        dnsjava    : 'dnsjava:dnsjava:2.1.7',
-        dnssecjava : 'org.jitsi:dnssecjava:1.1.3',
+        dnsjava    : 'dnsjava:dnsjava:3.2.2',
+        dnssecjava : 'org.jitsi:dnssecjava:2.0.0',
         felix      : dependencies.create('org.apache.felix:org.apache.felix.main:6.0.3') {
             exclude group: 'org.apache.felix', module: 'org.apache.felix.framework'
         },

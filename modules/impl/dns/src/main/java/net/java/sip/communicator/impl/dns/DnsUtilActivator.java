@@ -290,7 +290,7 @@ public class DnsUtilActivator
             ResolverConfig config = ResolverConfig.getCurrentConfig();
             if (config != null && config.servers() != null)
             {
-                for(String s : config.servers())
+                for(InetSocketAddress s : config.servers())
                 {
                     sb.append(s);
                     sb.append(", ");

@@ -42,8 +42,8 @@ public interface CustomResolver
     extends Resolver
 {
     /**
-     * The default number of milliseconds it takes us to get into redundant
-     * mode while waiting for a DNS query response.
+     * The default number of milliseconds it takes us to get into redundant mode
+     * while waiting for a DNS query response.
      */
     public static final int DNS_PATIENCE = 1500;
 
@@ -51,45 +51,38 @@ public interface CustomResolver
      * The name of the property that allows us to override the default
      * <tt>DNS_PATIENCE</tt> value.
      */
-    public static final String PNAME_DNS_PATIENCE
-        = "net.java.sip.communicator.util.dns.DNS_PATIENCE";
+    String PNAME_DNS_PATIENCE =
+        "net.java.sip.communicator.util.dns.DNS_PATIENCE";
 
     /**
      * The default number of times that the primary DNS would have to provide a
      * faster response than the backup resolver before we consider it safe
      * enough to exit redundant mode.
      */
-    public static final int DNS_REDEMPTION = 3;
+    int DNS_REDEMPTION = 3;
 
     /**
      * The name of the property that allows us to override the default
      * <tt>DNS_REDEMPTION</tt> value.
      */
-    public static final String PNAME_DNS_REDEMPTION
+    String PNAME_DNS_REDEMPTION
         = "net.java.sip.communicator.util.dns.DNS_REDEMPTION";
-
-    /**
-     * The currently configured number of times that the primary DNS would have
-     * to provide a faster response than the backup resolver before we consider
-     * it safe enough to exit redundant mode.
-     */
-    public static int currentDnsRedemption = DNS_REDEMPTION;
 
     /**
      * The name of the property that enables or disables the DNSSEC resolver
      * (instead of a normal, non-validating local resolver).
      */
-    public static final String PNAME_DNSSEC_RESOLVER_ENABLED
+    String PNAME_DNSSEC_RESOLVER_ENABLED
         = "net.java.sip.communicator.util.dns.DNSSEC_ENABLED";
 
     /**
      * Default value of @see PNAME_DNSSEC_RESOLVER_ENABLED.
      */
-    public static final boolean PDEFAULT_DNSSEC_RESOLVER_ENABLED = false;
+    boolean PDEFAULT_DNSSEC_RESOLVER_ENABLED = false;
 
     /**
-     * Resets resolver configuration and populate our default resolver
-     * with the newly configured servers.
+     * Resets resolver configuration and populate our default resolver with the
+     * newly configured servers.
      */
-    public void reset();
+    void reset();
 }

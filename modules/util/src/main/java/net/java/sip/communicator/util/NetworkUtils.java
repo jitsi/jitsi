@@ -1263,7 +1263,7 @@ public class NetworkUtils
         {
             StringBuilder sb = new StringBuilder();
             sb.append("Active DNS servers in default resolver: ");
-            for(String s : ResolverConfig.getCurrentConfig().servers())
+            for(InetSocketAddress s : ResolverConfig.getCurrentConfig().servers())
             {
                 sb.append(s);
                 sb.append(", ");

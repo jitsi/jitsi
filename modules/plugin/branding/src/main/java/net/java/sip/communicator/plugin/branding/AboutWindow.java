@@ -48,11 +48,6 @@ public class AboutWindow
                 ExportedWindow,
                 Skinnable
 {
-    /**
-     * Serial version UID.
-     */
-    private static final long serialVersionUID = 0L;
-
     private static AboutWindow aboutWindow;
 
     /**
@@ -61,7 +56,7 @@ public class AboutWindow
     private static final String uiClassID =
         AboutWindow.class.getName() +  "$VersionTextFieldUI";
 
-    /**
+    /*
      * Adds the ui class to UIDefaults.
      */
     static

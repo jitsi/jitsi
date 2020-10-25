@@ -259,36 +259,9 @@ public class DnssecPanel
         }
         if(e.getSource() == chkEnabled)
         {
-            File f;
-            try
-            {
-                f = DnsConfigActivator.getFileAccessService()
-                    .getPrivatePersistentFile(".usednsjava",
-                        FileCategory.PROFILE);
-                if(chkEnabled.isSelected())
-                {
-                    if(!f.createNewFile() && !f.exists())
-                        chkEnabled.setSelected(false);
-                }
-                else
-                {
-                    if(!f.delete() && f.exists())
-                        chkEnabled.setSelected(true);
-                }
-                config.setProperty(
-                    CustomResolver.PNAME_DNSSEC_RESOLVER_ENABLED,
-                    chkEnabled.isSelected());
-            }
-            catch (Exception ex)
-            {
-                logger.error("failed to enable DNSSEC", ex);
-                ErrorDialog ed = new ErrorDialog(
-                    null,
-                    R.getI18NString("plugin.dnsconfig.dnssec.ENABLE_FAILED"),
-                    R.getI18NString("plugin.dnsconfig.dnssec.ENABLE_FAILED_MSG"),
-                    ex);
-                ed.showDialog();
-            }
+            config.setProperty(
+                CustomResolver.PNAME_DNSSEC_RESOLVER_ENABLED,
+                chkEnabled.isSelected());
             updateState();
         }
         if(e.getSource() == chkAbsolute)

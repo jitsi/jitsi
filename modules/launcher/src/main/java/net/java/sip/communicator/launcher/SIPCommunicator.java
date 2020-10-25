@@ -100,20 +100,6 @@ public class SIPCommunicator
         System.setOut(new PrintStream(new LoggerStdOut()));
         System.out.println("Launching!");
 
-        // this needs to be set before any DNS lookup is run
-        File f
-            = new File(
-                    System.getProperty(PNAME_SC_HOME_DIR_LOCATION),
-                    System.getProperty(PNAME_SC_HOME_DIR_NAME)
-                        + File.separator
-                        + ".usednsjava");
-        if(f.exists())
-        {
-            System.setProperty(
-                    "sun.net.spi.nameservice.provider.1",
-                    "dns,jitsi");
-        }
-
         //first - pass the arguments to our arg handler
         LaunchArgHandler argHandler = LaunchArgHandler.getInstance();
         int argHandlerRes = argHandler.handleArgs(args);
@@ -239,12 +225,12 @@ public class SIPCommunicator
                             + "Library" + File.separator
                             + "Application Support";
                 if (cacheLocation == null)
-                    cacheLocation = 
+                    cacheLocation =
                         System.getProperty("user.home") + File.separator
                         + "Library" + File.separator
                         + "Caches";
                 if (logLocation == null)
-                    logLocation = 
+                    logLocation =
                         System.getProperty("user.home") + File.separator
                         + "Library" + File.separator
                         + "Logs";

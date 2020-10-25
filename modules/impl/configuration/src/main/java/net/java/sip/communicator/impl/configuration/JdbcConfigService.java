@@ -31,7 +31,7 @@ import org.jitsi.utils.logging.*;
 
 /**
  * Implementation of the {@link ConfigurationService} based on JDBC.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public final class JdbcConfigService
@@ -102,7 +102,7 @@ public final class JdbcConfigService
     /**
      * Reference to the {@link FileAccessService}.
      */
-    private FileAccessService fas; 
+    private FileAccessService fas;
 
     /**
      * Creates a new instance of this class.
@@ -155,7 +155,7 @@ public final class JdbcConfigService
     /**
      * Verifies that the connection to the database and all prepared statement
      * are valid.
-     * 
+     *
      * @throws SQLException
      */
     private void checkConnection() throws SQLException
@@ -219,7 +219,7 @@ public final class JdbcConfigService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.jitsi.service.configuration.ConfigurationService#setProperty(java
      * .lang.String, java.lang.Object)
@@ -232,7 +232,7 @@ public final class JdbcConfigService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.jitsi.service.configuration.ConfigurationService#setProperty(java
      * .lang.String, java.lang.Object, boolean)
@@ -293,7 +293,7 @@ public final class JdbcConfigService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.jitsi.service.configuration.ConfigurationService#setProperties(java
      * .util.Map)
@@ -321,7 +321,7 @@ public final class JdbcConfigService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.jitsi.service.configuration.ConfigurationService#getProperty(java
      * .lang.String)
@@ -367,7 +367,7 @@ public final class JdbcConfigService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.jitsi.service.configuration.ConfigurationService#removeProperty(java
      * .lang.String)
@@ -386,7 +386,7 @@ public final class JdbcConfigService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.jitsi.service.configuration.ConfigurationService#getAllPropertyNames
      * ()
@@ -417,7 +417,7 @@ public final class JdbcConfigService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.jitsi.service.configuration.ConfigurationService
      * #getPropertyNamesByPrefix(java.lang.String, boolean)
@@ -470,7 +470,7 @@ public final class JdbcConfigService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.jitsi.service.configuration.ConfigurationService
      * #getPropertyNamesBySuffix(java.lang.String)
@@ -502,7 +502,7 @@ public final class JdbcConfigService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.jitsi.service.configuration.ConfigurationService#getString(java.lang
      * .String)
@@ -525,7 +525,7 @@ public final class JdbcConfigService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.jitsi.service.configuration.ConfigurationService#getString(java.lang
      * .String, java.lang.String)
@@ -544,7 +544,7 @@ public final class JdbcConfigService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.jitsi.service.configuration.ConfigurationService#getBoolean(java.
      * lang.String, boolean)
@@ -563,7 +563,7 @@ public final class JdbcConfigService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.jitsi.service.configuration.ConfigurationService#getInt(java.lang
      * .String, int)
@@ -592,7 +592,7 @@ public final class JdbcConfigService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.jitsi.service.configuration.ConfigurationService#getDouble(java.lang
      * .String, double)
@@ -621,7 +621,7 @@ public final class JdbcConfigService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.jitsi.service.configuration.ConfigurationService#getLong(java.lang
      * .String, long)
@@ -650,7 +650,7 @@ public final class JdbcConfigService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.jitsi.service.configuration.ConfigurationService#
      * addPropertyChangeListener(java.beans.PropertyChangeListener)
      */
@@ -662,7 +662,7 @@ public final class JdbcConfigService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.jitsi.service.configuration.ConfigurationService#
      * removePropertyChangeListener(java.beans.PropertyChangeListener)
      */
@@ -674,7 +674,7 @@ public final class JdbcConfigService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.jitsi.service.configuration.ConfigurationService#
      * addPropertyChangeListener(java.lang.String,
      * java.beans.PropertyChangeListener)
@@ -688,7 +688,7 @@ public final class JdbcConfigService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.jitsi.service.configuration.ConfigurationService#
      * removePropertyChangeListener(java.lang.String,
      * java.beans.PropertyChangeListener)
@@ -702,7 +702,7 @@ public final class JdbcConfigService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.jitsi.service.configuration.ConfigurationService#
      * addVetoableChangeListener
      * (org.jitsi.service.configuration.ConfigVetoableChangeListener)
@@ -715,7 +715,7 @@ public final class JdbcConfigService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.jitsi.service.configuration.ConfigurationService#
      * removeVetoableChangeListener
      * (org.jitsi.service.configuration.ConfigVetoableChangeListener)
@@ -729,7 +729,7 @@ public final class JdbcConfigService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.jitsi.service.configuration.ConfigurationService#
      * addVetoableChangeListener(java.lang.String,
      * org.jitsi.service.configuration.ConfigVetoableChangeListener)
@@ -743,7 +743,7 @@ public final class JdbcConfigService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.jitsi.service.configuration.ConfigurationService#
      * removeVetoableChangeListener(java.lang.String,
      * org.jitsi.service.configuration.ConfigVetoableChangeListener)
@@ -757,7 +757,7 @@ public final class JdbcConfigService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.jitsi.service.configuration.ConfigurationService#storeConfiguration()
      */
@@ -789,7 +789,7 @@ public final class JdbcConfigService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.jitsi.service.configuration.ConfigurationService#purgeStoredConfiguration
      * ()
@@ -812,7 +812,7 @@ public final class JdbcConfigService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.jitsi.service.configuration.ConfigurationService#getScHomeDirName()
      */
@@ -824,7 +824,7 @@ public final class JdbcConfigService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.jitsi.service.configuration.ConfigurationService#getScHomeDirLocation
      * ()
@@ -837,7 +837,7 @@ public final class JdbcConfigService
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.jitsi.service.configuration.ConfigurationService#getConfigurationFilename
      * ()
@@ -852,7 +852,7 @@ public final class JdbcConfigService
      * Loads the specified default properties maps from the Jitsi installation
      * directory. Typically this file is to be called for the default properties
      * and the admin overrides.
-     * 
+     *
      * @param fileName the name of the file we need to load.
      */
     private void loadDefaultProperties(String fileName)
@@ -922,7 +922,7 @@ public final class JdbcConfigService
 
     /**
      * Notify all listening objects about a prospective change.
-     * 
+     *
      * @param propertyName The property that is going to change.
      * @param oldValue The previous value of the property (can be <tt>null</tt>)
      * @param newValue The new value of the property (can be <tt>null</tt>)
@@ -949,7 +949,7 @@ public final class JdbcConfigService
 
     /**
      * Notify all listeners that a property has changed.
-     * 
+     *
      * @param propertyName The property that has just changed.
      * @param oldValue The previous value of the property (can be <tt>null</tt>)
      * @param newValue The new value of the property (can be <tt>null</tt>)

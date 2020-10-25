@@ -421,16 +421,16 @@ public class ConfigurableDnssecResolver
                 {
                     headResolver.deleteResolver(r);
                 }
-    
+
                 for (String fwd : fwds)
                 {
                     try
                     {
                         SimpleResolver sr = new SimpleResolver(fwd);
-    
+
                         // these properties are normally set by the
                         // ValidatingResolver in the constructor
-                        sr.setEDNS(0, 0, ExtendedFlags.DO, null);
+                        sr.setEDNS(0, 0, ExtendedFlags.DO);
                         sr.setIgnoreTruncation(false);
                         headResolver.addResolver(sr);
                     }
@@ -439,7 +439,7 @@ public class ConfigurableDnssecResolver
                         logger.error("Invalid forwarder, ignoring", e);
                     }
                 }
-    
+
                 Lookup.setDefaultResolver(this);
             }
         }

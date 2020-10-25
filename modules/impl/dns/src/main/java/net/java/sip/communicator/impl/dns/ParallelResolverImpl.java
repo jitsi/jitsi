@@ -20,6 +20,7 @@ package net.java.sip.communicator.impl.dns;
 import java.beans.*;
 import java.io.*;
 import java.net.*;
+import java.time.*;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -101,9 +102,9 @@ public class ParallelResolverImpl
     private ExtendedResolver backupResolver;
 
     /** Thread pool that processes the backup queries. */
-    private ExecutorService backupQueriesPool;
+    private final ExecutorService backupQueriesPool;
 
-    private ConfigurationService configService;
+    private final ConfigurationService configService;
 
     /**
      * Creates a new instance of this class.
@@ -272,18 +273,6 @@ public class ParallelResolverImpl
     }
 
     /**
-     * Supposed to asynchronously send messages but not currently implemented.
-     *
-     * @param query The query to send
-     * @param listener The object containing the callbacks.
-     * @return An identifier, which is also a parameter in the callback
-     */
-    public Object sendAsync(final Message query, final ResolverListener listener)
-    {
-        throw new UnsupportedOperationException("Not implemented");
-    }
-
-    /**
      * Sets the port to communicate on with the default servers.
      *
      * @param port The port to send messages to
@@ -317,18 +306,6 @@ public class ParallelResolverImpl
     }
 
     /**
-     * Sets the EDNS version used on outgoing messages.
-     *
-     * @param level The EDNS level to use.  0 indicates EDNS0 and -1 indicates no
-     * EDNS.
-     * @throws IllegalArgumentException An invalid level was indicated.
-     */
-    public void setEDNS(int level)
-    {
-        defaultResolver.setEDNS(level);
-    }
-
-    /**
      * Sets the EDNS information on outgoing messages.
      *
      * @param level The EDNS level to use.  0 indicates EDNS0 and -1 indicates no
@@ -342,8 +319,8 @@ public class ParallelResolverImpl
      * @throws IllegalArgumentException An invalid field was specified.
      * @see OPTRecord
      */
-    @SuppressWarnings("rawtypes") // that's the way it is in dnsjava
-    public void setEDNS(int level, int payloadSize, int flags, List options)
+    public void setEDNS(int level, int payloadSize, int flags,
+        List<EDNSOption> options)
     {
         defaultResolver.setEDNS(level, payloadSize, flags, options);
     }
@@ -357,25 +334,10 @@ public class ParallelResolverImpl
         defaultResolver.setTSIGKey(key);
     }
 
-    /**
-     * Sets the amount of time to wait for a response before giving up.
-     *
-     * @param secs The number of seconds to wait.
-     * @param msecs The number of milliseconds to wait.
-     */
-    public void setTimeout(int secs, int msecs)
+    @Override
+    public void setTimeout(Duration timeout)
     {
-        defaultResolver.setTimeout(secs, msecs);
-    }
-
-    /**
-     * Sets the amount of time to wait for a response before giving up.
-     *
-     * @param secs The number of seconds to wait.
-     */
-    public void setTimeout(int secs)
-    {
-        defaultResolver.setTimeout(secs);
+        defaultResolver.setTimeout(timeout);
     }
 
     /**
@@ -387,18 +349,10 @@ public class ParallelResolverImpl
         Lookup.refreshDefault();
 
         // populate with new servers after refreshing configuration
-        try
-        {
-            Lookup.setDefaultResolver(this);
-            ExtendedResolver temp = new ExtendedResolver();
-            temp.setTimeout(10);
-            defaultResolver = temp;
-        }
-        catch (UnknownHostException e)
-        {
-            // should never happen
-            throw new RuntimeException("Failed to initialize resolver");
-        }
+        Lookup.setDefaultResolver(this);
+        ExtendedResolver temp = new ExtendedResolver();
+        temp.setTimeout(Duration.ofSeconds(10));
+        defaultResolver = temp;
     }
 
     /**
@@ -423,13 +377,13 @@ public class ParallelResolverImpl
         if ( response == null )
             return false;
 
-        Record[] answerRR = response.getSectionArray(Section.ANSWER);
-        Record[] authorityRR = response.getSectionArray(Section.AUTHORITY);
-        Record[] additionalRR = response.getSectionArray(Section.ADDITIONAL);
+        List<Record> answerRR = response.getSection(Section.ANSWER);
+        List<Record> authorityRR = response.getSection(Section.AUTHORITY);
+        List<Record> additionalRR = response.getSection(Section.ADDITIONAL);
 
-        if (    (answerRR     != null && answerRR.length > 0)
-             || (authorityRR  != null && authorityRR.length > 0)
-             || (additionalRR != null && additionalRR.length > 0))
+        if (    (answerRR     != null && !answerRR.isEmpty())
+             || (authorityRR  != null && !authorityRR.isEmpty())
+             || (additionalRR != null && !additionalRR.isEmpty()))
         {
             return true;
         }
@@ -445,15 +399,9 @@ public class ParallelResolverImpl
         //domains come without those two.
         Record question = response.getQuestion();
         int questionType = (question == null) ? 0 : question.getType();
-        if( rcode == Rcode.NOERROR
+        return rcode == Rcode.NOERROR
             && question != null
-            && (questionType == Type.AAAA || questionType == Type.NAPTR))
-        {
-            return true;
-        }
-
-        //nope .. this doesn't make sense ...
-        return false;
+            && (questionType == Type.AAAA || questionType == Type.NAPTR);
     }
 
     /**
@@ -541,8 +489,7 @@ public class ParallelResolverImpl
             synchronized(this)
             {
                 //if there was a response we're only done if it is satisfactory
-                if(    localResponse != null
-                    && isResponseSatisfactory(localResponse))
+                if(isResponseSatisfactory(localResponse))
                 {
                     response = localResponse;
                     done = true;
@@ -560,54 +507,51 @@ public class ParallelResolverImpl
             //yes. a second thread in the thread ... it's ugly but it works
             //and i do want to keep code simple to read ... this whole parallel
             //resolving is complicated enough as it is.
-            backupQueriesPool.execute(new Runnable(){
-                @Override
-                public void run()
+            backupQueriesPool.execute(() ->
+            {
+                if (done)
                 {
-                    if (done)
+                    return;
+                }
+
+                Message localResponse = null;
+                try
+                {
+                    logger.info("Sending query for "
+                        + query.getQuestion().getName() + "/"
+                        + Type.string(query.getQuestion().getType())
+                        + " to backup resolvers");
+                    localResponse = backupResolver.send(query);
+                }
+                catch (Throwable exc)
+                {
+                    logger.info(
+                            "Exception occurred during backup DNS resolving "
+                                + exc);
+
+                    //keep this so that we can rethrow it
+                    exception = exc;
+                }
+                //if the default resolver has already replied we
+                //ignore the reply of the backup ones.
+                if(done)
+                {
+                    return;
+                }
+
+                synchronized(ParallelResolution.this)
+                {
+                    //contrary to responses from the  primary resolver,
+                    //in this case we don't care whether the response is
+                    //satisfying: if it isn't, there's nothing we can do
+                    if (response == null)
                     {
-                        return;
+                        response = localResponse;
+                        primaryResolverRespondedFirst = false;
                     }
 
-                    Message localResponse = null;
-                    try
-                    {
-                        logger.info("Sending query for "
-                            + query.getQuestion().getName() + "/"
-                            + Type.string(query.getQuestion().getType())
-                            + " to backup resolvers");
-                        localResponse = backupResolver.send(query);
-                    }
-                    catch (Throwable exc)
-                    {
-                        logger.info(
-                                "Exception occurred during backup DNS resolving "
-                                    + exc);
-
-                        //keep this so that we can rethrow it
-                        exception = exc;
-                    }
-                    //if the default resolver has already replied we
-                    //ignore the reply of the backup ones.
-                    if(done)
-                    {
-                        return;
-                    }
-
-                    synchronized(ParallelResolution.this)
-                    {
-                        //contrary to responses from the  primary resolver,
-                        //in this case we don't care whether the response is
-                        //satisfying: if it isn't, there's nothing we can do
-                        if (response == null)
-                        {
-                            response = localResponse;
-                            primaryResolverRespondedFirst = false;
-                        }
-
-                        done = true;
-                        ParallelResolution.this.notify();
-                    }
+                    done = true;
+                    ParallelResolution.this.notify();
                 }
             });
         }
