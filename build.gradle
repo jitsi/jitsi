@@ -73,8 +73,8 @@ allprojects {
     }
 }
 
-ext.jnaVersion = '5.2.0'
-ext.smackVersion = '4.2.4-47d17fc'
+ext.jnaVersion = '5.6.0'
+ext.smackVersion = '4.2.4-4fa73bd'
 ext.jxmppVersion = '0.6.3'
 ext.slf4jversion = '1.7.30'
 
@@ -87,23 +87,24 @@ ext.libs = [
                 jgoodies  : ['com.jgoodies:forms:1.2.1'],
                 jmyspell  : ['org.omegat:jmyspell-core:1.0.0-beta-2'],
                 macwidgets: ['com.explodingpixels:mac_widgets:0.9.5'],
-                // FIXME: update
-                otr4j     : ['org.jitsi:org.otr4j:0.22']
         ],
+        otr4j      : 'org.jitsi:org.otr4j:0.23',
         ahttp      : [
                 client   : "org.apache.httpcomponents:httpclient-osgi:4.5.12",
                 core     : "org.apache.httpcomponents:httpcore-osgi:4.4.13",
         ],
         bc         : [
-                pkix    : 'org.bouncycastle:bcpkix-jdk15on:1.60',
-                provider: 'org.bouncycastle:bcprov-jdk15on:1.60'
+                pkix    : 'org.bouncycastle:bcpkix-jdk15on:1.66',
+                provider: 'org.bouncycastle:bcprov-jdk15on:1.66'
         ],
         commons    : [
-                lang    : 'org.apache.commons:commons-lang3:3.9',
-                text    : 'org.apache.commons:commons-text:1.6',
+                lang    : 'org.apache.commons:commons-lang3:3.11',
+                text    : 'org.apache.commons:commons-text:1.9',
                 compress: 'org.apache.commons:commons-compress:1.20',
         ],
-        dbus       : 'com.github.hypfvieh:dbus-java-osgi:3.2.0',
+        dbus       : dependencies.create('com.github.hypfvieh:dbus-java-osgi:3.2.3') {
+            transitive = false
+        },
         dhcp4java  : 'com.helger:dhcp4java:1.1.0',
         dnsjava    : 'dnsjava:dnsjava:3.2.2',
         dnssecjava : 'org.jitsi:dnssecjava:2.0.0',
@@ -111,14 +112,13 @@ ext.libs = [
             exclude group: 'org.apache.felix', module: 'org.apache.felix.framework'
         },
         gdata      : 'com.google.gdata:core:1.47.1',
-        ghttp      : 'com.google.http-client:google-http-client-assembly:1.34.2',
-        goauth     : 'com.google.oauth-client:google-oauth-client:1.30.6',
+        ghttp      : 'com.google.http-client:google-http-client-assembly:1.36.0',
+        goauth     : 'com.google.oauth-client:google-oauth-client:1.31.0',
         growl4j    : 'org.jitsi:growl4j:1.0.0',
-        gson       : 'com.google.code.gson:gson:2.8.5',
-        // FIXME: update this in jitsi-utils
-        guava      : 'com.google.guava:guava:28.2-jre',
-        hsqldb     : 'org.hsqldb:hsqldb:2.5.0',
-        ice4j      : 'org.jitsi:ice4j:2.0.0-20181213.100259-20',
+        gson       : 'com.google.code.gson:gson:2.8.6',
+        guava      : 'com.google.guava:guava:29.0-jre',
+        hsqldb     : 'org.hsqldb:hsqldb:2.5.1',
+        ice4j      : 'org.jitsi:ice4j:3.0-18-g686164f',
         // FIXME: unfork Danny's changes into upstream (https://github.com/migzai/irc-api.git)
         ircapi     : files('lib/installer-exclude/irc-api-1.0.jar'),
         jitsi      : [
@@ -126,9 +126,9 @@ ext.libs = [
                     transitive = false
                 },
                 libjitsi: dependencies.create('org.jitsi:libjitsi:1.0-40-g49a8ab25'),
-                utils   : 'org.jitsi:jitsi-utils:1.0-48-gd7e0685',
-                xmppext : 'org.jitsi:jitsi-xmpp-extensions:1.0-10-g822e97e',
-                fmj     : 'org.jitsi:fmj:1.0.0-jitsi',
+                utils   : 'org.jitsi:jitsi-utils:1.0-59-g5dc2b5f',
+                xmppext : 'org.jitsi:jitsi-xmpp-extensions:1.0-13-ga40f9c3',
+                fmj     : 'org.jitsi:fmj:1.0.1-jitsi',
                 lgpldeps: 'org.jitsi:jitsi-lgpl-dependencies:1.2-1-gfc49658',
         ],
         jmdns      : 'org.jmdns:jmdns:3.5.5',
@@ -157,8 +157,7 @@ ext.libs = [
                 cache: "org.jxmpp:jxmpp-util-cache:${jxmppVersion}"
         ],
         log4j      : "org.slf4j:log4j-over-slf4j:$slf4jversion",
-        lombok     : 'org.projectlombok:lombok:1.18.4',
-        libphonenum: 'com.googlecode.libphonenumber:libphonenumber:8.12.4',
+        libphonenum: 'com.googlecode.libphonenumber:libphonenumber:8.12.8',
         orangeext  : 'com.massisframework:orange-extensions:1.3.1',
         osgi_core  : 'org.osgi:org.osgi.core:6.0.0',
         osgi_cm    : 'org.osgi:org.osgi.service.cm:1.6.0',
@@ -185,7 +184,7 @@ ext.libs = [
 
 libs.nonosgi.each {
     def symName
-    def depVersion = "${ext.versionShort}.jitsi-autowrapped"
+    def depVersion = "${ext.versionMajor}.${ext.versionMinor}.0.jitsi-autowrapped"
     def dep = it.value.first()
     def optImports = it.value[1] as String[]
     def instructions = it.value[2]
@@ -220,7 +219,7 @@ task prepareIde(type: Copy, group: 'ide', dependsOn: [bundles]) {
     from(configurations.runtimeClasspath) {
         exclude "**/jitsi_*.jar"
     }
-    into "${projectDir}/out/production/bundles"
+    into "${projectDir}/out/bundles"
 }
 
 configurations {
@@ -291,7 +290,8 @@ task modifyIdeaXml(group: 'ide') {
                                 manifestGenerationMode: 'Manually',
                                 manifestLocation: 'resources/META-INF/MANIFEST.MF',
                                 outputPathType: 'OsgiOutputPath',
-                                useProjectDefaultManifestFileLocation: 'false'
+                                useProjectDefaultManifestFileLocation: 'false',
+                                jarfileLocation: imlFile.name.replace('.iml', '.jar')
                         ) {
                             additionalProperties {}
                             additionalJARContents {
@@ -324,11 +324,19 @@ signing {
     useInMemoryPgpKeys signingKey?.replace("\\n", "\n"), signingPassword
 }
 
+allprojects {
+    clean {
+        delete "out"
+        delete "classes"
+    }
+}
+
 subprojects { p ->
     apply plugin: 'java-library'
     apply plugin: 'io.franzbecker.gradle-lombok'
     apply plugin: 'org.jetbrains.gradle.plugin.idea-ext'
     apply plugin: 'maven-publish'
+    apply plugin: 'maven'
 
     lombok {
         version = '1.18.12'
