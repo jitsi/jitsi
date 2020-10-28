@@ -19,7 +19,6 @@ package net.java.sip.communicator.service.protocol;
 
 import org.jivesoftware.smack.packet.*;
 import org.json.simple.*;
-import org.jxmpp.jid.*;
 
 import java.util.*;
 
@@ -102,7 +101,7 @@ public interface OperationSetJitsiMeetTools
      *
      * @param callPeer the CallPeer to which we send the JSONObject to.
      * @param jsonObject the JSONObject that we send to the CallPeer.
-     * @param parametersMap a map which is used to set specific parameters
+     * @param parameterMap a map which is used to set specific parameters
      * for the protocol used to send the jsonObject.
      *
      * @throws OperationFailedException thrown in case anything goes wrong

@@ -61,6 +61,11 @@ public class CallPeerJabberImpl
         = Logger.getLogger(CallPeerJabberImpl.class);
 
     /**
+     * The transport replace property name.
+     */
+    public static final String TRANSPORT_REPLACE_PROPERTY_NAME = "transport-replace";
+
+    /**
      * If the call is cancelled before session-initiate is sent.
      */
     private boolean cancelled = false;
@@ -2034,5 +2039,14 @@ public class CallPeerJabberImpl
     public String getSessInitID()
     {
         return sessionInitIQ != null ? sessionInitIQ.getStanzaId() : null;
+    }
+
+    /**
+     * For now just uses OperationSetJitsiMeetTools to notify for the signaling.
+     * @param jingleIQ the iq with the replace action.
+     */
+    public void processTransportReplace(JingleIQ jingleIQ)
+    {
+        firePropertyChange(TRANSPORT_REPLACE_PROPERTY_NAME, null, jingleIQ);
     }
 }

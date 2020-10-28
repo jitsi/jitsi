@@ -21,7 +21,6 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.protocol.*;
 import org.jivesoftware.smack.packet.*;
 import org.json.simple.*;
-import org.jxmpp.jid.*;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -118,7 +117,7 @@ public class OperationSetJitsiMeetToolsJabberImpl
     /**
      * Event is fired after startmuted extension is received.
      *
-     * @param startMutedFlags startMutedFlags[0] represents
+     * @param startMuted startMutedFlags[0] represents
      * the muted status of audio stream.
      * startMuted[1] represents the muted status of video stream.
      */
