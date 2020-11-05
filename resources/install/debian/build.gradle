@@ -16,7 +16,7 @@ buildDeb {
 Jitsi is an application that allows you to do audio/video \
 conversations over the Internet through the SIP and XMPP/Jabber protocol, \
 as well as chat with your friends using some of the most popular instant \
-messaging protocols such as SIP/SIMPLE, XMPP/Jabber, AIM/ICQ and others.
+messaging protocols such as SIP/SIMPLE, XMPP/Jabber and others.
 """
     arch = debArch
     distribution = 'xenial bionic'

@@ -1211,20 +1211,8 @@ public class MacOSXAddrBookContactQuery
 
         switch (property)
         {
-        case kABAIMInstantProperty:
-            supportedOpSets.add(OperationSetBasicInstantMessaging.class);
-            preferredProtocols.put(
-                    OperationSetBasicInstantMessaging.class,
-                    ProtocolNames.AIM);
-            break;
         case kABEmailProperty:
             supportedOpSets.add(OperationSetBasicTelephony.class);
-            break;
-        case kABICQInstantProperty:
-            supportedOpSets.add(OperationSetBasicInstantMessaging.class);
-            preferredProtocols.put(
-                    OperationSetBasicInstantMessaging.class,
-                    ProtocolNames.ICQ);
             break;
         case kABJabberInstantProperty:
             supportedOpSets.add(OperationSetBasicInstantMessaging.class);

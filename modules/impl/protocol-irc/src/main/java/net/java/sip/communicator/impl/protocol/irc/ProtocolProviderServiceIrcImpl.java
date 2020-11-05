@@ -210,7 +210,7 @@ public class ProtocolProviderServiceIrcImpl
 
     /**
      * Returns the short name of the protocol that the implementation of this
-     * provider is based upon (like SIP, Jabber, ICQ/AIM, or others for
+     * provider is based upon (like SIP, Jabber, or others for
      * example).
      *
      * @return a String containing the short name of the protocol this

@@ -13,7 +13,6 @@ Import-Package: net.java.sip.communicator.util.osgi,org.osgi.framework,
  net.java.sip.communicator.service.history.records,
  net.java.sip.communicator.util,
  net.java.sip.communicator.service.protocol,
- net.java.sip.communicator.service.protocol.icqconstants,
  net.java.sip.communicator.service.protocol.event,
  net.java.sip.communicator.service.contactsource,
  org.jitsi.service.resources, net.java.sip.communicator.service.resources

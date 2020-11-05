@@ -44,16 +44,6 @@ public interface ProtocolNames
     public static final String IRC = "IRC";
 
     /**
-     * The ICQ service protocol.
-     */
-    public static final String ICQ = "ICQ";
-
-    /**
-     * The AIM service protocol.
-     */
-    public static final String AIM = "AIM";
-
-    /**
      * The SIP Communicator MOCK protocol.
      */
     public static final String SIP_COMMUNICATOR_MOCK  = "sip-communicator-mock";

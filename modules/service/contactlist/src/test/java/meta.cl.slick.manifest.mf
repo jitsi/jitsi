@@ -12,6 +12,5 @@ Import-Package: net.java.sip.communicator.util.osgi,net.java.sip.communicator.se
  net.java.sip.communicator.service.dns,
  org.jitsi.service.configuration,
  net.java.sip.communicator.service.protocol,
- net.java.sip.communicator.service.protocol.icqconstants,
  net.java.sip.communicator.service.protocol.event,
  net.java.sip.communicator.impl.protocol.mock

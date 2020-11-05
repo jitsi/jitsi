@@ -30,7 +30,7 @@ Requires: libXScrnSaver
 
 %description
 Jitsi is an audio/video and chat communicator that supports protocols
-such as SIP, XMPP/Jabber, AIM/ICQ, IRC and many other useful features.
+such as SIP, XMPP/Jabber, IRC and many other useful features.
 
 %define debug_package %{nil}
 
@@ -152,7 +152,7 @@ sed -i -e "s/\/launchutils.jar//" $RPM_BUILD_ROOT/usr/bin/jitsi
 - Now depends on java >= 0:1.5.0.
 
 * Thu Jan 31 2013 Damian Minkov <damencho@jitsi.org>
-- Fixed startup script. 
+- Fixed startup script.
 - Add felix.framework and felix.main dependencies.
 - Fix warning about conflicting folders with filesystem package.
 
