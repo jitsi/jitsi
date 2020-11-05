@@ -31,8 +31,6 @@ import net.java.sip.communicator.util.skin.*;
 
 import org.jitsi.util.*;
 
-import com.explodingpixels.macwidgets.*;
-
 /**
  * The <tt>DialpadDialog</tt> is a popup dialog containing a dialpad.
  *
@@ -70,10 +68,7 @@ public class GeneralDialPadDialog
      */
     public GeneralDialPadDialog()
     {
-        dialPadDialog
-            = OSUtils.IS_MAC
-                ? new HudWindow().getJDialog()
-                : new SIPCommDialog(false);
+        dialPadDialog = new SIPCommDialog(false);
         dialPadDialog.setTitle(
                 GuiActivator.getResources().getI18NString(
                         "service.gui.DIALPAD"));

@@ -39,7 +39,6 @@ import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
 import org.jitsi.utils.*;
 
-import com.explodingpixels.macwidgets.*;
 import java.security.cert.*;
 import javax.swing.event.*;
 
@@ -130,31 +129,10 @@ public class CallInfoFrame
      */
     private JDialog createCallInfoWindow( String title)
     {
-        JDialog callInfoWindow = null;
-
-        if (OSUtils.IS_MAC)
-        {
-            HudWindow window = new HudWindow();
-
-            JDialog dialog = window.getJDialog();
-            dialog.setTitle(title);
-
-            callInfoWindow = window.getJDialog();
-            callInfoWindow.setResizable(true);
-
-            fontColor = "FFFFFF";
-        }
-        else
-        {
-            SIPCommDialog dialog = new SIPCommDialog(false);
-
-            callInfoWindow = dialog;
-            callInfoWindow.setTitle(title);
-
-            fontColor = "000000";
-        }
-
-        return callInfoWindow;
+        SIPCommDialog dialog = new SIPCommDialog(false);
+        dialog.setTitle(title);
+        fontColor = "000000";
+        return dialog;
     }
 
     /**

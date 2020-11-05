@@ -28,9 +28,6 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 import org.apache.commons.lang3.StringUtils;
 import org.jitsi.util.*;
-import org.jitsi.utils.*;
-
-import com.explodingpixels.macwidgets.*;
 
 /**
  * The <tt>CallPanel</tt> is the panel containing call information. It's created
@@ -239,60 +236,9 @@ public class OneToOneCallPanel
      */
     private JComponent createTopComponent()
     {
-        JComponent topComponent = null;
-
-        if (OSUtils.IS_MAC)
-        {
-            /*
-             * The topBar is not visible in full-screen mode so
-             * macPanelBackground does not interfere with the background set on
-             * the ancestors in full-screen mode.
-             */
-            Color macPanelBackground
-                = new Color(
-                        GuiActivator.getResources().getColor(
-                                "service.gui.MAC_PANEL_BACKGROUND"));
-
-            if (callContainer.getCallWindow() instanceof Window)
-            {
-                UnifiedToolBar macToolbarPanel = new UnifiedToolBar();
-
-                MacUtils.makeWindowLeopardStyle(
-                        callContainer.getCallWindow().getFrame().getRootPane());
-
-                macToolbarPanel.getComponent().setLayout(new BorderLayout());
-                macToolbarPanel.disableBackgroundPainter();
-                macToolbarPanel.installWindowDraggerOnWindow(
-                        callContainer.getCallWindow().getFrame());
-
-                topComponent = macToolbarPanel.getComponent();
-            }
-            else
-            {
-                topComponent = new TransparentPanel(new BorderLayout());
-                topComponent.setOpaque(true);
-                topComponent.setBackground(macPanelBackground);
-            }
-
-            /*
-             * Set the background color of the center panel. However, that color
-             * depends on whether this view is displayed on full-screen or
-             * windowed mode (because it is common for full-screen mode to have
-             * a black background).
-             */
-            peerPanel.setOpaque(!isFullScreen());
-            peerPanel.setBackground(macPanelBackground);
-        }
-        else
-        {
-            JPanel panel = new TransparentPanel(new BorderLayout());
-
-            panel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
-
-            topComponent = panel;
-        }
-
-        return topComponent;
+        JPanel panel = new TransparentPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
+        return panel;
     }
 
     /**

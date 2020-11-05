@@ -49,8 +49,6 @@ import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
 import org.osgi.framework.*;
 
-import com.explodingpixels.macwidgets.*;
-
 /**
  * The main application window. This class is the core of this UI
  * implementation. It stores all available protocol providers and their
@@ -393,7 +391,7 @@ public class MainFrame
      * If hiding is possible and the option to minimize is not selected, the
      * application gets hidden on clicking 'X'.
      *
-     * @param true if hiding is possible, i.e. a tray icon is loaded
+     * @param canHide true if hiding is possible, i.e. a tray icon is loaded
      */
     public void updateCloseAction(boolean canHide)
     {
@@ -451,38 +449,9 @@ public class MainFrame
      */
     private JComponent createTopComponent()
     {
-        JComponent topComponent = null;
-
-        if (OSUtils.IS_MAC)
-        {
-            UnifiedToolBar macToolbarPanel = new UnifiedToolBar();
-
-            MacUtils.makeWindowLeopardStyle(getRootPane());
-
-            macToolbarPanel.getComponent().setLayout(new BorderLayout(5, 5));
-            macToolbarPanel.getComponent()
-                .setBorder(BorderFactory.createEmptyBorder(3, 5, 3, 5));
-            macToolbarPanel.disableBackgroundPainter();
-            macToolbarPanel.installWindowDraggerOnWindow(this);
-
-            // Set the color of the center panel.
-            centerPanel.setOpaque(true);
-            centerPanel.setBackground(
-                new Color(GuiActivator.getResources()
-                    .getColor("service.gui.MAC_PANEL_BACKGROUND")));
-
-            topComponent = macToolbarPanel.getComponent();
-        }
-        else
-        {
-            JPanel panel = new TransparentPanel(new BorderLayout(5, 5));
-
-            panel.setBorder(BorderFactory.createEmptyBorder(3, 5, 3, 5));
-
-            topComponent = panel;
-        }
-
-        return topComponent;
+        JPanel panel = new TransparentPanel(new BorderLayout(5, 5));
+        panel.setBorder(BorderFactory.createEmptyBorder(3, 5, 3, 5));
+        return panel;
     }
 
     /**
@@ -879,8 +848,8 @@ public class MainFrame
      */
     public Iterator<ProtocolProviderService> getProtocolProviders()
     {
-        return new LinkedList<ProtocolProviderService>(
-                        protocolProviders.keySet())
+        return new LinkedList<>(
+            protocolProviders.keySet())
                         .iterator();
     }
 

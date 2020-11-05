@@ -36,8 +36,6 @@ import org.jitsi.util.*;
 import org.jitsi.util.swing.TransparentPanel;
 import org.jitsi.utils.*;
 
-import com.explodingpixels.macwidgets.*;
-
 /**
  * The <tt>PreCallDialog</tt> is a dialog allowing to pick-up or hangup a call.
  * This is the parent dialog of the <tt>ReceivedCallDialog</tt> and the
@@ -210,47 +208,21 @@ public abstract class PreCallDialog
     {
         Window receivedCallWindow = null;
 
-        if (OSUtils.IS_MAC)
-        {
-            HudWindow window = new HudWindow();
-            window.hideCloseButton();
 
-            JDialog dialog = window.getJDialog();
-            dialog.setUndecorated(true);
-            dialog.setTitle(title);
+        SIPCommFrame frame = new SIPCommFrame(false);
 
-            receivedCallWindow = window.getJDialog();
+        frame.setUndecorated(true);
 
-            callLabelDisplayName = HudWidgetFactory.createHudLabel("");
-            callLabelAddress = HudWidgetFactory.createHudLabel("");
-            callLabelImage = HudWidgetFactory.createHudLabel("");
+        receivedCallWindow = frame;
 
-            if (accounts != null)
-            {
-                accountsCombo
-                    = HudWidgetFactory.createHudComboBox(
-                            new DefaultComboBoxModel(accounts));
-            }
-            else
-                callLabelAccount = HudWidgetFactory.createHudLabel("");
-        }
+        callLabelDisplayName = new JLabel();
+        callLabelAddress = new JLabel();
+        callLabelImage = new JLabel();
+
+        if (accounts != null)
+            accountsCombo = new JComboBox(accounts);
         else
-        {
-            SIPCommFrame frame = new SIPCommFrame(false);
-
-            frame.setUndecorated(true);
-
-            receivedCallWindow = frame;
-
-            callLabelDisplayName = new JLabel();
-            callLabelAddress = new JLabel();
-            callLabelImage = new JLabel();
-
-            if (accounts != null)
-                accountsCombo = new JComboBox(accounts);
-            else
-                callLabelAccount = new JLabel();
-        }
+            callLabelAccount = new JLabel();
 
         if (text != null)
             callLabelDisplayName.setText(text);

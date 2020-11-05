@@ -17,8 +17,8 @@
  */
 package net.java.sip.communicator.service.protocol;
 
+import java.math.*;
 import org.apache.commons.lang3.StringUtils;
-import org.jitsi.utils.*;
 
 import java.net.*;
 import java.util.*;
@@ -70,10 +70,10 @@ public class ServerStoredDetails
      * This class should be extended or instantiated by implementors with the
      * purpose of representing details not defined here.
      */
-    public static class GenericDetail
+    public static class GenericDetail<T>
     {
-        protected Object value = null;
-        protected String detailDisplayName  = null;
+        protected T value;
+        protected String detailDisplayName;
 
         /**
          * Instantiates this detail setting its value and display name
@@ -82,7 +82,7 @@ public class ServerStoredDetails
          * description when visualizing the value of the detail
          * @param value the value of the detail.
          */
-        public GenericDetail(String detailDisplayName, Object value)
+        public GenericDetail(String detailDisplayName, T value)
         {
             this.value = value;
             this.detailDisplayName  = detailDisplayName;
@@ -92,7 +92,7 @@ public class ServerStoredDetails
          * Returns the value of the detail.
          * @return the value of the detail.
          */
-        public Object getDetailValue()
+        public T getDetailValue()
         {
             return value;
         }
@@ -139,23 +139,22 @@ public class ServerStoredDetails
                 return true;
             }
 
-            GenericDetail other = (GenericDetail)obj;
+            GenericDetail<?> other = (GenericDetail<?>)obj;
 
-            if(this.detailDisplayName != null // equals DisplayName
-               && other.getDetailDisplayName() != null
-               && this.detailDisplayName.equals(other.getDetailDisplayName()) &&
+            return this.detailDisplayName != null // equals DisplayName
+                && other.getDetailDisplayName() != null
+                && this.detailDisplayName.equals(other.getDetailDisplayName())
+                &&
 
-               // equals not null values
-               ((this.value != null
-               && other.getDetailValue() != null
-               && this.value.equals(other.getDetailValue()))
-               ||
-               // or both values are null / empty
-               (StringUtils.isEmpty((String)this.value)
-                && StringUtils.isEmpty((String)other.getDetailValue()))))
-                return true;
-            else
-                return false;
+                // equals not null values
+                ((this.value != null
+                    && other.getDetailValue() != null
+                    && this.value.equals(other.getDetailValue()))
+                    ||
+                    // or both values are null / empty
+                    (StringUtils.isEmpty((String) this.value)
+                        && StringUtils
+                        .isEmpty((String) other.getDetailValue())));
         }
 
         @Override
@@ -169,7 +168,7 @@ public class ServerStoredDetails
      * A generic detail that should be used (extended) when representing details
      * with a String content.
      */
-    public static class StringDetail extends GenericDetail
+    public static class StringDetail extends GenericDetail<String>
     {
         public StringDetail(String detailDisplayName, String value)
         {
@@ -178,7 +177,7 @@ public class ServerStoredDetails
 
         public String getString()
         {
-            return (String)value;
+            return value;
         }
     }
 
@@ -301,7 +300,7 @@ public class ServerStoredDetails
      * representing a country for example we'd only be using the fields
      * concerning the country.
      */
-    public static class LocaleDetail extends GenericDetail
+    public static class LocaleDetail extends GenericDetail<Object>
     {
         public LocaleDetail(String detailDisplayName, Locale locale)
         {
@@ -348,11 +347,6 @@ public class ServerStoredDetails
         public WorkCountryDetail(Locale locale)
         {
             super(locale);
-        }
-
-        public WorkCountryDetail(String country)
-        {
-            super(country);
         }
     }
 
@@ -473,7 +467,7 @@ public class ServerStoredDetails
     /**
      * A generic detail representing any url
      */
-    public static class URLDetail extends GenericDetail
+    public static class URLDetail extends GenericDetail<URL>
     {
         public URLDetail(String name, URL url)
         {
@@ -482,7 +476,7 @@ public class ServerStoredDetails
 
         public URL getURL()
         {
-            return (URL)getDetailValue();
+            return getDetailValue();
         }
 
         /**
@@ -516,10 +510,7 @@ public class ServerStoredDetails
 
             boolean bothNullValues =
                 this.value == null && other.value == null;
-            if (equalsDisplayName && (equalValues || bothNullValues))
-                return true;
-            else
-                return false;
+            return equalsDisplayName && (equalValues || bothNullValues);
         }
     }
 
@@ -550,7 +541,7 @@ public class ServerStoredDetails
      * A generic detail used for representing binary content such as photos
      * logos, avatars ....
      */
-    public static class BinaryDetail extends GenericDetail
+    public static class BinaryDetail extends GenericDetail<byte[]>
     {
         public BinaryDetail(String displayDetailName, byte[] bytes)
         {
@@ -559,7 +550,7 @@ public class ServerStoredDetails
 
         public byte[] getBytes()
         {
-            return (byte[])getDetailValue();
+            return getDetailValue();
         }
 
         /**
@@ -594,10 +585,7 @@ public class ServerStoredDetails
                 (this.value == null || this.getBytes().length == 0)
                 && (other.getDetailValue() == null
                     || other.getBytes().length == 0);
-            if (equalsDisplayName && (equalsNotNull || nullOrEmpty))
-                return true;
-            else
-                return false;
+            return equalsDisplayName && (equalsNotNull || nullOrEmpty);
         }
     }
 
@@ -731,7 +719,7 @@ public class ServerStoredDetails
      * even age should try their best to convert to a date (setting to 0
      * all unknown details).
      */
-    public static class CalendarDetail extends GenericDetail
+    public static class CalendarDetail extends GenericDetail<Calendar>
     {
         public CalendarDetail(String detailDisplayName, Calendar date)
         {
@@ -740,7 +728,7 @@ public class ServerStoredDetails
 
         public Calendar getCalendar()
         {
-            return (Calendar)getDetailValue();
+            return getDetailValue();
         }
     }
 
@@ -782,14 +770,14 @@ public class ServerStoredDetails
             if (this.value != null && other.getDetailValue() != null)
             {
                 boolean yearEquals =
-                    ((Calendar)this.value).get(Calendar.YEAR) ==
-                    ((Calendar)other.value).get(Calendar.YEAR);
+                    this.value.get(Calendar.YEAR) ==
+                    other.value.get(Calendar.YEAR);
                 boolean monthEquals =
-                    ((Calendar)this.value).get(Calendar.MONTH) ==
-                    ((Calendar)other.value).get(Calendar.MONTH);
+                    this.value.get(Calendar.MONTH) ==
+                    other.value.get(Calendar.MONTH);
                 boolean dayEquals =
-                    ((Calendar)this.value).get(Calendar.DAY_OF_MONTH) ==
-                    ((Calendar)other.value).get(Calendar.DAY_OF_MONTH);
+                    this.value.get(Calendar.DAY_OF_MONTH) ==
+                    other.value.get(Calendar.DAY_OF_MONTH);
                 return yearEquals && monthEquals && dayEquals;
             }
             else
@@ -802,7 +790,7 @@ public class ServerStoredDetails
      * corresponding contact and that could be extended to represent other
      * time zone related details.
      */
-    public static class TimeZoneDetail extends GenericDetail
+    public static class TimeZoneDetail extends GenericDetail<TimeZone>
     {
         public TimeZoneDetail(String displayDetailName, TimeZone timeZone)
         {
@@ -811,7 +799,7 @@ public class ServerStoredDetails
 
         public TimeZone getTimeZone()
         {
-            return (TimeZone)getDetailValue();
+            return getDetailValue();
         }
     }
 
@@ -870,16 +858,16 @@ public class ServerStoredDetails
      * A generic detail that should be used (extended) when representing any
      * numbers.
      */
-    public static class NumberDetail extends GenericDetail
+    public static class NumberDetail extends GenericDetail<BigDecimal>
     {
-        public NumberDetail(String detailName, java.math.BigDecimal value)
+        public NumberDetail(String detailName, BigDecimal value)
         {
             super(detailName, value);
         }
 
-        public java.math.BigDecimal getNumber()
+        public BigDecimal getNumber()
         {
-            return (java.math.BigDecimal)getDetailValue();
+            return getDetailValue();
         }
     }
 
@@ -889,16 +877,16 @@ public class ServerStoredDetails
      * boolean values.
      */
     public static class BooleanDetail
-        extends GenericDetail
+        extends GenericDetail<Boolean>
     {
         public BooleanDetail(String detailName, boolean value)
         {
-            super(detailName, new Boolean(value));
+            super(detailName, value);
         }
 
         public boolean getBoolean()
         {
-            return ((Boolean)getDetailValue()).booleanValue();
+            return getDetailValue();
         }
     }
 

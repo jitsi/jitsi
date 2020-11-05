@@ -19,13 +19,14 @@ package net.java.sip.communicator.plugin.accountinfo;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.beans.*;
 import java.net.*;
+import java.text.*;
 import java.util.*;
 
 import javax.swing.*;
 import javax.swing.text.*;
 
+import lombok.extern.slf4j.*;
 import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
 
 import org.apache.commons.lang3.StringUtils;
@@ -36,8 +37,6 @@ import net.java.sip.communicator.service.globaldisplaydetails.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.plugin.accountinfo.AccountInfoMenuItemComponent.*;
-
-import com.toedter.calendar.*;
 
 /**
  * The main panel that allows users to view and edit their account information.
@@ -51,19 +50,10 @@ import com.toedter.calendar.*;
  * @author Adam Netocny
  * @author Marin Dzhigarov
  */
+@Slf4j
 public class AccountDetailsPanel
     extends TransparentPanel
 {
-    /**
-     * Serial version UID.
-     */
-    private static final long serialVersionUID = 1L;
-
-    /**
-     * The logger
-     */
-    private org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AccountDetailsPanel.class);
-
     /**
      * Mapping between all supported by this plugin <tt>ServerStoredDetails</tt>
      * and their respective <tt>JTextField</tt> that are used for modifying
@@ -123,9 +113,7 @@ public class AccountDetailsPanel
 
     private JTextField genderField;
 
-    private JTextField ageField;
-
-    private JDateChooser birthDayCalendar;
+    private JTextField birthDayCalendar;
 
     private JRadioButton globalIcon;
 
@@ -413,55 +401,15 @@ public class AccountDetailsPanel
             first.gridy = ++second.gridy;
             detailToTextField.put(GenderDetail.class, genderField);
         }
-
-        birthDayCalendar = new JDateChooser();
-        valuesPanel.add(new JLabel(
-            Resources.getString("plugin.accountinfo.BDAY"))
-            , first);
-        valuesPanel.add(birthDayCalendar, second);
-        birthDayCalendar.setDateFormatString(
-            Resources.getString("plugin.accountinfo.BDAY_FORMAT"));
-        birthDayCalendar.addPropertyChangeListener(
-            new PropertyChangeListener() {
-                @Override
-                public void propertyChange(PropertyChangeEvent evt)
-                {
-                    if (evt.getPropertyName().equals("date"))
-                    {
-                        Date date = (Date) evt.getNewValue();
-                        if (date != null)
-                        {
-                            Calendar currentDate = Calendar.getInstance();
-                            Calendar c = Calendar.getInstance();
-                            c.setTime(date);
-                            int age =
-                                currentDate.get(Calendar.YEAR) -
-                                c.get(Calendar.YEAR);
-
-                            if (currentDate.get(Calendar.MONTH) <
-                                c.get(Calendar.MONTH))
-                                age--;
-                            if ((currentDate.get(Calendar.MONTH) ==
-                                    c.get(Calendar.MONTH))
-                                &&
-                                (currentDate.get(Calendar.DAY_OF_MONTH) <
-                                    c.get(Calendar.DAY_OF_MONTH)))
-                                age--;
-                            String ageDetail = Integer.toString(age).trim();
-                            ageField.setText(ageDetail);
-                        }
-                    }
-                }
-        });
-        first.gridy = ++second.gridy;
-        ageField = new JTextField();
-        valuesPanel.add(new JLabel(
-            Resources.getString("plugin.accountinfo.AGE")), first);
-        valuesPanel.add(ageField, second);
-        first.gridy = ++second.gridy;
-        ageField.setEditable(false);
-        detailToTextField.put(BirthDateDetail.class, new JTextField());
-
+        if (accountInfoOpSet.isDetailClassSupported(BirthDateDetail.class))
+        {
+            birthDayCalendar = new JTextField();
+            valuesPanel.add(new JLabel(
+                Resources.getString("plugin.accountinfo.BDAY")), first);
+            valuesPanel.add(birthDayCalendar, second);
+            first.gridy = ++second.gridy;
+            detailToTextField.put(BirthDateDetail.class, new JTextField());
+        }
         if (accountInfoOpSet.isDetailClassSupported(AddressDetail.class))
         {
             streetAddressField = new JTextField();
@@ -773,11 +721,10 @@ public class AccountDetailsPanel
         if (detail instanceof BirthDateDetail)
         {
             birthDateDetail = (BirthDateDetail) detail;
-
-            Calendar calendarDetail =
-                (Calendar) birthDateDetail.getDetailValue();
-
-            birthDayCalendar.setCalendar(calendarDetail);
+            Calendar calendarDetail = birthDateDetail.getDetailValue();
+            DateFormat f = new SimpleDateFormat(
+                Resources.getString("plugin.accountinfo.BDAY_FORMAT"));
+            birthDayCalendar.setText(f.format(calendarDetail.getTime()));
             return;
         }
 
@@ -814,8 +761,6 @@ public class AccountDetailsPanel
                     lastNameDetail = (LastNameDetail) detail;
                 else if (detail.getClass().equals(NicknameDetail.class))
                     nicknameDetail = (NicknameDetail) detail;
-                else if (detail.getClass().equals(URLDetail.class))
-                    urlDetail = (URLDetail) detail;
                 else if (detail.getClass().equals(GenderDetail.class))
                     genderDetail = (GenderDetail) detail;
                 else if (detail.getClass().equals(AddressDetail.class))
@@ -838,13 +783,10 @@ public class AccountDetailsPanel
                     emailDetail = (EmailAddressDetail) detail;
                 else if (detail.getClass().equals(WorkEmailAddressDetail.class))
                     workEmailDetail = (WorkEmailAddressDetail) detail;
-                else if (detail.getClass().equals(
-                    WorkOrganizationNameDetail.class))
+                else if (detail.getClass().equals(WorkOrganizationNameDetail.class))
                     organizationDetail = (WorkOrganizationNameDetail) detail;
                 else if (detail.getClass().equals(JobTitleDetail.class))
                     jobTitleDetail = (JobTitleDetail) detail;
-                else if (detail.getClass().equals(AboutMeDetail.class))
-                    aboutMeDetail = (AboutMeDetail) detail;
             }
         }
     }
@@ -997,10 +939,23 @@ public class AccountDetailsPanel
             {
                 BirthDateDetail newDetail = null;
 
-                if (birthDayCalendar.getDate() != null)
+                if (StringUtils.isNotEmpty(birthDayCalendar.getText()))
                 {
-                    newDetail =
-                        new BirthDateDetail(birthDayCalendar.getCalendar());
+                    try
+                    {
+                        Date d = new SimpleDateFormat(
+                            Resources.getString("plugin.accountinfo.BDAY_FORMAT"))
+                            .parse(birthDayCalendar.getText());
+                        Calendar c = Calendar.getInstance();
+                        c.setTime(d);
+                        newDetail = new BirthDateDetail(c);
+                    }
+                    catch (ParseException parseException)
+                    {
+                        logger.warn("Could not parse date {} with format {}",
+                            birthDayCalendar.getText(),
+                            Resources.getString("plugin.accountinfo.BDAY_FORMAT"));
+                    }
                 }
 
                 if (birthDateDetail != null || newDetail != null)

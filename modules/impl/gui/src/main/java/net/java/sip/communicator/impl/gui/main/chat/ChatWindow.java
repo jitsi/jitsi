@@ -40,8 +40,6 @@ import net.java.sip.communicator.util.skin.*;
 import org.jitsi.util.*;
 import org.osgi.framework.*;
 
-import com.explodingpixels.macwidgets.*;
-
 /**
  * The chat window is the place, where users can write and send messages, view
  * received messages. The ChatWindow supports two modes of use: "Group all
@@ -236,42 +234,18 @@ public class ChatWindow
      */
     private Component createToolBar()
     {
-        Component toolbarPanel = null;
-
         mainToolBar = new MainToolBar(this);
 
         boolean chatToolbarVisible
             = ConfigurationUtils.isChatToolbarVisible();
 
-        if (OSUtils.IS_MAC)
-        {
-            UnifiedToolBar macToolbarPanel = new UnifiedToolBar();
+        ToolbarPanel panel = new ToolbarPanel(new BorderLayout());
 
-            MacUtils.makeWindowLeopardStyle(getRootPane());
-
-            macToolbarPanel.addComponentToLeft(mainToolBar);
-            macToolbarPanel.addComponentToRight(contactPhotoPanel);
-            macToolbarPanel.disableBackgroundPainter();
-            macToolbarPanel.installWindowDraggerOnWindow(this);
-            macToolbarPanel.getComponent()
-                .setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
-            macToolbarPanel.getComponent().setVisible(chatToolbarVisible);
-
-            toolbarPanel = macToolbarPanel.getComponent();
-        }
-        else
-        {
-            ToolbarPanel panel = new ToolbarPanel(new BorderLayout());
-
-            panel.setBorder(BorderFactory.createEmptyBorder(3, 0, 3, 0));
-            panel.add(mainToolBar, BorderLayout.CENTER);
-            panel.add(contactPhotoPanel, BorderLayout.EAST);
-            panel.setVisible(chatToolbarVisible);
-
-            toolbarPanel = panel;
-        }
-
-        return toolbarPanel;
+        panel.setBorder(BorderFactory.createEmptyBorder(3, 0, 3, 0));
+        panel.add(mainToolBar, BorderLayout.CENTER);
+        panel.add(contactPhotoPanel, BorderLayout.EAST);
+        panel.setVisible(chatToolbarVisible);
+        return panel;
     }
 
     /**

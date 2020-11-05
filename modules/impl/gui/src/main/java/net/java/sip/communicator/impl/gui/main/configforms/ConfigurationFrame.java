@@ -31,8 +31,6 @@ import net.java.sip.communicator.util.*;
 import org.jitsi.util.*;
 import org.osgi.framework.*;
 
-import com.explodingpixels.macwidgets.*;
-
 /**
  * The <tt>ConfigurationFrame</tt> is the dialog opened when the "Options" menu
  * is selected. It contains different basic configuration forms, like General,
@@ -166,31 +164,9 @@ public class ConfigurationFrame
      */
     private JComponent createTopComponent()
     {
-        JComponent topComponent = null;
-
-        if (OSUtils.IS_MAC)
-        {
-            UnifiedToolBar macToolbarPanel = new UnifiedToolBar();
-
-            MacUtils.makeWindowLeopardStyle(getRootPane());
-
-            macToolbarPanel.getComponent().setLayout(new BorderLayout());
-            macToolbarPanel.disableBackgroundPainter();
-            macToolbarPanel.installWindowDraggerOnWindow(this);
-            centerPanel.setOpaque(true);
-            centerPanel.setBackground(
-                new Color(GuiActivator.getResources()
-                    .getColor("service.gui.MAC_PANEL_BACKGROUND")));
-
-            topComponent = macToolbarPanel.getComponent();
-        }
-        else
-        {
-            topComponent = new TransparentPanel(new BorderLayout());
-            topComponent.setBorder(
-                new EmptyBorder(BORDER_SIZE / 2, BORDER_SIZE, 0, 0));
-        }
-
+        JComponent topComponent = new TransparentPanel(new BorderLayout());
+        topComponent.setBorder(
+            new EmptyBorder(BORDER_SIZE / 2, BORDER_SIZE, 0, 0));
         return topComponent;
     }
 

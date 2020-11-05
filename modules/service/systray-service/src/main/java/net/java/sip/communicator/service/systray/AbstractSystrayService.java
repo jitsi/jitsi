@@ -36,7 +36,7 @@ import java.util.*;
  * @author Pawel Domas
  */
 public abstract class AbstractSystrayService
-    implements SystrayService
+    implements SystrayService, ServiceListener
 {
 
     /**
@@ -246,7 +246,7 @@ public abstract class AbstractSystrayService
         try
         {
             bundleContext.addServiceListener(
-                    new ServiceListenerImpl(),
+                    this,
                     "(objectclass=" + PopupMessageHandler.class.getName()
                         + ")");
         }
@@ -300,91 +300,71 @@ public abstract class AbstractSystrayService
         }
     }
 
-    /** An implementation of <tt>ServiceListener</tt> we will use */
-    private class ServiceListenerImpl
-        implements ServiceListener
+    public void serviceChanged(ServiceEvent serviceEvent)
     {
-
-        /**
-         * implements <tt>ServiceListener.serviceChanged</tt>
-         * @param serviceEvent
-         */
-        public void serviceChanged(ServiceEvent serviceEvent)
+        try
         {
-            try
-            {
-                Object service
-                    = bundleContext.getService(
+            PopupMessageHandler handler
+                = (PopupMessageHandler)
+                    bundleContext.getService(
                             serviceEvent.getServiceReference());
-                // Event filters don't work on Android
-                if(!(service instanceof PopupMessageHandler))
-                    return;
 
-                PopupMessageHandler handler
-                    = (PopupMessageHandler)
-                        bundleContext.getService(
-                                serviceEvent.getServiceReference());
-
-                if (serviceEvent.getType() == ServiceEvent.REGISTERED)
-                {
-                    if (!containsHandler(handler.getClass().getName()))
-                    {
-                        if (logger.isInfoEnabled())
-                            logger.info("adding the following popup handler : "
-                                                + handler);
-                        addPopupHandler(handler);
-                    }
-                    else
-                        logger.warn("the following popup handler has not " +
-                                    "been added since it is already known : "
-                                            + handler);
-
-                    ConfigurationService cfg
-                        = ServiceUtils.getService( bundleContext,
-                                                   ConfigurationService.class);
-                    String configuredHandler
-                        = cfg.getString("systray.POPUP_HANDLER");
-
-                    if ((configuredHandler == null)
-                            && ((getActivePopupHandler() == null)
-                            || (handler.getPreferenceIndex()
-                            > getActivePopupHandler().getPreferenceIndex())))
-                    {
-                        // The user doesn't have a preferred handler set and new
-                        // handler with better preference index has arrived,
-                        // thus setting it as active.
-                        setActivePopupMessageHandler(handler);
-                    }
-                    if ((configuredHandler != null)
-                            && configuredHandler.equals(
-                            handler.getClass().getName()))
-                    {
-                        // The user has a preferred handler set and it just
-                        // became available, thus setting it as active
-                        setActivePopupMessageHandler(handler);
-                    }
-                }
-                else if (serviceEvent.getType() == ServiceEvent.UNREGISTERING)
-                {
-                    if (logger.isInfoEnabled())
-                        logger.info("removing the following popup handler : "
-                                            + handler);
-                    removePopupHandler(handler);
-                    PopupMessageHandler activeHandler = getActivePopupHandler();
-                    if (activeHandler == handler)
-                    {
-                        setActivePopupMessageHandler(null);
-
-                        // We just lost our default handler, so we replace it
-                        // with the one that has the highest preference index.
-                        selectBestPopupMessageHandler();
-                    }
-                }
-            }
-            catch (IllegalStateException e)
+            if (serviceEvent.getType() == ServiceEvent.REGISTERED)
             {
-                logger.debug("could not handle service changed event", e);
+                if (!containsHandler(handler.getClass().getName()))
+                {
+                    logger.info("adding popup handler {}", handler);
+                    addPopupHandler(handler);
+                }
+                else
+                    logger.warn("the following popup handler has not " +
+                                "been added since it is already known : "
+                                        + handler);
+
+                ConfigurationService cfg
+                    = ServiceUtils.getService( bundleContext,
+                                               ConfigurationService.class);
+                String configuredHandler
+                    = cfg.getString("systray.POPUP_HANDLER");
+
+                if ((configuredHandler == null)
+                        && ((getActivePopupHandler() == null)
+                        || (handler.getPreferenceIndex()
+                        > getActivePopupHandler().getPreferenceIndex())))
+                {
+                    // The user doesn't have a preferred handler set and new
+                    // handler with better preference index has arrived,
+                    // thus setting it as active.
+                    setActivePopupMessageHandler(handler);
+                }
+                if ((configuredHandler != null)
+                        && configuredHandler.equals(
+                        handler.getClass().getName()))
+                {
+                    // The user has a preferred handler set and it just
+                    // became available, thus setting it as active
+                    setActivePopupMessageHandler(handler);
+                }
             }
+            else if (serviceEvent.getType() == ServiceEvent.UNREGISTERING)
+            {
+                logger.info("removing popup handler {}", handler);
+                removePopupHandler(handler);
+                PopupMessageHandler activeHandler = getActivePopupHandler();
+                if (activeHandler == handler)
+                {
+                    setActivePopupMessageHandler(null);
+
+                    // We just lost our default handler, so we replace it
+                    // with the one that has the highest preference index.
+                    selectBestPopupMessageHandler();
+                }
+            }
+        }
+        catch (IllegalStateException e)
+        {
+            logger.debug("could not handle {} service changed event",
+                serviceEvent.getType(), e);
         }
     }
 }
