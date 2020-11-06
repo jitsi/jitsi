@@ -20,6 +20,7 @@ package net.java.sip.communicator.impl.neomedia;
 import java.beans.*;
 import java.util.*;
 
+import java.util.stream.*;
 import javax.media.*;
 import javax.swing.*;
 import javax.swing.event.*;
@@ -75,13 +76,13 @@ public class DeviceConfigurationComboBoxModel
     /**
      * All the devices.
      */
-    private CaptureDevice[] devices;
+    private List<CaptureDevice> devices;
 
     /**
      * The <tt>ListDataListener</tt>s registered with this instance.
      */
     private final List<ListDataListener> listeners
-        = new ArrayList<ListDataListener>();
+        = new ArrayList<>();
 
     /**
      * The type of the media for this combo.
@@ -90,7 +91,6 @@ public class DeviceConfigurationComboBoxModel
 
     /**
      * Creates device combobox model
-     * @param parent the parent component
      * @param deviceConfiguration the current device configuration
      * @param type the device - audio/video
      */
@@ -162,7 +162,7 @@ public class DeviceConfigurationComboBoxModel
      * Extracts the devices for the current type.
      * @return the devices.
      */
-    private CaptureDevice[] getDevices()
+    private List<CaptureDevice> getDevices()
     {
         if (type == AUDIO)
             throw new IllegalStateException("type");
@@ -201,15 +201,17 @@ public class DeviceConfigurationComboBoxModel
             throw new IllegalStateException("type");
         }
 
-        final int deviceCount = (infos == null) ? 0 : infos.size();
-        devices = new CaptureDevice[deviceCount + 1];
-
-        if (deviceCount > 0)
+        if (infos != null)
         {
-            for (int i = 0; i < deviceCount; i++)
-                devices[i] = new CaptureDevice(infos.get(i));
+            devices = new ArrayList<>(infos.size() + 1);
+            infos.forEach(i -> devices.add(new CaptureDevice(i)));
+            devices.sort(Comparator.comparing(CaptureDevice::toString));
+            devices.add(new CaptureDevice(null));
         }
-        devices[deviceCount] = new CaptureDevice(null);
+        else
+        {
+            devices = Collections.emptyList();
+        }
 
         return devices;
     }
@@ -219,7 +221,7 @@ public class DeviceConfigurationComboBoxModel
         if (type == AUDIO)
             return getAudioSystems()[index];
         else
-            return getDevices()[index];
+            return getDevices().get(index);
     }
 
     /**
@@ -279,7 +281,7 @@ public class DeviceConfigurationComboBoxModel
         if (type == AUDIO)
             return getAudioSystems().length;
         else
-            return getDevices().length;
+            return getDevices().size();
     }
 
     /**
@@ -304,14 +306,7 @@ public class DeviceConfigurationComboBoxModel
             }
             else
             {
-                SwingUtilities.invokeLater(
-                        new Runnable()
-                        {
-                            public void run()
-                            {
-                                propertyChange(ev);
-                            }
-                        });
+                SwingUtilities.invokeLater(() -> propertyChange(ev));
             }
         }
     }
