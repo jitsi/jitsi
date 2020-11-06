@@ -29,65 +29,65 @@ import net.java.sip.communicator.service.systray.event.*;
  */
 public interface SystrayService
 {
-    public static final String PNMAE_TRAY_MODE =
+    String PNMAE_TRAY_MODE =
         "net.java.sip.communicator.osdependent.systemtray.MODE";
 
     /**
      * Message type corresponding to an error message.
      */
-    public static final int ERROR_MESSAGE_TYPE = 0;
+    int ERROR_MESSAGE_TYPE = 0;
 
     /**
      * Message type corresponding to an information message.
      */
-    public static final int INFORMATION_MESSAGE_TYPE = 1;
+    int INFORMATION_MESSAGE_TYPE = 1;
 
     /**
      * Message type corresponding to a warning message.
      */
-    public static final int WARNING_MESSAGE_TYPE = 2;
+    int WARNING_MESSAGE_TYPE = 2;
 
     /**
      * Message type is not accessible.
      */
-    public static final int NONE_MESSAGE_TYPE = -1;
+    int NONE_MESSAGE_TYPE = -1;
 
     /**
      * Image type corresponding to the jitsi icon
      */
-    public static final int SC_IMG_TYPE = 0;
+    int SC_IMG_TYPE = 0;
 
     /**
      * Image type corresponding to the jitsi offline icon
      */
-    public static final int SC_IMG_OFFLINE_TYPE = 2;
+    int SC_IMG_OFFLINE_TYPE = 2;
 
     /**
      * Image type corresponding to the jitsi away icon
      */
-    public static final int SC_IMG_AWAY_TYPE = 3;
+    int SC_IMG_AWAY_TYPE = 3;
 
     /**
      * Image type corresponding to the jitsi free for chat icon
      */
-    public static final int SC_IMG_FFC_TYPE = 4;
+    int SC_IMG_FFC_TYPE = 4;
 
     /**
      * Image type corresponding to the jitsi do not disturb icon
      */
-    public static final int SC_IMG_DND_TYPE = 5;
+    int SC_IMG_DND_TYPE = 5;
 
     /**
      * Image type corresponding to the jitsi away icon
      */
-    public static final int SC_IMG_EXTENDED_AWAY_TYPE = 6;
+    int SC_IMG_EXTENDED_AWAY_TYPE = 6;
 
     /**
      * Shows the given <tt>PopupMessage</tt>
      *
      * @param popupMessage the message to show
      */
-    public void showPopupMessage(PopupMessage popupMessage);
+    void showPopupMessage(PopupMessage popupMessage);
 
     /**
      * Adds a listener for <tt>SystrayPopupMessageEvent</tt>s posted when user
@@ -95,65 +95,65 @@ public interface SystrayService
      *
      * @param listener the listener to add
      */
-    public void addPopupMessageListener(SystrayPopupMessageListener listener);
+    void addPopupMessageListener(SystrayPopupMessageListener listener);
 
     /**
      * Removes a listener previously added with <tt>addPopupMessageListener</tt>.
      *
      * @param listener the listener to remove
      */
-    public void removePopupMessageListener(SystrayPopupMessageListener listener);
+    void removePopupMessageListener(SystrayPopupMessageListener listener);
 
     /**
      * Set the handler which will be used for popup message
      * @param popupHandler the handler to use
      * @return the previously used popup handler
      */
-    public PopupMessageHandler setActivePopupMessageHandler(
-            PopupMessageHandler popupHandler);
+    PopupMessageHandler setActivePopupMessageHandler(
+        PopupMessageHandler popupHandler);
 
     /**
      * Get the handler currently used by the systray service for popup message
      * @return the handler used by the systray service
      */
-    public PopupMessageHandler getActivePopupMessageHandler();
+    PopupMessageHandler getActivePopupMessageHandler();
 
     /**
      * Sets a new icon to the systray.
      *
      * @param imageType the type of the image to set
      */
-    public void setSystrayIcon(int imageType);
+    void setSystrayIcon(int imageType);
 
     /**
      * Selects the best available popup message handler
      */
-    public void selectBestPopupMessageHandler();
+    void selectBestPopupMessageHandler();
 
     /**
      * Checks if the systray icon has been initialized.
      * @return True if the systray is initialized, false otherwise.
      */
-    public boolean checkInitialized();
+    boolean checkInitialized();
 
     /**
      * Set the number that should be shown as an overlay on the try icon.
      * @param count The number of pending notifications.
      */
-    public void setNotificationCount(int count);
+    void setNotificationCount(int count);
 
     /**
      * Gets a map of systray modes and resource-keys that describe them.
      * @return key: mode for config property, value: resource key
      */
-    public Map<String, String> getSystrayModes();
+    Map<String, String> getSystrayModes();
 
     /**
      * Gets the systray mode that was chosen at startup, either by default or as
      * an override selected by the user.
-     * 
+     *
      * @return The selected mode or {@code disabled} if the user selected mode
      *         is not available.
      */
-    public String getActiveSystrayMode();
+    String getActiveSystrayMode();
 }

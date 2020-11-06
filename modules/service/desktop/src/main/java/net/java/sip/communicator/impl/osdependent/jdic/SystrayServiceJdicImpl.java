@@ -122,25 +122,19 @@ public class SystrayServiceJdicImpl
     /**
      * Initializes a new <tt>SystrayServiceJdicImpl</tt> instance.
      */
-    public SystrayServiceJdicImpl()
+    public SystrayServiceJdicImpl(BundleContext bundleContext)
     {
-        super(OsDependentActivator.bundleContext);
-
+        super(bundleContext);
         SystemTray systray;
         try
         {
             systray = SystemTray.getSystemTray();
         }
-        catch (Throwable t)
+        catch (Exception t)
         {
-            if (t instanceof ThreadDeath)
-                throw (ThreadDeath) t;
-            else
-            {
-                systray = null;
-                if (!GraphicsEnvironment.isHeadless())
-                    logger.error("Failed to create a systray!", t);
-            }
+            systray = null;
+            if (!GraphicsEnvironment.isHeadless())
+                logger.error("Failed to create a systray!", t);
         }
 
         this.systray = systray;
@@ -311,11 +305,12 @@ public class SystrayServiceJdicImpl
         if (!isMac)
         {
             pmh = new PopupMessageHandlerTrayIconImpl(trayIcon);
-            addPopupHandler(pmh);
-            OsDependentActivator.bundleContext.registerService(
-                    PopupMessageHandler.class.getName(),
+            ServiceRegistration<PopupMessageHandler> ref
+                = bundleContext.registerService(
+                    PopupMessageHandler.class,
                     pmh,
                     null);
+            addPopupHandler(pmh, ref.getReference());
         }
 
         initHandlers();
@@ -330,13 +325,10 @@ public class SystrayServiceJdicImpl
         if ((getActivePopupMessageHandler() == null) && (pmh != null))
             setActivePopupMessageHandler(pmh);
 
-        SwingUtilities.invokeLater(new Runnable()
+        SwingUtilities.invokeLater(() ->
         {
-            public void run()
-            {
-                systray.addTrayIcon(trayIcon);
-                trayIcon.setDefaultAction(defaultActionItem);
-            }
+            systray.addTrayIcon(trayIcon);
+            trayIcon.setDefaultAction(defaultActionItem);
         });
 
         initialized = true;
@@ -463,7 +455,7 @@ public class SystrayServiceJdicImpl
             Application application = Application.getApplication();
             if (count > 0)
             {
-                application.setDockIconBadge(new Integer(count).toString());
+                application.setDockIconBadge(Integer.toString(count));
             }
             else
             {
@@ -489,7 +481,7 @@ public class SystrayServiceJdicImpl
             BufferedImage img = null;
             if (count > 0)
             {
-                img = createOverlayImage(new Integer(count).toString());
+                img = createOverlayImage(Integer.toString(count));
             }
 
             try

@@ -17,8 +17,6 @@
  */
 package net.java.sip.communicator.impl.osdependent;
 
-import java.awt.event.*;
-
 import net.java.sip.communicator.impl.osdependent.systemtray.TrayIcon;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
@@ -31,7 +29,7 @@ public class PopupMessageHandlerTrayIconImpl
     extends AbstractPopupMessageHandler
 {
     /** the tray icon we will use to popup messages */
-    private TrayIcon trayIcon;
+    private final TrayIcon trayIcon;
 
     /**
      * Creates a new <tt>PopupMessageHandlerTrayIconImpl</tt> which will uses
@@ -41,13 +39,8 @@ public class PopupMessageHandlerTrayIconImpl
     public PopupMessageHandlerTrayIconImpl(TrayIcon icon)
     {
         trayIcon = icon;
-        icon.addBalloonActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                firePopupMessageClicked(new SystrayPopupMessageEvent(e));
-            }
-        });
+        icon.addBalloonActionListener(
+            e -> firePopupMessageClicked(new SystrayPopupMessageEvent(e)));
     }
 
     /**

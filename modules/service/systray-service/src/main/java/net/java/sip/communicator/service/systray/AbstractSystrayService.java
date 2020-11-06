@@ -17,9 +17,9 @@
  */
 package net.java.sip.communicator.service.systray;
 
+import lombok.extern.slf4j.*;
 import net.java.sip.communicator.service.systray.event.*;
-import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.osgi.ServiceUtils;
+import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
 
@@ -35,19 +35,14 @@ import java.util.*;
  * @author Symphorien Wanko
  * @author Pawel Domas
  */
+@Slf4j
 public abstract class AbstractSystrayService
     implements SystrayService, ServiceListener
 {
-
-    /**
-     * The logger
-     */
-    private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(AbstractSystrayService.class);
-
     /**
      * OSGI bundle context
      */
-    private final BundleContext bundleContext;
+    protected final BundleContext bundleContext;
 
     /**
      * The popup handler currently used to show popup messages
@@ -57,56 +52,79 @@ public abstract class AbstractSystrayService
     /**
      * A set of usable <tt>PopupMessageHandler</tt>
      */
-    private final Hashtable<String, PopupMessageHandler> popupHandlerSet
-            = new Hashtable<String, PopupMessageHandler>();
+    private final Map<ServiceReference<PopupMessageHandler>, PopupMessageHandler>
+        popupHandlerSet = new HashMap<>();
 
     /**
      * List of listeners from early received calls to addPopupMessageListener.
      * Calls to addPopupMessageListener before the UIService is registered.
      */
-    private List<SystrayPopupMessageListener> earlyAddedListeners = null;
+    private final List<SystrayPopupMessageListener> earlyAddedListeners
+        = new ArrayList<>();
+
+    private final ConfigurationService configService;
 
     /**
      * Creates new instance of <tt>AbstractSystrayService</tt>.
-     * @param bundleContext OSGI bundle context that will be used by this
-     *                      instance
      */
     public AbstractSystrayService(BundleContext bundleContext)
     {
         this.bundleContext = bundleContext;
+        this.configService = ServiceUtils.getService(bundleContext,
+            ConfigurationService.class);
     }
 
     /**
      * Registers given <tt>PopupMessageHandler</tt>.
+     *
      * @param handler the <tt>PopupMessageHandler</tt> to be registered.
+     * @param ref     OSGi ServiceReference of the <tt>PopupMessageHandler</tt>
+     *                to be registered.
      */
-    protected void addPopupHandler(PopupMessageHandler handler)
+    protected boolean addPopupHandler(PopupMessageHandler handler,
+        ServiceReference<PopupMessageHandler> ref)
     {
-        popupHandlerSet.put(handler.getClass().getName(), handler);
+        if (!popupHandlerSet.containsValue(handler))
+        {
+            popupHandlerSet.put(ref, handler);
+            logger.info("adding popup handler {}", handler);
+            return true;
+        }
+
+        logger.warn(
+            "the following popup handler has not been added since it is already known: {}",
+            handler);
+        return false;
     }
 
     /**
      * Removes given <tt>PopupMessageHandler</tt>.
-     * @param handler the <tt>PopupMessageHandler</tt> to be removed.
+     *
+     * @param ref the <tt>PopupMessageHandler</tt> to be removed.
      */
-    protected void removePopupHandler(PopupMessageHandler handler)
+    protected PopupMessageHandler removePopupHandler(
+        ServiceReference<PopupMessageHandler> ref)
     {
-        popupHandlerSet.remove(handler.getClass().getName());
+        PopupMessageHandler handler = popupHandlerSet.get(ref);
+        popupHandlerSet.remove(ref);
+        return handler;
     }
 
     /**
      * Checks if given <tt>handlerClass</tt> is registered as a handler.
-     * @param handlerClass the class name to be checked.
+     *
+     * @param handler the class name to be checked.
      * @return <tt>true</tt> if given <tt>handlerClass</tt> is already
-     *         registered as a handler.
+     * registered as a handler.
      */
-    protected boolean containsHandler(String handlerClass)
+    protected boolean containsHandler(PopupMessageHandler handler)
     {
-        return popupHandlerSet.contains(handlerClass);
+        return popupHandlerSet.containsValue(handler);
     }
 
     /**
      * Returns active <tt>PopupMessageHandler</tt>.
+     *
      * @return active <tt>PopupMessageHandler</tt>.
      */
     protected PopupMessageHandler getActivePopupHandler()
@@ -124,11 +142,14 @@ public abstract class AbstractSystrayService
         // since popup handler could be loaded and unloader on the fly,
         // we have to check if we currently have a valid one.
         if (activePopupHandler != null)
+        {
             activePopupHandler.showPopupMessage(popupMessage);
+        }
     }
 
     /**
      * Stub method that does nothing.
+     *
      * @param count ignored
      */
     @Override
@@ -137,64 +158,64 @@ public abstract class AbstractSystrayService
     }
 
     /**
-     * Implements the <tt>SystrayService.addPopupMessageListener</tt> method.
-     * If <tt>activePopupHandler</tt> is still not available record the listener
-     * so we can add him later.
+     * Implements the <tt>SystrayService.addPopupMessageListener</tt> method. If
+     * <tt>activePopupHandler</tt> is still not available record the listener so
+     * we can add him later.
      *
      * @param listener the listener to add
      */
     public void addPopupMessageListener(SystrayPopupMessageListener listener)
     {
         if (activePopupHandler != null)
+        {
             activePopupHandler.addPopupMessageListener(listener);
+        }
         else
         {
-            if(earlyAddedListeners == null)
-                earlyAddedListeners =
-                        new ArrayList<SystrayPopupMessageListener>();
-
             earlyAddedListeners.add(listener);
         }
     }
 
     /**
-     * Implements the <tt>SystrayService.removePopupMessageListener</tt> method.
+     * Implements the <tt>SystrayService.removePopupMessageListener</tt>
+     * method.
      *
      * @param listener the listener to remove
      */
     public void removePopupMessageListener(SystrayPopupMessageListener listener)
     {
         if (activePopupHandler != null)
+        {
             activePopupHandler.removePopupMessageListener(listener);
+        }
     }
 
     /**
      * Set the handler which will be used for popup message
+     *
      * @param newHandler the handler to set. providing a null handler is like
-     * disabling popup.
+     *                   disabling popup.
      * @return the previously used popup handler
      */
     public PopupMessageHandler setActivePopupMessageHandler(
-            PopupMessageHandler newHandler)
+        PopupMessageHandler newHandler)
     {
         PopupMessageHandler oldHandler = activePopupHandler;
 
-        if (logger.isInfoEnabled())
-        {
-            logger.info(
-                    "setting the following popup handler as active: "
-                            + newHandler);
-        }
+        logger.info("setting the following popup handler as active: {}",
+            newHandler);
+
         activePopupHandler = newHandler;
         // if we have received calls to addPopupMessageListener before
         // the UIService is registered we should add those listeners
-        if(earlyAddedListeners != null)
+        if (earlyAddedListeners != null)
         {
-            for(SystrayPopupMessageListener l : earlyAddedListeners)
+            for (SystrayPopupMessageListener l : earlyAddedListeners)
+            {
                 activePopupHandler.addPopupMessageListener(l);
+            }
 
             earlyAddedListeners.clear();
-            earlyAddedListeners = null;
         }
 
         return oldHandler;
@@ -202,6 +223,7 @@ public abstract class AbstractSystrayService
 
     /**
      * Get the handler currently used by this implementation to popup message
+     *
      * @return the current handler
      */
     public PopupMessageHandler getActivePopupMessageHandler()
@@ -214,26 +236,10 @@ public abstract class AbstractSystrayService
      */
     public void selectBestPopupMessageHandler()
     {
-        PopupMessageHandler preferredHandler = null;
-        int highestPrefIndex = 0;
-
-        if (!popupHandlerSet.isEmpty())
-        {
-            Enumeration<String> keys = popupHandlerSet.keys();
-
-            while (keys.hasMoreElements())
-            {
-                String handlerName = keys.nextElement();
-                PopupMessageHandler h = popupHandlerSet.get(handlerName);
-
-                if (h.getPreferenceIndex() > highestPrefIndex)
-                {
-                    highestPrefIndex = h.getPreferenceIndex();
-                    preferredHandler = h;
-                }
-            }
-            setActivePopupMessageHandler(preferredHandler);
-        }
+        popupHandlerSet.values().stream()
+            .max(Comparator
+                .comparingInt(PopupMessageHandler::getPreferenceIndex))
+            .ifPresent(this::setActivePopupMessageHandler);
     }
 
     /**
@@ -246,9 +252,9 @@ public abstract class AbstractSystrayService
         try
         {
             bundleContext.addServiceListener(
-                    this,
-                    "(objectclass=" + PopupMessageHandler.class.getName()
-                        + ")");
+                this,
+                "(objectclass=" + PopupMessageHandler.class.getName()
+                    + ")");
         }
         catch (Exception e)
         {
@@ -259,36 +265,23 @@ public abstract class AbstractSystrayService
         // to listen
         Collection<ServiceReference<PopupMessageHandler>> handlerRefs
             = ServiceUtils.getServiceReferences(
-                    bundleContext,
-                    PopupMessageHandler.class);
+            bundleContext,
+            PopupMessageHandler.class);
 
         if (!handlerRefs.isEmpty())
         {
-            ConfigurationService config
-                = ServiceUtils.getService(
-                        bundleContext,
-                        ConfigurationService.class);
             String configuredHandler
-                = config.getString("systray.POPUP_HANDLER");
+                = configService.getString("systray.POPUP_HANDLER");
 
             for (ServiceReference<PopupMessageHandler> handlerRef : handlerRefs)
             {
                 PopupMessageHandler handler
                     = bundleContext.getService(handlerRef);
-                String handlerName = handler.getClass().getName();
-
-                if (!containsHandler(handlerName))
+                if (addPopupHandler(handler, handlerRef))
                 {
-                    addPopupHandler(handler);
-                    if (logger.isInfoEnabled())
-                    {
-                        logger.info(
-                                "added the following popup handler : "
-                                        + handler);
-                    }
-                    if ((configuredHandler != null)
-                            && configuredHandler.equals(
-                                    handler.getClass().getName()))
+                    logger
+                        .info("added the following popup handler: {}", handler);
+                    if (handler.getClass().getName().equals(configuredHandler))
                     {
                         setActivePopupMessageHandler(handler);
                     }
@@ -296,7 +289,9 @@ public abstract class AbstractSystrayService
             }
 
             if (configuredHandler == null)
+            {
                 selectBestPopupMessageHandler();
+            }
         }
     }
 
@@ -304,33 +299,21 @@ public abstract class AbstractSystrayService
     {
         try
         {
-            PopupMessageHandler handler
-                = (PopupMessageHandler)
-                    bundleContext.getService(
-                            serviceEvent.getServiceReference());
-
+            ServiceReference<PopupMessageHandler> ref
+                = (ServiceReference<PopupMessageHandler>) serviceEvent
+                .getServiceReference();
             if (serviceEvent.getType() == ServiceEvent.REGISTERED)
             {
-                if (!containsHandler(handler.getClass().getName()))
-                {
-                    logger.info("adding popup handler {}", handler);
-                    addPopupHandler(handler);
-                }
-                else
-                    logger.warn("the following popup handler has not " +
-                                "been added since it is already known : "
-                                        + handler);
+                PopupMessageHandler handler = bundleContext.getService(ref);
+                addPopupHandler(handler, ref);
 
-                ConfigurationService cfg
-                    = ServiceUtils.getService( bundleContext,
-                                               ConfigurationService.class);
                 String configuredHandler
-                    = cfg.getString("systray.POPUP_HANDLER");
+                    = configService.getString("systray.POPUP_HANDLER");
 
                 if ((configuredHandler == null)
-                        && ((getActivePopupHandler() == null)
-                        || (handler.getPreferenceIndex()
-                        > getActivePopupHandler().getPreferenceIndex())))
+                    && ((getActivePopupHandler() == null)
+                    || (handler.getPreferenceIndex()
+                    > getActivePopupHandler().getPreferenceIndex())))
                 {
                     // The user doesn't have a preferred handler set and new
                     // handler with better preference index has arrived,
@@ -338,8 +321,8 @@ public abstract class AbstractSystrayService
                     setActivePopupMessageHandler(handler);
                 }
                 if ((configuredHandler != null)
-                        && configuredHandler.equals(
-                        handler.getClass().getName()))
+                    && configuredHandler.equals(
+                    handler.getClass().getName()))
                 {
                     // The user has a preferred handler set and it just
                     // became available, thus setting it as active
@@ -348,8 +331,7 @@ public abstract class AbstractSystrayService
             }
             else if (serviceEvent.getType() == ServiceEvent.UNREGISTERING)
             {
-                logger.info("removing popup handler {}", handler);
-                removePopupHandler(handler);
+                PopupMessageHandler handler = removePopupHandler(ref);
                 PopupMessageHandler activeHandler = getActivePopupHandler();
                 if (activeHandler == handler)
                 {

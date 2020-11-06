@@ -22,7 +22,6 @@ import net.java.sip.communicator.impl.osdependent.macosx.*;
 import net.java.sip.communicator.service.desktop.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.shutdown.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.osgi.*;
@@ -156,11 +155,9 @@ public class OsDependentActivator
      * Called when this bundle is started.
      *
      * @param bc The execution context of the bundle being started.
-     * @throws Exception
      */
     @Override
     public void startWithServices(BundleContext bc)
-        throws Exception
     {
         bundleContext = bc;
 
@@ -170,7 +167,7 @@ public class OsDependentActivator
             MacOSXDockIcon.addDockIconListener();
 
         // Create the notification service implementation
-        SystrayService systrayService = new SystrayServiceJdicImpl();
+        SystrayService systrayService = new SystrayServiceJdicImpl(bc);
 
         if (logger.isInfoEnabled())
             logger.info("Systray Service...[  STARTED ]");
