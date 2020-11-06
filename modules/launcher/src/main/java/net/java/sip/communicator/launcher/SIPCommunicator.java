@@ -26,6 +26,7 @@ import org.apache.felix.framework.*;
 import org.apache.felix.main.*;
 import org.osgi.framework.*;
 import org.osgi.framework.launch.*;
+import org.slf4j.bridge.*;
 
 /**
  * Starts Jitsi.
@@ -35,7 +36,7 @@ import org.osgi.framework.launch.*;
  * @author Emil Ivov
  * @author Sebastien Vincent
  */
-public class SIPCommunicator
+public class SIPCommunicator implements BundleActivator
 {
     /**
      * Legacy home directory names that we can use if current dir name is the
@@ -95,6 +96,7 @@ public class SIPCommunicator
     public static void main(String[] args)
         throws Exception
     {
+        SLF4JBridgeHandler.install();
         setSystemProperties();
         setScHomeDir();
         System.setOut(new PrintStream(new LoggerStdOut()));
@@ -371,5 +373,16 @@ public class SIPCommunicator
             System.setProperty("apple.awt.fullscreencapturealldisplays",
                 "false");
         }
+    }
+
+    @Override
+    public void start(BundleContext context)
+    {
+        SLF4JBridgeHandler.install();
+    }
+
+    @Override
+    public void stop(BundleContext context)
+    {
     }
 }
