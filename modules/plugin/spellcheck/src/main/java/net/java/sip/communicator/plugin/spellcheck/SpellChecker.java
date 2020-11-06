@@ -28,6 +28,7 @@ import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.dts.spell.dictionary.*;
+import org.dts.spell.dictionary.openoffice.*;
 import org.jitsi.service.fileaccess.*;
 import org.jitsi.util.OSUtils;
 import org.osgi.framework.*;

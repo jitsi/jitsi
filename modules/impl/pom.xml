@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <packaging>pom</packaging>
+  <parent>
+    <groupId>org.jitsi</groupId>
+    <artifactId>jitsi</artifactId>
+    <version>2.14-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+  <artifactId>impl-parent</artifactId>
+  <modules>
+    <module>configuration</module>
+    <module>contactlist</module>
+    <module>dns</module>
+    <module>galagonotification</module>
+    <module>growlnotification</module>
+    <module>gui</module>
+    <module>hid</module>
+    <module>muc</module>
+    <module>neomedia</module>
+    <module>notification</module>
+    <module>packetlogging</module>
+    <module>phonenumbers</module>
+    <module>protocol-gibberish</module>
+    <module>protocol-irc</module>
+    <module>protocol-jabber</module>
+    <module>protocol-mock</module>
+    <module>protocol-sip</module>
+    <module>provdisc-dhcp</module>
+    <module>provdisc-mdns</module>
+    <module>replacement</module>
+    <module>shutdowntimeout</module>
+    <module>sparkle</module>
+    <module>swingnotification</module>
+    <module>version</module>
+  </modules>
+</project>

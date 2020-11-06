@@ -1,9 +1,0 @@
-Bundle-Name: Jitsi OSGi Utility Packages
-Bundle-Vendor: jitsi.org
-Manifest-Version: 1.0
-Bundle-Version: 0.0.1
-Bundle-SymbolicName: net.java.sip.communicator.util.osgi
-Import-Package: org.osgi.framework,
- org.osgi.util.tracker,
- org.slf4j
-Export-Package: net.java.sip.communicator.util.osgi

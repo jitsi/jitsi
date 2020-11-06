@@ -1,8 +1,0 @@
-Bundle-Name: Custom Contact Actions
-Bundle-Description: Custom Contact Actions
-Bundle-Vendor: jitsi.org
-Manifest-Version: 1.0
-Bundle-Version: 0.0.1
-Bundle-SymbolicName: net.java.sip.communicator.service.customcontactactions
-Import-Package: net.java.sip.communicator.util.osgi,net.java.sip.communicator.service.protocol
-Export-Package: net.java.sip.communicator.service.customcontactactions
