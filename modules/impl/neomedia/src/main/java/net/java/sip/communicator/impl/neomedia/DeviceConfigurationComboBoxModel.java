@@ -426,7 +426,7 @@ public class DeviceConfigurationComboBoxModel
          */
         public boolean equals(CaptureDeviceInfo cdi)
         {
-            return (info == null) ? (cdi == null) : info.equals(cdi);
+            return Objects.equals(info, cdi);
         }
 
         /**
