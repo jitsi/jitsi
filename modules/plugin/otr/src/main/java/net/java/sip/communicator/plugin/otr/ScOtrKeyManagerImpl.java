@@ -21,6 +21,7 @@ import java.security.*;
 import java.security.spec.*;
 import java.util.*;
 
+import lombok.extern.slf4j.*;
 import net.java.otr4j.crypto.*;
 import net.java.sip.communicator.plugin.otr.OtrContactManager.OtrContact;
 import net.java.sip.communicator.service.protocol.*;
@@ -30,13 +31,14 @@ import net.java.sip.communicator.service.protocol.*;
  * @author George Politis
  * @author Lyubomir Marinov
  */
+@Slf4j
 public class ScOtrKeyManagerImpl
     implements ScOtrKeyManager
 {
     private final OtrConfigurator configurator = new OtrConfigurator();
 
     private final List<ScOtrKeyManagerListener> listeners =
-        new Vector<ScOtrKeyManagerListener>();
+        new ArrayList<>();
 
     public void addListener(ScOtrKeyManagerListener l)
     {
@@ -60,9 +62,7 @@ public class ScOtrKeyManagerImpl
     {
         synchronized (listeners)
         {
-            return
-                listeners.toArray(
-                        new ScOtrKeyManagerListener[listeners.size()]);
+            return listeners.toArray(new ScOtrKeyManagerListener[0]);
         }
     }
 
@@ -160,13 +160,9 @@ public class ScOtrKeyManagerImpl
                 this.configurator.appendProperty(
                     userID + ".fingerprints", fingerprint);
             }
-            catch (NoSuchAlgorithmException e)
+            catch (NoSuchAlgorithmException | InvalidKeySpecException e)
             {
-                e.printStackTrace();
-            }
-            catch (InvalidKeySpecException e)
-            {
-                e.printStackTrace();
+                logger.error("Failed to load fingerprints for contact {}", contact, e);
             }
         }
 
@@ -184,7 +180,7 @@ public class ScOtrKeyManagerImpl
         }
         catch (OtrCryptoException e)
         {
-            e.printStackTrace();
+            logger.error("Failed to get fingerprint from public key", e);
             return null;
         }
     }
@@ -204,7 +200,7 @@ public class ScOtrKeyManagerImpl
         }
         catch (OtrCryptoException e)
         {
-            e.printStackTrace();
+            logger.error("Failed to load fingerprint for account {}", account, e);
             return null;
         }
     }
@@ -224,7 +220,7 @@ public class ScOtrKeyManagerImpl
         }
         catch (OtrCryptoException e)
         {
-            e.printStackTrace();
+            logger.error("Failed to get raw fingerprint for account {}", account, e);
             return null;
         }
     }
@@ -275,14 +271,9 @@ public class ScOtrKeyManagerImpl
             publicKey = keyFactory.generatePublic(publicKeySpec);
             privateKey = keyFactory.generatePrivate(privateKeySpec);
         }
-        catch (NoSuchAlgorithmException e)
+        catch (NoSuchAlgorithmException | InvalidKeySpecException e)
         {
-            e.printStackTrace();
-            return null;
-        }
-        catch (InvalidKeySpecException e)
-        {
-            e.printStackTrace();
+            logger.error("Failed to load stored keypair for account {}", account, e);
             return null;
         }
 
@@ -298,11 +289,13 @@ public class ScOtrKeyManagerImpl
         KeyPair keyPair;
         try
         {
-            keyPair = KeyPairGenerator.getInstance("DSA").genKeyPair();
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA");
+            keyGen.initialize(1024);
+            keyPair = keyGen.generateKeyPair();
         }
         catch (NoSuchAlgorithmException e)
         {
-            e.printStackTrace();
+            logger.error("Failed to generate 1024bit DSA keypair for account {}", account, e);
             return;
         }
 
