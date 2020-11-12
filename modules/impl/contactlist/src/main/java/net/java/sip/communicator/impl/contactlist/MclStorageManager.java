@@ -80,13 +80,13 @@ public class MclStorageManager
      * other words that it has successfully found and read the xml contact list
      * file.
      */
-    private boolean started = false;
+    private volatile boolean started = false;
 
     /**
      * Indicates whether there has been a change since the last time we stored
      * this contact list. Used by the storage methods.
      */
-    private boolean isModified = false;
+    private volatile boolean isModified = false;
 
     /**
      * A currently valid reference to the OSGI bundle context,
