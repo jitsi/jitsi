@@ -1,4 +1,4 @@
-name: Installers
+name: Java Version Builds
 
 on: [push, pull_request]
 
