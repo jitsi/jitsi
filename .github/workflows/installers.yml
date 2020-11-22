@@ -81,7 +81,7 @@ jobs:
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_PW }}
         run: |
           cd $GITHUB_WORKSPACE/resources/install
-          ../../gradlew --no-daemon signDeb -Papplication.target=${{ matrix.arch }}
+          ./gradlew --no-daemon signDeb -Papplication.target=${{ matrix.arch }}
 
       - name: Upload deb
         uses: actions/upload-artifact@v2
@@ -144,7 +144,7 @@ jobs:
         shell: bash
         run: |
           cd $GITHUB_WORKSPACE/resources/install
-          ../../gradlew --no-daemon -Papplication.target=${{ matrix.arch }} signMsi
+          ./gradlew --no-daemon -Papplication.target=${{ matrix.arch }} signMsi
 
       - name: Upload msi
         uses: actions/upload-artifact@v2
@@ -185,7 +185,7 @@ jobs:
       - name: Build with Gradle
         run: |
           cd $GITHUB_WORKSPACE/resources/install
-          ../../gradlew --no-daemon createDmg
+          ./gradlew --no-daemon createDmg
 
       - name: Upload dmg
         uses: actions/upload-artifact@v2
