@@ -26,6 +26,7 @@ import com.ircclouds.irc.api.domain.*;
 import com.ircclouds.irc.api.filters.*;
 import com.ircclouds.irc.api.listeners.*;
 import com.ircclouds.irc.api.state.*;
+import javax.net.ssl.*;
 
 /**
  * Synchronization wrapper for IRCApi.
@@ -67,6 +68,13 @@ public class SynchronizedIRCApi
         final CapabilityNegotiator negotiator)
     {
         this.irc.connect(aServerParameters, aCallback, negotiator);
+    }
+
+    @Override
+    public void secureConnection(SSLContext context, String hostname, int port)
+        throws SSLException
+    {
+        this.irc.secureConnection(context, hostname, port);
     }
 
     @Override

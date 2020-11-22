@@ -1,9 +1,0 @@
-dependencies {
-    implementation libs.jitsi.basesvc
-    implementation project(':util')
-    implementation project(':osgi-util')
-    implementation project(':plugin:desktoputil')
-    implementation project(':service:browserlauncher')
-    implementation project(':service:ui-service')
-    implementation project(':service:httputil')
-}

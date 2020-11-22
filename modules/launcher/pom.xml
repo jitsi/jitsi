@@ -4,7 +4,7 @@
   xmlns="http://maven.apache.org/POM/4.0.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
-  <packaging>bundle</packaging>
+  <packaging>jar</packaging>
   <parent>
     <groupId>org.jitsi</groupId>
     <artifactId>jitsi</artifactId>
@@ -40,7 +40,6 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.2.3</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -58,6 +57,7 @@
       <groupId>org.slf4j</groupId>
       <artifactId>log4j-over-slf4j</artifactId>
       <version>${slf4jVersion}</version>
+      <scope>runtime</scope>
     </dependency>
   </dependencies>
   <build>
@@ -75,6 +75,23 @@
             </Import-Package>
           </instructions>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>build-classpath</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>build-classpath</goal>
+            </goals>
+            <configuration>
+              <includeScope>runtime</includeScope>
+              <outputFile>${maven.multiModuleProjectDirectory}/target/launcher-classpath</outputFile>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

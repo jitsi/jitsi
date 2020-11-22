@@ -12,7 +12,7 @@ if (MSVC)
     set(CMAKE_EXE_LINKER_FLAGS /MANIFEST:NO)
 endif ()
 
-file(STRINGS ${CMAKE_SOURCE_DIR}/../../gradle.properties ConfigContents)
+file(STRINGS ${CMAKE_SOURCE_DIR}/../../resources/install/gradle.properties ConfigContents)
 foreach (NameAndValue ${ConfigContents})
     # Strip leading spaces
     string(REGEX REPLACE "^[ ]+" "" NameAndValue ${NameAndValue})

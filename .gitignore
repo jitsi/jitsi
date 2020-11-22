@@ -28,5 +28,4 @@ felix-cache/
 .idea/
 !.idea/codeStyles/
 !.idea/eclipse-formatter.xml
-!.idea/encodings.xml
 !.idea/vcs.xml

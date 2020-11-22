@@ -1,4 +1,0 @@
-dependencies {
-    implementation project(':launchutils')
-    implementation project(':util')
-}

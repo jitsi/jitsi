@@ -189,9 +189,14 @@
         </exclusions>
       </dependency>
       <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.2.3</version>
+      </dependency>
+      <dependency>
         <groupId>org.jitsi</groupId>
         <artifactId>libjitsi</artifactId>
-        <version>1.0-ib-SNAPSHOT</version>
+        <version>1.0-desktop-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.apache.felix</groupId>
@@ -217,25 +222,8 @@
       </dependency>
       <dependency>
         <groupId>org.jitsi</groupId>
-        <artifactId>joscar-client</artifactId>
-        <version>0.9.3-jitsi-1-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jitsi</groupId>
-        <artifactId>joscar-common</artifactId>
-        <version>0.9.3-jitsi-1-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jitsi</groupId>
-        <artifactId>joscar-protocol</artifactId>
-        <version>0.9.3-jitsi-1-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jitsi</groupId>
-        <artifactId>ircapi</artifactId>
-        <version>local</version>
-        <scope>system</scope>
-        <systemPath>${maven.multiModuleProjectDirectory}/lib/installer-exclude/irc-api-1.0.jar</systemPath>
+        <artifactId>irc-api</artifactId>
+        <version>1.0-0015-jitsi-1</version>
       </dependency>
 
       <!--  for (unit) testing only-->
@@ -265,11 +253,25 @@
   </modules>
 
   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>maven-bundle-plugin</artifactId>
+          <version>5.1.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>3.1.2</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
     <plugins>
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
-        <version>5.1.1</version>
         <extensions>true</extensions>
         <configuration>
           <niceManifest>true</niceManifest>
@@ -280,10 +282,10 @@
             <_noclassforname>true</_noclassforname>
             <_removeheaders>Bnd-*, Tool, Require-Capability, Include-Resource
             </_removeheaders>
-<!--            <Include-Resource>-->
-<!--              {maven-resources},-->
-<!--              META-INF/LICENSE=LICENSE-->
-<!--            </Include-Resource>-->
+            <!--            <Include-Resource>-->
+            <!--              {maven-resources},-->
+            <!--              META-INF/LICENSE=LICENSE-->
+            <!--            </Include-Resource>-->
           </instructions>
         </configuration>
       </plugin>
@@ -315,11 +317,29 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
-        <version>3.1.2</version>
-        <configuration>
-          <outputDirectory>${maven.multiModuleProjectDirectory}/target/bundles</outputDirectory>
-          <includeScope>runtime</includeScope>
-        </configuration>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy</goal>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>${project.groupId}</groupId>
+                  <artifactId>${project.artifactId}</artifactId>
+                  <version>${project.version}</version>
+                  <type>${project.packaging}</type>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+              </artifactItems>
+              <outputDirectory>${maven.multiModuleProjectDirectory}/target/bundles</outputDirectory>
+              <includeScope>runtime</includeScope>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

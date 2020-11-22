@@ -35,12 +35,12 @@ messaging protocols such as SIP/SIMPLE, XMPP/Jabber and others.
     recommends('libswscale4').or('libswscale-ffmpeg3')
 
     into('usr/share/pixmaps') {
-        from "${projectDir}/resources/install/debian"
+        from "${projectDir}/debian"
         include 'jitsi*-.xpm'
         include 'jitsi.svg'
     }
     into('usr/share/applications') {
-        from "${projectDir}/resources/install/debian"
+        from "${projectDir}/debian"
         include 'jitsi.desktop'
     }
     into('usr/share/jitsi') {
@@ -49,10 +49,10 @@ messaging protocols such as SIP/SIMPLE, XMPP/Jabber and others.
         exclude "native/**"
     }
     into('usr/lib/jni') {
-        from "${projectDir}/lib/native/linux-${project.property('application.target')}"
+        from "${projectDir}/../../lib/native/linux-${project.property('application.target')}"
     }
     into('usr/bin') {
-        from "${projectDir}/resources/install/debian"
+        from "${projectDir}/debian"
         include "jitsi"
         fileMode 0755
     }

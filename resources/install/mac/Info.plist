@@ -88,12 +88,6 @@
         <string>true</string>
         <key>net.java.sip.communicator.SC_HOME_DIR_NAME</key>
         <string>Jitsi</string>
-        <key>apple.awt.brushMetalRounded</key>
-        <string>true</string>
-        <key>apple.awt.showGrowBox</key>
-        <string>true</string>
-        <key>java.util.logging.config.file</key>
-        <string>config/logging.properties</string>
       </dict>
     </dict>
   </dict>

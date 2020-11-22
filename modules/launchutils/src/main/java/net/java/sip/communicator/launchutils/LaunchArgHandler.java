@@ -17,11 +17,13 @@
  */
 package net.java.sip.communicator.launchutils;
 
+import ch.qos.logback.classic.*;
+import ch.qos.logback.classic.Logger;
 import java.io.*;
 import java.util.*;
-import java.util.logging.*;
 
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.*;
 
 /**
  * The <tt>LauncherArgHandler</tt> class handles invocation arguments that have
@@ -340,33 +342,15 @@ public class LaunchArgHandler
     }
 
     /**
-     * Instructs SIP Communicator to print logging messages to the console.
+     * Switches the log level to debug on the console logger.
      *
-     * @param arg the debug arg which we are not really using in this method.
+     * @param arg unused
      */
     private void handleDebugArg(String arg)
     {
-        //then find a console handler (or create a new one) and set its level
-        //to FINEST
-        java.util.logging.Logger rootLogger
-            = java.util.logging.Logger.getAnonymousLogger().getParent();
-        ConsoleHandler conHan = null;
-
-        for (Handler handler : rootLogger.getHandlers())
-        {
-            if(handler instanceof ConsoleHandler)
-            {
-                conHan = (ConsoleHandler) handler;
-                break;
-            }
-        }
-        if(conHan == null)
-        {
-            conHan = new ConsoleHandler();
-            rootLogger.addHandler(conHan);
-        }
-
-        //conHan.setLevel(Level.SEVERE);
+        Logger logback = (Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+        logback.setLevel(Level.DEBUG);
+        logback.getAppender("console").clearAllFilters();
     }
 
     /**

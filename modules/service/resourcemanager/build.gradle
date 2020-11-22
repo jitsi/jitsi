@@ -1,6 +1,0 @@
-dependencies {
-    api libs.jitsi.basesvc
-
-    implementation project(':util')
-    implementation project(':osgi-util')
-}

@@ -1,23 +1,71 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath 'net.jsign:jsign-gradle-plugin:3.1'
+    }
+}
+
+plugins {
+    id 'application'
+    id 'de.undercouch.download' version '4.0.4'
+    id 'nebula.ospackage' version '8.3.0'
+    id 'signing'
+}
+
+apply plugin: 'net.jsign'
+
+ext {
+    projectRootDir = file("${projectDir}/../../")
+    libDir = file("${projectRootDir}/lib")
+    nativeSrcDir = file("${projectRootDir}/native")
+    nativeLibDir = file("${libDir}/native")
+    bundlesDir = file("${projectRootDir}/target/bundles")
+
+    def pom = new XmlSlurper(false, true).parse("${projectRootDir}/pom.xml")
+    project.version = pom.version.text()
+
+    def mavenMatcher = project.version =~ /^(?<MAJOR>\d+)\.(?<MINOR>\d+)(\.(?<REVISION>\d+))?(\.(?<BUILD>\d+))?(-(?<SUFFIX>\S+))?$/
+    def gitVersion = 'git describe --match Jitsi-[0-9.]* --long --dirty --always'.execute().text.trim()
+    println "Parsing versions: ${project.version} / ${gitVersion}"
+    def gitMatcher = gitVersion =~ /^((?<TAG>Jitsi-[0-9.]+)-(?<NCOMMITS>\d+)-)?(?<REV>\S+)$/
+    if (!mavenMatcher.matches() || !gitMatcher.matches()) {
+        throw new GradleException("Unknown project version format: ${project.version} / ${gitVersion}")
+    }
+
+    versionMajor = mavenMatcher.group('MAJOR').toString()
+    versionMinor = mavenMatcher.group('MINOR').toString()
+    versionRevision = gitMatcher.group('NCOMMITS').toString()
+    versionBuild = '0'.toString()
+    versionSuffix = (mavenMatcher.group('SUFFIX') ?: '').toString()
+    versionHash = gitMatcher.group('REV').toString()
+
+    versionShort = "${ext.versionMajor}.${ext.versionMinor}.${ext.versionRevision}".toString()
+    versionFull = "${ext.versionShort}${ext.versionSuffix ? '-' + ext.versionSuffix : ''}+${ext.versionHash}".toString()
+}
+
+signing {
+    String signingKey = findProperty("signingKey")
+    String signingPassword = findProperty("signingPassword")
+    required signingKey != null
+    useInMemoryPgpKeys signingKey?.replace("\\n", "\n"), signingPassword
+}
+
 application {
     mainClassName = 'net.java.sip.communicator.launcher.SIPCommunicator'
     executableDir = ''
 }
 
-jar {
-    archiveFileName = "${project.name}.jar"
-    doFirst {
-        manifest {
-            from sharedManifest
-            attributes(
-                    'Class-Path': 'config/ ' + project(':launcher')
-                            .configurations
-                            .runtimeClasspath
-                            .collect { "lib/${it.name}" }
-                            .join(' '),
-                    'Main-Class': 'net.java.sip.communicator.launcher.SIPCommunicator',
-            )
-        }
-    }
+def getLauncherClasspath() {
+    def cp = file("${projectRootDir}/target/launcher-classpath").text
+    cp.split(System.getProperty("path.separator")).collect { "lib/${file(it).name}" } + [
+            "lib/jitsi-launcher-${project.version}.jar",
+            'config/',
+    ]
 }
 
 startScripts {
@@ -27,31 +75,18 @@ startScripts {
             '-Djava.library.path=_JITSI_APP_HOME_native',
             '-Djna.library.path=_JITSI_APP_HOME_native',
             '-Dfelix.config.properties=file:config/felix.properties',
-            '-Djava.util.logging.config.file=config/logging.properties',
             "-Dnet.java.sip.communicator.SC_HOME_DIR_NAME=${project.property('application.name')}",
     ]
-    doFirst {
-        classpath = files(
-                project(':launcher').configurations.runtimeClasspath,
-                project(':launcher').jar,
-                'config/',
-        )
-    }
+    classpath = files(getLauncherClasspath())
     doLast {
         unixScript.text = unixScript.text
                 .replace('_JITSI_APP_HOME_', '$APP_HOME/')
-                .replace('lib/config', '/config')
+                .replace('lib/config', 'config')
         windowsScript.text = windowsScript.text
                 .replace('_JITSI_APP_HOME_', '%APP_HOME%\\')
-                .replace('lib\\config', '\\config')
+                .replace('lib\\config', 'config')
         file("${outputDir}/config").mkdirs()
-        file("${outputDir}/config/classpath").text = classpath.collect {
-            if (it.name != "config") {
-                "lib/${it.name}"
-            } else {
-                it.name
-            }
-        }.join('\n') + '\n'
+        file("${outputDir}/config/classpath").text = getLauncherClasspath().join('\n') + '\n'
     }
 }
 
@@ -83,7 +118,7 @@ def createJreTasks(String os) {
 def nativeCopySpec(String os) {
     copySpec {
         into('native') {
-            from "lib/native/${os}-${project.property('application.target')}"
+            from "${nativeLibDir}/${os}-${project.property('application.target')}"
         }
     }
 }
@@ -91,10 +126,8 @@ def nativeCopySpec(String os) {
 distributions {
     main {
         contents {
-            into('config') {
-                from('lib') {
-                    include 'jitsi-defaults.properties'
-                }
+            into('lib') {
+                from(bundlesDir)
             }
         }
     }
@@ -145,7 +178,6 @@ distributions {
         contents {
             with distributions.main.contents
             with nativeCopySpec('windows')
-            exclude rootProject.name
             exclude '*dbus*'
             exclude '*orange*'
             exclude '*sparkle*'
@@ -169,3 +201,7 @@ distributions {
         }
     }
 }
+
+apply from: 'debian/build.gradle'
+apply from: 'windows/build.gradle'
+apply from: 'mac/build.gradle'

@@ -72,7 +72,7 @@
     </dependency>
     <dependency>
       <groupId>org.jitsi</groupId>
-      <artifactId>ircapi</artifactId>
+      <artifactId>irc-api</artifactId>
     </dependency>
     <dependency>
       <groupId>junit</groupId>

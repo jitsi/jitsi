@@ -1,6 +1,0 @@
-dependencies {
-    implementation project(':util')
-    implementation project(':osgi-util')
-    implementation project(':service:calendar')
-    implementation project(':service:protocol')
-}

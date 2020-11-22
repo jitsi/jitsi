@@ -1,5 +1,0 @@
-dependencies {
-    implementation project(':util')
-    implementation project(':service:ui-service')
-    implementation project(':service:sysactivity')
-}

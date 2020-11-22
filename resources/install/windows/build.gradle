@@ -7,7 +7,7 @@ def wixTargetDir = "${wixRootDir}/target"
 def arch = project.property('application.target')
 
 task copyLauncher(type: Copy, group: 'installer-wix') {
-    from 'native'
+    from nativeSrcDir
     into wixTargetDir
     include '**/cmake-build-*/run/**/*.exe'
     includeEmptyDirs = false
@@ -17,15 +17,12 @@ task copyLauncher(type: Copy, group: 'installer-wix') {
 }
 
 task copyCleansweep(type: Copy, group: 'installer-wix') {
-    from 'native'
+    from nativeSrcDir
     into wixTempDir
     include '**/cmake-build-*/cleansweep/**/*.exe'
     includeEmptyDirs = false
     eachFile {
         path = name
-    }
-    doLast {
-        signFile file("${wixTempDir}/cleansweep.exe")
     }
 }
 
@@ -94,7 +91,7 @@ static def findConfigInHeat(File heat) {
 }
 
 task copyWixResources(type: Copy, group: 'installer-wix', dependsOn: wixHeat) {
-    from("${projectDir}/resources/install/windows") {
+    from("${projectDir}/windows") {
         include "wix/*.jpg"
         include "wix/*.wx*"
         include "wix/License.rtf"
@@ -122,7 +119,7 @@ task wixCandle(type: Exec, group: 'installer-wix', dependsOn: [
                 '-ext', 'WixUtilExtension',
                 '-arch', arch,
                 "-dPlatform=${arch}",
-                '-dSourceDir=../target',
+                "-dSourceDir=../target",
                 "-dMANUFACTURER=${project.property('application.org')}",
                 "-dPRODUCT=${project.property('application.name')}",
                 "-dUPGRADE_CODE=${project.property('application.wix_upgrade_code')}",
@@ -142,7 +139,7 @@ task wixLight(type: Exec, group: 'installer-wix', dependsOn: wixCandle) {
             '-ext', 'WixUIExtension',
             '-ext', 'WixUtilExtension',
             '-cultures:en-us',
-            '-loc', "${projectDir}/resources/install/windows/wix/en-us.wxl",
+            '-loc', "${projectDir}/windows/wix/en-us.wxl",
             '-out', "${wixRootDir}/setup.msi",
             "${wixTempDir}/*.wixobj"
 }
