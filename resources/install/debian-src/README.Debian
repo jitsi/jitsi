@@ -1,8 +1,0 @@
-To create debian source package you need some other projects sources that
-jitsi depends on. In the same folder where jitsi is checked out do:
-git clone https://github.com/jitsi/otr4j.git
-git clone https://github.com/jitsi/libsrc.git
-svn clone https://github.com/migzai/irc-api.git
-And then in jitsi do: ant deb-src -Dlabel=4444
-This will create orig.tar.gz debian sources that can be used to debuild
-debian package.
