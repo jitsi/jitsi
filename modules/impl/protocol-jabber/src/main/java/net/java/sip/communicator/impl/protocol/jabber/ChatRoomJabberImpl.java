@@ -765,7 +765,15 @@ public class ChatRoomJabberImpl
                         + nickname
                         + ". The chat room requires registration.";
 
-                logger.error(errorMessage, ex);
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug(errorMessage, ex);
+                }
+                else
+                {
+                    logger.error(errorMessage);
+                }
+
 
                 OperationFailedException operationFailedException = new OperationFailedException(
                     errorMessage,
@@ -1017,7 +1025,7 @@ public class ChatRoomJabberImpl
         {
             // if we are already disconnected
             // leave maybe called from gui when closing chat window
-            if(connection != null)
+            if(connection != null && connection.isConnected())
                 multiUserChat.leave();
         }
         catch(Throwable e)
@@ -2525,10 +2533,22 @@ public class ChatRoomJabberImpl
      */
     private class UserListener implements UserStatusListener
     {
+        /**
+         * Called when a room was destroyed. This means that the room you have
+         * joined is no longer available.
+         *
+         * @param alternateMUC <tt>MultiUserChat</tt>.
+         * @param reason why room was destroyed.
+         */
         @Override
-        public void roomDestroyed(MultiUserChat multiUserChat, String s)
+        public void roomDestroyed(MultiUserChat alternateMUC, String reason)
         {
-            throw new UnsupportedOperationException();
+            opSetMuc.fireLocalUserPresenceEvent(
+                ChatRoomJabberImpl.this,
+                LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_ROOM_DESTROYED,
+                reason,
+                alternateMUC != null && alternateMUC.getRoom() != null
+                    ? alternateMUC.getRoom().toString() : null);
         }
 
         /**

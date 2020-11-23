@@ -1037,7 +1037,6 @@ public class OperationSetBasicTelephonyJabberImpl
 
         if(action == JingleAction.SESSION_INITIATE)
         {
-
             StandardExtensionElement startMutedExt
                 = jingleIQ.getExtension(
                         StartMutedPacketExtension.ELEMENT_NAME,
@@ -1231,6 +1230,10 @@ public class OperationSetBasicTelephonyJabberImpl
         else if (action == JingleAction.TRANSPORT_INFO)
         {
             callPeer.processTransportInfo(jingleIQ);
+        }
+        else if (action == JingleAction.TRANSPORT_REPLACE)
+        {
+            callPeer.processTransportReplace(jingleIQ);
         }
         else if (action == JingleAction.SOURCEADD)
         {
