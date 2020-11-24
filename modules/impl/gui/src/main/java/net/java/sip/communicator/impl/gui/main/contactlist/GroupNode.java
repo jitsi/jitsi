@@ -141,8 +141,8 @@ public class GroupNode
         {
             // Instead of sorting after every addition, find the spot where we
             // should insert the node such that it is inserted in order.
-            final int insertionPoint = Collections.binarySearch(children,
-                    contactNode, nodeComparator);
+            final int insertionPoint = Collections.<ContactListNode>
+                binarySearch(children, contactNode, nodeComparator);
             if (insertionPoint < 0)
             {
                 // index < 0 indicates that the node is not currently in the
@@ -296,7 +296,7 @@ public class GroupNode
         {
             // Instead of sorting after every addition, find the spot where we
             // should insert the node such that it is inserted in order.
-            int insertionPoint = Collections.binarySearch(children,
+            int insertionPoint = Collections.<ContactListNode>binarySearch(children,
                     groupNode, nodeComparator);
             if (insertionPoint < 0)
             {
@@ -368,7 +368,7 @@ public class GroupNode
                     TreePath selectionPath = getLeadSelectionPath();
                     int oldSelectionIndex = getLeadSelectionRow();
 
-                    Collections.sort(children, nodeComparator);
+                    children.sort(nodeComparator);
 
                     fireNodesChanged();
 
