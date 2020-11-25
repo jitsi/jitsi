@@ -327,11 +327,11 @@ public class GroupNode
     public Collection<ContactNode> getContacts()
     {
         if (children != null)
-            return children.stream()
+            return ((Vector<TreeNode>)children).stream()
                 .map(t -> (ContactNode)t)
                 .collect(Collectors.toSet());
 
-        return null;
+        return Collections.emptyList();
     }
 
     /**

@@ -822,9 +822,7 @@ public class IceConfigPanel
         LinkedList<StunServerDescriptor> serversList
                                     = new LinkedList<StunServerDescriptor>();
 
-        Vector<Vector<StunServerDescriptor>> serverRows
-                                    = tableModel.getDataVector();
-
+        Vector<Vector> serverRows = tableModel.getDataVector();
         for(Vector<StunServerDescriptor> row : serverRows)
             serversList.add(row.elementAt(0));
 
@@ -1318,9 +1316,7 @@ public class IceConfigPanel
         LinkedList<JingleNodeDescriptor> serversList
                                     = new LinkedList<JingleNodeDescriptor>();
 
-        Vector<Vector<JingleNodeDescriptor>> serverRows
-                                    = jnTableModel.getDataVector();
-
+        Vector<Vector> serverRows = jnTableModel.getDataVector();
         for(Vector<JingleNodeDescriptor> row : serverRows)
             serversList.add(row.elementAt(0));
 

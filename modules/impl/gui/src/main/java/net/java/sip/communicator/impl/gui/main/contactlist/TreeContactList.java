@@ -22,6 +22,7 @@ import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 
+import java.util.stream.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.tree.*;
@@ -1118,20 +1119,9 @@ public class TreeContactList
         if (groupNode == null)
             return null;
 
-        Collection<ContactNode> contactNodes = groupNode.getContacts();
-
-        if (contactNodes == null)
-            return null;
-
-        Collection<UIContact> childContacts = new ArrayList<UIContact>();
-
-        Iterator<ContactNode> contactNodesIter = contactNodes.iterator();
-        while (contactNodesIter.hasNext())
-        {
-            childContacts.add(contactNodesIter.next().getContactDescriptor());
-        }
-
-        return childContacts;
+        return groupNode.getContacts().stream()
+            .map(ContactNode::getContactDescriptor)
+            .collect(Collectors.toList());
     }
 
     /**
