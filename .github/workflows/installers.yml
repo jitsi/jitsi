@@ -212,7 +212,7 @@ jobs:
         run: |
           MVNVER=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
           cd resources/install
-          sed -i s/^version=.*/version=$MVNVER/ gradle.properties
+          sed -i '' s/^version=.*/version=$MVNVER/ gradle.properties
 
       - name: Build natives
         run: |
