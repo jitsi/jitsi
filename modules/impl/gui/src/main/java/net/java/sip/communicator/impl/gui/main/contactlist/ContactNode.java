@@ -28,8 +28,7 @@ import net.java.sip.communicator.service.gui.*;
  * @author Yana Stamcheva
  */
 public class ContactNode
-    extends DefaultMutableTreeNode
-    implements ContactListNode
+    extends ContactListNode
 {
     /**
      * The <tt>UIContact</tt> corresponding to this contact node.

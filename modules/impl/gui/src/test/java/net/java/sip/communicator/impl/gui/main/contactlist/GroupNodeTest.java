@@ -44,10 +44,10 @@ public class GroupNodeTest
             }
         };
         NodeComparator comparator = new NodeComparator();
-        Assert.assertEquals(comparator.compare(unknown, node),
+        assertEquals(comparator.compare(unknown, node),
             -1 * comparator.compare(node, unknown));
-        Assert.assertEquals(1, comparator.compare(unknown, node));
-        Assert.assertEquals(-1, comparator.compare(node, unknown));
+        assertEquals(1, comparator.compare(unknown, node));
+        assertEquals(-1, comparator.compare(node, unknown));
     }
 
     public void testNodeComparatorNormalNodes()
@@ -69,10 +69,10 @@ public class GroupNodeTest
             }
         };
         NodeComparator comparator = new NodeComparator();
-        Assert.assertEquals(comparator.compare(node1, node2),
+        assertEquals(comparator.compare(node1, node2),
             -1 * comparator.compare(node2, node1));
-        Assert.assertEquals(-1, comparator.compare(node1, node2));
-        Assert.assertEquals(1, comparator.compare(node2, node1));
+        assertEquals(-1, comparator.compare(node1, node2));
+        assertEquals(1, comparator.compare(node2, node1));
     }
 
     public void testNodeComparatorSymmetryForUnknownNodes()
@@ -94,7 +94,7 @@ public class GroupNodeTest
             }
         };
         NodeComparator comparator = new NodeComparator();
-        Assert.assertEquals(comparator.compare(unknown1, unknown2),
+        assertEquals(comparator.compare(unknown1, unknown2),
             -1 * comparator.compare(unknown2, unknown1));
     }
 }

@@ -39,10 +39,10 @@ public class ExtendedTableModel extends DefaultTableModel
     @SuppressWarnings("unchecked") //DefaultTableModel legacy code
     public int rowIndexOf(Object value)
     {
-        Vector<Vector<Object>> dataVec = this.getDataVector();
+        Vector<Vector> dataVec = this.getDataVector();
 
         for(int i = 0; i < dataVector.size(); i ++) {
-            Vector<Object> rowVector = dataVec.get(i);
+            Vector rowVector = dataVec.get(i);
 
             if(rowVector.contains(value)) {
                 return i;

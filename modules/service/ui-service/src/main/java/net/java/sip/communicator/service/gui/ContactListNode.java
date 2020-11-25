@@ -17,6 +17,8 @@
  */
 package net.java.sip.communicator.service.gui;
 
+import javax.swing.tree.*;
+
 /**
  * The <tt>ContactListNode</tt> represents a node in the contact list data
  * model. An implementation of this interface should be able to determine the
@@ -24,11 +26,26 @@ package net.java.sip.communicator.service.gui;
  *
  * @author Yana Stamcheva
  */
-public interface ContactListNode
+public abstract class ContactListNode extends DefaultMutableTreeNode
 {
+    public ContactListNode(Object userObject, boolean allowsChildren)
+    {
+        super(userObject, allowsChildren);
+    }
+
+    public ContactListNode(Object userObject)
+    {
+        super(userObject);
+    }
+
+    public ContactListNode()
+    {
+        super();
+    }
+
     /**
      * Returns the index of this node in the <tt>MetaContactListService</tt>.
      * @return the index of this node in the <tt>MetaContactListService</tt>
      */
-    public int getSourceIndex();
+    public abstract int getSourceIndex();
 }

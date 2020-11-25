@@ -19,6 +19,7 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.util.*;
 
+import java.util.stream.*;
 import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.tree.*;
@@ -34,8 +35,7 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class GroupNode
-    extends DefaultMutableTreeNode
-    implements  ContactListNode
+    extends ContactListNode
 {
     /**
      * The <tt>Logger</tt> used by the <tt>GroupNode</tt> class and its
@@ -141,7 +141,7 @@ public class GroupNode
         {
             // Instead of sorting after every addition, find the spot where we
             // should insert the node such that it is inserted in order.
-            final int insertionPoint = Collections.<ContactListNode>
+            final int insertionPoint = Collections.<TreeNode>
                 binarySearch(children, contactNode, nodeComparator);
             if (insertionPoint < 0)
             {
@@ -296,8 +296,8 @@ public class GroupNode
         {
             // Instead of sorting after every addition, find the spot where we
             // should insert the node such that it is inserted in order.
-            int insertionPoint = Collections.<ContactListNode>binarySearch(children,
-                    groupNode, nodeComparator);
+            int insertionPoint = Collections.<TreeNode>binarySearch(
+                children, groupNode, nodeComparator);
             if (insertionPoint < 0)
             {
                 // index < 0 indicates that the node is not currently in the
@@ -324,11 +324,12 @@ public class GroupNode
      *
      * @return a collection of all direct children of this <tt>GroupNode</tt>
      */
-    @SuppressWarnings("unchecked")
     public Collection<ContactNode> getContacts()
     {
         if (children != null)
-            return Collections.unmodifiableCollection(children);
+            return children.stream()
+                .map(t -> (ContactNode)t)
+                .collect(Collectors.toSet());
 
         return null;
     }
@@ -356,7 +357,6 @@ public class GroupNode
      * @param treeModel the <tt>ContactListTreeModel</tt>, which should be
      * refreshed
      */
-    @SuppressWarnings("unchecked")
     public void sort(final ContactListTreeModel treeModel)
     {
         if (children != null)
@@ -470,7 +470,7 @@ public class GroupNode
      * equals.
      */
     static class NodeComparator
-        implements Comparator<ContactListNode>
+        implements Comparator<TreeNode>
     {
         /**
          * Compares its two arguments for order.  Returns a negative integer,
@@ -482,10 +482,10 @@ public class GroupNode
          * one, 1 if the first argument should be positioned after the second
          * one, 0 if there's no matter
          */
-        public int compare(ContactListNode node1, ContactListNode node2)
+        public int compare(TreeNode node1, TreeNode node2)
         {
-            int index1 = node1.getSourceIndex();
-            int index2 = node2.getSourceIndex();
+            int index1 = ((ContactListNode)node1).getSourceIndex();
+            int index2 = ((ContactListNode)node2).getSourceIndex();
 
             // If both indexes are unknown, consider them equal. We need this
             // case to ensure the property of symmetry in the node comparator.
