@@ -39,8 +39,8 @@ jobs:
         with:
           name: jars
           path: |
-            'target/bundles/*.jar'
-            'target/launcher-classpath'
+            target/bundles/*.jar
+            target/launcher-classpath
 
   deb:
     name: Ubuntu ${{ matrix.arch }}
