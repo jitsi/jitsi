@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(sparkle_init OBJC)
 
-set(CMAKE_PREFIX_PATH ${PROJECT_SOURCE_DIR}/../../../src/mac/dist/Jitsi.app/Contents/Frameworks)
+set(CMAKE_PREFIX_PATH ${PROJECT_SOURCE_DIR}/../../../resources/install/src/mac/dist/Jitsi.app/Contents/Frameworks)
 
 find_package(JNI REQUIRED)
 find_package(Sparkle REQUIRED)

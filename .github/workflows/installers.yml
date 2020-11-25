@@ -57,7 +57,6 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: jars
-          path: target/bundles
 
       - name: Set up Java
         uses: actions/setup-java@v1
@@ -76,6 +75,12 @@ jobs:
 
       - name: Verify Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1.0.3
+
+      - name: Set Gradle version
+        run: |
+          MVNVER=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
+          cd resources/install
+          sed -i s/^version=.*/version=$MVNVER/ gradle.properties
 
       - name: Build deb
         env:
@@ -116,7 +121,6 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: jars
-          path: target/bundles
 
       - name: Set up Java
         uses: actions/setup-java@v1
@@ -136,11 +140,28 @@ jobs:
       - name: Verify Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1.0.3
 
+      - name: Set Gradle version
+        run: |
+          MVNVER=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
+          cd resources/install
+          sed -i s/^version=.*/version=$MVNVER/ gradle.properties
+
       - name: Build natives
         run: |
           cd $Env:GITHUB_WORKSPACE/native/windows
           cmake -B cmake-build-${{ matrix.arch }} -A ${{ steps.expand_arch.outputs.cmake_arch }}
           cmake --build cmake-build-${{ matrix.arch }} --config Release
+
+      - name: Upload CMake logs on failure
+        if: ${{ failure() }}
+        run: Compress-Archive -Path $Env:GITHUB_WORKSPACE/native/windows/src/native/cmake-build-${{ matrix.arch}} -DestinationPath $Env:GITHUB_WORKSPACE/debug-logs.zip
+
+      - name: Upload Debug logs
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: win-${{ matrix.arch }}-debug
+          path: debug*
 
       - name: Build installer
         shell: bash
@@ -160,6 +181,11 @@ jobs:
     steps:
       - uses: actions/checkout@v1.2.0
 
+      - name: Get jars
+        uses: actions/download-artifact@v2
+        with:
+          name: jars
+
       - name: Set up Java
         uses: actions/setup-java@v1
         with:
@@ -177,6 +203,12 @@ jobs:
 
       - name: Verify Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1.0.3
+
+      - name: Set Gradle version
+        run: |
+          MVNVER=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
+          cd resources/install
+          sed -i s/^version=.*/version=$MVNVER/ gradle.properties
 
       - name: Build natives
         run: |
