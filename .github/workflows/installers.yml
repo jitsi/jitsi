@@ -57,6 +57,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: jars
+          path: target
 
       - name: Set up Java
         uses: actions/setup-java@v1
@@ -121,6 +122,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: jars
+          path: target
 
       - name: Set up Java
         uses: actions/setup-java@v1
@@ -141,6 +143,7 @@ jobs:
         uses: gradle/wrapper-validation-action@v1.0.3
 
       - name: Set Gradle version
+        shell: bash
         run: |
           MVNVER=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
           cd resources/install
@@ -185,6 +188,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: jars
+          path: target
 
       - name: Set up Java
         uses: actions/setup-java@v1
