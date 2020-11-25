@@ -38,7 +38,9 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: jars
-          path: 'target/bundles/*.jar'
+          path: |
+            'target/bundles/*.jar'
+            'target/launcher-classpath'
 
   deb:
     name: Ubuntu ${{ matrix.arch }}
@@ -138,7 +140,7 @@ jobs:
         run: |
           cd $Env:GITHUB_WORKSPACE/native/windows
           cmake -B cmake-build-${{ matrix.arch }} -A ${{ steps.expand_arch.outputs.cmake_arch }}
-          cmake --build cmake-build --config Release
+          cmake --build cmake-build-${{ matrix.arch }} --config Release
 
       - name: Build installer
         shell: bash

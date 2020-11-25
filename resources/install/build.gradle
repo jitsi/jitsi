@@ -56,7 +56,7 @@ signing {
 }
 
 application {
-    mainClassName = 'net.java.sip.communicator.launcher.SIPCommunicator'
+    mainClass = 'net.java.sip.communicator.launcher.SIPCommunicator'
     executableDir = ''
 }
 
