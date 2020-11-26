@@ -56,7 +56,6 @@
         <configuration>
           <instructions>
             <Bundle-Activator>net.java.sip.communicator.impl.phonenumbers.PhoneNumberServiceActivator</Bundle-Activator>
-            <Export-Package>com.google.i18n.phonenumbers</Export-Package>
           </instructions>
         </configuration>
       </plugin>

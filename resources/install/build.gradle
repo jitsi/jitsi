@@ -12,8 +12,8 @@ buildscript {
 
 plugins {
     id 'application'
-    id 'de.undercouch.download' version '4.0.4'
-    id 'nebula.ospackage' version '8.3.0'
+    id 'de.undercouch.download' version '4.1.1'
+    id 'nebula.ospackage' version '8.4.1'
     id 'signing'
 }
 

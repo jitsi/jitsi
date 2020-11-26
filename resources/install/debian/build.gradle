@@ -21,10 +21,8 @@ messaging protocols such as SIP/SIMPLE, XMPP/Jabber and others.
     arch = debArch
     distribution = 'xenial bionic'
 
-    requires('default-jre')
+    requires('default-jre', '2:1.11').or('openjdk-11-jre')
     requires('libxss1')
-    requires('libspeex1')
-    requires('libspeexdsp1')
 
     recommends('libappindicator1')
     recommends('libavformat57').or('libavformat-ffmpeg56')
