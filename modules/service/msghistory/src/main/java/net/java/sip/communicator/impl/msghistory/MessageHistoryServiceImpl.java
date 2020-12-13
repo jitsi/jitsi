@@ -1703,12 +1703,8 @@ public class MessageHistoryServiceImpl
 
         if (opSetMultiUChat != null)
         {
-            Iterator<ChatRoom> iter =
-                opSetMultiUChat.getCurrentlyJoinedChatRooms().iterator();
-
-            while(iter.hasNext())
+            for (ChatRoom room : opSetMultiUChat.getCurrentlyJoinedChatRooms())
             {
-                ChatRoom room = iter.next();
                 room.removeMessageListener(this);
             }
 
@@ -1753,8 +1749,8 @@ public class MessageHistoryServiceImpl
      */
     public void localUserPresenceChanged(LocalUserChatRoomPresenceChangeEvent evt)
     {
-        if(evt.getEventType() ==
-            LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED)
+        if(Objects.equals(evt.getEventType(),
+            LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED))
         {
             if (!evt.getChatRoom().isSystem())
             {
