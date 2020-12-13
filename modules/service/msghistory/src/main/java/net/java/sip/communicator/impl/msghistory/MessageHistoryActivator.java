@@ -105,19 +105,6 @@ public class MessageHistoryActivator
     }
 
     /**
-     * Stops this bundle.
-     *
-     * @param bundleContext the <tt>BundleContext</tt>
-     * @throws Exception if the stop operation goes wrong
-     */
-    public void stop(BundleContext bundleContext) throws Exception
-    {
-        super.stop(bundleContext);
-        if(msgHistoryService != null)
-            msgHistoryService.stop(bundleContext);
-    }
-
-    /**
      * Returns the <tt>MetaContactListService</tt> obtained from the bundle
      * context.
      * @return the <tt>MetaContactListService</tt> obtained from the bundle
