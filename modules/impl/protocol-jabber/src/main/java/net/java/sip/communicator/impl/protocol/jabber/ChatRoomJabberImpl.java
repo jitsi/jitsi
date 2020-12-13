@@ -39,6 +39,7 @@ import org.jivesoftware.smackx.muc.MultiUserChatException.*;
 import org.jivesoftware.smackx.muc.filter.*;
 import org.jivesoftware.smackx.muc.packet.*;
 import org.jivesoftware.smackx.nick.packet.*;
+import org.jivesoftware.smackx.nick.packet.Nick;
 import org.jivesoftware.smackx.xdata.*;
 import org.jivesoftware.smackx.xdata.packet.*;
 import org.jivesoftware.smackx.xevent.*;

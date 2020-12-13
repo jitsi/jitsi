@@ -22,7 +22,7 @@
   </licenses>
 
   <properties>
-    <bouncycastleVersion>1.66</bouncycastleVersion>
+    <bouncycastleVersion>1.67</bouncycastleVersion>
     <jnaVersion>5.6.0</jnaVersion>
     <smackVersion>4.2.4-4fa73bd</smackVersion>
     <jxmppVersion>0.6.3</jxmppVersion>
@@ -35,7 +35,7 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.14</version>
+      <version>1.18.16</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -69,7 +69,7 @@
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpcore-osgi</artifactId>
-        <version>4.4.13</version>
+        <version>4.4.14</version>
         <exclusions>
           <exclusion>
             <groupId>org.apache.httpcomponents</groupId>
@@ -84,17 +84,17 @@
       <dependency><groupId>org.apache.commons</groupId><artifactId>commons-compress</artifactId><version>1.20</version></dependency>
       <dependency><groupId>commons-codec</groupId><artifactId>commons-codec</artifactId><version>1.15</version></dependency>
       <dependency><groupId>com.helger</groupId><artifactId>dhcp4java</artifactId><version>1.1.0</version></dependency>
-      <dependency><groupId>dnsjava</groupId><artifactId>dnsjava</artifactId><version>3.3.0</version></dependency>
+      <dependency><groupId>dnsjava</groupId><artifactId>dnsjava</artifactId><version>3.3.1</version></dependency>
       <dependency><groupId>org.jitsi</groupId><artifactId>dnssecjava</artifactId><version>2.0.0</version></dependency>
       <dependency><groupId>com.google.gdata</groupId><artifactId>core</artifactId><version>1.47.1</version></dependency>
-      <dependency><groupId>com.google.http-client</groupId><artifactId>google-http-client-assembly</artifactId><version>1.36.0</version></dependency>
-      <dependency><groupId>com.google.oauth-client</groupId><artifactId>google-oauth-client</artifactId><version>1.31.0</version></dependency>
+      <dependency><groupId>com.google.http-client</groupId><artifactId>google-http-client-assembly</artifactId><version>1.38.0</version></dependency>
+      <dependency><groupId>com.google.oauth-client</groupId><artifactId>google-oauth-client</artifactId><version>1.31.2</version></dependency>
       <dependency><groupId>com.google.code.gson</groupId><artifactId>gson</artifactId><version>2.8.6</version></dependency>
       <dependency><groupId>org.jitsi</groupId><artifactId>growl4j</artifactId><version>1.0.0</version></dependency>
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
-        <version>29.0-jre</version>
+        <version>30.0-jre</version>
         <exclusions>
           <exclusion>
             <groupId>com.google.guava</groupId>
@@ -120,10 +120,10 @@
       </dependency>
       <dependency><groupId>org.hsqldb</groupId><artifactId>hsqldb</artifactId><version>2.5.1</version></dependency>
       <dependency><groupId>org.jitsi</groupId><artifactId>ice4j</artifactId><version>3.0-18-g686164f</version></dependency>
-      <dependency><groupId>org.jitsi</groupId><artifactId>jitsi-utils</artifactId><version>1.0-67-g4032ab6</version></dependency>
-      <dependency><groupId>org.jitsi</groupId><artifactId>jitsi-xmpp-extensions</artifactId><version>1.0-13-ga40f9c3</version></dependency>
+      <dependency><groupId>org.jitsi</groupId><artifactId>jitsi-utils</artifactId><version>1.0-69-g6e73ec2</version></dependency>
+      <dependency><groupId>org.jitsi</groupId><artifactId>jitsi-xmpp-extensions</artifactId><version>1.0-17-gcf66bcd</version></dependency>
       <dependency><groupId>org.jitsi</groupId><artifactId>jitsi-lgpl-dependencies</artifactId><version>1.2-8-ga3f4e8c</version></dependency>
-      <dependency><groupId>org.jmdns</groupId><artifactId>jmdns</artifactId><version>3.5.5</version></dependency>
+      <dependency><groupId>org.jmdns</groupId><artifactId>jmdns</artifactId><version>3.5.6</version></dependency>
       <dependency><groupId>org.jitsi</groupId><artifactId>jmork</artifactId><version>1.0.6</version></dependency>
       <dependency><groupId>net.java.dev.jna</groupId><artifactId>jna</artifactId><version>${jnaVersion}</version></dependency>
       <dependency><groupId>net.java.dev.jna</groupId><artifactId>jna-platform</artifactId><version>${jnaVersion}</version></dependency>
@@ -133,7 +133,7 @@
       <dependency><groupId>org.jitsi</groupId><artifactId>jain-sip-ri-ossonly</artifactId><version>1.2.279-jitsi-oss1</version></dependency>
       <dependency><groupId>org.jxmpp</groupId><artifactId>jxmpp-core</artifactId><version>${jxmppVersion}</version></dependency>
       <dependency><groupId>org.jxmpp</groupId><artifactId>jxmpp-jid</artifactId><version>${jxmppVersion}</version></dependency>
-      <dependency><groupId>com.googlecode.libphonenumber</groupId><artifactId>libphonenumber</artifactId><version>8.12.8</version></dependency>
+      <dependency><groupId>com.googlecode.libphonenumber</groupId><artifactId>libphonenumber</artifactId><version>8.12.14</version></dependency>
       <dependency><groupId>com.massisframework</groupId><artifactId>orange-extensions</artifactId><version>1.3.1</version><scope>provided</scope></dependency>
       <dependency><groupId>org.osgi</groupId><artifactId>org.osgi.core</artifactId><version>6.0.0</version></dependency>
       <dependency><groupId>org.osgi</groupId><artifactId>org.osgi.service.cm</artifactId><version>1.6.0</version></dependency>
@@ -212,7 +212,7 @@
       <dependency>
         <groupId>com.github.hypfvieh</groupId>
         <artifactId>dbus-java-osgi</artifactId>
-        <version>3.2.3</version>
+        <version>3.2.4</version>
         <exclusions>
           <exclusion>
             <groupId>*</groupId>
@@ -230,7 +230,7 @@
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
-        <version>4.13</version>
+        <version>4.13.1</version>
         <scope>test</scope>
       </dependency>
       <dependency>
