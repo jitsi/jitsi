@@ -17,7 +17,7 @@
   <dependencies>
     <dependency>
       <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.core</artifactId>
+      <artifactId>osgi.core</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jitsi</groupId>
@@ -78,6 +78,18 @@
       <scope>runtime</scope>
     </dependency>
   </dependencies>
+
+  <profiles>
+    <profile>
+      <id>win32-x86-64</id>
+      <activation>
+        <os>
+          <family>windows</family>
+          <arch>x86</arch>
+        </os>
+      </activation>
+    </profile>
+  </profiles>
 
   <build>
     <plugins>
