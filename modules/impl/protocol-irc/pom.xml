@@ -93,7 +93,10 @@
         <configuration>
           <instructions>
             <Bundle-Activator>net.java.sip.communicator.impl.protocol.irc.IrcActivator</Bundle-Activator>
-            <Export-Package>net.java.sip.communicator.impl.protocol.irc</Export-Package>
+            <Export-Package>
+              net.java.sip.communicator.impl.protocol.irc,
+              net.java.sip.communicator.impl.protocol.irc.*,
+            </Export-Package>
           </instructions>
         </configuration>
       </plugin>
