@@ -18,7 +18,6 @@
 package net.java.sip.communicator.impl.provdisc.mdns;
 
 import net.java.sip.communicator.service.provdisc.*;
-import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 

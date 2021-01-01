@@ -20,7 +20,6 @@ package net.java.sip.communicator.impl.replacement.providers;
 import java.util.regex.*;
 
 import net.java.sip.communicator.service.replacement.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Implements the {@link ReplacementService} to provide previews for Dailymotion

@@ -22,7 +22,6 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import net.java.sip.communicator.impl.protocol.irc.exception.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Command factory.

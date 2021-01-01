@@ -17,8 +17,6 @@
  */
 package net.java.sip.communicator.plugin.jabberaccregwizz;
 
-import java.io.*;
-
 import net.java.sip.communicator.service.resources.*;
 
 import net.java.sip.communicator.util.osgi.ServiceUtils;

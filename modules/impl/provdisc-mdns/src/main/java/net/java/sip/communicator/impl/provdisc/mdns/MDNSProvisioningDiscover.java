@@ -23,7 +23,6 @@ import java.util.*;
 import javax.jmdns.*;
 
 import net.java.sip.communicator.service.provdisc.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Class that will perform mDNS provisioning discovery.

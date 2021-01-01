@@ -27,7 +27,6 @@ import org.jitsi.xmpp.extensions.jingleinfo.*;
 import org.jitsi.xmpp.extensions.jitsimeet.*;
 import org.jitsi.xmpp.extensions.thumbnail.*;
 import org.jivesoftware.smack.provider.*;
-import org.jivesoftware.smackx.nick.packet.*;
 import org.jivesoftware.smackx.nick.packet.Nick;
 import org.jivesoftware.smackx.si.packet.*;
 

@@ -19,8 +19,6 @@ package net.java.sip.communicator.service.protocol.media;
 
 import java.util.*;
 
-import net.java.sip.communicator.util.*;
-
 import org.jitsi.service.neomedia.format.*;
 
 /**

@@ -19,7 +19,6 @@ package net.java.sip.communicator.impl.sysactivity;
 
 import lombok.extern.slf4j.*;
 import net.java.sip.communicator.service.sysactivity.*;
-import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 

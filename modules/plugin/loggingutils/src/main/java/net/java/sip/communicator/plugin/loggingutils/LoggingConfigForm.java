@@ -32,7 +32,6 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import org.apache.commons.lang3.StringUtils;
 import org.jitsi.service.packetlogging.*;
 import org.jitsi.service.resources.*;
-import org.jitsi.utils.*;
 
 /**
  * The Logging configuration form.

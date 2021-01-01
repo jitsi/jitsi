@@ -35,7 +35,6 @@ import net.java.sip.communicator.plugin.spellcheck.Parameters.Locale;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Combo box providing a listing of all available locales with corresponding

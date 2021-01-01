@@ -29,7 +29,6 @@ import javax.sip.message.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * A straightforward implementation of the basic instant messaging operation

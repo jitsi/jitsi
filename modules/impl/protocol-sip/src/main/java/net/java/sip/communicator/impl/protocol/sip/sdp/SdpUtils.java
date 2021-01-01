@@ -33,7 +33,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.ice4j.ice.sdp.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.format.*;
-import org.jitsi.utils.*;
 import org.jitsi.utils.MediaType;
 import org.opentelecoms.javax.sdp.*;
 

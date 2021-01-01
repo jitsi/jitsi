@@ -29,7 +29,6 @@ import javax.net.ssl.*;
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 import com.ircclouds.irc.api.*;
 import com.ircclouds.irc.api.domain.*;

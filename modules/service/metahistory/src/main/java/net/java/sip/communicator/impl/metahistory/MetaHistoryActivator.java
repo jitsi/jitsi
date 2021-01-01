@@ -18,7 +18,6 @@
 package net.java.sip.communicator.impl.metahistory;
 
 import net.java.sip.communicator.service.metahistory.*;
-import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 

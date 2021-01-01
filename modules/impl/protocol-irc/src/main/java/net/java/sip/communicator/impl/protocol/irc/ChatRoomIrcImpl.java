@@ -24,7 +24,6 @@ import java.util.*;
 import net.java.sip.communicator.impl.protocol.irc.exception.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Represents a chat channel/room, where multiple chat users could rally and

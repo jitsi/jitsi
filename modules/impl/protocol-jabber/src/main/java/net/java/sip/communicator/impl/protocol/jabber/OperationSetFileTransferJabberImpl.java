@@ -27,7 +27,6 @@ import net.java.sip.communicator.service.protocol.FileTransfer;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.event.FileTransferListener;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
-import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.XMPPException.*;

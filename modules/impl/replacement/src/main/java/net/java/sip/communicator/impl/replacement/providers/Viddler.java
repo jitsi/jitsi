@@ -21,7 +21,6 @@ import java.io.*;
 import java.net.*;
 
 import net.java.sip.communicator.service.replacement.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Implements the {@link ReplacementService} to provide previews for Viddler

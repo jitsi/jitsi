@@ -22,7 +22,6 @@ import java.util.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.device.*;

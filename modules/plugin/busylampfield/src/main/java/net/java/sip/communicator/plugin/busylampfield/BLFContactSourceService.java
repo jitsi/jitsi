@@ -21,7 +21,6 @@ import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jitsi.utils.*;
 
 import java.util.*;
 

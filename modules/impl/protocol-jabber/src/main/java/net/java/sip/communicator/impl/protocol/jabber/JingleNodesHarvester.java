@@ -19,8 +19,6 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
-import net.java.sip.communicator.util.*;
-
 import org.ice4j.*;
 import org.ice4j.ice.*;
 import org.ice4j.ice.harvest.*;

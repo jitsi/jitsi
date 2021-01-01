@@ -26,7 +26,6 @@ import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jitsi.utils.*;
 
 /**
  * The <tt>PhoneNumberContactQuery</tt> is a query over the

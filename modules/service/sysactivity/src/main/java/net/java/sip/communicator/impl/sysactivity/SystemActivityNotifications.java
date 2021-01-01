@@ -17,7 +17,6 @@
  */
 package net.java.sip.communicator.impl.sysactivity;
 
-import net.java.sip.communicator.util.*;
 import org.jitsi.util.*;
 import org.jitsi.utils.*;
 

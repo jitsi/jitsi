@@ -24,7 +24,6 @@ import java.util.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.contactsource.ContactDetail.*;
 //import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Our editable source contact, we store changes in the addressbook.

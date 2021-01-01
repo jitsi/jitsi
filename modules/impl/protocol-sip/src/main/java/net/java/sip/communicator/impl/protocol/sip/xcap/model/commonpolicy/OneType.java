@@ -18,7 +18,6 @@
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.commonpolicy;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jitsi.utils.*;
 import org.w3c.dom.*;
 
 /**

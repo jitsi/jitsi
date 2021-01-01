@@ -26,7 +26,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabber.*;
 import net.java.sip.communicator.service.protocol.media.*;
-import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.SmackException.*;

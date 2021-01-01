@@ -25,8 +25,6 @@ import java.net.*;
 import javax.imageio.*;
 import javax.swing.*;
 
-import net.java.sip.communicator.util.*;
-
 /**
  * Utility methods for image manipulation.
  *

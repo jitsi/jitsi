@@ -21,7 +21,6 @@ import java.io.*;
 
 import org.jitsi.xmpp.extensions.thumbnail.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;

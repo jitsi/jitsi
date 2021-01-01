@@ -19,8 +19,6 @@ package net.java.sip.communicator.impl.protocol.sip.security;
 
 import java.security.*;
 
-import net.java.sip.communicator.util.*;
-
 /**
  * The class takes standard Http Authentication details and returns a response
  * according to the MD5 algorithm

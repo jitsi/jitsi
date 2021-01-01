@@ -21,7 +21,6 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.credentialsstorage.*;
-import net.java.sip.communicator.util.*;
 
 import net.java.sip.communicator.util.osgi.ServiceUtils;
 import org.jitsi.service.configuration.*;

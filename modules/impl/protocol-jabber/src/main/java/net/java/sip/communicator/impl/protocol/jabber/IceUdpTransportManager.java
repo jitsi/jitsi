@@ -35,7 +35,6 @@ import org.ice4j.socket.*;
 import org.ice4j.socket.DatagramPacketFilter;
 import org.ice4j.security.*;
 import org.jitsi.service.neomedia.*;
-import org.jitsi.util.*;
 import org.jitsi.utils.*;
 import org.jivesoftware.smack.packet.*;
 import org.jxmpp.jid.parts.*;

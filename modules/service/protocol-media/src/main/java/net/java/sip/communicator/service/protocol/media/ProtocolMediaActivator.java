@@ -18,7 +18,6 @@
 package net.java.sip.communicator.service.protocol.media;
 
 import net.java.sip.communicator.service.netaddr.*;
-import net.java.sip.communicator.util.*;
 
 import net.java.sip.communicator.util.osgi.ServiceUtils;
 import org.jitsi.service.configuration.*;

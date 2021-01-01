@@ -20,7 +20,6 @@ package net.java.sip.communicator.impl.neomedia;
 import java.beans.*;
 import java.util.*;
 
-import java.util.stream.*;
 import javax.media.*;
 import javax.swing.*;
 import javax.swing.event.*;

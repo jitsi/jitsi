@@ -17,11 +17,9 @@
  */
 package net.java.sip.communicator.service.protocol.media;
 
-import net.java.sip.communicator.util.*;
 import org.jitsi.util.xml.*;
 import org.w3c.dom.*;
 
-import javax.xml.parsers.*;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.*;
 import javax.xml.transform.stream.*;

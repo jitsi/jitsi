@@ -35,7 +35,6 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.util.*;
 import org.apache.commons.lang3.StringUtils;
-import org.jitsi.utils.*;
 import org.osgi.framework.*;
 
 /**

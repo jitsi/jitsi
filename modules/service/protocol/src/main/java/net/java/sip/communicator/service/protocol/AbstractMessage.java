@@ -20,8 +20,6 @@ package net.java.sip.communicator.service.protocol;
 import java.io.*;
 import java.nio.charset.*;
 
-import net.java.sip.communicator.util.*;
-
 /**
  * Represents a default implementation of {@link Message} in order to make it
  * easier for implementers to provide complete solutions while focusing on

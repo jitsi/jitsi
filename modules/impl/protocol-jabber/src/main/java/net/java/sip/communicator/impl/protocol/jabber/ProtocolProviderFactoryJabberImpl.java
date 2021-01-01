@@ -22,7 +22,6 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 
 import net.java.sip.communicator.service.protocol.jabber.*;
-import net.java.sip.communicator.util.*;
 import org.jxmpp.jid.*;
 import org.jxmpp.jid.impl.*;
 import org.jxmpp.jid.parts.*;

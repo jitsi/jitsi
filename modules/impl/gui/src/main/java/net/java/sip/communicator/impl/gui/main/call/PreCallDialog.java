@@ -32,7 +32,6 @@ import net.java.sip.communicator.util.skin.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.device.*;
-import org.jitsi.util.*;
 import org.jitsi.util.swing.TransparentPanel;
 import org.jitsi.utils.*;
 

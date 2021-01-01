@@ -18,10 +18,8 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jitsi.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import org.jitsi.utils.*;
 
 /**
  *

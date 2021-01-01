@@ -20,7 +20,6 @@ package net.java.sip.communicator.impl.packetlogging;
 import java.io.*;
 
 import com.google.common.collect.*;
-import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.fileaccess.*;
 import org.jitsi.service.packetlogging.*;

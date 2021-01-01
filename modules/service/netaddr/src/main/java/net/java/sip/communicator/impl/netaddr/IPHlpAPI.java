@@ -21,7 +21,6 @@ import com.sun.jna.*;
 import com.sun.jna.platform.win32.*;
 import com.sun.jna.ptr.*;
 import com.sun.jna.win32.*;
-import java.io.*;
 import java.net.*;
 
 public interface IPHlpAPI

@@ -18,7 +18,6 @@
 package net.java.sip.communicator.impl.protocol.sip;
 
 import gov.nist.javax.sip.header.*;
-import net.java.sip.communicator.util.*;
 
 import javax.sip.address.*;
 import javax.sip.header.*;

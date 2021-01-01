@@ -23,8 +23,6 @@ import java.io.*;
 import javax.imageio.*;
 import javax.swing.*;
 
-import net.java.sip.communicator.util.*;
-
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 

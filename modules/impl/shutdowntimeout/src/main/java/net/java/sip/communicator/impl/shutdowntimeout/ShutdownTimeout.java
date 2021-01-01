@@ -17,9 +17,6 @@
  */
 package net.java.sip.communicator.impl.shutdowntimeout;
 
-import net.java.sip.communicator.launchutils.*;
-import net.java.sip.communicator.util.*;
-
 import org.osgi.framework.*;
 
 /**

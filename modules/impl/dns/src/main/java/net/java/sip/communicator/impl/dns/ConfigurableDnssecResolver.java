@@ -34,7 +34,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.jitsi.dnssec.validator.ValidatingResolver;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
-import org.jitsi.utils.*;
 import org.xbill.DNS.*;
 
 /**

@@ -21,7 +21,6 @@ import java.util.*;
 
 import net.java.sip.communicator.service.replacement.*;
 import net.java.sip.communicator.service.replacement.smilies.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Implements the {@link ReplacementService} to provide smiley as replacement

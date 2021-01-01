@@ -21,7 +21,6 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.*;
 
 import javax.imageio.*;
 import java.awt.image.*;

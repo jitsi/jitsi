@@ -23,7 +23,6 @@ import java.util.regex.*;
 import net.java.sip.communicator.plugin.addrbook.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Implements <tt>ContactQuery</tt> for the Address Book of Microsoft Outlook.

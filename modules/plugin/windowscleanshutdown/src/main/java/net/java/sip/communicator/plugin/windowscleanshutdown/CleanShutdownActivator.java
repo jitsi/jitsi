@@ -20,7 +20,6 @@ package net.java.sip.communicator.plugin.windowscleanshutdown;
 import net.java.sip.communicator.service.shutdown.*;
 import net.java.sip.communicator.service.sysactivity.*;
 import net.java.sip.communicator.service.sysactivity.event.*;
-import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 
 import java.util.concurrent.*;

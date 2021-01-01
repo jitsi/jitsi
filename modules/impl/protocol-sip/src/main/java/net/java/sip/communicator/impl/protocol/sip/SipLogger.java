@@ -27,8 +27,6 @@ import java.util.*;
 
 import javax.sip.*;
 
-import net.java.sip.communicator.util.*;
-
 import org.jitsi.service.packetlogging.*;
 
 /**

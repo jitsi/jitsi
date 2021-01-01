@@ -18,7 +18,6 @@
 package net.java.sip.communicator.impl.hid;
 
 import net.java.sip.communicator.service.hid.*;
-import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 

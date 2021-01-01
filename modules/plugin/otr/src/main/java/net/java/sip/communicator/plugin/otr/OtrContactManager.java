@@ -21,7 +21,6 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 

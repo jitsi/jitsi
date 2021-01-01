@@ -19,7 +19,6 @@ package net.java.sip.communicator.impl.growlnotification;
 
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
-import net.java.sip.communicator.util.*;
 
 import org.apache.commons.lang3.*;
 import org.growl4j.*;

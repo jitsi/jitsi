@@ -19,7 +19,6 @@ package net.java.sip.communicator.plugin.update;
 
 import java.io.*;
 import java.util.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.resources.*;
 

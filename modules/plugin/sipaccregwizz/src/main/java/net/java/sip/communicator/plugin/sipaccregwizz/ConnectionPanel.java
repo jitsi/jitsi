@@ -30,7 +30,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.sip.*;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jitsi.utils.*;
 
 /**
  * The panel containing information about the connection.
@@ -252,7 +251,7 @@ public class ConnectionPanel
         valuesPanel.add(transportCombo);
         proxyNorthPanel.add(proxyForceBypassCheckBox);
         proxyNorthPanel.add(proxyAutoCheckBox);
-        
+
 
         proxyMainPanel.add(proxyNorthPanel, BorderLayout.NORTH);
         proxyMainPanel.add(labelsPanel, BorderLayout.WEST);
@@ -868,7 +867,7 @@ public class ConnectionPanel
 
     /**
      * Enables/disables the proxy force bypass-configuration.
-     * 
+     *
      * @param isEnable <tt>true</tt> to enable force proxy bypass-
      * configuration, <tt>false</tt> - otherwise
      */

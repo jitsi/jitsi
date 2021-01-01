@@ -19,7 +19,6 @@ package net.java.sip.communicator.impl.provdisc.dhcp;
 
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.provdisc.*;
-import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 

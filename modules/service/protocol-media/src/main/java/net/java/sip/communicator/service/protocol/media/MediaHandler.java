@@ -25,7 +25,6 @@ import java.util.List;
 import net.java.sip.communicator.service.protocol.OperationFailedException;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.event.DTMFListener;
-import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.control.*;

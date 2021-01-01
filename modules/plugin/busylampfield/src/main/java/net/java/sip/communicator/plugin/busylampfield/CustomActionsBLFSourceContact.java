@@ -20,8 +20,6 @@ package net.java.sip.communicator.plugin.busylampfield;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.customcontactactions.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.*;
 
 import java.util.*;
 import net.java.sip.communicator.util.osgi.ServiceUtils;

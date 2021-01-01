@@ -24,7 +24,6 @@ import net.java.sip.communicator.impl.protocol.irc.ModeParser.ModeEntry;
 import net.java.sip.communicator.impl.protocol.irc.exception.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 import com.ircclouds.irc.api.*;
 import com.ircclouds.irc.api.domain.*;

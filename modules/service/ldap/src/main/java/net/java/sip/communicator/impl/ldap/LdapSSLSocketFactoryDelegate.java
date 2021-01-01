@@ -24,7 +24,6 @@ import java.security.*;
 import javax.net.*;
 
 import net.java.sip.communicator.service.certificate.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Utility class to delegate the creation of sockets to LDAP servers to our

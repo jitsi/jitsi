@@ -22,7 +22,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.account.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
-import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 

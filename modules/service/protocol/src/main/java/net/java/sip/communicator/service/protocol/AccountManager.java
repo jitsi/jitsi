@@ -21,7 +21,6 @@ import java.util.*;
 
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Base64; //disambiguate from java.util.Base64
 
 import net.java.sip.communicator.util.osgi.ServiceUtils;

@@ -18,7 +18,6 @@
 package net.java.sip.communicator.plugin.dnsconfig;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
-import net.java.sip.communicator.util.*;
 
 import net.java.sip.communicator.util.osgi.ServiceUtils;
 import org.jitsi.service.resources.*;

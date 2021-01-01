@@ -21,7 +21,6 @@ import java.util.*;
 
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * A straightforward implementation of the meta contact group. The group

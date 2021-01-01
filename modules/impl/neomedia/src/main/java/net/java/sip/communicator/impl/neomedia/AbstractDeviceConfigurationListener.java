@@ -23,7 +23,6 @@ import java.util.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.systray.event.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.osgi.ServiceUtils;
 
 /**

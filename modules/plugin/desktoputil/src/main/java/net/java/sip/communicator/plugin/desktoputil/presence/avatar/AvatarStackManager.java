@@ -23,7 +23,6 @@ import java.io.*;
 import javax.imageio.*;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
-import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.fileaccess.*;
 

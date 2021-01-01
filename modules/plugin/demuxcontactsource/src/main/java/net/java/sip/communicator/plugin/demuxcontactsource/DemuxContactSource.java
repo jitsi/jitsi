@@ -21,9 +21,6 @@ import java.util.*;
 import java.util.regex.*;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jitsi.util.*;
-import org.jitsi.utils.*;
-import org.jitsi.utils.logging.*;
 
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;

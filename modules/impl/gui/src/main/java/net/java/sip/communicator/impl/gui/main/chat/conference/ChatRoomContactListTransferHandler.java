@@ -16,7 +16,6 @@ import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.plugin.desktoputil.ExtendedTransferHandler;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.Contact;
-import net.java.sip.communicator.util.*;
 
 /**
  * A TransferHandler that we use to handle DnD operations in our

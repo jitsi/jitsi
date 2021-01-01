@@ -24,7 +24,6 @@ import java.awt.image.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
-import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.audionotifier.*;
 import org.jitsi.service.neomedia.*;

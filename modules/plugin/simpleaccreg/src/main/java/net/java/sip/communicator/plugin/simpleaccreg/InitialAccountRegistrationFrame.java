@@ -30,7 +30,6 @@ import javax.swing.text.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 
 import org.jitsi.service.configuration.*;

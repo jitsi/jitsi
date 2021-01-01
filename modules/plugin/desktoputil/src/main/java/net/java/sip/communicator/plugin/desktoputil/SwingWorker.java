@@ -31,8 +31,6 @@ import java.util.concurrent.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.util.*;
-
 /**
  * Utility class based on the javax.swing.SwingWorker. <tt>SwingWorker</tt> is
  * an abstract class that you subclass to perform GUI-related work in a

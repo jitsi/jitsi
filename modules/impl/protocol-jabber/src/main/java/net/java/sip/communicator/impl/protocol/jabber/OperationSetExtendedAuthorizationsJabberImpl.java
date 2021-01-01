@@ -19,7 +19,6 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import net.java.sip.communicator.service.protocol.*;
 
-import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.SmackException.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.roster.*;

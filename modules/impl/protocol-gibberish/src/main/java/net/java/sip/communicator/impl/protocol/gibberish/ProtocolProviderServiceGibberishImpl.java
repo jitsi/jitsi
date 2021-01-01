@@ -19,7 +19,6 @@ package net.java.sip.communicator.impl.protocol.gibberish;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * A Gibberish implementation of the ProtocolProviderService.

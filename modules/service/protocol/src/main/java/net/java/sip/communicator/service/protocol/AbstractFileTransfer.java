@@ -20,7 +20,6 @@ package net.java.sip.communicator.service.protocol;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * An abstract implementation of the <tt>FileTransfer</tt> interface providing

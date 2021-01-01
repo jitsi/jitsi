@@ -33,7 +33,6 @@ import javax.sip.message.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Contains all functionality that has anything to do with registering and

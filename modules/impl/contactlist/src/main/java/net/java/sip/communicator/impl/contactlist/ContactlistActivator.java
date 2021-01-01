@@ -22,7 +22,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 import net.java.sip.communicator.util.osgi.ServiceUtils;
-import org.jitsi.service.fileaccess.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 

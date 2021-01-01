@@ -19,9 +19,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import net.java.sip.communicator.service.protocol.media.*;
 
-import net.java.sip.communicator.util.*;
 import org.jitsi.service.neomedia.*;
-import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.SmackException.*;
 
 /**

@@ -24,7 +24,6 @@ import java.util.*;
 import javax.swing.*;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jitsi.utils.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;

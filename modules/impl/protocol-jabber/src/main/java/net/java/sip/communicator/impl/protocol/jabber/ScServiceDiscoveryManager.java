@@ -22,7 +22,6 @@ import java.util.concurrent.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.caps.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.configuration.*;
 import org.jitsi.util.*;

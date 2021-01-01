@@ -23,8 +23,6 @@ import javax.swing.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
 
-import net.java.sip.communicator.util.*;
-
 public class StyledHTMLEditorPane
     extends JEditorPane
 {

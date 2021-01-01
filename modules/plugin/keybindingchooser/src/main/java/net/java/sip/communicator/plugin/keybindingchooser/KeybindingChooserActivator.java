@@ -22,8 +22,6 @@ import java.util.*;
 import net.java.sip.communicator.service.globalshortcut.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.keybindings.*;
-import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.*;
 
 import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.configuration.*;

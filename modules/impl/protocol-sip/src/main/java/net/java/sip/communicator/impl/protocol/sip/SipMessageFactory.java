@@ -34,7 +34,6 @@ import javax.sip.message.*;
 import javax.sip.message.Message;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * This <tt>MessageFactory</tt> is just a wrapper around a "real"

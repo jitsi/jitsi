@@ -23,30 +23,20 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.beans.*;
 import java.io.*;
-import java.net.*;
-import java.nio.file.*;
 import java.util.*;
 import java.util.List;
-import java.util.Timer;
 
 import javax.accessibility.*;
 import javax.imageio.*;
 import javax.imageio.stream.*;
-import javax.print.attribute.standard.*;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.jitsi.util.*;
-import org.jitsi.utils.logging.Logger;
-
 import com.sun.jna.*;
 
-import net.java.sip.communicator.impl.osdependent.*;
-import net.java.sip.communicator.impl.osdependent.systemtray.*;
 import net.java.sip.communicator.impl.osdependent.systemtray.TrayIcon;
 import net.java.sip.communicator.impl.osdependent.systemtray.appindicator.Gobject.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * System tray icon implementation based on libappindicator1.

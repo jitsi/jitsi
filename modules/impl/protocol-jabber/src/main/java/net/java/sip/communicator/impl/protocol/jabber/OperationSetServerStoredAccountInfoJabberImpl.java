@@ -23,7 +23,6 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 import org.apache.commons.lang3.*;
 import org.jivesoftware.smack.*;

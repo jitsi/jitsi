@@ -17,9 +17,7 @@
  */
 package net.java.sip.communicator.impl.galagonotification;
 
-import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.systray.*;
-import net.java.sip.communicator.util.*;
 
 import net.java.sip.communicator.util.osgi.ServiceUtils;
 import org.apache.commons.lang3.*;

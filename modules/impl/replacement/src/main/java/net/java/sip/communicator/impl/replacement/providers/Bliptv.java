@@ -21,7 +21,6 @@ import java.io.*;
 import java.net.*;
 
 import net.java.sip.communicator.service.replacement.*;
-import net.java.sip.communicator.util.*;
 
 import org.json.simple.*;
 

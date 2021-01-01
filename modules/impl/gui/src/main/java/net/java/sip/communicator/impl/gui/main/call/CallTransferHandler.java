@@ -31,7 +31,6 @@ import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * A <tt>TransferHandler</tt> that handles dropping of <tt>UIContact</tt>s or

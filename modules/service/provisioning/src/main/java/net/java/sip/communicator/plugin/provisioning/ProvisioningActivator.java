@@ -24,7 +24,6 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.provdisc.*;
 import net.java.sip.communicator.service.provisioning.*;
-import net.java.sip.communicator.util.*;
 
 import net.java.sip.communicator.util.osgi.*;
 import org.apache.commons.lang3.StringUtils;

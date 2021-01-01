@@ -30,7 +30,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.ImageDetail;
 import net.java.sip.communicator.service.protocol.account.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The dialog used as menu.

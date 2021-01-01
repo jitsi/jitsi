@@ -17,8 +17,6 @@
  */
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
-import javax.swing.tree.*;
-
 import net.java.sip.communicator.service.gui.*;
 
 /**

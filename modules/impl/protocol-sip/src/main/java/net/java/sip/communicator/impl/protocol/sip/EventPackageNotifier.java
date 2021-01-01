@@ -28,7 +28,6 @@ import javax.sip.header.*;
 import javax.sip.message.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Implements the notifier part of RFC 3265

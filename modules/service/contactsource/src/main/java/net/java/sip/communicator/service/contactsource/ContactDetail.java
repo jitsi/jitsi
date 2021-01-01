@@ -22,7 +22,6 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jitsi.utils.*;
 
 /**
  * The <tt>ContactDetail</tt> is a detail of a <tt>SourceContact</tt>

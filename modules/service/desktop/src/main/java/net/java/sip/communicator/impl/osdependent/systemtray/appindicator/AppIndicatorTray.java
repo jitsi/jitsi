@@ -19,15 +19,11 @@ package net.java.sip.communicator.impl.osdependent.systemtray.appindicator;
 
 import javax.swing.*;
 
-import org.jitsi.util.*;
-
-import net.java.sip.communicator.impl.osdependent.*;
 import net.java.sip.communicator.impl.osdependent.systemtray.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Jitsi system tray abstraction for libappindicator.
- * 
+ *
  * @author Ingo Bauersachs
  */
 public class AppIndicatorTray extends SystemTray

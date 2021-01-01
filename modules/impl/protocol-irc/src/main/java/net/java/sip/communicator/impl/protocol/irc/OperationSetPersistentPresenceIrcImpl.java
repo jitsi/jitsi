@@ -22,7 +22,6 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Implementation of support for Persistent Presence for IRC.

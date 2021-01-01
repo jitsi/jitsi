@@ -21,7 +21,6 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Represents an UI means to put an associated <tt>CallPariticant</tt> on/off

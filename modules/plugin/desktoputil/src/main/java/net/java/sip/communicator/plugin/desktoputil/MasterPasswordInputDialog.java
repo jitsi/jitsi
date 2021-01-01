@@ -22,7 +22,6 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.util.*;
 import org.jitsi.service.resources.*;
 
 /**

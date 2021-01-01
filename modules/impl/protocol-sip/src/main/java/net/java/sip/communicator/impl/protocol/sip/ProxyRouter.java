@@ -29,7 +29,6 @@ import javax.sip.message.*;
 
 import net.java.sip.communicator.impl.protocol.sip.net.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * An implementation of the <tt>Router</tt> interface wrapping around JAIN-SIP

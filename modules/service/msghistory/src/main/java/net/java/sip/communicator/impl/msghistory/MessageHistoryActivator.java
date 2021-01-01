@@ -20,7 +20,6 @@ package net.java.sip.communicator.impl.msghistory;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.msghistory.*;
-import net.java.sip.communicator.util.*;
 
 import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.configuration.*;

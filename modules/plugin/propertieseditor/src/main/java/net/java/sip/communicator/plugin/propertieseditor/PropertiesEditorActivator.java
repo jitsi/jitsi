@@ -23,7 +23,6 @@ import org.jitsi.service.resources.ResourceManagementService;
 
 import java.util.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 
 /**
@@ -32,8 +31,8 @@ import org.osgi.framework.*;
  * @author Marin Dzhigarov
  * @author Pawel Domas
  */
-public class PropertiesEditorActivator 
-    implements BundleActivator 
+public class PropertiesEditorActivator
+    implements BundleActivator
 {
     /**
      * The bundle context.
@@ -62,9 +61,9 @@ public class PropertiesEditorActivator
      * @return the <tt>ConfigurationService</tt> obtained from the
      * <tt>BundleContext</tt>.
      */
-    public static ConfigurationService getConfigurationService() 
+    public static ConfigurationService getConfigurationService()
     {
-        if (configService == null) 
+        if (configService == null)
         {
             configService
                 = ServiceUtils.getService(
@@ -98,7 +97,7 @@ public class PropertiesEditorActivator
      *
      * @return the <tt>UIService</tt> obtained from the <tt>BundleContext</tt>.
      */
-    public static UIService getUIService() 
+    public static UIService getUIService()
     {
         if (uiService == null)
             uiService = ServiceUtils.getService(bundleContext, UIService.class);
@@ -113,7 +112,7 @@ public class PropertiesEditorActivator
      * @throws Exception if one of the operation executed in the start method
      * fails
      */
-    public void start(BundleContext bc) throws Exception 
+    public void start(BundleContext bc) throws Exception
     {
         bundleContext = bc;
 

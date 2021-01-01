@@ -18,7 +18,6 @@
 package net.java.sip.communicator.impl.protocol.sip;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>OperationSetCusaxUtilsSipImpl</tt> provides utility methods

@@ -30,7 +30,6 @@ import net.java.sip.communicator.impl.protocol.sip.xcap.utils.*;
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.httputil.*;
-import net.java.sip.communicator.util.*;
 
 import org.apache.http.*;
 import org.apache.http.auth.*;

@@ -21,7 +21,6 @@ import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.protocol.*;
 import org.jivesoftware.smack.*;
 import org.jxmpp.jid.*;
-import org.jxmpp.jid.parts.Resourcepart;
 
 import javax.net.ssl.*;
 import java.io.*;

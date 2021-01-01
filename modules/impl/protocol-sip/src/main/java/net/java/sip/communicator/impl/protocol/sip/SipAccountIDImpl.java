@@ -22,7 +22,6 @@ import java.util.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.sip.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.osgi.ServiceUtils;
 
 /**

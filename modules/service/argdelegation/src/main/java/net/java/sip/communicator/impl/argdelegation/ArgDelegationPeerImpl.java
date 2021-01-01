@@ -22,7 +22,6 @@ import java.util.*;
 import net.java.sip.communicator.launchutils.ArgDelegationPeer;
 import net.java.sip.communicator.service.argdelegation.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.util.*;
 
 import net.java.sip.communicator.util.osgi.ServiceUtils;
 import org.osgi.framework.*;

@@ -25,7 +25,6 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.account.*;
-import net.java.sip.communicator.util.*;
 
 import javax.swing.*;
 import java.util.*;

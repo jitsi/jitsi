@@ -31,7 +31,6 @@ import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.sip.*;
-import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;

@@ -20,7 +20,6 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.protocol.*;
 import org.jivesoftware.smack.*;
-import org.jivesoftware.smack.tcp.*;
 import org.jxmpp.jid.*;
 
 import javax.net.ssl.*;

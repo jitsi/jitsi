@@ -19,7 +19,6 @@
 package net.java.sip.communicator.impl.osdependent.jdic;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>ProviderUnRegistration</tt> is used by the systray plugin

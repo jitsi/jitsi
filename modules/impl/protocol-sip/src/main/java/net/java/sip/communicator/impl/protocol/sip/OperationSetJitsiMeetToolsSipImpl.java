@@ -18,13 +18,11 @@
 package net.java.sip.communicator.impl.protocol.sip;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 import gov.nist.javax.sip.header.*;
 import javax.sip.*;
 import javax.sip.message.*;
 import javax.sip.header.*;
-import javax.sip.address.URI;
 import org.jivesoftware.smack.packet.*;
 import org.json.simple.*;
 import org.json.simple.parser.*;

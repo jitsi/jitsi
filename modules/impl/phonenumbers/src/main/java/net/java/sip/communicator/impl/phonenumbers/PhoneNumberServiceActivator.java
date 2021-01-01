@@ -18,7 +18,6 @@
 package net.java.sip.communicator.impl.phonenumbers;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.osgi.DependentActivator;
 import org.jitsi.service.configuration.ConfigurationService;
 import org.osgi.framework.*;

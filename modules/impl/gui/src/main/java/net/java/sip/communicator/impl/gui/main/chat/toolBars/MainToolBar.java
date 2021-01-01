@@ -27,7 +27,6 @@ import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.plugin.desktoputil.MetaContactPhoneUtil;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
@@ -212,7 +211,7 @@ public class MainToolBar
         if (chatPanel == null
             || !(chatPanel.getChatSession() instanceof MetaContactChatSession))
             sendFileButton.setEnabled(false);
-        
+
         if(chatPanel != null && chatPanel.isPrivateMessagingChat())
         {
             inviteButton.setEnabled(false);
@@ -221,7 +220,7 @@ public class MainToolBar
         if (chatPanel == null
             || !(chatPanel.getChatSession() instanceof ConferenceChatSession))
             desktopSharingButton.setEnabled(false);
-        
+
         this.addSeparator();
 
         SIPCommMenuBar historyMenuBar = new SIPCommMenuBar();
@@ -270,7 +269,7 @@ public class MainToolBar
 
         setCallButtonsName();
         setCallButtonsIcons();
-        
+
         this.desktopSharingButton.setName("desktop");
         this.desktopSharingButton.setToolTipText(
             GuiActivator.getResources().getI18NString(
@@ -363,7 +362,7 @@ public class MainToolBar
 
             leaveChatRoomButton.setEnabled(
                 chatSession instanceof ConferenceChatSession);
-            
+
             desktopSharingButton.setEnabled(
                 !(chatSession instanceof ConferenceChatSession));
 
@@ -391,7 +390,7 @@ public class MainToolBar
             }
 
             changeHistoryButtonsState(chatPanel);
-            
+
             setCallButtonsName();
             setCallButtonsIcons();
 
@@ -519,9 +518,9 @@ public class MainToolBar
         }
         else if (buttonText.equals("leave"))
         {
-            ChatRoomWrapper chatRoomWrapper 
+            ChatRoomWrapper chatRoomWrapper
                 = (ChatRoomWrapper)chatPanel.getChatSession().getDescriptor();
-            ChatRoomWrapper leavedRoomWrapped 
+            ChatRoomWrapper leavedRoomWrapped
                 = GuiActivator.getMUCService().leaveChatRoom(
                     chatRoomWrapper);
         }
@@ -668,7 +667,7 @@ public class MainToolBar
 
         optionsButton.setIconImage(ImageLoader.getImage(
                 ImageLoader.CHAT_CONFIGURE_ICON));
-        
+
         setCallButtonsIcons();
     }
 
@@ -741,7 +740,7 @@ public class MainToolBar
 
             res.add(d);
         }
-        
+
         Point location = new Point(callButton.getX(),
             callButton.getY() + callButton.getHeight());
 

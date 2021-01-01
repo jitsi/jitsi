@@ -22,7 +22,6 @@ import java.util.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.resources.*;
 
 import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.configuration.*;
@@ -320,12 +319,12 @@ public class SecurityConfigActivator
 
         CredentialsStorageService credentialsStorageService
             = getCredentialsStorageService();
-        
+
         Map<String, String> chatRoomIDs = new HashMap<String, String>();
         String prefix = "net.java.sip.communicator.impl.gui.accounts";
         List<String> accounts = getConfigurationService()
             .getPropertyNamesByPrefix(prefix, true);
-       
+
         for (ProtocolProviderFactory providerFactory
             : providerFactoriesMap.values())
         {
@@ -335,14 +334,14 @@ public class SecurityConfigActivator
                 {
                     String accountName
                     = getConfigurationService().getString(accountRootPropName);
-                    
+
                     if(!accountID.getAccountUniqueID().equals(accountName))
                         continue;
-                    
+
                     List<String> chatRooms = getConfigurationService()
                         .getPropertyNamesByPrefix(
                             accountRootPropName + ".chatRooms", true);
-        
+
                     for (String chatRoomPropName : chatRooms)
                     {
                         String chatRoomName = getConfigurationService()
@@ -351,7 +350,7 @@ public class SecurityConfigActivator
                                     chatRoomPropName + ".password"))
                             chatRoomIDs.put(chatRoomName + " " + resources
                                 .getI18NString("service.gui.VIA") + " "
-                                + accountID.getUserID(), chatRoomPropName 
+                                + accountID.getUserID(), chatRoomPropName
                                 + ".password");
                     }
                 }
@@ -359,7 +358,7 @@ public class SecurityConfigActivator
         }
         return chatRoomIDs;
     }
-    
+
     /**
      * @return a String containing the package name of the concrete factory
      * class that extends the abstract factory.

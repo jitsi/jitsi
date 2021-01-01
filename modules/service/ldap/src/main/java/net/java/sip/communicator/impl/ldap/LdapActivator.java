@@ -24,7 +24,6 @@ import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.ldap.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.configuration.*;

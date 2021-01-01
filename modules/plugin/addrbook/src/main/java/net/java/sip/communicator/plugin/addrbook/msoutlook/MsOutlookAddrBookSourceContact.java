@@ -20,7 +20,6 @@ package net.java.sip.communicator.plugin.addrbook.msoutlook;
 import java.util.*;
 
 import net.java.sip.communicator.service.contactsource.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Implements a custom <tt>SourceContact</tt> for the Address Book of Microsoft

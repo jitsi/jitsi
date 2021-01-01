@@ -27,7 +27,6 @@ import static net.java.sip.communicator.service.notification.event.NotificationE
 import java.util.*;
 
 import net.java.sip.communicator.service.notification.event.*;
-import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.configuration.*;
 

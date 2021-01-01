@@ -20,7 +20,6 @@ package net.java.sip.communicator.service.protocol;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Keeps a list of all calls currently active and maintained by this protocol

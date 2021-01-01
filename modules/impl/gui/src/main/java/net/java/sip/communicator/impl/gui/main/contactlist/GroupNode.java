@@ -26,7 +26,6 @@ import javax.swing.tree.*;
 
 import net.java.sip.communicator.plugin.desktoputil.plaf.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>GroupNode</tt> is a <tt>ContactListNode</tt> corresponding to a

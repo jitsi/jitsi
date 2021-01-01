@@ -20,7 +20,6 @@ package net.java.sip.communicator.plugin.desktoputil.presence;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.account.*;
-import net.java.sip.communicator.util.*;
 
 import javax.swing.*;
 import java.util.*;

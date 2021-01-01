@@ -22,7 +22,6 @@ import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.netaddr.event.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 import net.java.sip.communicator.util.osgi.*;
 import org.apache.commons.lang3.StringUtils;

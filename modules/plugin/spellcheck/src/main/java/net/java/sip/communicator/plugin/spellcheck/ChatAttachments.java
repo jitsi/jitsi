@@ -26,7 +26,6 @@ import javax.swing.text.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
-import net.java.sip.communicator.util.*;
 
 import org.dts.spell.dictionary.*;
 import org.jitsi.service.resources.*;

@@ -23,7 +23,6 @@ import java.io.*;
 import javax.imageio.*;
 
 import net.java.sip.communicator.service.systray.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Implements <tt>PopupMessageHandler</tt> according to the freedesktop.org

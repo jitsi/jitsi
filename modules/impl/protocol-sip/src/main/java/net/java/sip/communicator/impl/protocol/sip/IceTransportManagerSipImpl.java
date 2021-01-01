@@ -24,7 +24,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import org.ice4j.ice.*;
 import org.ice4j.ice.sdp.*;
-import org.jitsi.service.neomedia.*;
 import org.jitsi.utils.*;
 
 import javax.sdp.*;

@@ -20,7 +20,6 @@ package net.java.sip.communicator.plugin.defaultresourcepack;
 import java.net.*;
 import java.util.*;
 import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.*;
 import org.osgi.framework.*;
 
 /**

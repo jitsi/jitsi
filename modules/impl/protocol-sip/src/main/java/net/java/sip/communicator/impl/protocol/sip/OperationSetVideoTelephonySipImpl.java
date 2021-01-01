@@ -27,7 +27,6 @@ import javax.sip.message.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
-import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
 

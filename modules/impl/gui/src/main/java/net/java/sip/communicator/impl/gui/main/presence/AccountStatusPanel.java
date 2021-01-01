@@ -38,7 +38,6 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jitsi.utils.*;
 
 /**
  * The panel shown on the top of the contact list. It contains user name,

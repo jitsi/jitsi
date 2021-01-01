@@ -20,7 +20,6 @@ package net.java.sip.communicator.impl.protocol.irc;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Represents a chat room member.

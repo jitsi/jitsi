@@ -33,7 +33,6 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.replacement.directimage.*;
-import net.java.sip.communicator.util.*;
 
 public class ShowPreviewDialog
     extends SIPCommDialog

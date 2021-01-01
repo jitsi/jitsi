@@ -19,10 +19,8 @@ package net.java.sip.communicator.plugin.connectioninfo;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.globaldisplaydetails.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;

@@ -19,7 +19,6 @@ package net.java.sip.communicator.impl.filehistory;
 
 import net.java.sip.communicator.service.filehistory.*;
 import net.java.sip.communicator.service.history.*;
-import net.java.sip.communicator.util.*;
 
 import net.java.sip.communicator.util.osgi.*;
 import org.osgi.framework.*;

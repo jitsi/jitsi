@@ -21,7 +21,6 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.OperationSetServerStoredContactInfo.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Utility class used to check if there is a telephony service, video calls and

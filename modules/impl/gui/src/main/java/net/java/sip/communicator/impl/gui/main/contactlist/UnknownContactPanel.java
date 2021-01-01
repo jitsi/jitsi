@@ -20,7 +20,6 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import javax.swing.*;
 import javax.swing.text.*;
@@ -36,7 +35,6 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jitsi.utils.*;
 
 /**
  * The <tt>UnknownContactPanel</tt> replaces the contact list, when a

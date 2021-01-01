@@ -25,7 +25,6 @@ import org.jitsi.xmpp.extensions.inputevt.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
-import net.java.sip.communicator.util.*;
 import org.jivesoftware.smack.SmackException.*;
 import org.jivesoftware.smack.iqrequest.*;
 import org.jivesoftware.smack.packet.*;

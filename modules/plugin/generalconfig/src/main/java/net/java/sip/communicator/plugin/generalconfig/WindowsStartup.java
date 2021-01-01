@@ -23,8 +23,6 @@ import com.sun.jna.*;
 import com.sun.jna.platform.win32.*;
 import com.sun.jna.win32.*;
 
-import net.java.sip.communicator.util.*;
-
 /**
  * Take care of application auto startup. Reading and writing the registry.
  *

@@ -25,7 +25,6 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.hid.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.resources.*;
 
 import net.java.sip.communicator.util.osgi.DependentActivator;
 import net.java.sip.communicator.util.osgi.ServiceUtils;

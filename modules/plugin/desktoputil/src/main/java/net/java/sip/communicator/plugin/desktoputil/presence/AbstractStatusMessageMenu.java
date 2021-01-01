@@ -29,7 +29,6 @@ import net.java.sip.communicator.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jitsi.service.resources.*;
-import org.jitsi.utils.*;
 
 /**
  * The <tt>AbstractStatusMessageMenu<tt> is added to every status selector box

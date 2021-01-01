@@ -19,7 +19,6 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import net.java.sip.communicator.service.protocol.*;
 import org.jxmpp.jid.*;
-import org.jxmpp.jid.parts.*;
 
 /**
  *

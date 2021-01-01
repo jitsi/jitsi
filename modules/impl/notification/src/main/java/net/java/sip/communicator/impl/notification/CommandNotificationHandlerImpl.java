@@ -22,7 +22,6 @@ import java.util.*;
 
 import net.java.sip.communicator.service.notification.*;
 import org.apache.commons.lang3.StringUtils;
-import org.jitsi.utils.*;
 
 /**
  * An implementation of the <tt>CommandNotificationHandler</tt> interface.

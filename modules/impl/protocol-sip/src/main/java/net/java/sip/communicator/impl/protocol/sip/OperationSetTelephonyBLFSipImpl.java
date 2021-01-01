@@ -22,8 +22,6 @@ import gov.nist.javax.sip.header.extensions.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import org.apache.commons.lang3.StringUtils;
-import org.jitsi.util.*;
-import org.jitsi.utils.*;
 import org.jitsi.util.xml.*;
 import org.w3c.dom.*;
 

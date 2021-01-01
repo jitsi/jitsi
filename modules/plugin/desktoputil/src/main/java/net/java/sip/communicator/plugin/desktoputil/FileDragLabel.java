@@ -24,8 +24,6 @@ import java.util.*;
 
 import javax.swing.*;
 
-import net.java.sip.communicator.util.*;
-
 /**
  * The <tt>FileDragLabel</tt> extends <tt>JLabel</tt> and associates to it a
  * file. The label is made draggable and it is possible to drag it directly to

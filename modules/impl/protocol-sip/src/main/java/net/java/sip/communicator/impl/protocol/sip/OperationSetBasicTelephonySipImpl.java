@@ -33,7 +33,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Implements all call management logic and exports basic telephony support by

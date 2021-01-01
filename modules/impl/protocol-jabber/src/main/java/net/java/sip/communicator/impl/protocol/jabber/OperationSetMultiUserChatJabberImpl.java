@@ -21,14 +21,12 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.SmackException.*;
 import org.jivesoftware.smack.XMPPException.*;
 import org.jivesoftware.smack.packet.Message;
-import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.muc.*;
 import org.jivesoftware.smackx.muc.MultiUserChatException.*;
 import org.jivesoftware.smackx.muc.packet.*;

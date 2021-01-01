@@ -22,7 +22,6 @@ import java.awt.event.*;
 import java.io.*;
 import java.lang.reflect.*;
 import java.security.*;
-import java.security.cert.*;
 import java.util.*;
 
 import javax.security.auth.callback.*;
@@ -34,8 +33,6 @@ import net.java.sip.communicator.service.certificate.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jitsi.service.resources.*;
-import org.jitsi.util.*;
-import org.jitsi.utils.*;
 
 /**
  * Dialog window to add/edit client certificate configuration entries.

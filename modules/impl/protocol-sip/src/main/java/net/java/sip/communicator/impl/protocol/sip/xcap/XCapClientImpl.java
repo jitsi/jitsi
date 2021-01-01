@@ -32,7 +32,6 @@ import net.java.sip.communicator.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.*;
-import org.jitsi.utils.*;
 
 /**
  * XCAP client implementation.

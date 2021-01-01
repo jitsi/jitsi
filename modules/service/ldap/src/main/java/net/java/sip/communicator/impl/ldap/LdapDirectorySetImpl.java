@@ -21,7 +21,6 @@ import java.util.*;
 
 import net.java.sip.communicator.service.ldap.*;
 import net.java.sip.communicator.service.ldap.event.*;
-import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.configuration.*;
 

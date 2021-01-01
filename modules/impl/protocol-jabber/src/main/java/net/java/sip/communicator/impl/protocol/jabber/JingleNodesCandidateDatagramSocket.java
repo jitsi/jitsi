@@ -20,7 +20,6 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.io.*;
 import java.net.*;
 
-import net.java.sip.communicator.util.*;
 import org.ice4j.*;
 import org.ice4j.socket.*;
 import org.ice4j.stack.*;

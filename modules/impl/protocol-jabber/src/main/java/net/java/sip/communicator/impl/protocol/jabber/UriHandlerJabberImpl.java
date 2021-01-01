@@ -25,7 +25,6 @@ import net.java.sip.communicator.service.argdelegation.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 

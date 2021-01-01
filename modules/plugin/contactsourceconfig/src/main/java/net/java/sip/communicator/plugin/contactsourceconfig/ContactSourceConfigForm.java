@@ -18,7 +18,6 @@
 package net.java.sip.communicator.plugin.contactsourceconfig;
 
 import java.awt.*;
-import java.awt.event.*;
 import java.util.Collection;
 
 import javax.swing.*;
@@ -55,12 +54,12 @@ public class ContactSourceConfigForm
 
     /**
      * Creates the <tt>ContactSourceConfigForm</tt>.
-     * @throws InvalidSyntaxException 
+     * @throws InvalidSyntaxException
      */
     public ContactSourceConfigForm() throws InvalidSyntaxException
     {
         // get all already running config form services
-        Collection<ServiceReference<ConfigurationForm>> confFormsRefs = 
+        Collection<ServiceReference<ConfigurationForm>> confFormsRefs =
             ContactSourceConfigActivator.bundleContext
                 .getServiceReferences(ConfigurationForm.class,
                     CONTACT_SOURCE_FORM_FILTER);

@@ -19,8 +19,6 @@ package net.java.sip.communicator.plugin.desktoputil.plaf;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.*;
 import javax.swing.plaf.*;
@@ -31,7 +29,6 @@ import net.java.sip.communicator.util.skin.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jitsi.service.resources.*;
-import org.jitsi.utils.*;
 
 /**
  * The <tt>SearchTextFieldUI</tt> is the one responsible for the search field

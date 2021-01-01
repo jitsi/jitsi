@@ -28,7 +28,6 @@ import net.java.sip.communicator.plugin.addrbook.msoutlook.*;
 import net.java.sip.communicator.service.calendar.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * A implementation of <tt>CalendarService</tt> for MS Outlook calendar.

@@ -32,7 +32,6 @@ import javax.swing.table.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.h264.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.TransparentPanel;
-import net.java.sip.communicator.util.*;
 
 import org.jitsi.impl.neomedia.*;
 import org.jitsi.impl.neomedia.device.*;

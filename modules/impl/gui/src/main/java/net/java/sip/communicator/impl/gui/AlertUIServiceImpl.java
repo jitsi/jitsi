@@ -23,7 +23,6 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>AlertUIServiceImpl</tt> is an implementation of the

@@ -20,8 +20,6 @@ package net.java.sip.communicator.impl.provdisc.dhcp;
 import java.net.*;
 import java.util.*;
 
-import net.java.sip.communicator.util.*;
-
 /**
  * DHCP transaction class.
  *

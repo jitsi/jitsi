@@ -20,7 +20,6 @@ package net.java.sip.communicator.impl.gui.main.call;
 import net.java.sip.communicator.service.contactsource.*;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jitsi.utils.*;
 
 /**
  * Listener for a contact query, used in order to resolve a contact address

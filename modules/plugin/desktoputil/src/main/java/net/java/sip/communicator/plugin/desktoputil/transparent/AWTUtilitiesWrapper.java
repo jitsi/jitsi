@@ -20,8 +20,6 @@ package net.java.sip.communicator.plugin.desktoputil.transparent;
 import java.awt.*;
 import java.lang.reflect.*;
 
-import net.java.sip.communicator.util.*;
-
 /**
  *
  * @author Yana Stamcheva

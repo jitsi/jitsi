@@ -24,7 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.java.sip.communicator.service.gui.AlertUIService;
 import net.java.sip.communicator.service.protocol.AccountManager;
 import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
-import net.java.sip.communicator.util.*;
 
 import net.java.sip.communicator.util.osgi.ServiceUtils;
 import org.jitsi.service.resources.*;

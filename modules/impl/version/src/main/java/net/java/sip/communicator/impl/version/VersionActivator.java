@@ -17,7 +17,6 @@
  */
 package net.java.sip.communicator.impl.version;
 
-import net.java.sip.communicator.util.*;
 import org.jitsi.utils.version.*;
 import org.osgi.framework.*;
 

@@ -20,7 +20,6 @@ package net.java.sip.communicator.service.protocol;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
-import org.jxmpp.jid.*;
 
 /**
  * Represents a default implementation of <code>OperationSetMultiUserChat</code>

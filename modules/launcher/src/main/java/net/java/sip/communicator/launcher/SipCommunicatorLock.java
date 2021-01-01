@@ -23,7 +23,6 @@ import java.net.*;
 import java.util.*;
 
 import lombok.extern.slf4j.Slf4j;
-import net.java.sip.communicator.launchutils.*;
 
 /**
  * This class is used to prevent from running multiple instances of Jitsi. The

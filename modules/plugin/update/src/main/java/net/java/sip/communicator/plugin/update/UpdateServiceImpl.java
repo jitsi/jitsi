@@ -28,7 +28,6 @@ import javax.swing.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
-import net.java.sip.communicator.plugin.desktoputil.FileUtils;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.httputil.*;
 import net.java.sip.communicator.util.osgi.ServiceUtils;

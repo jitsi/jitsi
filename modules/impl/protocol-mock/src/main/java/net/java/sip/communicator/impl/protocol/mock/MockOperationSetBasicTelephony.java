@@ -23,7 +23,6 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * A mock implementation of a basic telephony operation set

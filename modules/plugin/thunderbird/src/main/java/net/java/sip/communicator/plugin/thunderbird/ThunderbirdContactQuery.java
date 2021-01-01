@@ -28,7 +28,6 @@ import mork.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.contactsource.ContactDetail.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Queries a Thunderbird address book for contacts matching the given pattern.

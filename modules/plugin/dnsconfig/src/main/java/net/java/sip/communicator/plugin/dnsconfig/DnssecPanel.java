@@ -19,7 +19,6 @@ package net.java.sip.communicator.plugin.dnsconfig;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.*;
@@ -32,7 +31,6 @@ import net.java.sip.communicator.util.*;
 
 import net.java.sip.communicator.util.osgi.ServiceUtils;
 import org.jitsi.service.configuration.*;
-import org.jitsi.service.fileaccess.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 

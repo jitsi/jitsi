@@ -20,7 +20,6 @@ package net.java.sip.communicator.service.gui;
 import java.lang.reflect.*;
 
 import net.java.sip.communicator.service.gui.internal.*;
-import net.java.sip.communicator.service.resources.*;
 
 import org.jitsi.service.resources.*;
 

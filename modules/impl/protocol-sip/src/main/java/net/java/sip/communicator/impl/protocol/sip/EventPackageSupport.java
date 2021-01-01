@@ -25,7 +25,6 @@ import javax.sip.address.*;
 import javax.sip.message.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Provides the base for implementations of RFC 3265

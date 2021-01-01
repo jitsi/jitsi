@@ -24,7 +24,6 @@ import org.jitsi.xmpp.extensions.jingle.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
-import net.java.sip.communicator.util.*;
 
 import org.jitsi.util.xml.*;
 import org.jivesoftware.smack.*;
@@ -33,7 +32,6 @@ import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.iqrequest.IQRequestHandler;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.packet.IQ.Type;
-import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smackx.disco.packet.*;
 import org.jxmpp.jid.*;
 

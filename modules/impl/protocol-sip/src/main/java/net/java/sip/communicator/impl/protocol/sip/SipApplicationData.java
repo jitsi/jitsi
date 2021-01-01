@@ -23,8 +23,6 @@ import java.util.*;
 
 import javax.sip.*;
 
-import net.java.sip.communicator.util.*;
-
 /**
  * The only Object with should be used as parameter for any JAIN-SIP class
  * setApplicationData() method (available for instance with Dialog-s and

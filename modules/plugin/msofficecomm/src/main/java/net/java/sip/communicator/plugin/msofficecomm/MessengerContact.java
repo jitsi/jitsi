@@ -17,8 +17,6 @@
  */
 package net.java.sip.communicator.plugin.msofficecomm;
 
-import net.java.sip.communicator.util.*;
-
 /**
  * Represents the Java counterpart of a native <tt>IMessengerContact</tt>
  * implementation.

@@ -17,8 +17,6 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import net.java.sip.communicator.util.*;
-
 import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.fileaccess.FileAccessService;

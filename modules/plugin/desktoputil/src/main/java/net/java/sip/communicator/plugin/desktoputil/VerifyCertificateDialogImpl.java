@@ -25,7 +25,6 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import net.java.sip.communicator.service.certificate.*;
-import net.java.sip.communicator.util.*;
 import org.jitsi.service.resources.*;
 
 /**

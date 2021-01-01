@@ -23,7 +23,6 @@ import org.jitsi.xmpp.extensions.vcardavatar.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
-import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.SmackException.*;
@@ -32,7 +31,6 @@ import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.roster.*;
 import org.jivesoftware.smack.roster.packet.*;
-import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smackx.nick.packet.*;
 import org.jivesoftware.smackx.vcardtemp.*;
 import org.jivesoftware.smackx.vcardtemp.packet.*;

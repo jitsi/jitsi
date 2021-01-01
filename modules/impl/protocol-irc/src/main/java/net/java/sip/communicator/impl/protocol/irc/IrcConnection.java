@@ -23,7 +23,6 @@ import java.util.*;
 import net.java.sip.communicator.impl.protocol.irc.ClientConfig.SASL;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 import com.ircclouds.irc.api.*;
 import com.ircclouds.irc.api.domain.messages.*;

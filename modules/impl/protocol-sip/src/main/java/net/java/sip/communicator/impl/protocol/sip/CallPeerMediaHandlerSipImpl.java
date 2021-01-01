@@ -26,7 +26,6 @@ import net.java.sip.communicator.impl.protocol.sip.sdp.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
-import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.neomedia.*;

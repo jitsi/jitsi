@@ -24,12 +24,9 @@ import javax.xml.parsers.*;
 
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.records.*;
-import net.java.sip.communicator.util.*;
 
-import net.java.sip.communicator.util.osgi.ServiceUtils;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.fileaccess.*;
-import org.osgi.framework.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
 

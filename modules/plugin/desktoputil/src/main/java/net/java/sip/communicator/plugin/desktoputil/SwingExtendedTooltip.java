@@ -26,7 +26,6 @@ import javax.swing.plaf.*;
 import javax.swing.plaf.metal.*;
 
 import net.java.sip.communicator.service.gui.ExtendedTooltip;
-import net.java.sip.communicator.util.*;
 
 /**
  * The tooltip shown over a contact in the contact list.

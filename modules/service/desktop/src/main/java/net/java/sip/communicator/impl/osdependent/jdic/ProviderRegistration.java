@@ -20,7 +20,6 @@ package net.java.sip.communicator.impl.osdependent.jdic;
 
 import net.java.sip.communicator.impl.osdependent.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>ProviderRegistration</tt> is used by the systray plugin

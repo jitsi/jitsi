@@ -23,8 +23,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 
-import net.java.sip.communicator.util.*;
-
 /**
  * Notifies subclasses when words are changed and lets them decide if text
  * should be underlined with a red squiggle. Text appended to the end isn't

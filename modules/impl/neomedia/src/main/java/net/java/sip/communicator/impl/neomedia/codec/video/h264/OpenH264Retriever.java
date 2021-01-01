@@ -19,7 +19,6 @@ package net.java.sip.communicator.impl.neomedia.codec.video.h264;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
-import net.java.sip.communicator.plugin.desktoputil.FileUtils;
 import net.java.sip.communicator.service.browserlauncher.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;

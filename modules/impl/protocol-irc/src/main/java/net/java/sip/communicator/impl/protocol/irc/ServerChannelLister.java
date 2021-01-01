@@ -19,8 +19,6 @@ package net.java.sip.communicator.impl.protocol.irc;
 
 import java.util.*;
 
-import net.java.sip.communicator.util.*;
-
 import com.ircclouds.irc.api.*;
 import com.ircclouds.irc.api.domain.messages.*;
 import com.ircclouds.irc.api.state.*;

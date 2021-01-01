@@ -17,8 +17,6 @@
  */
 package net.java.sip.communicator.impl.globalshortcut;
 
-import net.java.sip.communicator.util.*;
-
 /**
  * Native hook for keyboard. It is used to notify a
  * <tt>NativeKeyboardHookDelegate</tt> for key (even if key are pressed when

@@ -24,15 +24,9 @@ import javax.swing.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
-import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
-import org.jivesoftware.smack.XMPPException.*;
-import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smackx.iqregister.AccountManager;
-import org.jxmpp.jid.Jid;
-
-import static org.jivesoftware.smack.packet.XMPPError.Condition.forbidden;
 
 /**
  * Dialog for adding a new Jabber account.

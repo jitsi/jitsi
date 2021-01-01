@@ -33,7 +33,6 @@ import net.java.sip.communicator.util.skin.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jitsi.service.resources.*;
-import org.jitsi.utils.*;
 import org.osgi.framework.*;
 
 /**

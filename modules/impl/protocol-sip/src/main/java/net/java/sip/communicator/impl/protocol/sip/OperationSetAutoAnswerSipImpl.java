@@ -31,7 +31,6 @@ import net.java.sip.communicator.impl.protocol.sip.sdp.*;
 import net.java.sip.communicator.service.protocol.*;
 import org.apache.commons.lang3.StringUtils;
 import org.jitsi.service.neomedia.*;
-import org.jitsi.utils.*;
 import org.jitsi.utils.MediaType;
 
 /**

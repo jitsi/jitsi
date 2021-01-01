@@ -21,7 +21,6 @@ import java.net.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 import org.jitsi.utils.event.*;
 

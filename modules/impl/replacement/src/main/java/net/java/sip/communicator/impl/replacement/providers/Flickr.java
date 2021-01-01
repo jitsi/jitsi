@@ -22,7 +22,6 @@ import java.net.*;
 import java.util.regex.*;
 
 import net.java.sip.communicator.service.replacement.*;
-import net.java.sip.communicator.util.*;
 
 import org.json.simple.*;
 

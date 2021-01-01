@@ -30,7 +30,6 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * All look and feel related constants are stored here.

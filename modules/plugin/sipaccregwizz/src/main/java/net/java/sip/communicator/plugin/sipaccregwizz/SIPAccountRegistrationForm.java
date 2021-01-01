@@ -29,7 +29,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.sip.*;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jitsi.utils.*;
 
 /**
  * The <tt>SIPAccountRegistrationForm</tt>.
@@ -301,7 +300,7 @@ public class SIPAccountRegistrationForm
 
         registration.setProxyForceBypassConfigure(
             connectionPanel.isProxyForceBypassConfigureEnabled());
-        
+
         registration.setEnablePresence(
             presencePanel.isPresenceEnabled());
         registration.setForceP2PMode(
@@ -386,10 +385,10 @@ public class SIPAccountRegistrationForm
 
         String clientTlsCertificateId = sipAccReg.getTlsClientCertificate();
 
-        boolean proxyAutoConfigureEnabled = 
+        boolean proxyAutoConfigureEnabled =
             sipAccReg.isProxyAutoConfigure();
-        
-        boolean proxyForceBypassConfigureEnabled = 
+
+        boolean proxyForceBypassConfigureEnabled =
             sipAccReg.isProxyForceBypassConfigure();
 
         String pollingPeriod = sipAccReg.getPollingPeriod();

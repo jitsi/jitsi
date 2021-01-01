@@ -19,7 +19,6 @@ package net.java.sip.communicator.impl.provdisc.mdns;
 
 import net.java.sip.communicator.service.provdisc.*;
 import net.java.sip.communicator.service.provdisc.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Class that uses mDNS to retrieve provisioning URL.

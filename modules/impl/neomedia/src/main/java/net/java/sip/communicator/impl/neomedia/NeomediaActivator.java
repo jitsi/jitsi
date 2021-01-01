@@ -22,8 +22,6 @@ import java.util.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.h264.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.notification.*;
-import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.*;
 
 import net.java.sip.communicator.util.osgi.DependentActivator;
 import net.java.sip.communicator.util.osgi.ServiceUtils;

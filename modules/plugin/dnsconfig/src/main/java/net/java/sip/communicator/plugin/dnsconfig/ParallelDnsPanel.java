@@ -33,7 +33,6 @@ import javax.swing.text.*;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.dns.*;
-import net.java.sip.communicator.util.*;
 
 import net.java.sip.communicator.util.osgi.ServiceUtils;
 import org.jitsi.service.configuration.*;

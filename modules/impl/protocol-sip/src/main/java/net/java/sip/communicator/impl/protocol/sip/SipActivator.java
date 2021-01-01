@@ -24,12 +24,10 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.hid.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 import net.java.sip.communicator.util.osgi.DependentActivator;
 import net.java.sip.communicator.util.osgi.ServiceUtils;
 import org.jitsi.service.configuration.*;
-import org.jitsi.service.fileaccess.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.packetlogging.*;
 import org.jitsi.service.resources.*;

@@ -22,7 +22,6 @@ import java.util.regex.*;
 
 import net.java.sip.communicator.service.httputil.*;
 import net.java.sip.communicator.service.replacement.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Implements the {@link ReplacementService} to provide previews for Vbox7

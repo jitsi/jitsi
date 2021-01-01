@@ -20,7 +20,6 @@ package net.java.sip.communicator.impl.credentialsstorage;
 import java.util.*;
 
 import net.java.sip.communicator.service.credentialsstorage.*;
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Base64; // disambiguation
 
 import net.java.sip.communicator.util.osgi.ServiceUtils;

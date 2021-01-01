@@ -27,7 +27,6 @@ import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.resources.*;
-import net.java.sip.communicator.util.*;
 
 import org.apache.commons.lang3.*;
 import org.jitsi.service.neomedia.*;

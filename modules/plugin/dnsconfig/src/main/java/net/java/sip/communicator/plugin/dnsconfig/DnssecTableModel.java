@@ -23,7 +23,6 @@ import java.util.List;
 
 import javax.swing.table.*;
 
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.impl.dns.*;
 
 import net.java.sip.communicator.util.osgi.ServiceUtils;

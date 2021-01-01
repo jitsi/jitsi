@@ -18,7 +18,6 @@
 package net.java.sip.communicator.plugin.desktoputil.plaf;
 
 import java.awt.*;
-import java.awt.Container;
 import java.awt.event.*;
 
 import javax.swing.*;

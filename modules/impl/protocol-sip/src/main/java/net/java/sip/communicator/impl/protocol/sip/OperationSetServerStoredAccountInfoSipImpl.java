@@ -24,7 +24,6 @@ import net.java.sip.communicator.service.protocol.ServerStoredDetails.DisplayNam
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.ImageDetail;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * SIP server stored account information. Supports the user avatar during

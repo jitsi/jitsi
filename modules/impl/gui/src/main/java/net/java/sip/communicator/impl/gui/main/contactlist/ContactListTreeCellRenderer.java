@@ -26,7 +26,6 @@ import javax.swing.*;
 import javax.swing.JPopupMenu.Separator;
 import javax.swing.tree.*;
 
-import net.java.sip.communicator.plugin.desktoputil.MetaContactPhoneUtil;
 import net.java.sip.communicator.service.protocol.account.*;
 import org.jitsi.util.*;
 

@@ -31,8 +31,6 @@ import net.java.sip.communicator.plugin.desktoputil.presence.*;
 import net.java.sip.communicator.service.protocol.*;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jitsi.utils.*;
-import org.jitsi.utils.logging.*;
 
 /**
  * The <tt>StatusSelectorBox</tt> is a <tt>SIPCommMenu</tt> that contains

@@ -25,13 +25,11 @@ import javax.xml.parsers.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 import net.java.sip.communicator.util.osgi.ServiceUtils;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.fileaccess.*;
 import org.jitsi.util.xml.*;
-import org.jitsi.util.xml.XMLUtils;
 import org.osgi.framework.*;
 import org.w3c.dom.*;
 

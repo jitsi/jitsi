@@ -26,7 +26,6 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
-import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 

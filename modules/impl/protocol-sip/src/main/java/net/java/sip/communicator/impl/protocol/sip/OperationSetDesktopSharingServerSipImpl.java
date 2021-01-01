@@ -33,7 +33,6 @@ import javax.xml.parsers.*;
 import net.java.sip.communicator.service.hid.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.service.neomedia.format.*;

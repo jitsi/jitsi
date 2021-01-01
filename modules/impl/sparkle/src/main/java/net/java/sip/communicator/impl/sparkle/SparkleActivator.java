@@ -17,7 +17,6 @@
  */
 package net.java.sip.communicator.impl.sparkle;
 
-import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;

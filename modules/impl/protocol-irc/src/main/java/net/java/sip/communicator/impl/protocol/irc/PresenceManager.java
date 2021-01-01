@@ -22,7 +22,6 @@ import java.util.*;
 import java.util.concurrent.atomic.*;
 
 import net.java.sip.communicator.impl.protocol.irc.collection.*;
-import net.java.sip.communicator.util.*;
 
 import com.ircclouds.irc.api.*;
 import com.ircclouds.irc.api.domain.messages.*;

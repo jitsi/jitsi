@@ -23,8 +23,6 @@ import javax.swing.*;
 import javax.swing.text.*;
 import javax.swing.text.html.*;
 
-import net.java.sip.communicator.util.*;
-
 /**
  * A custom styled HTML editor pane.
  *

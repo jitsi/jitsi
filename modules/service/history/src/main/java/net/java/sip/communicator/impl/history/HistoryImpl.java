@@ -24,7 +24,6 @@ import java.util.*;
 import lombok.extern.slf4j.*;
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.records.*;
-import net.java.sip.communicator.util.*;
 
 import org.jitsi.util.xml.XMLUtils;
 import org.w3c.dom.*;

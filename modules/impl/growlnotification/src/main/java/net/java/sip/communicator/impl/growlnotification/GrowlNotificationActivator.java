@@ -18,7 +18,6 @@
 package net.java.sip.communicator.impl.growlnotification;
 
 import net.java.sip.communicator.service.systray.*;
-import net.java.sip.communicator.util.*;
 
 import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.resources.*;

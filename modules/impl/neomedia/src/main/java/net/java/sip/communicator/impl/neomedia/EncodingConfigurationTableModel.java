@@ -25,7 +25,6 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 
 import org.jitsi.impl.neomedia.*;
 import org.jitsi.impl.neomedia.format.*;
-import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.codec.*;
 import org.jitsi.service.neomedia.format.*;
 import org.jitsi.utils.*;
