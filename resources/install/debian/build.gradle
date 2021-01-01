@@ -19,18 +19,13 @@ as well as chat with your friends using some of the most popular instant \
 messaging protocols such as SIP/SIMPLE, XMPP/Jabber and others.
 """
     arch = debArch
-    distribution = 'xenial bionic'
+    distribution = 'UNRELEASED'
 
-    requires('default-jre', '2:1.11').or('openjdk-11-jre')
+    requires('default-jre', '>= 2:1.11').or('openjdk-11-jre')
     requires('libxss1')
 
     recommends('libappindicator1')
-    recommends('libavformat57').or('libavformat-ffmpeg56')
-    recommends('libavcodec-extra57').or('libavcodec57')
-            .or('libavcodec-ffmpeg-extra56').or('libavcodec-ffmpeg56')
-    recommends('libavfilter6').or('libavfilter-extra6').or('libavfilter-ffmpeg5')
-    recommends('libavutil55').or('libavutil-ffmpeg54')
-    recommends('libswscale4').or('libswscale-ffmpeg3')
+    recommends('libjitsi-lgpl-dependencies-java')
 
     into('usr/share/pixmaps') {
         from "${projectDir}/debian"
