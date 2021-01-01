@@ -7,7 +7,6 @@
     <groupId>org.jitsi</groupId>
     <artifactId>service-parent</artifactId>
     <version>2.14-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>service-keybindings</artifactId>
   <version>2.14-SNAPSHOT</version>

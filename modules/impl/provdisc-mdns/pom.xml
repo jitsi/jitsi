@@ -7,7 +7,6 @@
     <groupId>org.jitsi</groupId>
     <artifactId>impl-parent</artifactId>
     <version>2.14-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>jitsi-provdisc-mdns</artifactId>
   <version>2.14-SNAPSHOT</version>
