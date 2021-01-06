@@ -134,6 +134,18 @@ public class CallPeerJabberImpl
     private JingleIQ sessionInitIQ;
 
     /**
+     * Property when set we will skip disco-info query on setting up the call.
+     */
+    public static final String SKIP_DISCO_INFO_ON_SESSION_INITIATE =
+            "net.java.sip.communicator.impl.protocol.jabber.SKIP_DISCO_INFO_ON_SESSION_INITIATE";
+
+    /**
+     * Property when set we will skip sending ringing info on setting up the call.
+     */
+    public static final String SKIP_RINGING_ON_SESSION_INITIATE =
+            "net.java.sip.communicator.impl.protocol.jabber.SKIP_RINGING_ON_SESSION_INITIATE";
+
+    /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
      *
      * @param peerAddress the Jabber address of the new call peer.
@@ -907,20 +919,26 @@ public class CallPeerJabberImpl
             return;
         }
 
+        boolean skipDiscoInfo = JabberActivator.getConfigurationService().getBoolean(
+                SKIP_DISCO_INFO_ON_SESSION_INITIATE, false);
+
         // If we do not get the info about the remote peer yet. Get it right
         // now.
-        if(this.getDiscoveryInfo() == null)
+        if(!skipDiscoInfo && this.getDiscoveryInfo() == null)
         {
             Jid calleeURI = sessionInitIQ.getFrom();
             retrieveDiscoveryInfo(calleeURI);
         }
 
-        //send a ringing response
-        if (logger.isTraceEnabled())
-            logger.trace("will send ringing response: ");
+        if (!JabberActivator.getConfigurationService().getBoolean(SKIP_RINGING_ON_SESSION_INITIATE, false))
+        {
+            //send a ringing response
+            if (logger.isTraceEnabled())
+                logger.trace("will send ringing response: ");
 
-        getProtocolProvider().getConnection().sendStanza(
-                JinglePacketFactory.createRinging(sessionInitIQ));
+            getProtocolProvider().getConnection().sendStanza(
+                    JinglePacketFactory.createRinging(sessionInitIQ));
+        }
 
         synchronized(sessionInitiateSyncRoot)
         {
@@ -931,8 +949,8 @@ public class CallPeerJabberImpl
         //if this is a 3264 initiator, let's give them an early peek at our
         //answer so that they could start ICE (SIP-2-Jingle gateways won't
         //be able to send their candidates unless they have this)
-        DiscoverInfo discoverInfo = getDiscoveryInfo();
-        if ((discoverInfo != null)
+        DiscoverInfo discoverInfo;
+        if (!skipDiscoInfo && ((discoverInfo = getDiscoveryInfo()) != null)
                 && discoverInfo.containsFeature(
                         ProtocolProviderServiceJabberImpl.URN_IETF_RFC_3264))
         {
