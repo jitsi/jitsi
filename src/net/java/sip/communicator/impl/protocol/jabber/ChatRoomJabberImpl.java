@@ -31,6 +31,7 @@ import org.jivesoftware.smack.XMPPException.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.packet.XMPPError.*;
+import org.jivesoftware.smack.packet.id.*;
 import org.jivesoftware.smackx.delay.packet.*;
 import org.jivesoftware.smackx.disco.*;
 import org.jivesoftware.smackx.disco.packet.*;
@@ -2026,7 +2027,7 @@ public class ChatRoomJabberImpl
      * @param cd the description of the conference to announce
      * @param name the name of the conference
      * @return the <tt>ConferenceDescription</tt> that was announced (e.g.
-     * <tt>cd</tt> on success or <tt>null</tt> on failure)
+     * <tt>cd</tt> on success or <tt>null</tt> on failure or not sent)
      */
     @Override
     public ConferenceDescription publishConference(ConferenceDescription cd,
@@ -2058,18 +2059,24 @@ public class ChatRoomJabberImpl
                 cd.getUri(),
                 cd.getUri(),
                 cd.getPassword());
+
         if (lastPresenceSent != null)
         {
-            setPacketExtension(
-                lastPresenceSent, ext,
-                ConferenceDescriptionExtension.NAMESPACE);
-            try
+
+            if (setPacketExtension(lastPresenceSent, ext, ConferenceDescriptionExtension.NAMESPACE))
             {
-                provider.getConnection().sendStanza(lastPresenceSent);
+                try
+                {
+                    sendLastPresence();
+                }
+                catch (NotConnectedException | InterruptedException e)
+                {
+                    logger.warn("Could not publish conference", e);
+                    return null;
+                }
             }
-            catch (NotConnectedException | InterruptedException e)
+            else
             {
-                logger.warn("Could not publish conference", e);
                 return null;
             }
         }
@@ -2110,16 +2117,19 @@ public class ChatRoomJabberImpl
      * @param matchElementName if {@code true} only extensions matching both
      * the element name and namespace will be matched and removed. Otherwise,
      * only the namespace will be matched.
+     * @return whether packet was modified.
      */
-    private static void setPacketExtension(
+    private static boolean setPacketExtension(
             Stanza packet,
             ExtensionElement extension,
             String namespace,
             boolean matchElementName)
     {
+        boolean modified = false;
+
         if (org.apache.commons.lang3.StringUtils.isEmpty(namespace))
         {
-            return;
+            return modified;
         }
 
         //clear previous announcements
@@ -2129,21 +2139,30 @@ public class ChatRoomJabberImpl
             String element = extension.getElementName();
             while (null != (pe = packet.getExtension(element, namespace)))
             {
-                packet.removeExtension(pe);
+                if (packet.removeExtension(pe) != null)
+                {
+                    modified = true;
+                }
             }
         }
         else
         {
             while (null != (pe = packet.getExtension(namespace)))
             {
-                packet.removeExtension(pe);
+                if (packet.removeExtension(pe) != null)
+                {
+                    modified = true;
+                }
             }
         }
 
         if (extension != null)
         {
             packet.addExtension(extension);
+            modified = true;
         }
+
+        return modified;
     }
 
     /**
@@ -2154,13 +2173,14 @@ public class ChatRoomJabberImpl
      * @param extension the <tt>ConferenceDescriptionPacketExtension<tt> to set,
      * or <tt>null</tt> to not set one.
      * @param namespace the namespace of <tt>ExtensionElement</tt>.
+     * @return whether packet was modified.
      */
-    private static void setPacketExtension(
+    private static boolean setPacketExtension(
         Stanza packet,
         ExtensionElement extension,
         String namespace)
     {
-        setPacketExtension(packet, extension, namespace, false);
+        return setPacketExtension(packet, extension, namespace, false);
     }
 
     /**
@@ -2175,9 +2195,10 @@ public class ChatRoomJabberImpl
         }
 
         lastPresenceSent.setStatus(newStatus);
+
         try
         {
-            provider.getConnection().sendStanza(lastPresenceSent);
+            sendLastPresence();
         }
         catch (NotConnectedException | InterruptedException e)
         {
@@ -2198,15 +2219,16 @@ public class ChatRoomJabberImpl
             return;
         }
 
-        setPacketExtension(
-            lastPresenceSent, extension, extension.getNamespace(), true);
-        try
+        if (setPacketExtension(lastPresenceSent, extension, extension.getNamespace(), true))
         {
-            provider.getConnection().sendStanza(lastPresenceSent);
-        }
-        catch (NotConnectedException | InterruptedException e)
-        {
-            logger.error("Could not send presence", e);
+            try
+            {
+                sendLastPresence();
+            }
+            catch (NotConnectedException | InterruptedException e)
+            {
+                logger.error("Could not send presence", e);
+            }
         }
     }
 
@@ -2223,14 +2245,16 @@ public class ChatRoomJabberImpl
             return;
         }
 
-        setPacketExtension(lastPresenceSent, null, extension.getNamespace());
-        try
+        if(setPacketExtension(lastPresenceSent, null, extension.getNamespace()))
         {
-            provider.getConnection().sendStanza(lastPresenceSent);
-        }
-        catch (NotConnectedException | InterruptedException e)
-        {
-            logger.error("Could not remove presence", e);
+            try
+            {
+                sendLastPresence();
+            }
+            catch (NotConnectedException | InterruptedException e)
+            {
+                logger.error("Could not remove presence", e);
+            }
         }
     }
 
@@ -2283,6 +2307,28 @@ public class ChatRoomJabberImpl
         {
             logger.error("Cannot modify members list", e);
         }
+    }
+
+    /**
+     * Prepares and sends the last seen presence.
+     * Removes the initial <x> extension and sets new id.
+     * @throws NotConnectedException
+     * @throws InterruptedException
+     */
+    private void sendLastPresence()
+        throws NotConnectedException,
+               InterruptedException
+    {
+        // The initial presence sent by smack contains an empty "x"
+        // extension. If this extension is included in a subsequent stanza,
+        // it indicates that the client lost its synchronization and causes
+        // the MUC service to re-send the presence of each occupant in the
+        // room.
+        lastPresenceSent.removeExtension(MUCInitialPresence.ELEMENT, MUCInitialPresence.NAMESPACE);
+
+        lastPresenceSent.setStanzaId(StanzaIdUtil.newStanzaId());
+
+        provider.getConnection().sendStanza(lastPresenceSent);
     }
 
     /**
