@@ -63,7 +63,7 @@ public class JabberAccountRegistrationForm
 
     private final JabberAccountRegistrationWizard wizard;
 
-    private final JTabbedPane tabbedPane = new SIPCommTabbedPane();
+    private final JTabbedPane tabbedPane = new JTabbedPane();
 
     /**
      * The panels which value needs validation before we continue.

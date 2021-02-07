@@ -59,7 +59,7 @@ public class SIPAccountRegistrationForm
 
     private final SIPAccountRegistrationWizard wizard;
 
-    private final JTabbedPane tabbedPane = new SIPCommTabbedPane();
+    private final JTabbedPane tabbedPane = new JTabbedPane();
 
     /**
      * The panels which value needs validation before we continue.

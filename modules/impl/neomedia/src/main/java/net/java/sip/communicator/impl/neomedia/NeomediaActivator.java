@@ -19,7 +19,9 @@ package net.java.sip.communicator.impl.neomedia;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.neomedia.audio.*;
 import net.java.sip.communicator.impl.neomedia.codec.video.h264.*;
+import net.java.sip.communicator.impl.neomedia.video.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.notification.*;
 
@@ -50,8 +52,29 @@ public class NeomediaActivator extends DependentActivator
      * Indicates if the audio configuration form should be disabled, i.e.
      * not visible to the user.
      */
-    private static final String AUDIO_CONFIG_DISABLED_PROP
+    public static final String AUDIO_CONFIG_DISABLED_PROP
         = "net.java.sip.communicator.impl.neomedia.AUDIO_CONFIG_DISABLED";
+
+    /**
+     * Indicates if the Devices settings configuration tab
+     * should be disabled, i.e. not visible to the user.
+     */
+    public static final String DEVICES_DISABLED_PROP
+        = "net.java.sip.communicator.impl.neomedia.devicesconfig.DISABLED";
+
+    /**
+     * Indicates if the Audio/Video encodings configuration tab
+     * should be disabled, i.e. not visible to the user.
+     */
+    public static final String ENCODINGS_DISABLED_PROP
+        = "net.java.sip.communicator.impl.neomedia.encodingsconfig.DISABLED";
+
+    /**
+     * Indicates if the Video/More Settings configuration tab
+     * should be disabled, i.e. not visible to the user.
+     */
+    public static final String VIDEO_MORE_SETTINGS_DISABLED_PROP
+        = "net.java.sip.communicator.impl.neomedia.videomoresettingsconfig.DISABLED";
 
     /**
      *  The audio configuration form used to define the capture/notify/playback
@@ -147,14 +170,6 @@ public class NeomediaActivator extends DependentActivator
      */
     private static final String VIDEO_CONFIG_DISABLED_PROP
         = "net.java.sip.communicator.impl.neomedia.VIDEO_CONFIG_DISABLED";
-
-    /**
-     *  A listener to the click on the popup message concerning video device
-     *  configuration changes.
-     *  Disabled until video hotplug is not available.
-     */
-    //private VideoDeviceConfigurationListener
-    //    videoDeviceConfigurationPropertyChangeListener;
 
     /**
      *  The video configuration form.
@@ -425,7 +440,7 @@ public class NeomediaActivator extends DependentActivator
         {
             audioConfigurationForm
                 = new LazyConfigurationForm(
-                        AudioConfigurationPanel.class.getName(),
+                        AudioConfigurationForm.class.getName(),
                         getClass().getClassLoader(),
                         "plugin.mediaconfig.AUDIO_ICON",
                         "impl.neomedia.configform.AUDIO",
@@ -457,7 +472,7 @@ public class NeomediaActivator extends DependentActivator
         {
             videoConfigurationForm
                 = new LazyConfigurationForm(
-                        VideoConfigurationPanel.class.getName(),
+                        VideoConfigurationForm.class.getName(),
                         getClass().getClassLoader(),
                         "plugin.mediaconfig.VIDEO_ICON",
                         "impl.neomedia.configform.VIDEO",

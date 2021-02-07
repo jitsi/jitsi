@@ -38,11 +38,6 @@ public class SecurityConfigForm
     extends TransparentPanel
 {
     /**
-     * Serial version UID.
-     */
-    private static final long serialVersionUID = 0L;
-
-    /**
      * Creates an instance of <tt>SecurityConfigForm</tt>.
      */
     public SecurityConfigForm()
@@ -50,6 +45,7 @@ public class SecurityConfigForm
         super(new BorderLayout());
 
         this.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        setPreferredSize(new Dimension(600, 600));
 
         final ResourceManagementService resources
             = NeomediaActivator.getResources();
@@ -80,7 +76,6 @@ public class SecurityConfigForm
         {
             public void actionPerformed(ActionEvent e)
             {
-                @SuppressWarnings("serial")
                 SIPCommDialog zrtpDialog
                     = new SIPCommDialog()
                             {

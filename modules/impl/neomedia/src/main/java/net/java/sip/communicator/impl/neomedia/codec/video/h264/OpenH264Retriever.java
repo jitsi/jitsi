@@ -59,11 +59,11 @@ public class OpenH264Retriever
      * https://github.com/cisco/openh264/blob/master/RELEASES
      */
     private static final String OPENH264_CURRENT_VERSION_URL_MAC
-        = "http://ciscobinary.openh264.org/libopenh264-1.7.0-osx64.4.dylib.bz2";
+        = "http://ciscobinary.openh264.org/libopenh264-2.1.1-osx64.6.dylib.bz2";
     private static final String OPENH264_CURRENT_VERSION_URL_WINDOWS_32
-        = "http://ciscobinary.openh264.org/openh264-1.7.0-win32.dll.bz2";
+        = "http://ciscobinary.openh264.org/openh264-2.1.1-win32.dll.bz2";
     private static final String OPENH264_CURRENT_VERSION_URL_WINDOWS_64
-        = "http://ciscobinary.openh264.org/openh264-1.7.0-win64.dll.bz2";
+        = "http://ciscobinary.openh264.org/openh264-2.1.1-win64.dll.bz2";
 
     /**
      * These are windows and mac os x locations where the binaries

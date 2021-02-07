@@ -67,7 +67,7 @@ public class KeybindingsConfigPanel
 
         setFocusable(true);
 
-        JTabbedPane chooserPanes = new SIPCommTabbedPane();
+        JTabbedPane chooserPanes = new JTabbedPane();
 
         // deselects entries awaiting input when focus is lost
         this.addFocusListener(new FocusAdapter()

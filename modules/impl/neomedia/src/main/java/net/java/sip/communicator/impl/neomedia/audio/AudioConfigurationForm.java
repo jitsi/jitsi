@@ -15,10 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.java.sip.communicator.impl.neomedia;
+package net.java.sip.communicator.impl.neomedia.audio;
 
 import java.awt.*;
 
+import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
@@ -26,24 +27,17 @@ import net.java.sip.communicator.plugin.desktoputil.*;
  *
  * @author Yana Stamcheva
  */
-public class AudioConfigurationPanel
+public class AudioConfigurationForm
     extends TransparentPanel
 {
     /**
-     * Serial version UID.
-     */
-    private static final long serialVersionUID = 0L;
-
-    /**
      * Creates an instance of the <tt>AudioConfigurationPanel</tt>.
      */
-    public AudioConfigurationPanel()
+    public AudioConfigurationForm()
     {
         super(new BorderLayout());
-
-        add(
-                NeomediaActivator.getMediaConfiguration()
-                        .createAudioConfigPanel(),
-                BorderLayout.NORTH);
+        setPreferredSize(new Dimension(650, 650));
+        add(NeomediaActivator.getMediaConfiguration().createAudioConfigPanel(),
+                BorderLayout.CENTER);
     }
 }

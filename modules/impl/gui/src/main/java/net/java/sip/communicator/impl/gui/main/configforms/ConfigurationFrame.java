@@ -106,9 +106,9 @@ public class ConfigurationFrame
         TransparentPanel mainPanel
             = new TransparentPanel(new BorderLayout());
 
-        centerPanel.setMinimumSize(new Dimension(600, 100));
+        centerPanel.setMinimumSize(new Dimension(1000, 100));
         centerPanel.setMaximumSize(
-            new Dimension(600, Integer.MAX_VALUE));
+            new Dimension(1000, Integer.MAX_VALUE));
 
         mainPanel.add(centerPanel, BorderLayout.CENTER);
 
@@ -208,7 +208,8 @@ public class ConfigurationFrame
         // Set the height of the center panel to be equal to the height of the
         // currently contained panel + all borders.
         centerPanel.setPreferredSize(
-            new Dimension(550,
+            new Dimension(
+                configFormPanel.getPreferredSize().width + 2*BORDER_SIZE,
                 configFormPanel.getPreferredSize().height + 2*BORDER_SIZE));
 
         pack();

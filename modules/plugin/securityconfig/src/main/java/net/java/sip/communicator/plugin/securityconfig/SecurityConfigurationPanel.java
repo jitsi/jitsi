@@ -20,6 +20,7 @@ package net.java.sip.communicator.plugin.securityconfig;
 import java.awt.*;
 import java.util.*;
 
+import javax.swing.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.gui.*;
 
@@ -31,14 +32,9 @@ import org.osgi.framework.*;
  * @author Yana Stamcheva
  */
 public class SecurityConfigurationPanel
-    extends SIPCommTabbedPane
+    extends JTabbedPane
     implements ServiceListener
 {
-    /**
-     * Serial version UID.
-     */
-    private static final long serialVersionUID = 0L;
-
     /**
      * Creates the <tt>SecurityConfigurationPanel</tt>.
      */

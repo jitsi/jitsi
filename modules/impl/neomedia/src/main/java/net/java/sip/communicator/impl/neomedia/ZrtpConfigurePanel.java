@@ -35,7 +35,6 @@ import org.jitsi.service.resources.*;
  * @author Werner Dittmann
  * @author Lubomir Marinov
  */
-@SuppressWarnings("serial")
 public class ZrtpConfigurePanel
     extends TransparentPanel
 {
@@ -175,7 +174,7 @@ public class ZrtpConfigurePanel
         trustedMitM.addItemListener(itemListener);
         sasSignature.addItemListener(itemListener);
 
-        JTabbedPane algorithmsPane = new SIPCommTabbedPane();
+        JTabbedPane algorithmsPane = new JTabbedPane();
 
         algorithmsPane.addTab(
                 resources.getI18NString("impl.media.security.zrtp.PUB_KEYS"),

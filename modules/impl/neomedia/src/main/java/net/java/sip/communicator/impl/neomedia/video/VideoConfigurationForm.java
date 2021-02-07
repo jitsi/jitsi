@@ -15,10 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.java.sip.communicator.impl.neomedia;
+package net.java.sip.communicator.impl.neomedia.video;
 
 import java.awt.*;
 
+import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
@@ -26,24 +27,16 @@ import net.java.sip.communicator.plugin.desktoputil.*;
  *
  * @author Yana Stamcheva
  */
-public class VideoConfigurationPanel
+public class VideoConfigurationForm
     extends TransparentPanel
 {
     /**
-     * Serial version UID.
-     */
-    private static final long serialVersionUID = 0L;
-
-    /**
      * Creates an instance of the <tt>VideoConfigurationPanel</tt>.
      */
-    public VideoConfigurationPanel()
+    public VideoConfigurationForm()
     {
         super(new BorderLayout());
-
-        add(
-                NeomediaActivator.getMediaConfiguration()
-                        .createVideoConfigPanel(),
-                BorderLayout.NORTH);
+        add(NeomediaActivator.getMediaConfiguration().createVideoConfigPanel(),
+            BorderLayout.CENTER);
     }
 }

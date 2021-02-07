@@ -61,7 +61,7 @@ public class ContactInfoDetailsPanel
     /**
      * The tabbed pane containing the two different tabs for details.
      */
-    private final JTabbedPane tabbedPane = new SIPCommTabbedPane();
+    private final JTabbedPane tabbedPane = new JTabbedPane();
 
     /**
      * The operation set giving access to the server stored contact details.

@@ -37,11 +37,6 @@ import org.jitsi.utils.*;
 public class EncodingConfigurationTableModel
     extends MoveableTableModel
 {
-    /**
-     * Serial version UID.
-     */
-    private static final long serialVersionUID = 0L;
-
     private final EncodingConfiguration encodingConfiguration;
 
     private MediaFormat[] encodings;
@@ -54,24 +49,11 @@ public class EncodingConfigurationTableModel
      * @param encodingConfiguration the encoding configuration
      * @param type media type
      */
-    public EncodingConfigurationTableModel(int type,
+    public EncodingConfigurationTableModel(MediaType type,
         EncodingConfiguration encodingConfiguration)
     {
-        if (encodingConfiguration == null)
-            throw new IllegalArgumentException("encodingConfiguration");
-        this.encodingConfiguration = encodingConfiguration;
-
-        switch (type)
-        {
-        case DeviceConfigurationComboBoxModel.AUDIO:
-            this.type = MediaType.AUDIO;
-            break;
-        case DeviceConfigurationComboBoxModel.VIDEO:
-            this.type = MediaType.VIDEO;
-            break;
-        default:
-            throw new IllegalArgumentException("type");
-        }
+        this.encodingConfiguration = Objects.requireNonNull(encodingConfiguration);
+        this.type = type;
     }
 
     @Override
@@ -83,6 +65,7 @@ public class EncodingConfigurationTableModel
                 : super.getColumnClass(columnIndex);
     }
 
+    @Override
     public int getColumnCount()
     {
         return 2;
@@ -108,7 +91,7 @@ public class EncodingConfigurationTableModel
              * pairs.
              */
             HashMap<String, MediaFormat> availableEncodingSet
-                = new HashMap<String, MediaFormat>();
+                = new HashMap<>();
 
             for (MediaFormat availableEncoding : availableEncodings)
             {
@@ -126,41 +109,38 @@ public class EncodingConfigurationTableModel
             encodings = new MediaFormat[encodingCount];
             System
                 .arraycopy(availableEncodings, 0, encodings, 0, encodingCount);
-            // Display the encodings in decreasing priority.
-            Arrays
-                .sort(encodings, 0, encodingCount, new Comparator<MediaFormat>()
-                {
-                    public int compare(MediaFormat format0, MediaFormat format1)
-                    {
-                        int ret
-                            = encodingConfiguration.getPriority(format1)
-                                - encodingConfiguration.getPriority(format0);
 
-                        if (ret == 0)
-                        {
-                            /*
-                             * In the cases of equal priorities, display them
-                             * sorted by encoding name in increasing order.
-                             */
-                            ret
-                                = format0.getEncoding().compareToIgnoreCase(
-                                        format1.getEncoding());
-                            if (ret == 0)
-                            {
-                                /*
-                                 * In the cases of equal priorities and equal
-                                 * encoding names, display them sorted by clock
-                                 * rate in decreasing order.
-                                 */
-                                ret
-                                    = Double.compare(
-                                            format1.getClockRate(),
-                                            format0.getClockRate());
-                            }
-                        }
-                        return ret;
+            // Display the encodings in decreasing priority.
+            Arrays.sort(encodings, 0, encodingCount, (format0, format1) ->
+            {
+                int ret
+                    = encodingConfiguration.getPriority(format1)
+                        - encodingConfiguration.getPriority(format0);
+
+                if (ret == 0)
+                {
+                    /*
+                     * In the cases of equal priorities, display them
+                     * sorted by encoding name in increasing order.
+                     */
+                    ret
+                        = format0.getEncoding().compareToIgnoreCase(
+                                format1.getEncoding());
+                    if (ret == 0)
+                    {
+                        /*
+                         * In the cases of equal priorities and equal
+                         * encoding names, display them sorted by clock
+                         * rate in decreasing order.
+                         */
+                        ret
+                            = Double.compare(
+                                    format1.getClockRate(),
+                                    format0.getClockRate());
                     }
-                });
+                }
+                return ret;
+            });
         }
         return encodings;
     }
@@ -180,11 +160,13 @@ public class EncodingConfigurationTableModel
         return priorities;
     }
 
+    @Override
     public int getRowCount()
     {
         return getEncodings().length;
     }
 
+    @Override
     public Object getValueAt(int rowIndex, int columnIndex)
     {
         MediaFormat encoding = getEncodings()[rowIndex];

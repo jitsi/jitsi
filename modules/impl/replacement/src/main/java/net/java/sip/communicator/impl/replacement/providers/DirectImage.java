@@ -19,6 +19,7 @@ package net.java.sip.communicator.impl.replacement.providers;
 
 import java.net.*;
 
+import lombok.extern.slf4j.*;
 import org.jitsi.service.configuration.*;
 
 import net.java.sip.communicator.service.replacement.*;
@@ -32,14 +33,10 @@ import net.java.sip.communicator.util.*;
  * @author Purvesh Sahoo
  * @author Marin Dzhigarov
  */
+@Slf4j
 public class DirectImage
     implements DirectImageReplacementService
 {
-    /**
-     * The logger for this class.
-     */
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DirectImage.class);
-
     /**
      * The regex used to match the link in the message.
      */

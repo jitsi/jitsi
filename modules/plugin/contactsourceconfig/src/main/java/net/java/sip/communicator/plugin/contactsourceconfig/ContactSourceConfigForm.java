@@ -43,7 +43,7 @@ public class ContactSourceConfigForm
     /**
      * The drop down list of contact sources.
      */
-    private final SIPCommTabbedPane sourceTabs = new SIPCommTabbedPane();
+    private final JTabbedPane sourceTabs = new JTabbedPane();
 
     /**
      * OSGi filter for contact source config form services.

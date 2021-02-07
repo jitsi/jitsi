@@ -15,13 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.java.sip.communicator.impl.neomedia;
+package net.java.sip.communicator.impl.neomedia.audio;
 
 import java.beans.*;
 import java.util.*;
 
 import javax.media.*;
 
+import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.service.gui.*;
 
 import org.jitsi.impl.neomedia.device.*;
