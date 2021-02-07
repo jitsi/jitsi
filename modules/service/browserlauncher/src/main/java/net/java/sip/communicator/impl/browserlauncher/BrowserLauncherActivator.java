@@ -18,9 +18,8 @@
 package net.java.sip.communicator.impl.browserlauncher;
 
 import net.java.sip.communicator.service.browserlauncher.*;
-import net.java.sip.communicator.util.*;
 
-import net.java.sip.communicator.util.osgi.ServiceUtils;
+import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
 
@@ -31,67 +30,24 @@ import org.osgi.framework.*;
  * @author Lyubomir Marinov
  * @author Pawel Domas
  */
-public class BrowserLauncherActivator
-    extends SimpleServiceActivator<BrowserLauncherImpl>
+public class BrowserLauncherActivator extends DependentActivator
 {
-    /**
-     * The <tt>BundleContext</tt>
-     */
-    private static BundleContext bundleContext = null;
-
-    /**
-     * The <tt>ServiceConfiguration</tt> to be used by this service.
-     */
-    private static ConfigurationService configService = null;
-
     /**
      * Creates new instance of <tt>BrowserLauncherActivator</tt>.
      */
     public BrowserLauncherActivator()
     {
-        super(BrowserLauncherService.class, "Browser Launcher Service");
+        super(ConfigurationService.class);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    protected BrowserLauncherImpl createServiceImpl()
+    public void startWithServices(BundleContext bundleContext)
     {
-        return new BrowserLauncherImpl();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * Saves <tt>bundleContext</tt> locally.
-     */
-    @Override
-    public void start(BundleContext bundleContext)
-            throws Exception
-    {
-        BrowserLauncherActivator.bundleContext = bundleContext;
-
-        super.start(bundleContext);
-    }
-
-    /**
-     * Returns the <tt>ConfigurationService</tt> obtained from the
-     * the <tt>BundleContext</tt>
-     *
-     * @return the <tt>ConfigurationService</tt> obtained from the
-     * the <tt>BundleContext</tt>
-     */
-    public static ConfigurationService getConfigurationService()
-    {
-        if (configService == null && bundleContext != null)
-        {
-            configService
-                = ServiceUtils.getService(
-                        bundleContext,
-                        ConfigurationService.class);
-        }
-
-        return configService;
+        ConfigurationService configService
+            = getService(ConfigurationService.class);
+        bundleContext
+            .registerService(BrowserLauncherService.class,
+                new BrowserLauncherImpl(configService),
+                null);
     }
 }

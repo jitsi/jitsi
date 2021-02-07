@@ -37,7 +37,7 @@ public class BrowserLauncherImpl
      * The name of the property which holds the colon-separated list of browsers
      * to try on linux.
      */
-    private static String LINUX_BROWSERS_PROP_NAME
+    private static final String LINUX_BROWSERS_PROP_NAME
             = "net.java.sip.communicator.impl.browserlauncher.LINUX_BROWSERS";
     /**
      * The <tt>Logger</tt> instance used by the <tt>BrowserLauncherImpl</tt>
@@ -49,6 +49,13 @@ public class BrowserLauncherImpl
      * The name of the browser executable to use on linux
      */
     private static String linuxBrowser = null;
+
+    private final ConfigurationService configService;
+
+    public BrowserLauncherImpl(ConfigurationService configService)
+    {
+        this.configService = configService;
+    }
 
     /**
      * Opens the specified URL in an OS-specific associated browser.
@@ -98,26 +105,21 @@ public class BrowserLauncherImpl
     {
         if (linuxBrowser == null)
         {
-            ConfigurationService cfg
-                    = BrowserLauncherActivator.getConfigurationService();
-            if (cfg != null)
+            String browsers= configService.getString(LINUX_BROWSERS_PROP_NAME);
+            if (browsers== null)
             {
-                String browsers= cfg.getString(LINUX_BROWSERS_PROP_NAME);
-                if (browsers== null)
-                {
-                    logger.error("Required property not set: " +
-                            LINUX_BROWSERS_PROP_NAME);
-                    return null;
-                }
+                logger.error("Required property not set: " +
+                        LINUX_BROWSERS_PROP_NAME);
+                return null;
+            }
 
-                Runtime runtime = Runtime.getRuntime();
-                for (String b : browsers.split(":"))
+            Runtime runtime = Runtime.getRuntime();
+            for (String b : browsers.split(":"))
+            {
+                if (runtime.exec(new String[] { "which", b }).waitFor() == 0)
                 {
-                    if (runtime.exec(new String[] { "which", b }).waitFor() == 0)
-                    {
-                        linuxBrowser = b;
-                        break;
-                    }
+                    linuxBrowser = b;
+                    break;
                 }
             }
         }

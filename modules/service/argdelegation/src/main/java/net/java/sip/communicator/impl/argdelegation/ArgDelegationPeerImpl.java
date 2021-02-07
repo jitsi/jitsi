@@ -19,6 +19,7 @@ package net.java.sip.communicator.impl.argdelegation;
 
 import java.util.*;
 
+import lombok.extern.slf4j.*;
 import net.java.sip.communicator.launchutils.ArgDelegationPeer;
 import net.java.sip.communicator.service.argdelegation.*;
 import net.java.sip.communicator.service.gui.*;
@@ -33,21 +34,15 @@ import org.osgi.framework.*;
  *
  * @author Emil Ivov
  */
+@Slf4j
 public class ArgDelegationPeerImpl
     implements ArgDelegationPeer,
                ServiceListener
 {
     /**
-     * The <tt>Logger</tt> used by the <tt>ArgDelegationPeerImpl</tt> class and
-     * its instances for logging output.
-     */
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ArgDelegationPeerImpl.class);
-
-    /**
      * The list of uriHandlers that we are currently aware of.
      */
-    private final Map<String, UriHandler> uriHandlers
-        = new Hashtable<String, UriHandler>();
+    private final Map<String, UriHandler> uriHandlers = new Hashtable<>();
 
     /**
      * Creates an instance of this peer and scans <tt>bundleContext</tt> for all

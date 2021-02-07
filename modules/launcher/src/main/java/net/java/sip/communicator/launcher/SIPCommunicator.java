@@ -20,8 +20,8 @@ package net.java.sip.communicator.launcher;
 import java.io.*;
 
 import java.util.*;
+import java.util.logging.*;
 import net.java.sip.communicator.launchutils.*;
-import org.apache.commons.lang3.*;
 import org.apache.felix.framework.*;
 import org.apache.felix.main.*;
 import org.osgi.framework.*;
@@ -96,6 +96,8 @@ public class SIPCommunicator implements BundleActivator
     public static void main(String[] args)
         throws Exception
     {
+        LogManager.getLogManager().reset();
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
         setSystemProperties();
         setScHomeDir();
@@ -219,7 +221,7 @@ public class SIPCommunicator implements BundleActivator
             boolean chekLegacyDirNames
                 = (name == null) || name.equals(OVERRIDABLE_DIR_NAME);
 
-            if (SystemUtils.IS_OS_MAC)
+            if (System.getProperty("os.name", "unknown").contains("Mac"))
             {
                 if (profileLocation == null)
                     profileLocation =
@@ -240,7 +242,7 @@ public class SIPCommunicator implements BundleActivator
                 if (name == null)
                     name = "Jitsi";
             }
-            else if (SystemUtils.IS_OS_WINDOWS)
+            else if (System.getProperty("os.name", "unknown").contains("Windows"))
             {
                 /*
                  * Primarily important on Vista because Windows Explorer opens
@@ -334,7 +336,7 @@ public class SIPCommunicator implements BundleActivator
      */
     static boolean checkHomeFolderExist(String parent, String name)
     {
-        if(SystemUtils.IS_OS_MAC)
+        if(System.getProperty("os.name", "unknown").contains("Mac"))
         {
             for (String f : LEGACY_CONFIGURATION_FILE_NAMES)
             {
@@ -355,24 +357,16 @@ public class SIPCommunicator implements BundleActivator
      */
     private static void setSystemProperties()
     {
-        // setup here all system properties that need to be initialized at
-        // the very beginning of an application
-        if(SystemUtils.IS_OS_WINDOWS)
-        {
-            // disable Direct 3D pipeline (used for fullscreen) before
-            // displaying anything (frame, ...)
-            System.setProperty("sun.java2d.d3d", "false");
-        }
-        else if(SystemUtils.IS_OS_MAC)
-        {
-            // On Mac OS X when switch in fullscreen, all the monitors goes
-            // fullscreen (turns black) and only one monitors has images
-            // displayed. So disable this behavior because somebody may want
-            // to use one monitor to do other stuff while having other ones with
-            // fullscreen stuff.
-            System.setProperty("apple.awt.fullscreencapturealldisplays",
-                "false");
-        }
+        // disable Direct 3D pipeline (used for fullscreen) before
+        // displaying anything (frame, ...)
+        System.setProperty("sun.java2d.d3d", "false");
+
+        // On Mac OS X when switch in fullscreen, all the monitors goes
+        // fullscreen (turns black) and only one monitors has images
+        // displayed. So disable this behavior because somebody may want
+        // to use one monitor to do other stuff while having other ones with
+        // fullscreen stuff.
+        System.setProperty("apple.awt.fullscreencapturealldisplays", "false");
     }
 
     @Override

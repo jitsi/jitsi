@@ -167,7 +167,8 @@ public class OsDependentActivator
             MacOSXDockIcon.addDockIconListener();
 
         // Create the notification service implementation
-        SystrayService systrayService = new SystrayServiceJdicImpl(bc);
+        SystrayService systrayService = new SystrayServiceJdicImpl(bc,
+            getService(ConfigurationService.class));
 
         if (logger.isInfoEnabled())
             logger.info("Systray Service...[  STARTED ]");

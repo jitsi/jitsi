@@ -21,7 +21,7 @@ import net.java.sip.communicator.launchutils.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
 
-import net.java.sip.communicator.util.osgi.ServiceUtils;
+import net.java.sip.communicator.util.osgi.*;
 import org.apache.commons.lang3.SystemUtils;
 import org.osgi.framework.*;
 
@@ -35,13 +35,8 @@ import com.apple.eawt.*;
  * @author Emil Ivov
  */
 public class ArgDelegationActivator
-    extends AbstractServiceDependentActivator<UIService>
+    extends DependentActivator
 {
-    /**
-     * A reference to the bundle context that is currently in use.
-     */
-    private static BundleContext bundleContext = null;
-
     /**
      * A reference to the delegation peer implementation that is currently
      * handling uri arguments.
@@ -54,16 +49,18 @@ public class ArgDelegationActivator
      */
     private static UIService uiService = null;
 
+    public ArgDelegationActivator()
+    {
+        super(UIService.class);
+    }
+
     /**
      * Starts the arg delegation bundle and registers the delegationPeer with
      * the util package URI manager.
-     *
-     * @param dependentService the service this activator is waiting.
-     * @throws Exception if starting the arg delegation bundle and registering
-     * the delegationPeer with the util package URI manager fails
      */
-    public void start(UIService dependentService)
+    public void startWithServices(BundleContext bundleContext)
     {
+        uiService = getService(UIService.class);
         delegationPeer = new ArgDelegationPeerImpl(bundleContext);
         bundleContext.addServiceListener(delegationPeer);
 
@@ -87,26 +84,6 @@ public class ArgDelegationActivator
                 }
             }
         }
-    }
-
-    /**
-     * The dependent class. We are waiting for the ui service.
-     * @return the ui service class.
-     */
-    @Override
-    public Class<UIService> getDependentServiceClass()
-    {
-        return UIService.class;
-    }
-
-    /**
-     * Sets the bundle context to use.
-     * @param context a reference to the currently active bundle context.
-     */
-    @Override
-    public void setBundleContext(BundleContext context)
-    {
-        bundleContext = context;
     }
 
     /**
@@ -138,8 +115,6 @@ public class ArgDelegationActivator
      */
     public static UIService getUIService()
     {
-        if(uiService == null)
-            uiService = ServiceUtils.getService(bundleContext, UIService.class);
         return uiService;
     }
 }

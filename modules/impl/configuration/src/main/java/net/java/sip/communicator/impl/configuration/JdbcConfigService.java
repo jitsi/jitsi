@@ -125,6 +125,12 @@ public final class JdbcConfigService
             migrate = true;
         }
 
+        // prevent hsqldb from messing with JUL logger
+        // it searches for log4j v1 and v2, which would be available via the
+        // slf4j bridges, but since hsqldb doesn't OSGi-import log4j, they
+        // cannot be found
+        System.setProperty("hsqldb.reconfig_logging", "false");
+
         // open the connection
         Class.forName("org.hsqldb.jdbc.JDBCDriver");
         checkConnection();

@@ -21,6 +21,7 @@ import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.*;
 import java.util.*;
+import lombok.extern.slf4j.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.configuration.*;
@@ -34,18 +35,13 @@ import org.osgi.framework.*;
  * @author Emil Ivov
  * @author Lyubomir Marinov
  */
+@Slf4j
 public class ConfigurationActivator
     extends DependentActivator
 {
     /** Property name to force a properties file based configuration. */
     public static final String PNAME_USE_PROPFILE_CONFIG =
         "net.java.sip.communicator.impl.configuration.USE_PROPFILE_CONFIG";
-
-    /**
-     * The <tt>Logger</tt> used by the <tt>ConfigurationActivator</tt> class
-     * for logging output.
-     */
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConfigurationActivator.class);
 
     /**
      * The currently registered {@link ConfigurationService} instance.

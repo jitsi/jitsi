@@ -46,7 +46,7 @@ class ArgDelegator
     * We use this list to store arguments that we have been asked to handle
     * before we had a registered delegation peer.
     */
-    private List<String> recordedArgs = new LinkedList<String>();
+    private final List<String> recordedArgs = new LinkedList<>();
 
     /**
     * Passes the <tt>uriArg</tt> to the uri delegation peer or, in case

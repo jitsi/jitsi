@@ -26,6 +26,7 @@ import java.util.Map;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import lombok.extern.slf4j.*;
 import net.java.sip.communicator.impl.osdependent.*;
 import net.java.sip.communicator.impl.osdependent.systemtray.SystemTray;
 import net.java.sip.communicator.impl.osdependent.systemtray.TrayIcon;
@@ -35,6 +36,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jitsi.service.configuration.*;
 import org.jitsi.util.*;
 import org.osgi.framework.*;
 
@@ -50,6 +52,7 @@ import com.apple.eawt.*;
  * @author Symphorien Wanko
  * @author Pawel Domas
  */
+@Slf4j
 public class SystrayServiceJdicImpl
     extends AbstractSystrayService
 {
@@ -67,12 +70,6 @@ public class SystrayServiceJdicImpl
      * The menu that spring with a right click.
      */
     private Object menu;
-
-    /**
-     * The <tt>Logger</tt> used by the <tt>SystrayServiceJdicImpl</tt> class and
-     * its instances for logging output.
-     */
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SystrayServiceJdicImpl.class);
 
     /**
      * The various icons used on the systray
@@ -122,9 +119,10 @@ public class SystrayServiceJdicImpl
     /**
      * Initializes a new <tt>SystrayServiceJdicImpl</tt> instance.
      */
-    public SystrayServiceJdicImpl(BundleContext bundleContext)
+    public SystrayServiceJdicImpl(BundleContext bundleContext,
+        ConfigurationService configService)
     {
-        super(bundleContext);
+        super(bundleContext, configService);
         SystemTray systray;
         try
         {

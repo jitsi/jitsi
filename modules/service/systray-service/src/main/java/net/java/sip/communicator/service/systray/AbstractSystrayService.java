@@ -67,11 +67,11 @@ public abstract class AbstractSystrayService
     /**
      * Creates new instance of <tt>AbstractSystrayService</tt>.
      */
-    public AbstractSystrayService(BundleContext bundleContext)
+    public AbstractSystrayService(BundleContext bundleContext,
+        ConfigurationService configService)
     {
         this.bundleContext = bundleContext;
-        this.configService = ServiceUtils.getService(bundleContext,
-            ConfigurationService.class);
+        this.configService = configService;
     }
 
     /**

@@ -143,7 +143,7 @@ public class LaunchArgHandler
     /**
      * A reference to the instance of the
      */
-    private ArgDelegator argDelegator = new ArgDelegator();
+    private final ArgDelegator argDelegator = new ArgDelegator();
 
     /**
      * The singleton instance of this handler.
@@ -153,7 +153,7 @@ public class LaunchArgHandler
     /**
      * The properties where we load version info from our update location.
      */
-    private Properties versionProperties = new Properties();
+    private final Properties versionProperties = new Properties();
 
     /**
      * Creates the sole instance of this class;
