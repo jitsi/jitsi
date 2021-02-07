@@ -9,7 +9,7 @@
     <version>2.14-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
-  <artifactId>osgi-util</artifactId>
+  <artifactId>jitsi-osgi-util</artifactId>
   <version>2.14-SNAPSHOT</version>
   <description>Jitsi OSGi Utility Packages</description>
   <dependencies>

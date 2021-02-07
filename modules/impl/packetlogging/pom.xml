@@ -37,7 +37,7 @@
     </dependency>
     <dependency>
       <groupId>org.jitsi</groupId>
-      <artifactId>osgi-util</artifactId>
+      <artifactId>jitsi-osgi-util</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>

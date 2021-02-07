@@ -27,17 +27,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-lang3</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.jitsi</groupId>
-      <artifactId>jitsi-util</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jitsi</groupId>
-      <artifactId>osgi-util</artifactId>
+      <artifactId>jitsi-osgi-util</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>
