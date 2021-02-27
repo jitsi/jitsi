@@ -47,7 +47,6 @@
     <module>propertieseditor</module>
     <module>reconnect</module>
     <module>securityconfig</module>
-    <module>simpleaccreg</module>
     <module>singlecallpolicy</module>
     <module>sipaccregwizz</module>
     <module>spellcheck</module>
