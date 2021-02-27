@@ -41,19 +41,17 @@ task prepareWixTarget(type: Sync, group: 'installer-wix', dependsOn: [
 }
 
 def signFile(File fileToSign) {
-    ['SHA-1', 'SHA-256'].each { hash ->
-        jsign(
-                file: fileToSign.absolutePath,
-                name: project.property('application.name'),
-                url: project.property('application.web'),
-                keystore: file(project.property('application.win.certfile')).absolutePath,
-                alias: project.property('application.win.certalias'),
-                storepass: project.property('application.win.certpass'),
-                tsaurl: 'http://time.certum.pl',
-                alg: hash,
-                replace: (hash == 'SHA-1').toString()
-        )
-    }
+    jsign(
+            file: fileToSign.absolutePath,
+            name: project.property('application.name'),
+            url: project.property('application.web'),
+            keystore: file(project.property('application.win.certfile')).absolutePath,
+            alias: project.property('application.win.certalias'),
+            storepass: project.property('application.win.certpass'),
+            tsaurl: 'http://time.certum.pl',
+            alg: 'SHA-256',
+            replace: true
+    )
 }
 
 task signWixTarget(group: 'installer-wix', dependsOn: prepareWixTarget) {
