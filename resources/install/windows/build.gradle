@@ -50,7 +50,7 @@ def signFile(File fileToSign) {
             storepass: project.property('application.win.certpass'),
             tsaurl: 'http://time.certum.pl',
             alg: 'SHA-256',
-            replace: true
+            replace: 'true'
     )
 }
 
