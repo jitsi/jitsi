@@ -31,6 +31,10 @@
       <artifactId>jitsi-osgi-util</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.jitsi</groupId>
+      <artifactId>jitsi-utils</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
