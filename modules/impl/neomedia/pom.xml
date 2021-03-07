@@ -74,6 +74,7 @@
     <dependency>
       <groupId>org.jitsi</groupId>
       <artifactId>jitsi-lgpl-dependencies</artifactId>
+      <classifier>${jitsi-deps-arch}</classifier>
       <scope>runtime</scope>
     </dependency>
   </dependencies>

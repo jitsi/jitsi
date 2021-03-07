@@ -77,8 +77,7 @@
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
           <execution>
-            <id>build-classpath</id>
-            <phase>generate-sources</phase>
+            <id>classpath-for-installers</id>
             <goals>
               <goal>build-classpath</goal>
             </goals>

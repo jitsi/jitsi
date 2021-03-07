@@ -30,6 +30,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <lombok.version>1.18.18</lombok.version>
     <rootdir>${project.basedir}</rootdir>
+    <jitsi-deps-arch>jar</jitsi-deps-arch>
   </properties>
 
   <dependencies>
@@ -133,7 +134,13 @@
       </dependency>
       <dependency><groupId>org.jitsi</groupId><artifactId>jitsi-utils</artifactId><version>1.0-72-gcf6d1f8</version></dependency>
       <dependency><groupId>org.jitsi</groupId><artifactId>jitsi-xmpp-extensions</artifactId><version>1.0-17-gcf66bcd</version></dependency>
-      <dependency><groupId>org.jitsi</groupId><artifactId>jitsi-lgpl-dependencies</artifactId><version>1.2-10-gf9c3739</version></dependency>
+      <dependency>
+        <groupId>org.jitsi</groupId>
+        <artifactId>jitsi-lgpl-dependencies</artifactId>
+        <version>1.2-13-gf6771c4</version>
+        <scope>runtime</scope>
+        <classifier>${jitsi-deps-arch}</classifier>
+      </dependency>
       <dependency><groupId>org.jmdns</groupId><artifactId>jmdns</artifactId><version>3.5.6</version></dependency>
       <dependency><groupId>org.jitsi</groupId><artifactId>jmork</artifactId><version>1.0.6</version></dependency>
       <dependency><groupId>net.java.dev.jna</groupId><artifactId>jna</artifactId><version>${jnaVersion}</version></dependency>
@@ -372,6 +379,44 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>win32-x86</id>
+      <activation>
+        <os>
+          <family>windows</family>
+          <arch>x86</arch>
+        </os>
+      </activation>
+      <properties>
+        <jitsi-deps-arch>win32-x86</jitsi-deps-arch>
+      </properties>
+    </profile>
+    <profile>
+      <id>win32-x86-64</id>
+      <activation>
+        <os>
+          <family>windows</family>
+          <arch>amd64</arch>
+        </os>
+      </activation>
+      <properties>
+        <jitsi-deps-arch>win32-x86-64</jitsi-deps-arch>
+      </properties>
+    </profile>
+    <profile>
+      <id>mac</id>
+      <activation>
+        <os>
+          <family>mac</family>
+        </os>
+      </activation>
+      <properties>
+        <jitsi-deps-arch>darwin</jitsi-deps-arch>
+      </properties>
+    </profile>
+  </profiles>
 
   <repositories>
     <repository>
