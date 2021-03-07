@@ -21,6 +21,7 @@ import java.io.*;
 
 import java.util.*;
 import java.util.logging.*;
+import lombok.extern.slf4j.*;
 import net.java.sip.communicator.launchutils.*;
 import org.apache.felix.framework.*;
 import org.apache.felix.main.*;
@@ -36,6 +37,7 @@ import org.slf4j.bridge.*;
  * @author Emil Ivov
  * @author Sebastien Vincent
  */
+@Slf4j
 public class SIPCommunicator implements BundleActivator
 {
     /**
@@ -65,9 +67,7 @@ public class SIPCommunicator implements BundleActivator
     private static final String[] LEGACY_CONFIGURATION_FILE_NAMES
         = {
             "sip-communicator.properties",
-            "jitsi.properties",
-            "sip-communicator.xml",
-            "jitsi.xml"
+            "jitsi.properties"
         };
 
     /**
@@ -96,13 +96,9 @@ public class SIPCommunicator implements BundleActivator
     public static void main(String[] args)
         throws Exception
     {
-        LogManager.getLogManager().reset();
-        SLF4JBridgeHandler.removeHandlersForRootLogger();
-        SLF4JBridgeHandler.install();
+        setLogHandlers();
         setSystemProperties();
         setScHomeDir();
-        System.setOut(new PrintStream(new LoggerStdOut()));
-        System.out.println("Launching!");
 
         //first - pass the arguments to our arg handler
         LaunchArgHandler argHandler = LaunchArgHandler.getInstance();
@@ -145,17 +141,17 @@ public class SIPCommunicator implements BundleActivator
         }
 
         // Continue with Felix
-        System.out.println("Initializing OSGi properties");
+        logger.info("Initializing OSGi properties");
         Main.loadSystemProperties();
         Map<String, String> configProps = Main.loadConfigProperties();
         Main.copySystemProperties(configProps);
 
         // Create an instance of the framework.
-        System.out.println("Creating OSGi framework");
+        logger.info("Creating OSGi framework");
         Framework framework = new Felix(configProps);
 
         // Initialize the framework, but don't start it yet.
-        System.out.println("Initializing OSGi framework");
+        logger.info("Initializing OSGi framework");
         framework.init();
 
         // Explicitly load the splashscreen bundle
@@ -163,13 +159,13 @@ public class SIPCommunicator implements BundleActivator
 
         // Use the system bundle context to process the auto-deploy
         // and auto-install/auto-start properties.
-        System.out.println("Auto processing bundles");
+        logger.info("Auto processing bundles");
         AutoProcessor.process(configProps, framework.getBundleContext());
         FrameworkEvent event;
         do
         {
             // Start the framework.
-            System.out.println("Starting OSGi framework");
+            logger.info("Starting OSGi framework");
             framework.start();
             // Wait for framework to stop to exit the VM.
             event = framework.waitForStop(0);
@@ -240,7 +236,7 @@ public class SIPCommunicator implements BundleActivator
                         + "Logs";
 
                 if (name == null)
-                    name = "Jitsi";
+                    name = OVERRIDABLE_DIR_NAME;
             }
             else if (System.getProperty("os.name", "unknown").contains("Windows"))
             {
@@ -257,10 +253,10 @@ public class SIPCommunicator implements BundleActivator
                 if (logLocation == null)
                     logLocation = System.getenv("LOCALAPPDATA");
                 if (name == null)
-                    name = "Jitsi";
+                    name = OVERRIDABLE_DIR_NAME;
             }
 
-            /* If there're no OS specifics, use the defaults. */
+            // If there are no OS specifics, use the defaults
             if (profileLocation == null)
                 profileLocation = defaultLocation;
             if (cacheLocation == null)
@@ -312,10 +308,11 @@ public class SIPCommunicator implements BundleActivator
             System.setProperty(PNAME_SC_CACHE_DIR_LOCATION, cacheLocation);
             System.setProperty(PNAME_SC_LOG_DIR_LOCATION, logLocation);
             System.setProperty(PNAME_SC_HOME_DIR_NAME, name);
-            System.out.println("home=" + profileLocation);
-            System.out.println("cache=" + cacheLocation);
-            System.out.println("log=" + logLocation);
-            System.out.println("dir=" + name);
+            logger.info("home={}, cache={}, log={}, dir={}",
+                profileLocation,
+                cacheLocation,
+                logLocation,
+                name);
         }
 
         // when we end up with the home dirs, make sure we have log dir
@@ -369,10 +366,17 @@ public class SIPCommunicator implements BundleActivator
         System.setProperty("apple.awt.fullscreencapturealldisplays", "false");
     }
 
+    private static void setLogHandlers()
+    {
+        LogManager.getLogManager().reset();
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
+    }
+
     @Override
     public void start(BundleContext context)
     {
-        SLF4JBridgeHandler.install();
+        setLogHandlers();
     }
 
     @Override
