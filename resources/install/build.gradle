@@ -61,11 +61,15 @@ application {
 }
 
 def getLauncherClasspath() {
-    def cp = file("${projectRootDir}/target/launcher-classpath").text
-    cp.split(System.getProperty("path.separator")).collect { "lib/${file(it).name}" } + [
-            "lib/jitsi-launcher-${project.version}.jar",
-            'config/',
-    ]
+    def cpFile = file("${projectRootDir}/target/launcher-classpath")
+    if (cpFile != null && cpFile.exists()) {
+        cpFile.text.split(System.getProperty("path.separator")).collect { "lib/${file(it).name}" } + [
+                "lib/jitsi-launcher-${project.version}.jar",
+                'config/',
+        ]
+    } else {
+        []
+    }
 }
 
 startScripts {
