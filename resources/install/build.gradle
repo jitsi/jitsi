@@ -133,6 +133,7 @@ distributions {
             into('lib') {
                 from(bundlesDir)
             }
+            exclude '*.pom'
         }
     }
 
