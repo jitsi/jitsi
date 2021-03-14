@@ -411,6 +411,8 @@ Run_getJavaVMOptionStrings
                 _T("felix.config.properties"), _T("file:./config/felix.properties"),
                 _T("java.library.path"), javaLibraryPath,
                 _T("jna.library.path"), javaLibraryPath,
+                _T("stdout-to-log"), _T("true"),
+                _T("stderr-to-log"), _T("true"),
                 NULL
             };
 

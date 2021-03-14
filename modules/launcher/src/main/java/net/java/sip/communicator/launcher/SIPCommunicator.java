@@ -96,9 +96,9 @@ public class SIPCommunicator implements BundleActivator
     public static void main(String[] args)
         throws Exception
     {
-        setLogHandlers();
         setSystemProperties();
         setScHomeDir();
+        setLogHandlers();
 
         //first - pass the arguments to our arg handler
         LaunchArgHandler argHandler = LaunchArgHandler.getInstance();
@@ -371,6 +371,21 @@ public class SIPCommunicator implements BundleActivator
         LogManager.getLogManager().reset();
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
+        if (Boolean.getBoolean("stdout-to-log"))
+        {
+            System.setOut(new PrintStream(new LoggerStdOut(false)));
+        }
+
+        if (Boolean.getBoolean("stderr-to-log"))
+        {
+            System.setErr(new PrintStream(new LoggerStdOut(true)));
+        }
+
+        logger.info("home={}, cache={}, log={}, dir={}",
+            System.getProperty(PNAME_SC_HOME_DIR_LOCATION),
+            System.getProperty(PNAME_SC_CACHE_DIR_LOCATION),
+            System.getProperty(PNAME_SC_LOG_DIR_LOCATION),
+            System.getProperty(PNAME_SC_HOME_DIR_NAME));
     }
 
     @Override
