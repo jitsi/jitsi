@@ -30,7 +30,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <lombok.version>1.18.18</lombok.version>
     <rootdir>${project.basedir}</rootdir>
-    <jitsi-deps-arch>jar</jitsi-deps-arch>
+    <!-- keep this empty default for Linux builds -->
+    <jitsi-deps-arch></jitsi-deps-arch>
   </properties>
 
   <dependencies>
