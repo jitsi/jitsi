@@ -30,7 +30,6 @@
 #include <tlhelp32.h> /* CreateToolhelp32Snapshot */
 #include <Shlobj.h> /* SHGetFolderPath */
 
-#include <win_shared/registry.h>
 #include <win_shared/nls.h>
 
 #define JAVA_MAIN_CLASS "net.java.sip.communicator.launcher.SIPCommunicator"
@@ -58,9 +57,7 @@ static DWORD Run_callStaticVoidMain(JNIEnv *jniEnv, BOOL *searchForJava);
 static int Run_displayMessageBoxFromString(DWORD textId, DWORD_PTR *textArgs, LPCTSTR caption, UINT type);
 static DWORD Run_equalsParentProcessExecutableFilePath(LPCTSTR executableFilePath, BOOL *equals);
 static DWORD Run_getExecutableFilePath(LPTSTR *executableFilePath);
-static DWORD Run_getJavaExeCommandLine(LPCTSTR javaExe, LPTSTR *commandLine);
 static LPTSTR Run_getJavaLibraryPath();
-static LONG Run_getJavaPathsFromRegKey(HKEY key, LPTSTR *runtimeLib, LPTSTR *javaHome);
 static DWORD Run_getJavaVMOptionStrings(size_t head, TCHAR separator, size_t tail, LPTSTR *optionStrings, jint *optionStringCount);
 static LPTSTR Run_getLockFilePath();
 static DWORD Run_getParentProcessId(DWORD *ppid);
@@ -72,10 +69,7 @@ static DWORD Run_runAsCrashHandler(LPCTSTR executableFilePath, LPTSTR cmdLine);
 static DWORD Run_runAsCrashHandlerWithPipe(LPCTSTR executableFilePath, LPTSTR cmdLine, HANDLE *readPipe, HANDLE *writePipe);
 static DWORD Run_runAsLauncher(LPCTSTR executableFilePath, LPTSTR cmdLine);
 static DWORD Run_runJava(LPCTSTR executableFilePath, LPTSTR cmdLine);
-static DWORD Run_runJavaExe(LPCTSTR javaExe, BOOL searchPath, BOOL *searchForJava);
-static DWORD Run_runJavaFromEnvVar(LPCTSTR envVar, BOOL *searchForJava);
 static DWORD Run_runJavaFromJavaHome(LPCTSTR javaHome, BOOL searchForRuntimeLib, BOOL *searchForJava);
-static DWORD Run_runJavaFromRegKey(HKEY key, BOOL *searchForJava);
 static DWORD Run_runJavaFromRuntimeLib(LPCTSTR runtimeLib, LPCTSTR javaHome, BOOL *searchForJava);
 static LPTSTR Run_skipWhitespace(LPTSTR str);
 
@@ -165,7 +159,7 @@ Run_callStaticVoidMain(JNIEnv *jniEnv, BOOL *searchForJava)
 
                 if (Run_cmdLine && _tcslen(Run_cmdLine))
                 {
-#ifdef UNICODE || _UNICODE
+#if defined(UNICODE) || defined(_UNICODE)
                     argv = CommandLineToArgvW(Run_cmdLine, &argc);
                     error = argv ? ERROR_SUCCESS : GetLastError();
 #else
@@ -381,61 +375,6 @@ Run_getExecutableFilePath(LPTSTR *executableFilePath)
     return error;
 }
 
-static DWORD
-Run_getJavaExeCommandLine(LPCTSTR javaExe, LPTSTR *commandLine)
-{
-    LPCTSTR mainClass = _T(JAVA_MAIN_CLASS);
-
-    size_t javaExeLength;
-    size_t mainClassLength;
-    size_t cmdLineLength;
-    DWORD error;
-
-    javaExeLength = _tcslen(javaExe);
-    mainClassLength = _tcslen(mainClass);
-    if (Run_cmdLine)
-    {
-        cmdLineLength = _tcslen(Run_cmdLine);
-        if (cmdLineLength)
-            cmdLineLength++; /* ' ' */
-    }
-    else
-        cmdLineLength = 0;
-
-    error
-        = Run_getJavaVMOptionStrings(
-            javaExeLength + 1 /* ' ' */,
-            _T(' '),
-            mainClassLength + cmdLineLength,
-            commandLine,
-            NULL);
-    if (ERROR_SUCCESS == error)
-    {
-        LPTSTR str = *commandLine;
-
-        _tcsncpy(str, javaExe, javaExeLength);
-        str += javaExeLength;
-        *str = _T(' ');
-        str++;
-
-        str += _tcslen(str);
-
-        _tcsncpy(str, mainClass, mainClassLength);
-        str += mainClassLength;
-        if (cmdLineLength)
-        {
-            *str = _T(' ');
-            str++;
-            cmdLineLength--;
-            _tcsncpy(str, Run_cmdLine, cmdLineLength);
-            str += cmdLineLength;
-        }
-        *str = 0;
-    }
-
-    return error;
-}
-
 static LPTSTR
 Run_getJavaLibraryPath()
 {
@@ -462,58 +401,6 @@ Run_getJavaLibraryPath()
     }
 
     return _tcsdup(javaLibraryPath);
-}
-
-static LONG
-Run_getJavaPathsFromRegKey(HKEY key, LPTSTR *runtimeLib, LPTSTR *javaHome)
-{
-    HKEY jreKey = 0;
-    LONG error
-        = RegOpenKeyEx(
-                key,
-                _T("Software\\JavaSoft\\Java Runtime Environment"),
-                0,
-                KEY_QUERY_VALUE,
-                &jreKey);
-
-    if (ERROR_SUCCESS == error)
-    {
-        LPTSTR currentVersion = NULL;
-
-        error
-            = Run_getRegSzValue(jreKey, _T("CurrentVersion"), &currentVersion);
-        if (ERROR_SUCCESS == error)
-        {
-            HKEY currentVersionKey = 0;
-
-            error
-                = RegOpenKeyEx(
-                        jreKey,
-                        currentVersion,
-                        0,
-                        KEY_QUERY_VALUE,
-                        &currentVersionKey);
-            free(currentVersion);
-            if (ERROR_SUCCESS == error)
-            {
-                if (ERROR_SUCCESS
-                        != Run_getRegSzValue(
-                                currentVersionKey,
-                                _T("RuntimeLib"),
-                                runtimeLib))
-                    *runtimeLib = NULL;
-                if (ERROR_SUCCESS
-                        != Run_getRegSzValue(
-                                currentVersionKey,
-                                _T("JavaHome"),
-                                javaHome))
-                    *javaHome = NULL;
-                RegCloseKey(currentVersionKey);
-            }
-        }
-        RegCloseKey(jreKey);
-    }
-    return error;
 }
 
 static DWORD
@@ -545,10 +432,8 @@ Run_getJavaVMOptionStrings
         LPCTSTR properties[]
             = {
                 _T("felix.config.properties"), _T("file:./config/felix.properties"),
-                _T("java.util.logging.config.file"), _T("config/logging.properties"),
                 _T("java.library.path"), javaLibraryPath,
                 _T("jna.library.path"), javaLibraryPath,
-                _T("net.java.sip.communicator.SC_HOME_DIR_NAME"), _T(PRODUCTNAME),
                 NULL
             };
 
@@ -898,7 +783,7 @@ Run_runAsCrashHandlerWithPipe(
     HANDLE *readPipe, HANDLE *writePipe)
 {
     LPCTSTR commandLineFormat = _T("run.exe --channel=%d %s");
-    int commandLineLength = 256 + _tcslen(cmdLine);
+    size_t commandLineLength = 256 + _tcslen(cmdLine);
     LPTSTR commandLine
         = (LPTSTR) malloc(sizeof(TCHAR) * (commandLineLength + 1));
     DWORD error;
@@ -1172,8 +1057,7 @@ Run_runJava(LPCTSTR executableFilePath, LPTSTR cmdLine)
             cdLength = GetCurrentDirectory(cdLength, cd);
             if (cdLength)
             {
-                if ((ERROR_SUCCESS != error) || searchForJava)
-                    error = Run_runJavaFromJavaHome(cd, TRUE, &searchForJava);
+                error = Run_runJavaFromJavaHome(cd, TRUE, &searchForJava);
             }
             else
                 error = GetLastError();
@@ -1184,26 +1068,6 @@ Run_runJava(LPCTSTR executableFilePath, LPTSTR cmdLine)
     }
     else
         error = GetLastError();
-
-    /* Try to locate Java through the well-known enviroment variables. */
-    if ((ERROR_SUCCESS != error) || searchForJava)
-        error = Run_runJavaFromEnvVar(_T("JAVA_HOME"), &searchForJava);
-    if ((ERROR_SUCCESS != error) || searchForJava)
-        error = Run_runJavaFromEnvVar(_T("JRE_HOME"), &searchForJava);
-    if ((ERROR_SUCCESS != error) || searchForJava)
-        error = Run_runJavaFromEnvVar(_T("JDK_HOME"), &searchForJava);
-
-    /* Try to locate Java through the Windows registry. */
-    if ((ERROR_SUCCESS != error) || searchForJava)
-        error = Run_runJavaFromRegKey(HKEY_CURRENT_USER, &searchForJava);
-    if ((ERROR_SUCCESS != error) || searchForJava)
-        error = Run_runJavaFromRegKey(HKEY_LOCAL_MACHINE, &searchForJava);
-
-    /* Default to the Java in the PATH. */
-    if ((ERROR_SUCCESS != error) || searchForJava)
-        error = Run_runJavaExe(_T("javaw.exe"), TRUE, &searchForJava);
-    if ((ERROR_SUCCESS != error) || searchForJava)
-        error = Run_runJavaExe(_T("java.exe"), TRUE, &searchForJava);
 
     /* Notify the user that Java could not be found. */
     if ((ERROR_SUCCESS != error) || searchForJava)
@@ -1225,111 +1089,6 @@ Run_runJava(LPCTSTR executableFilePath, LPTSTR cmdLine)
             error = GetLastError();
     }
 
-    return error;
-}
-
-static DWORD
-Run_runJavaExe(LPCTSTR javaExe, BOOL searchPath, BOOL *searchForJava)
-{
-    DWORD error;
-
-    if (searchPath || Run_isFile(javaExe))
-    {
-        LPCTSTR applicationName;
-        LPCTSTR fileName;
-        LPTSTR commandLine = NULL;
-
-        if (searchPath)
-        {
-            applicationName = NULL;
-            fileName = javaExe;
-        }
-        else
-        {
-            applicationName = javaExe;
-            fileName = _T("java.exe");
-        }
-        error = Run_getJavaExeCommandLine(fileName, &commandLine);
-
-        if (ERROR_SUCCESS == error)
-        {
-            DWORD creationFlags;
-            STARTUPINFO si;
-            PROCESS_INFORMATION pi;
-
-            creationFlags = CREATE_NO_WINDOW;
-            if (INVALID_HANDLE_VALUE != Run_channel)
-                creationFlags |= CREATE_SUSPENDED;
-            ZeroMemory(&si, sizeof(si));
-            si.cb = sizeof(si);
-            if (CreateProcess(
-                    applicationName,
-                    commandLine,
-                    NULL,
-                    NULL,
-                    TRUE,
-                    creationFlags,
-                    NULL,
-                    NULL,
-                    &si,
-                    &pi))
-            {
-                *searchForJava = FALSE;
-
-                /*
-                 * Tell the parent process it will have to wait for java.exe and
-                 * get its exit code.
-                 */
-                if (INVALID_HANDLE_VALUE != Run_channel)
-                {
-                    DWORD processAndThreadIds[2];
-                    DWORD numberOfBytesWritten;
-
-                    processAndThreadIds[0] = pi.dwProcessId;
-                    processAndThreadIds[1] = pi.dwThreadId;
-                    WriteFile(
-                            Run_channel,
-                            processAndThreadIds,
-                            sizeof(processAndThreadIds),
-                            &numberOfBytesWritten,
-                            NULL);
-                    FlushFileBuffers(Run_channel);
-                    CloseHandle(Run_channel);
-                    Run_channel = INVALID_HANDLE_VALUE;
-                }
-
-                CloseHandle(pi.hProcess);
-                CloseHandle(pi.hThread);
-            }
-            else
-                error = GetLastError();
-        }
-
-        if (commandLine)
-            free(commandLine);
-    }
-    else
-        error = ERROR_CALL_NOT_IMPLEMENTED;
-    return error;
-}
-
-static DWORD
-Run_runJavaFromEnvVar(LPCTSTR envVar, BOOL *searchForJava)
-{
-    TCHAR envVarValue[MAX_PATH + 1];
-    DWORD envVarValueLength
-        = GetEnvironmentVariable(envVar, envVarValue, sizeof(envVarValue));
-    DWORD error;
-
-    if (envVarValueLength)
-    {
-        if (envVarValueLength >= sizeof(envVarValue))
-            error = ERROR_NOT_ENOUGH_MEMORY;
-        else
-            error = Run_runJavaFromJavaHome(envVarValue, TRUE, searchForJava);
-    }
-    else
-        error = GetLastError();
     return error;
 }
 
@@ -1396,18 +1155,6 @@ Run_runJavaFromJavaHome(
                                 path, searchForRuntimeLib,
                                 searchForJava);
                 }
-
-                if ((ERROR_SUCCESS != error) || *searchForJava)
-                {
-                    _tcscpy(path + javaHomeLength, _T("\\bin\\javaw.exe"));
-                    error = Run_runJavaExe(path, FALSE, searchForJava);
-
-                    if ((ERROR_SUCCESS != error) || *searchForJava)
-                    {
-                        _tcscpy(path + javaHomeLength, _T("\\bin\\java.exe"));
-                        error = Run_runJavaExe(path, FALSE, searchForJava);
-                    }
-                }
             }
 
             free(path);
@@ -1417,41 +1164,6 @@ Run_runJavaFromJavaHome(
     }
     else
         error = ERROR_FILE_NOT_FOUND;
-    return error;
-}
-
-static DWORD
-Run_runJavaFromRegKey(HKEY key, BOOL *searchForJava)
-{
-    DWORD error;
-    LPTSTR runtimeLib = NULL;
-    LPTSTR javaHome = NULL;
-
-    error = Run_getJavaPathsFromRegKey(key, &runtimeLib, &javaHome);
-    if (ERROR_SUCCESS == error)
-    {
-        if (runtimeLib)
-        {
-            error
-                = Run_runJavaFromRuntimeLib(
-                    runtimeLib,
-                    javaHome,
-                    searchForJava);
-            free(runtimeLib);
-        }
-        if (javaHome)
-        {
-            if ((ERROR_SUCCESS != error) || *searchForJava)
-            {
-                error
-                    = Run_runJavaFromJavaHome(
-                            javaHome,
-                            NULL == runtimeLib,
-                            searchForJava);
-            }
-            free(javaHome);
-        }
-    }
     return error;
 }
 
