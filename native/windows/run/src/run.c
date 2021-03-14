@@ -52,7 +52,7 @@ static LPTSTR Run_cmdLine = NULL;
  */
 static BOOL Run_launch = TRUE;
 
-static DWORD Run_addPath(LPCTSTR path);
+static DWORD Run_prependPath(LPCTSTR path);
 static DWORD Run_callStaticVoidMain(JNIEnv *jniEnv, BOOL *searchForJava);
 static int Run_displayMessageBoxFromString(DWORD textId, DWORD_PTR *textArgs, LPCTSTR caption, UINT type);
 static DWORD Run_equalsParentProcessExecutableFilePath(LPCTSTR executableFilePath, BOOL *equals);
@@ -77,45 +77,22 @@ typedef void (CALLBACK *SplashInit)();
 typedef int (CALLBACK *SplashLoadFile)(const char* file);
 
 static DWORD
-Run_addPath(LPCTSTR path)
+Run_prependPath(LPCTSTR path)
 {
-    LPCTSTR envVarName = _T("PATH");
-    TCHAR envVar[4096];
-    DWORD envVarCapacity = sizeof(envVar) / sizeof(TCHAR);
-    DWORD envVarLength
-        = GetEnvironmentVariable(envVarName, envVar, envVarCapacity);
-    DWORD error;
-
-    if (envVarLength)
+    size_t pathLength = _tcslen(path);
+    TCHAR envVar[32767];
+    if (GetEnvironmentVariable(_T("PATH"), envVar + pathLength, 32767 - pathLength - 1) == 0)
     {
-        if (envVarLength >= envVarCapacity)
-            error = ERROR_NOT_ENOUGH_MEMORY;
-        else
-        {
-            size_t pathLength = _tcslen(path);
-
-            if (envVarLength + 1 + pathLength + 1 > envVarCapacity)
-                error = ERROR_NOT_ENOUGH_MEMORY;
-            else
-            {
-                LPTSTR str = envVar + envVarLength;
-
-                *str = _T(';');
-                str++;
-                _tcsncpy(str, path, pathLength);
-                str += pathLength;
-                *str = 0;
-
-                if (SetEnvironmentVariable(envVarName, envVar))
-                    error = ERROR_SUCCESS;
-                else
-                    error = GetLastError();
-            }
-        }
+        return GetLastError();
     }
+
+    _tcsncpy(envVar, path, pathLength);
+    envVar[pathLength] = ';';
+
+    if (SetEnvironmentVariable(_T("PATH"), envVar))
+        return ERROR_SUCCESS;
     else
-        error = GetLastError();
-    return error;
+        return GetLastError();
 }
 
 static DWORD
@@ -1214,7 +1191,7 @@ Run_runJavaFromRuntimeLib
                 *str = 0;
 
                 if (Run_isDirectory(javaHomeBin))
-                    Run_addPath(javaHomeBin);
+                    Run_prependPath(javaHomeBin);
 
                 free(javaHomeBin);
             }
