@@ -27,6 +27,7 @@ import org.apache.felix.framework.*;
 import org.apache.felix.main.*;
 import org.osgi.framework.*;
 import org.osgi.framework.launch.*;
+import org.slf4j.*;
 import org.slf4j.bridge.*;
 
 /**
@@ -37,9 +38,10 @@ import org.slf4j.bridge.*;
  * @author Emil Ivov
  * @author Sebastien Vincent
  */
-@Slf4j
 public class SIPCommunicator implements BundleActivator
 {
+    private static org.slf4j.Logger logger;
+
     /**
      * Legacy home directory names that we can use if current dir name is the
      * currently active name (overridableDirName).
@@ -116,6 +118,7 @@ public class SIPCommunicator implements BundleActivator
     {
         setSystemProperties();
         setScHomeDir();
+        logger = LoggerFactory.getLogger(SIPCommunicator.class);
         LogManager.getLogManager().reset();
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
