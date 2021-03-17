@@ -25,7 +25,7 @@ import net.java.sip.communicator.service.gui.AlertUIService;
 import net.java.sip.communicator.service.protocol.AccountManager;
 import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
 
-import net.java.sip.communicator.util.osgi.ServiceUtils;
+import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
@@ -35,7 +35,7 @@ import org.osgi.framework.*;
  */
 @Slf4j
 public class GuiServiceActivator
-    implements BundleActivator
+    extends DependentActivator
 {
     /**
      * The <tt>BundleContext</tt> of the service.
@@ -50,8 +50,6 @@ public class GuiServiceActivator
 
     private static AccountManager accountManager;
 
-    private static AlertUIService alertUIService;
-
     /**
      * Returns the <tt>BundleContext</tt>.
      *
@@ -62,25 +60,22 @@ public class GuiServiceActivator
         return bundleContext;
     }
 
+    public GuiServiceActivator()
+    {
+        super(
+            ResourceManagementService.class
+        );
+    }
+
     /**
      * Initialize and start GUI service
      *
      * @param bundleContext the <tt>BundleContext</tt>
      */
-    public void start(BundleContext bundleContext)
+    @Override
+    public void startWithServices(BundleContext bundleContext)
     {
         GuiServiceActivator.bundleContext = bundleContext;
-    }
-
-    /**
-     * Stops this bundle.
-     *
-     * @param bundleContext the <tt>BundleContext</tt>
-     */
-    public void stop(BundleContext bundleContext)
-    {
-        if (GuiServiceActivator.bundleContext == bundleContext)
-            GuiServiceActivator.bundleContext = null;
     }
 
     /**
@@ -103,38 +98,6 @@ public class GuiServiceActivator
     }
 
     /**
-     * Returns the <tt>AccountManager</tt> obtained from the bundle context.
-     * @return the <tt>AccountManager</tt> obtained from the bundle context
-     */
-    public static AccountManager getAccountManager()
-    {
-        if(accountManager == null)
-        {
-            accountManager
-                = ServiceUtils.getService(bundleContext, AccountManager.class);
-        }
-        return accountManager;
-    }
-
-    /**
-     * Returns the <tt>MetaContactListService</tt> obtained from the bundle
-     * context.
-     * @return the <tt>MetaContactListService</tt> obtained from the bundle
-     * context
-     */
-    public static AlertUIService getAlertUIService()
-    {
-        if (alertUIService == null)
-        {
-            alertUIService
-                = ServiceUtils.getService(
-                bundleContext,
-                AlertUIService.class);
-        }
-        return alertUIService;
-    }
-
-    /**
      * Returns all <tt>ProtocolProviderFactory</tt>s obtained from the bundle
      * context.
      *
@@ -142,7 +105,7 @@ public class GuiServiceActivator
      *         context
      */
     public static Map<Object, ProtocolProviderFactory>
-    getProtocolProviderFactories()
+    getProtocolProviderFactories(BundleContext bundleContext)
     {
         Collection<ServiceReference<ProtocolProviderFactory>> serRefs;
         Map<Object, ProtocolProviderFactory> providerFactoriesMap

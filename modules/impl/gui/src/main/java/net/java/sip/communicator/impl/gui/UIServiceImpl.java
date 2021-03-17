@@ -177,10 +177,17 @@ public class UIServiceImpl
 
         // Register the main window as an exported window, so that other bundles
         // could access it through the UIService.
-        GuiActivator.getUIService().registerExportedWindow(mainFrame);
+        registerExportedWindow(mainFrame);
 
         // Initialize the login manager.
-        this.loginManager = new LoginManager(new LoginRendererSwingImpl());
+        this.loginManager = new LoginManager(
+            GuiActivator.bundleContext,
+            GuiActivator.getResources(),
+            GuiActivator.getAlertUIService(),
+            GuiActivator.getAccountManager(),
+            new LoginRendererSwingImpl()
+        );
+        GuiActivator.bundleContext.addServiceListener(loginManager);
 
         this.popupDialog = new PopupDialogImpl();
 
@@ -206,7 +213,7 @@ public class UIServiceImpl
             mainFrame.setFrameVisible(true);
         }
 
-        SwingUtilities.invokeLater(new RunLoginGui());
+        SwingUtilities.invokeLater(loginManager::runLogin);
 
         this.initExportedWindows();
 
@@ -832,16 +839,6 @@ public class UIServiceImpl
     public MainFrame getMainFrame()
     {
         return mainFrame;
-    }
-
-    /**
-     * The <tt>RunLogin</tt> implements the Runnable interface and is used to
-     * shows the login windows in a seperate thread.
-     */
-    private class RunLoginGui implements Runnable {
-        public void run() {
-            loginManager.runLogin();
-        }
     }
 
     /**
