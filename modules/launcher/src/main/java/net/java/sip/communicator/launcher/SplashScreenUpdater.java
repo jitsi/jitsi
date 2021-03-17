@@ -116,7 +116,7 @@ public class SplashScreenUpdater
     @Override
     public void bundleChanged(BundleEvent event)
     {
-        if (g == null || splash == null)
+        if (g == null || splash == null || !splash.isVisible())
         {
             return;
         }
@@ -130,14 +130,11 @@ public class SplashScreenUpdater
 
         double progress1 = Arrays.stream(bundleContext.getBundles())
             .filter(b -> b.getState() >= Bundle.INSTALLED)
-            .count();
+            .count() * .1;
         double progress2 = Arrays.stream(bundleContext.getBundles())
-            .filter(b -> b.getState() >= Bundle.RESOLVED)
-            .count();
-        double progress3 = Arrays.stream(bundleContext.getBundles())
             .filter(b -> b.getState() == Bundle.ACTIVE)
-            .count();
-        double progressMax = bundleContext.getBundles().length * 3;
+            .count() * .9;
+        double progressMax = bundleContext.getBundles().length;
 
         int progressWidth = 233;
         int progressHeight = 14;
@@ -149,7 +146,7 @@ public class SplashScreenUpdater
         int textBaseY = 145 + (50 - textHeight)/2 + textHeight;
 
         int currentProgressWidth =
-            (int) (((progress1 + progress2 + progress3) / progressMax)
+            (int) (((progress1 + progress2) / progressMax)
                 * progressWidth);
 
         g.setComposite(AlphaComposite.Clear);

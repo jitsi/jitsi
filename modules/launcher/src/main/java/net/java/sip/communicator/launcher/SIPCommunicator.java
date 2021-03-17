@@ -107,6 +107,7 @@ public class SIPCommunicator implements BundleActivator
     public void start(BundleContext context)
     {
         init();
+        new SplashScreenUpdater(context);
     }
 
     @Override
