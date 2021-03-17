@@ -3,16 +3,20 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://ch.qos.logback/xml/ns/logback https://raw.githubusercontent.com/enricopulatzo/logback-XSD/master/src/main/xsd/logback.xsd">
 
-  <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
-    <filter>
-      <level>INFO</level>
-    </filter>
+  <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${net.java.sip.communicator.SC_LOG_DIR_LOCATION}/${net.java.sip.communicator.SC_HOME_DIR_NAME}/jitsi.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+      <fileNamePattern>jitsi.%i.log</fileNamePattern>
+    </rollingPolicy>
+    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+      <maxFileSize>5MB</maxFileSize>
+    </triggeringPolicy>
     <encoder>
       <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} T%-3thread [%-5level] %logger - %msg%n</pattern>
     </encoder>
   </appender>
 
-  <root level="debug">
-    <appender-ref ref="console" />
+  <root level="INFO">
+    <appender-ref ref="file" />
   </root>
 </configuration>
