@@ -18,7 +18,7 @@
     </dependency>
     <dependency>
       <groupId>org.jitsi</groupId>
-      <artifactId>jitsi-launchutils</artifactId>
+      <artifactId>jitsi-launcher</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

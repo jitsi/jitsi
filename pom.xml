@@ -267,7 +267,6 @@
   </dependencyManagement>
 
   <modules>
-    <module>modules/launchutils</module>
     <module>modules/osgi-util</module>
     <module>modules/util</module>
     <module>modules/service</module>
