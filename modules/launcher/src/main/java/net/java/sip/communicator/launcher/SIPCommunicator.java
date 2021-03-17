@@ -88,7 +88,7 @@ public class SIPCommunicator implements BundleActivator
         = "net.java.sip.communicator.SC_HOME_DIR_NAME";
 
     /**
-     * Starts the SIP Communicator.
+     * Starts Jitsi.
      *
      * @param args command line args if any
      * @throws Exception whenever it makes sense.
@@ -96,16 +96,39 @@ public class SIPCommunicator implements BundleActivator
     public static void main(String[] args)
         throws Exception
     {
+        init();
+        handleArguments(args);
+        startFelix();
+    }
+
+    @Override
+    public void start(BundleContext context)
+    {
+        init();
+    }
+
+    @Override
+    public void stop(BundleContext context)
+    {
+    }
+
+    private static void init()
+    {
+        LogManager.getLogManager().reset();
+        SLF4JBridgeHandler.removeHandlersForRootLogger();
+        SLF4JBridgeHandler.install();
         setSystemProperties();
         setScHomeDir();
-        setLogHandlers();
+    }
 
+    private static void handleArguments(String[] args)
+    {
         //first - pass the arguments to our arg handler
         LaunchArgHandler argHandler = LaunchArgHandler.getInstance();
         int argHandlerRes = argHandler.handleArgs(args);
 
         if ( argHandlerRes == LaunchArgHandler.ACTION_EXIT
-             || argHandlerRes == LaunchArgHandler.ACTION_ERROR)
+            || argHandlerRes == LaunchArgHandler.ACTION_ERROR)
         {
             System.err.println("ArgHandler error: " + argHandler.getErrorCode());
             System.exit(argHandler.getErrorCode());
@@ -120,16 +143,16 @@ public class SIPCommunicator implements BundleActivator
             {
             case SipCommunicatorLock.LOCK_ERROR:
                 System.err.println("Failed to lock Jitsi's "
-                                +"configuration directory.\n"
-                                +"Try launching with the --multiple param.");
+                    +"configuration directory.\n"
+                    +"Try launching with the --multiple param.");
                 System.exit(SipCommunicatorLock.LOCK_ERROR);
                 break;
             case SipCommunicatorLock.ALREADY_STARTED:
                 System.out.println(
                     "Jitsi is already running and will "
-                    +"handle your parameters (if any).\n"
-                    +"Launch with the --multiple param to override this "
-                    +"behaviour.");
+                        +"handle your parameters (if any).\n"
+                        +"Launch with the --multiple param to override this "
+                        +"behaviour.");
 
                 //we exit with success because for the user that's what it is.
                 System.exit(SipCommunicatorLock.SUCCESS);
@@ -139,12 +162,17 @@ public class SIPCommunicator implements BundleActivator
                 break;
             }
         }
+    }
 
-        // Continue with Felix
+    @SuppressWarnings("unchecked")
+    private static void startFelix() throws BundleException, InterruptedException
+    {
         logger.info("Initializing OSGi properties");
         Main.loadSystemProperties();
-        Map<String, String> configProps = Main.loadConfigProperties();
+        @SuppressWarnings("rawtypes")
+        Map configProps = Main.loadConfigProperties();
         Main.copySystemProperties(configProps);
+        configProps.put("felix.log.logger", new FelixLogger());
 
         // Create an instance of the framework.
         logger.info("Creating OSGi framework");
@@ -161,18 +189,30 @@ public class SIPCommunicator implements BundleActivator
         // and auto-install/auto-start properties.
         logger.info("Auto processing bundles");
         AutoProcessor.process(configProps, framework.getBundleContext());
-        FrameworkEvent event;
-        do
-        {
-            // Start the framework.
-            logger.info("Starting OSGi framework");
-            framework.start();
-            // Wait for framework to stop to exit the VM.
-            event = framework.waitForStop(0);
-        }
-        // If the framework was updated, then restart it.
-        while (event.getType() == FrameworkEvent.STOPPED_UPDATE);
-        // Otherwise, exit.
+
+        // Prevent starting the launcher as a bundle
+        // The launcher is a bundle so that launching/debugging in IntelliJ is
+        // easier via an OSGi launch configuration.
+        Arrays.stream(framework.getBundleContext().getBundles())
+            .filter(b -> b.getSymbolicName()
+                .equalsIgnoreCase("org.jitsi.launcher"))
+            .findFirst()
+            .ifPresent(b -> {
+                try
+                {
+                    b.uninstall();
+                }
+                catch (BundleException e)
+                {
+                    throw new RuntimeException(e);
+                }
+            });
+
+        // Start the framework.
+        logger.info("Starting OSGi framework");
+        framework.start();
+        // Wait for framework to stop to exit the VM.
+        framework.waitForStop(0);
         System.exit(0);
     }
 
@@ -364,38 +404,5 @@ public class SIPCommunicator implements BundleActivator
         // to use one monitor to do other stuff while having other ones with
         // fullscreen stuff.
         System.setProperty("apple.awt.fullscreencapturealldisplays", "false");
-    }
-
-    private static void setLogHandlers()
-    {
-        LogManager.getLogManager().reset();
-        SLF4JBridgeHandler.removeHandlersForRootLogger();
-        SLF4JBridgeHandler.install();
-        if (Boolean.getBoolean("stdout-to-log"))
-        {
-            System.setOut(new PrintStream(new LoggerStdOut(false)));
-        }
-
-        if (Boolean.getBoolean("stderr-to-log"))
-        {
-            System.setErr(new PrintStream(new LoggerStdOut(true)));
-        }
-
-        logger.info("home={}, cache={}, log={}, dir={}",
-            System.getProperty(PNAME_SC_HOME_DIR_LOCATION),
-            System.getProperty(PNAME_SC_CACHE_DIR_LOCATION),
-            System.getProperty(PNAME_SC_LOG_DIR_LOCATION),
-            System.getProperty(PNAME_SC_HOME_DIR_NAME));
-    }
-
-    @Override
-    public void start(BundleContext context)
-    {
-        setLogHandlers();
-    }
-
-    @Override
-    public void stop(BundleContext context)
-    {
     }
 }

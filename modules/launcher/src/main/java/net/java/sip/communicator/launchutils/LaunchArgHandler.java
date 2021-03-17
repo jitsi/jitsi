@@ -240,7 +240,7 @@ public class LaunchArgHandler
             }
             else if (args[i].equals("--debug") || args[i].equals("-d"))
             {
-                handleDebugArg(args[i]);
+                handleDebugArg();
                 continue;
             }
             else if (args[i].equals("--ipv6") || args[i].equals("-6"))
@@ -343,10 +343,8 @@ public class LaunchArgHandler
 
     /**
      * Switches the log level to debug on the console logger.
-     *
-     * @param arg unused
      */
-    private void handleDebugArg(String arg)
+    private void handleDebugArg()
     {
         Logger logback = (Logger)LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         logback.setLevel(Level.DEBUG);

@@ -33,7 +33,7 @@ public interface ArgDelegationPeer
      *
      * @param uriArg the uri argument that this delegate has to handle.
      */
-    public void handleUri(String uriArg);
+    void handleUri(String uriArg);
 
     /**
      * Called when the user has tried to launch a second instance of
@@ -42,5 +42,5 @@ public interface ArgDelegationPeer
      * focus but it may also show an error/information message to the user
      * notifying them that a second instance is not to be launched.
      */
-    public void handleConcurrentInvocationRequest();
+    void handleConcurrentInvocationRequest();
 }

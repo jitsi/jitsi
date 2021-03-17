@@ -34,7 +34,7 @@ public class SplashScreenUpdater
     /**
      * A reference to the bundle context that is currently in use.
      */
-    private BundleContext bundleContext = null;
+    private final BundleContext bundleContext;
 
     /**
      * The splash screen if any.
@@ -148,7 +148,7 @@ public class SplashScreenUpdater
         int textBaseX = 150;
         int textBaseY = 145 + (50 - textHeight)/2 + textHeight;
 
-        int currentProgressWidth = 
+        int currentProgressWidth =
             (int) (((progress1 + progress2 + progress3) / progressMax)
                 * progressWidth);
 

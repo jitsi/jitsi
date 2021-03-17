@@ -31,7 +31,6 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -64,6 +63,9 @@
             <Import-Package>
               !org.apache.felix.*,*
             </Import-Package>
+            <Export-Package>
+              net.java.sip.communicator.launchutils
+            </Export-Package>
           </instructions>
         </configuration>
       </plugin>
