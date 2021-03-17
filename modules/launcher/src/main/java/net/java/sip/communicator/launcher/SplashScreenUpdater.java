@@ -31,6 +31,9 @@ import java.awt.*;
 public class SplashScreenUpdater
     implements ServiceListener, BundleListener
 {
+    /** The approximate number of bundles to process during startup */
+    private final int bundleCount;
+
     /**
      * A reference to the bundle context that is currently in use.
      */
@@ -53,8 +56,9 @@ public class SplashScreenUpdater
     private Color TEXT_FOREGROUND = new Color(82, 82, 82);
     private Color PROGRESS_FOREGROUND = new Color(177, 174, 173);
 
-    public SplashScreenUpdater(BundleContext bundleContext)
+    public SplashScreenUpdater(int bundleCount, BundleContext bundleContext)
     {
+        this.bundleCount = bundleCount;
         this.bundleContext = bundleContext;
         splash = SplashScreen.getSplashScreen();
 
@@ -122,19 +126,17 @@ public class SplashScreenUpdater
         }
 
         if (event.getType() != BundleEvent.INSTALLED &&
-            event.getType() != BundleEvent.STARTED &&
-            event.getType() != BundleEvent.RESOLVED)
+            event.getType() != BundleEvent.STARTED)
         {
             return;
         }
 
         double progress1 = Arrays.stream(bundleContext.getBundles())
             .filter(b -> b.getState() >= Bundle.INSTALLED)
-            .count() * .1;
+            .count() * 0.5;
         double progress2 = Arrays.stream(bundleContext.getBundles())
             .filter(b -> b.getState() == Bundle.ACTIVE)
-            .count() * .9;
-        double progressMax = bundleContext.getBundles().length;
+            .count() * 0.5;
 
         int progressWidth = 233;
         int progressHeight = 14;
@@ -146,7 +148,7 @@ public class SplashScreenUpdater
         int textBaseY = 145 + (50 - textHeight)/2 + textHeight;
 
         int currentProgressWidth =
-            (int) (((progress1 + progress2) / progressMax)
+            (int) (((progress1 + progress2) / bundleCount)
                 * progressWidth);
 
         g.setComposite(AlphaComposite.Clear);

@@ -79,7 +79,6 @@ startScripts {
             '-Djava.library.path=_JITSI_APP_HOME_native',
             '-Djna.library.path=_JITSI_APP_HOME_native',
             '-Dfelix.config.properties=file:config/felix.properties',
-            "-Dnet.java.sip.communicator.SC_HOME_DIR_NAME=${project.property('application.name')}",
     ]
     classpath = files(getLauncherClasspath())
     doLast {

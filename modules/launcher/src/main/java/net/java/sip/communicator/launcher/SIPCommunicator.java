@@ -21,7 +21,6 @@ import java.io.*;
 
 import java.util.*;
 import java.util.logging.*;
-import lombok.extern.slf4j.*;
 import net.java.sip.communicator.launchutils.*;
 import org.apache.felix.framework.*;
 import org.apache.felix.main.*;
@@ -107,7 +106,7 @@ public class SIPCommunicator implements BundleActivator
     public void start(BundleContext context)
     {
         init();
-        new SplashScreenUpdater(context);
+        new SplashScreenUpdater(context.getBundles().length, context);
     }
 
     @Override
@@ -192,7 +191,12 @@ public class SIPCommunicator implements BundleActivator
         framework.init();
 
         // Explicitly load the splashscreen bundle
-        new SplashScreenUpdater(framework.getBundleContext());
+        String autoDeployDir = (String) configProps.getOrDefault(
+            AutoProcessor.AUTO_DEPLOY_DIR_PROPERTY, "");
+        int bundleCount = new File(autoDeployDir)
+            .listFiles(f -> f.getName().endsWith(".jar"))
+            .length;
+        new SplashScreenUpdater(bundleCount, framework.getBundleContext());
 
         // Use the system bundle context to process the auto-deploy
         // and auto-install/auto-start properties.
@@ -203,7 +207,7 @@ public class SIPCommunicator implements BundleActivator
         // The launcher is a bundle so that launching/debugging in IntelliJ is
         // easier via an OSGi launch configuration.
         Arrays.stream(framework.getBundleContext().getBundles())
-            .filter(b -> b.getSymbolicName()
+            .filter(b -> b.getSymbolicName() != null && b.getSymbolicName()
                 .equalsIgnoreCase("org.jitsi.launcher"))
             .findFirst()
             .ifPresent(b -> {

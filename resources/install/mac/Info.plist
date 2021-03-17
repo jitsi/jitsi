@@ -86,8 +86,6 @@
         <string>$JAVAROOT/native:${system.DYLD_LIBRARY_PATH}</string>
         <key>apple.laf.useScreenMenuBar</key>
         <string>true</string>
-        <key>net.java.sip.communicator.SC_HOME_DIR_NAME</key>
-        <string>Jitsi</string>
       </dict>
     </dict>
   </dict>

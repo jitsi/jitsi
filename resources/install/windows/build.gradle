@@ -33,7 +33,7 @@ task prepareWixTarget(type: Sync, group: 'installer-wix', dependsOn: [
 ]) {
     from installWindowsDist.outputs.files
     into wixTargetDir
-    exclude "${rootProject.name}.bat"
+    exclude "${rootProject.name}"
     caseSensitive = false
     preserve {
         include "${project.property('application.name')}.exe"
