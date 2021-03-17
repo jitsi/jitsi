@@ -149,13 +149,15 @@ jobs:
         shell: bash
         run: |
           cd $GITHUB_WORKSPACE/resources/install
-          ./gradlew --no-daemon -Papplication.target=${{ matrix.arch }} signMsi
+          ./gradlew --no-daemon -Papplication.target=${{ matrix.arch }} windowsZip signMsi
 
       - name: Upload msi
         uses: actions/upload-artifact@v2
         with:
           name: jitsi-win-${{ matrix.arch }}
-          path: resources/install/build/install/wix/setup.msi
+          path: |
+            resources/install/build/install/wix/jitsi-*.msi
+            resources/install/build/distributions/jitsi-*.zip
 
   mac:
     runs-on: macos-latest
