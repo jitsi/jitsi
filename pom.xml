@@ -303,6 +303,7 @@
               Apache-2.0;link="https://github.com/jitsi/jitsi/raw/master/LICENSE"
             </Bundle-License>
             <_noclassforname>true</_noclassforname>
+            <_nodefaultversion>true</_nodefaultversion>
             <_removeheaders>Bnd-*, Tool, Require-Capability, Include-Resource
             </_removeheaders>
             <!--            <Include-Resource>-->
