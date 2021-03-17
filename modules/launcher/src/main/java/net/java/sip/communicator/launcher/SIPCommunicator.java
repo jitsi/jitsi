@@ -114,11 +114,16 @@ public class SIPCommunicator implements BundleActivator
 
     private static void init()
     {
+        setSystemProperties();
+        setScHomeDir();
         LogManager.getLogManager().reset();
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
-        setSystemProperties();
-        setScHomeDir();
+        logger.info("home={}, cache={}, log={}, dir={}",
+            System.getProperty(PNAME_SC_HOME_DIR_LOCATION),
+            System.getProperty(PNAME_SC_CACHE_DIR_LOCATION),
+            System.getProperty(PNAME_SC_LOG_DIR_LOCATION),
+            System.getProperty(PNAME_SC_HOME_DIR_NAME));
     }
 
     private static void handleArguments(String[] args)
@@ -348,11 +353,6 @@ public class SIPCommunicator implements BundleActivator
             System.setProperty(PNAME_SC_CACHE_DIR_LOCATION, cacheLocation);
             System.setProperty(PNAME_SC_LOG_DIR_LOCATION, logLocation);
             System.setProperty(PNAME_SC_HOME_DIR_NAME, name);
-            logger.info("home={}, cache={}, log={}, dir={}",
-                profileLocation,
-                cacheLocation,
-                logLocation,
-                name);
         }
 
         // when we end up with the home dirs, make sure we have log dir
