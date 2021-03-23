@@ -597,7 +597,19 @@ public class SystemActivityNotificationsServiceImpl
             {
                 currentRunningManager = new NetworkManagerListenerImpl(this);
             }
-            catch(Throwable t)
+            catch (NoClassDefFoundError ndef)
+            {
+                if (ndef.getMessage().contains("DBusException"))
+                {
+                    // DBus is only available on Linux
+                    return null;
+                }
+                else
+                {
+                    throw ndef;
+                }
+            }
+            catch (Throwable t)
             {
                 logger.error("Error creating manager", t);
             }
