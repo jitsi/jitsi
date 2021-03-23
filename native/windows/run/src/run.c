@@ -409,6 +409,7 @@ Run_getJavaVMOptionStrings
         LPCTSTR properties[]
             = {
                 _T("felix.config.properties"), _T("file:./config/felix.properties"),
+                _T("logback.configurationFile"), _T("config/logback.xml"),
                 _T("java.library.path"), javaLibraryPath,
                 _T("jna.library.path"), javaLibraryPath,
                 NULL

@@ -79,6 +79,7 @@ startScripts {
             '-Djava.library.path=_JITSI_APP_HOME_native',
             '-Djna.library.path=_JITSI_APP_HOME_native',
             '-Dfelix.config.properties=file:config/felix.properties',
+            '-Dlogback.configurationFile=config/logback.xml',
     ]
     classpath = files(getLauncherClasspath())
     doLast {

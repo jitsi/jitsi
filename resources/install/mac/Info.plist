@@ -80,6 +80,8 @@
       <dict>
         <key>felix.config.properties</key>
         <string>file:config/felix.properties</string>
+        <key>logback.configurationFile</key>
+        <string>config/logback.xml</string>
         <key>java.library.path</key>
         <string>$JAVAROOT/native:${system.DYLD_LIBRARY_PATH}</string>
         <key>jna.library.path</key>
