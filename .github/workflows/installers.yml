@@ -10,6 +10,15 @@ jobs:
   version:
     name: Versioning
     runs-on: ubuntu-latest
+    outputs:
+      jitsi_version_major: ${{ steps.parse.outputs.jitsi_version_major }}
+      jitsi_version_minor: ${{ steps.parse.outputs.jitsi_version_minor }}
+      jitsi_version_suffix: ${{ steps.parse.outputs.jitsi_version_suffix }}
+      jitsi_version_git: ${{ steps.parse.outputs.jitsi_version_git }}
+      jitsi_version_ncommits: ${{ steps.parse.outputs.jitsi_version_ncommits }}
+      jitsi_version_hash: ${{ steps.parse.outputs.jitsi_version_hash }}
+      jitsi_version_short: ${{ steps.parse.outputs.jitsi_version_short }}
+      jitsi_version_full: ${{ steps.parse.outputs.jitsi_version_full }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
