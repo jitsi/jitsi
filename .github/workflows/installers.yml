@@ -118,7 +118,7 @@ jobs:
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_PW }}
         run: |
           cd $GITHUB_WORKSPACE/resources/install
-          ./gradlew --no-daemon signDeb -Papplication.target=${{ matrix.arch }} -PgitVersion=${{ needs.version.outputs.jitsi_version_git }}
+          ./gradlew --no-daemon signDeb -Papplication.target=${{ matrix.arch }} -Pversion=${{ needs.version.outputs.jitsi_version_full }} -PgitVersion=${{ needs.version.outputs.jitsi_version_git }}
 
       - name: Upload deb
         uses: actions/upload-artifact@v2
@@ -183,7 +183,7 @@ jobs:
       - name: Build natives
         run: |
           cd $Env:GITHUB_WORKSPACE/native/windows
-          cmake -B cmake-build-${{ matrix.arch }} -A ${{ steps.expand_arch.outputs.cmake_arch }}
+          cmake -B cmake-build-${{ matrix.arch }} -A ${{ steps.expand_arch.outputs.cmake_arch }} -DMAIN_VERSION=${{ needs.version.outputs.jitsi_version_full }}
           cmake --build cmake-build-${{ matrix.arch }} --config Release
 
       - name: Upload CMake logs on failure
@@ -201,7 +201,7 @@ jobs:
         shell: bash
         run: |
           cd $GITHUB_WORKSPACE/resources/install
-          ./gradlew --no-daemon windowsZip signMsi -Papplication.target=${{ matrix.arch }} -PgitVersion=${{ needs.version.outputs.jitsi_version_git }}
+          ./gradlew --no-daemon windowsZip signMsi -Papplication.target=${{ matrix.arch }} -Pversion=${{ needs.version.outputs.jitsi_version_full }} -PgitVersion=${{ needs.version.outputs.jitsi_version_git }}
 
       - name: Upload msi
         uses: actions/upload-artifact@v2
@@ -250,13 +250,13 @@ jobs:
       - name: Build natives
         run: |
           cd $GITHUB_WORKSPACE/native/macosx
-          cmake -B cmake-build
+          cmake -B cmake-build -DMAIN_VERSION=${{ needs.version.outputs.jitsi_version_full }}
           cmake --build cmake-build --config Release --verbose
 
       - name: Generate dmg
         run: |
           cd $GITHUB_WORKSPACE/resources/install
-          ./gradlew --no-daemon createDmg -PgitVersion=${{ needs.version.outputs.jitsi_version_git }}
+          ./gradlew --no-daemon createDmg -Pversion=${{ needs.version.outputs.jitsi_version_full }} -PgitVersion=${{ needs.version.outputs.jitsi_version_git }}
 
       - name: Upload dmg
         uses: actions/upload-artifact@v2

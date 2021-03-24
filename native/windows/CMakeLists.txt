@@ -12,6 +12,7 @@ if (MSVC)
     set(CMAKE_EXE_LINKER_FLAGS /MANIFEST:NO)
 endif ()
 
+set(MAIN_VERSION "1.0" CACHE STRING "Main version number")
 file(STRINGS ${CMAKE_SOURCE_DIR}/../../resources/install/gradle.properties ConfigContents)
 foreach (NameAndValue ${ConfigContents})
     # Strip leading spaces
@@ -39,8 +40,8 @@ set_property(GLOBAL APPEND
              "${CMAKE_SOURCE_DIR}/.git/index")
 
 string(REGEX REPLACE "(Jitsi-[0-9.]+-([0-9]+)-)(.*)" "\\2;\\3" _git_parts "${GIT_VERSION}")
-string(REGEX REPLACE "([0-9]+)\\.([0-9]+).*" "\\1;\\2" _gradle_parts "${GRADLE_version}")
-string(REGEX REPLACE ".+(-(.+))$" "\\2" VERSION_SUFFIX "${GRADLE_version}")
+string(REGEX REPLACE "([0-9]+)\\.([0-9]+).*" "\\1;\\2" _gradle_parts "${MAIN_VERSION}")
+string(REGEX REPLACE ".+(-(.+))$" "\\2" VERSION_SUFFIX "${MAIN_VERSION}")
 list(GET _gradle_parts 0 VERSION_MAJOR)
 list(GET _gradle_parts 1 VERSION_MINOR)
 list(GET _git_parts 0 VERSION_REVISION)
