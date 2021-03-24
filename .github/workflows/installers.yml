@@ -181,8 +181,9 @@ jobs:
         uses: gradle/wrapper-validation-action@v1.0.3
 
       - name: Build natives
+        shell: cmd
         run: |
-          cd $Env:GITHUB_WORKSPACE/native/windows
+          cd %GITHUB_WORKSPACE%\native\windows
           cmake -B cmake-build-${{ matrix.arch }} -A ${{ steps.expand_arch.outputs.cmake_arch }} -DMAIN_VERSION=${{ needs.version.outputs.jitsi_version_full }}
           cmake --build cmake-build-${{ matrix.arch }} --config Release
 
