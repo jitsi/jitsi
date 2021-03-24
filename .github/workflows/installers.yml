@@ -79,7 +79,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Build Java
-        run: mvn -B -DskipTests package
+        run: mvn -B -DskipTests -Drevision=${{ needs.version.outputs.jitsi_version_full }} package
 
       - name: Cache Gradle dependencies
         uses: actions/cache@v2
@@ -143,7 +143,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Build Java
-        run: mvn -B -DskipTests package
+        run: mvn -B -DskipTests -Drevision=${{ needs.version.outputs.jitsi_version_full }} package
 
       - name: Cache Gradle dependencies
         uses: actions/cache@v2
@@ -210,7 +210,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Build Java
-        run: mvn -B -DskipTests package
+        run: mvn -B -DskipTests -Drevision=${{ needs.version.outputs.jitsi_version_full }} package
 
       - name: Cache Gradle dependencies
         uses: actions/cache@v2
