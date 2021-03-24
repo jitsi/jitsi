@@ -6,10 +6,10 @@
   <parent>
     <groupId>org.jitsi</groupId>
     <artifactId>impl-parent</artifactId>
-    <version>2.14-SNAPSHOT</version>
+    <version>${revision}</version>
   </parent>
   <artifactId>jitsi-contactlist</artifactId>
-  <version>2.14-SNAPSHOT</version>
+  <version>${revision}</version>
   <description>MetaContactList service</description>
   <dependencies>
     <dependency>

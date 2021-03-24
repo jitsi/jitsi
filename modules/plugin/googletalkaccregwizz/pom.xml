@@ -6,10 +6,10 @@
   <parent>
     <groupId>org.jitsi</groupId>
     <artifactId>plugin-parent</artifactId>
-    <version>2.14-SNAPSHOT</version>
+    <version>${revision}</version>
   </parent>
   <artifactId>jitsi-googletalkaccregwizz</artifactId>
-  <version>2.14-SNAPSHOT</version>
+  <version>${revision}</version>
   <description>Google Talk account registration wizard</description>
   <dependencies>
     <dependency>

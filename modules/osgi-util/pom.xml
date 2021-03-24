@@ -6,11 +6,11 @@
   <parent>
     <groupId>org.jitsi</groupId>
     <artifactId>jitsi</artifactId>
-    <version>2.14-SNAPSHOT</version>
+    <version>${revision}</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <artifactId>jitsi-osgi-util</artifactId>
-  <version>2.14-SNAPSHOT</version>
+  <version>${revision}</version>
   <description>Jitsi OSGi Utility Packages</description>
   <dependencies>
     <dependency>

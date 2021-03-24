@@ -6,10 +6,10 @@
   <parent>
     <groupId>org.jitsi</groupId>
     <artifactId>plugin-parent</artifactId>
-    <version>2.14-SNAPSHOT</version>
+    <version>${revision}</version>
   </parent>
   <artifactId>jitsi-reconnect</artifactId>
-  <version>2.14-SNAPSHOT</version>
+  <version>${revision}</version>
   <description>Implements the reconnection protocols after connection loss</description>
   <dependencies>
     <dependency>

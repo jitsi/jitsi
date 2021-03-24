@@ -26,11 +26,19 @@ ext {
     nativeLibDir = file("${libDir}/native")
     bundlesDir = file("${projectRootDir}/target/bundles")
 
-    def pom = new XmlSlurper(false, true).parse("${projectRootDir}/pom.xml")
-    project.version = pom.version.text()
+    if (project.version == '0.0') {
+        def pom = new XmlSlurper(false, true).parse("${projectRootDir}/pom.xml")
+        project.version = pom.properties.revision.text()
+    }
 
     def mavenMatcher = project.version =~ /^(?<MAJOR>\d+)\.(?<MINOR>\d+)(\.(?<REVISION>\d+))?(\.(?<BUILD>\d+))?(-(?<SUFFIX>\S+))?$/
-    def gitVersion = 'git describe --match Jitsi-[0-9.]* --long --dirty --always'.execute().text.trim()
+    def gitVersion
+    if (!project.hasProperty('gitVersion')) {
+        gitVersion = 'git describe --match Jitsi-[0-9.]* --long --dirty --always'.execute().text.trim()
+    } else {
+        gitVersion = project.property('gitVersion')
+    }
+
     println "Parsing versions: ${project.version} / ${gitVersion}"
     def gitMatcher = gitVersion =~ /^((?<TAG>Jitsi-[0-9.]+)-(?<NCOMMITS>\d+)-)?(?<REV>\S+)$/
     if (!mavenMatcher.matches() || !gitMatcher.matches()) {

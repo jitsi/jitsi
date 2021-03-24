@@ -8,10 +8,10 @@
   <parent>
     <groupId>org.jitsi</groupId>
     <artifactId>service-parent</artifactId>
-    <version>2.14-SNAPSHOT</version>
+    <version>${revision}</version>
   </parent>
   <artifactId>service-browserlauncher</artifactId>
-  <version>2.14-SNAPSHOT</version>
+  <version>${revision}</version>
   <description>Utility bundle to launch a browser</description>
   <dependencies>
     <dependency>

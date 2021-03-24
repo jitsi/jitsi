@@ -8,10 +8,10 @@
   <parent>
     <groupId>org.jitsi</groupId>
     <artifactId>impl-parent</artifactId>
-    <version>2.14-SNAPSHOT</version>
+    <version>${revision}</version>
   </parent>
   <artifactId>jitsi-neomedia</artifactId>
-  <version>2.14-SNAPSHOT</version>
+  <version>${revision}</version>
   <description>Offers Media capture and presentation capabilities</description>
   <dependencies>
     <dependency>

@@ -7,18 +7,63 @@ env:
   INSTALLER_JAVA_VERSION: 11
 
 jobs:
+  version:
+    name: Versioning
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Parse version
+        id: parse
+        run: |
+          MVNVER=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
+          MVNVER_MATCHER="^([0-9]+)\.([0-9]+)(\.([0-9]+))?(\.([0-9]+))?(-([A-Za-z0-9-]+))?"
+          if [[ $MVNVER =~ $MVNVER_MATCHER ]]; then
+            MAJOR=${BASH_REMATCH[1]}
+            MINOR=${BASH_REMATCH[2]}
+            SUFFIX=${BASH_REMATCH[8]}
+            echo "::set-output name=jitsi_version_major::${MAJOR}"
+            echo "::set-output name=jitsi_version_minor::${MINOR}"
+            echo "::set-output name=jitsi_version_rev::${SUFFIX}"
+          else
+            echo "$MVNVER did not match $MVNVER_MATCHER"
+            exit 1
+          fi;
+
+          GITVER=`git describe --match Jitsi-[0-9.]* --long --dirty --always`
+          echo "::set-output name=jitsi_version_git::${GITVER}"
+          GITVER_MATCHER="^((Jitsi-[0-9.]+)-([0-9]+)-)?([A-Za-z0-9-]+)$"
+          if [[ $GITVER =~ $GITVER_MATCHER ]]; then
+            NCOMMITS=${BASH_REMATCH[3]}
+            HASH=${BASH_REMATCH[4]}
+            echo "::set-output name=jitsi_version_ncommits::${NCOMMITS}"
+            echo "::set-output name=jitsi_version_hash::${HASH}"
+          else
+            echo "$GITVER did not match $GITVER_MATCHER"
+            exit 1
+          fi;
+
+          VERSION_SHORT="${MAJOR}.${MINOR}.${NCOMMITS}"
+          if [[ "$SUFFIX" == "" ]]; then
+            VERSION_FULL="${VERSION_SHORT}+${HASH}"
+          else
+            VERSION_FULL="${VERSION_SHORT}-${SUFFIX}+${HASH}"
+          fi;
+          echo "::set-output name=jitsi_version_short::${VERSION_SHORT}"
+          echo "::set-output name=jitsi_version_full::${VERSION_FULL}"
+
   deb:
     name: Ubuntu ${{ matrix.arch }}
     runs-on: ubuntu-latest
+    needs: version
     strategy:
       matrix:
         arch: [ x86, x64 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          # for the version
-          fetch-depth: 0
 
       - name: Set up Java
         uses: actions/setup-java@v1
@@ -49,19 +94,13 @@ jobs:
       - name: Verify Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1.0.3
 
-      - name: Set Gradle version
-        run: |
-          MVNVER=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
-          cd resources/install
-          sed -i s/^version=.*/version=$MVNVER/ gradle.properties
-
       - name: Build deb
         env:
           ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_KEY }}
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_PW }}
         run: |
           cd $GITHUB_WORKSPACE/resources/install
-          ./gradlew --no-daemon signDeb -Papplication.target=${{ matrix.arch }}
+          ./gradlew --no-daemon signDeb -Papplication.target=${{ matrix.arch }} -PgitVersion=${{ needs.version.outputs.jitsi_version_git }}
 
       - name: Upload deb
         uses: actions/upload-artifact@v2
@@ -72,6 +111,7 @@ jobs:
   wix:
     name: Windows ${{ matrix.arch }}
     runs-on: windows-latest
+    needs: version
     strategy:
       matrix:
         arch: [ x86, x64 ]
@@ -88,9 +128,6 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          # for the version
-          fetch-depth: 0
 
       - name: Set up Java
         uses: actions/setup-java@v1
@@ -120,13 +157,6 @@ jobs:
 
       - name: Verify Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1.0.3
-
-      - name: Set Gradle version
-        shell: bash
-        run: |
-          MVNVER=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
-          cd resources/install
-          sed -i s/^version=.*/version=$MVNVER/ gradle.properties
 
       - name: Build natives
         run: |
@@ -149,7 +179,7 @@ jobs:
         shell: bash
         run: |
           cd $GITHUB_WORKSPACE/resources/install
-          ./gradlew --no-daemon -Papplication.target=${{ matrix.arch }} windowsZip signMsi
+          ./gradlew --no-daemon windowsZip signMsi -Papplication.target=${{ matrix.arch }} -PgitVersion=${{ needs.version.outputs.jitsi_version_git }}
 
       - name: Upload msi
         uses: actions/upload-artifact@v2
@@ -161,12 +191,10 @@ jobs:
 
   mac:
     runs-on: macos-latest
+    needs: version
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          # for the version
-          fetch-depth: 0
 
       - name: Set up Java
         uses: actions/setup-java@v1
@@ -197,12 +225,6 @@ jobs:
       - name: Verify Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1.0.3
 
-      - name: Set Gradle version
-        run: |
-          MVNVER=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
-          cd resources/install
-          sed -i '' s/^version=.*/version=$MVNVER/ gradle.properties
-
       - name: Build natives
         run: |
           cd $GITHUB_WORKSPACE/native/macosx
@@ -212,7 +234,7 @@ jobs:
       - name: Generate dmg
         run: |
           cd $GITHUB_WORKSPACE/resources/install
-          ./gradlew --no-daemon createDmg
+          ./gradlew --no-daemon createDmg -PgitVersion=${{ needs.version.outputs.jitsi_version_git }}
 
       - name: Upload dmg
         uses: actions/upload-artifact@v2
