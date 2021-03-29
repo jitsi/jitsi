@@ -1223,6 +1223,44 @@ public class ChatRoomJabberImpl
     }
 
     /**
+     * Updates the last presence for a ChatRoomMember. Extracts known elements if available.
+     * @param member The member to update.
+     * @param presence The presence of the participant that will be assigned as last received Presence stanza.
+     */
+    private void updateMemberLastPresence(ChatRoomMemberJabberImpl member, Presence presence)
+    {
+        Nick nickExtension
+            = presence.getExtension(Nick.ELEMENT_NAME, Nick.NAMESPACE);
+        if (nickExtension != null)
+        {
+            member.setDisplayName(nickExtension.getName());
+        }
+
+        Email emailExtension
+            = presence.getExtension(Email.ELEMENT_NAME, Email.NAMESPACE);
+        if (emailExtension != null)
+        {
+            member.setEmail(emailExtension.getAddress());
+        }
+
+        AvatarUrl avatarUrl = presence.getExtension(
+            AvatarUrl.ELEMENT_NAME, AvatarUrl.NAMESPACE);
+        if (avatarUrl != null)
+        {
+            member.setAvatarUrl(avatarUrl.getAvatarUrl());
+        }
+
+        StatsId statsId = presence.getExtension(
+            StatsId.ELEMENT_NAME, StatsId.NAMESPACE);
+        if (statsId != null)
+        {
+            member.setStatisticsID(statsId.getStatsId());
+        }
+
+        member.setLastPresence(presence);
+    }
+
+    /**
      * Instances of this class should be registered as
      * <tt>ParticipantStatusListener</tt> in smack and translates events .
      */
@@ -1345,6 +1383,9 @@ public class ChatRoomJabberImpl
                   ChatRoomJabberImpl.this,
                   occupant.getNick(),
                   occupant.getJid());
+
+            // let's update the participant last presence
+            updateMemberLastPresence(member, multiUserChat.getOccupantPresence(participant));
 
             members.put(participantName, member);
 
@@ -3412,37 +3453,11 @@ public class ChatRoomJabberImpl
                 return;
             }
 
-            Nick nickExtension
-                = presence.getExtension(Nick.ELEMENT_NAME, Nick.NAMESPACE);
-            if (nickExtension != null)
-            {
-                member.setDisplayName(nickExtension.getName());
-            }
+            updateMemberLastPresence(member, presence);
 
-            Email emailExtension
-                = presence.getExtension(Email.ELEMENT_NAME, Email.NAMESPACE);
-            if (emailExtension != null)
-            {
-                member.setEmail(emailExtension.getAddress());
-            }
-
-            AvatarUrl avatarUrl = presence.getExtension(
-                AvatarUrl.ELEMENT_NAME, AvatarUrl.NAMESPACE);
-            if (avatarUrl != null)
-            {
-                member.setAvatarUrl(avatarUrl.getAvatarUrl());
-            }
-
-            StatsId statsId = presence.getExtension(
-                StatsId.ELEMENT_NAME, StatsId.NAMESPACE);
-            if (statsId != null)
-            {
-                member.setStatisticsID(statsId.getStatsId());
-            }
 
             // tell listeners the member was updated (and new information
             // about it is available)
-            member.setLastPresence(presence);
             fireMemberPresenceEvent(member,
                 ChatRoomMemberPresenceChangeEvent.MEMBER_UPDATED,
                 null);
