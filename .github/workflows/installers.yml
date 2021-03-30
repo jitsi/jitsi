@@ -112,6 +112,36 @@ jobs:
       - name: Verify Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1.0.3
 
+      - name: Expand architecture
+        id: expand_arch
+        shell: bash
+        run: |
+          if [ "${{ matrix.arch }}" == "x86" ]; then
+            echo "::set-output name=gcc_arch::-m32"
+            echo "::set-output name=ubuntu_arch::i386"
+          else
+            echo "::set-output name=gcc_arch::-m64"
+            echo "::set-output name=ubuntu_arch::amd64"
+          fi;
+
+      - name: Build natives
+        env:
+          CFLAGS: ${{ steps.expand_arch.outputs.gcc_arch }}
+          CXXFLAGS: ${{ steps.expand_arch.outputs.gcc_arch }}
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo dpkg --add-architecture ${{ steps.expand_arch.outputs.ubuntu_arch }}
+          sudo apt-get update && sudo apt-get install -y \
+            g++-multilib \
+            gcc-multilib \
+            libdbus-1-dev:${{ steps.expand_arch.outputs.ubuntu_arch }} \
+            libxss-dev:${{ steps.expand_arch.outputs.ubuntu_arch }} \
+            libxtst-dev:${{ steps.expand_arch.outputs.ubuntu_arch }} \
+            libgtk2.0-dev:${{ steps.expand_arch.outputs.ubuntu_arch }}
+          cd $GITHUB_WORKSPACE/native
+          cmake -B cmake-build -DMAIN_VERSION=${{ needs.version.outputs.jitsi_version_full }}
+          cmake --build cmake-build --config Release --target install
+
       - name: Build deb
         env:
           ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_KEY }}
@@ -183,9 +213,21 @@ jobs:
       - name: Build natives
         shell: cmd
         run: |
-          cd %GITHUB_WORKSPACE%\native\windows
+          cd %GITHUB_WORKSPACE%\native
           cmake -B cmake-build-${{ matrix.arch }} -A ${{ steps.expand_arch.outputs.cmake_arch }} -DMAIN_VERSION=${{ needs.version.outputs.jitsi_version_full }}
-          cmake --build cmake-build-${{ matrix.arch }} --config Release
+          cmake --build cmake-build-${{ matrix.arch }} --config Release --target install
+
+      - name: Build Outlook COM Server natives (x86 and x64)
+        shell: cmd
+        run: |
+          cd %GITHUB_WORKSPACE%\native
+          cmake -B cmake-build-x86 -A Win32 -DMAIN_VERSION=${{ needs.version.outputs.jitsi_version_full }}
+          cmake --build cmake-build-x86 --config Release --target install.jmsoutlookaddrbookcomserver
+          cmake -B cmake-build-x64 -A x64 -DMAIN_VERSION=${{ needs.version.outputs.jitsi_version_full }}
+          cmake --build cmake-build-x64 --config Release --target install.jmsoutlookaddrbookcomserver
+          cd %GITHUB_WORKSPACE%
+          copy lib\native\windows-x64\jmsoutlookaddrbookcomserver64.exe lib\native\windows-x86\jmsoutlookaddrbookcomserver64.exe
+          copy lib\native\windows-x86\jmsoutlookaddrbookcomserver32.exe lib\native\windows-x64\jmsoutlookaddrbookcomserver32.exe
 
       - name: Upload CMake logs on failure
         if: ${{ failure() }}
