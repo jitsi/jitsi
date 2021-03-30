@@ -216,7 +216,7 @@ jobs:
 
       - name: Prepare SDK Download
         run: |
-          echo ${{ secrets.PRIVATE_SDK_KEY }} > ~/.ssh/private-sdk
+          echo "${{ secrets.PRIVATE_SDK_KEY }}" > ~/.ssh/private-sdk
           echo Host privatesdk >> ~/.ssh/config
           echo User git >> ~/.ssh/config
           echo Hostname github.com >> ~/.ssh/config
