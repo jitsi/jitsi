@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <unknwn.h>
 
-#include "IMsOutlookAddrBookClient.h"
+#include <IMsOutlookAddrBookClient_i.h>
 
 EXTERN_C const GUID DECLSPEC_SELECTANY CLSID_MsOutlookAddrBookClient
     = {0x867BD590, 0xB1AC, 0x11E2,

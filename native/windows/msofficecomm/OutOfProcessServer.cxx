@@ -227,7 +227,7 @@ jint OutOfProcessServer::JNI_OnLoad(JavaVM *vm)
     {
         ::InitializeCriticalSection(&_criticalSection);
         _vm = vm;
-        version = JNI_VERSION_1_4;
+        version = JNI_VERSION_1_8;
     }
     else
         version = JNI_ERR;

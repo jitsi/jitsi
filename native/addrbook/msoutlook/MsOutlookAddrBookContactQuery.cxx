@@ -30,6 +30,7 @@
 #include <Mapix.h>
 #include <windows.h>
 #include "StringUtils.h"
+#include <vector>
 
 #define BODY_ENCODING_TEXT_AND_HTML	((ULONG) 0x00100000)
 #define DELETE_HARD_DELETE          ((ULONG) 0x00000010)
@@ -51,7 +52,7 @@ typedef struct MsOutlookAddrBookContactQuery_OneOffEntryID
 	ULONG	ulFlags;
 	MAPIUID muid;
 	ULONG   ulBitMask;
-	BYTE    bData[];
+	BYTE*    bData;
 } ONEOFFENTRYID;
 
 typedef UNALIGNED ONEOFFENTRYID *MsOutlookAddrBookContactQuery_LPONEOFFENTRYID;
@@ -271,8 +272,8 @@ HRESULT MsOutlookAddrBookContactQuery_createEmailAddress
                 (LPENTRYID) parentId.lpb,
                 MsOutlookAddrBookContactQuery_rdOpenEntryUlFlags);
 	HRESULT hRes = S_OK;
-    MAPINAMEID  rgnmid[nbPropId];
-    LPMAPINAMEID rgpnmid[nbPropId];
+    std::vector<MAPINAMEID>  rgnmid(nbPropId);
+    std::vector<LPMAPINAMEID> rgpnmid(nbPropId);
     LPSPropTagArray lpNamedPropTags = NULL;
 
     for(int i = 0 ; i < nbPropId ; i++)
@@ -290,52 +291,58 @@ HRESULT MsOutlookAddrBookContactQuery_createEmailAddress
 
     if (SUCCEEDED(hRes) && lpNamedPropTags)
     {
-        SPropValue spvProps[nbPropId];
-        spvProps[0].ulPropTag
-            = CHANGE_PROP_TYPE(lpNamedPropTags->aulPropTag[0], PT_MV_LONG);
-        spvProps[1].ulPropTag
-            = CHANGE_PROP_TYPE(lpNamedPropTags->aulPropTag[1], PT_LONG);
-        spvProps[2].ulPropTag
-            = CHANGE_PROP_TYPE(lpNamedPropTags->aulPropTag[2], PT_UNICODE);
-        spvProps[3].ulPropTag
-            = CHANGE_PROP_TYPE(lpNamedPropTags->aulPropTag[3], PT_UNICODE);
-        spvProps[4].ulPropTag
-            = CHANGE_PROP_TYPE(lpNamedPropTags->aulPropTag[4], PT_UNICODE);
-        spvProps[5].ulPropTag
-            = CHANGE_PROP_TYPE(lpNamedPropTags->aulPropTag[5], PT_UNICODE);
-        spvProps[6].ulPropTag
-            = CHANGE_PROP_TYPE(lpNamedPropTags->aulPropTag[6], PT_BINARY);
-
-        spvProps[0].Value.MVl.cValues = 1;
-        spvProps[0].Value.MVl.lpl = providerEmailList;
-
-        spvProps[1].Value.l = providerArrayType;
-
-        spvProps[2].Value.lpszW = displayName;
-        spvProps[3].Value.lpszW = addressType;
-        spvProps[4].Value.lpszW = emailAddress;
-        spvProps[5].Value.lpszW = originalDisplayName;
-
-        hRes = MsOutlookAddrBookContactQuery_buildOneOff(
-                displayName,
-                addressType,
-                emailAddress,
-                &spvProps[6].Value.bin.cb,
-                &spvProps[6].Value.bin.lpb);
-
-        if (SUCCEEDED(hRes))
+        SPropValue *spvProps = new SPropValue[nbPropId];
+        if (spvProps)
         {
-            hRes = contact->SetProps(nbPropId, spvProps, NULL);
+            spvProps[0].ulPropTag
+                = CHANGE_PROP_TYPE(lpNamedPropTags->aulPropTag[0], PT_MV_LONG);
+            spvProps[1].ulPropTag
+                = CHANGE_PROP_TYPE(lpNamedPropTags->aulPropTag[1], PT_LONG);
+            spvProps[2].ulPropTag
+                = CHANGE_PROP_TYPE(lpNamedPropTags->aulPropTag[2], PT_UNICODE);
+            spvProps[3].ulPropTag
+                = CHANGE_PROP_TYPE(lpNamedPropTags->aulPropTag[3], PT_UNICODE);
+            spvProps[4].ulPropTag
+                = CHANGE_PROP_TYPE(lpNamedPropTags->aulPropTag[4], PT_UNICODE);
+            spvProps[5].ulPropTag
+                = CHANGE_PROP_TYPE(lpNamedPropTags->aulPropTag[5], PT_UNICODE);
+            spvProps[6].ulPropTag
+                = CHANGE_PROP_TYPE(lpNamedPropTags->aulPropTag[6], PT_BINARY);
+
+            spvProps[0].Value.MVl.cValues = 1;
+            spvProps[0].Value.MVl.lpl = providerEmailList;
+
+            spvProps[1].Value.l = providerArrayType;
+
+            spvProps[2].Value.lpszW = displayName;
+            spvProps[3].Value.lpszW = addressType;
+            spvProps[4].Value.lpszW = emailAddress;
+            spvProps[5].Value.lpszW = originalDisplayName;
+
+            hRes = MsOutlookAddrBookContactQuery_buildOneOff(
+                    displayName,
+                    addressType,
+                    emailAddress,
+                    &spvProps[6].Value.bin.cb,
+                    &spvProps[6].Value.bin.lpb);
+
             if (SUCCEEDED(hRes))
             {
-                hRes = contact->SaveChanges(FORCE_SAVE);
+                hRes = contact->SetProps(nbPropId, spvProps, NULL);
+                if (SUCCEEDED(hRes))
+                {
+                    hRes = contact->SaveChanges(FORCE_SAVE);
+                }
             }
+
+            if (spvProps[6].Value.bin.lpb)
+            {
+                free(spvProps[6].Value.bin.lpb);
+            }
+
+            delete[] spvProps;
         }
 
-        if (spvProps[6].Value.bin.lpb)
-        {
-            free(spvProps[6].Value.bin.lpb);
-        }
         MAPIFreeBuffer(lpNamedPropTags);
     }
 
@@ -410,7 +417,7 @@ HRESULT MsOutlookAddrBookContactQuery_foreachMailUser(
     LPMAPISESSION mapiSession = MAPISession_getMapiSession();
     if (!mapiSession)
     {
-    	MsOutlookUtils_log("ERROR MAPI session not available. The query is aborted");
+        MsOutlookUtils_log(_T("ERROR MAPI session not available. The query is aborted"));
         MAPISession_unlock();
         return E_ABORT;
     }
@@ -456,7 +463,7 @@ MsOutlookAddrBookContactQuery_foreachContactInMsgStoresTable
     }
     else
     {
-    	MsOutlookUtils_log("ERROR failed to get message stores table.");
+        MsOutlookUtils_log(_T("ERROR failed to get message stores table."));
     }
 
     return proceed;
@@ -498,7 +505,7 @@ MsOutlookAddrBookContactQuery_foreachMailUser
         }
         else
         {
-        	MsOutlookUtils_log("Cannot get contents table.");
+            MsOutlookUtils_log(_T("Cannot get contents table."));
         }
 
         /* Drill down the hierarchy. */
@@ -518,9 +525,9 @@ MsOutlookAddrBookContactQuery_foreachMailUser
                 mapiTable->Release();
             }
             else
-			{
-				MsOutlookUtils_log("Cannot get contents table.[2]");
-			}
+            {
+                MsOutlookUtils_log(_T("Cannot get contents table.[2]"));
+            }
         }
 
         break;
@@ -529,7 +536,7 @@ MsOutlookAddrBookContactQuery_foreachMailUser
     case MAPI_MAILUSER:
     case MAPI_MESSAGE:
     {
-		MsOutlookUtils_log("Contact found. Calling the callback.");
+        MsOutlookUtils_log(_T("Contact found. Calling the callback."));
         if (MsOutlookAddrBookContactQuery_mailUserMatches(
                     (LPMAPIPROP) iUnknown, query))
         {
@@ -593,7 +600,7 @@ MsOutlookAddrBookContactQuery_foreachRowInTable
             hResult = mapiTable->QueryRows(1, 0, &rows);
             if (HR_FAILED(hResult))
             {
-            	MsOutlookUtils_log("ERROR failed to query row from msg stores table.");
+                MsOutlookUtils_log(_T("ERROR failed to query row from msg stores table."));
                 break;
             }
 
@@ -653,25 +660,25 @@ MsOutlookAddrBookContactQuery_foreachRowInTable
                     }
                     else
                     {
-                    	MsOutlookUtils_log("Failed to allocate buffer.");
+                        MsOutlookUtils_log(_T("Failed to allocate buffer."));
                         MsOutlookAddrBookContactQuery_freeSRowSet(rows);
                     }
                 }
                 else
                 {
-                	MsOutlookUtils_log("ERROR wrong type of the msg store");
-                	if(!objType)
-                		MsOutlookUtils_log("ERROR wrong object type.");
-                	if(!entryIDBinary.cb)
-						MsOutlookUtils_log("ERROR binary structures size is 0");
-                	if(!entryIDBinary.lpb)
-						MsOutlookUtils_log("ERROR binary structuresis NULL");
+                    MsOutlookUtils_log(_T("ERROR wrong type of the msg store"));
+                    if(!objType)
+                        MsOutlookUtils_log(_T("ERROR wrong object type."));
+                    if(!entryIDBinary.cb)
+                        MsOutlookUtils_log(_T("ERROR binary structures size is 0"));
+                    if(!entryIDBinary.lpb)
+                        MsOutlookUtils_log(_T("ERROR binary structuresis NULL"));
                     MsOutlookAddrBookContactQuery_freeSRowSet(rows);
                 }
             }
             else
             {
-            	MsOutlookUtils_log("ERROR queried rows are more than 1.");
+                MsOutlookUtils_log(_T("ERROR queried rows are more than 1."));
                 MAPIFreeBuffer(rows);
                 break;
             }
@@ -679,7 +686,7 @@ MsOutlookAddrBookContactQuery_foreachRowInTable
     }
     else
     {
-    	MsOutlookUtils_log("ERROR failed to seek row from msg stores table.");
+        MsOutlookUtils_log(_T("ERROR failed to seek row from msg stores table."));
     }
 
     return proceed;
@@ -1218,7 +1225,7 @@ HRESULT MsOutlookAddrBookContactQuery_IMAPIProp_1GetProps(
                     MsOutlookAddrBookContactQuery_rdOpenEntryUlFlags))
             == NULL)
     {
-    	MsOutlookUtils_log("Error openning ID string.");
+        MsOutlookUtils_log(_T("Error openning ID string."));
         return hr;
     }
 
@@ -1406,18 +1413,18 @@ HRESULT MsOutlookAddrBookContactQuery_IMAPIProp_1GetProps(
                 MAPIFreeBuffer(propTagArray);
             }
             else
-			{
-				MsOutlookUtils_log("Error calling MAPI getProp method.");
-			}
+            {
+                MsOutlookUtils_log(_T("Error calling MAPI getProp method."));
+            }
         }
         else
         {
-        	MsOutlookUtils_log("Proptag array is not initialized.");
+            MsOutlookUtils_log(_T("Proptag array is not initialized."));
         }
     }
     else
     {
-    	MsOutlookUtils_log("Memory allocation error.[7]");
+        MsOutlookUtils_log(_T("Memory allocation error.[7]"));
     }
     ((LPMAPIPROP)  mapiProp)->Release();
 
@@ -1661,7 +1668,7 @@ MsOutlookAddrBookContactQuery_onForeachContactInMsgStoresTableRow
         }
         else
         {
-        	MsOutlookUtils_log("Failed to get msg store receive folder.");
+            MsOutlookUtils_log(_T("Failed to get msg store receive folder."));
         }
         if (HR_FAILED(hResult))
         {
@@ -1687,7 +1694,7 @@ MsOutlookAddrBookContactQuery_onForeachContactInMsgStoresTableRow
                     &contactsFolder);
             if (HR_SUCCEEDED(hResult))
             {
-            	MsOutlookUtils_log("Message store and folder found.");
+                MsOutlookUtils_log(_T("Message store and folder found."));
                 proceed = MsOutlookAddrBookContactQuery_foreachMailUser(
                             contactsFolderObjType,
                             contactsFolder,
@@ -1699,19 +1706,19 @@ MsOutlookAddrBookContactQuery_onForeachContactInMsgStoresTableRow
             }
             else
             {
-            	MsOutlookUtils_log("Cannot open the folder.");
+                MsOutlookUtils_log(_T("Cannot open the folder."));
             }
             MAPIFreeBuffer(contactsFolderEntryID);
         }
         else
         {
-        	MsOutlookUtils_log("Cannot find the folder.");
+            MsOutlookUtils_log(_T("Cannot find the folder."));
         }
         msgStore->Release();
     }
     else
     {
-    	MsOutlookUtils_log("Failed to open msg store.");
+        MsOutlookUtils_log(_T("Failed to open msg store."));
     }
 
     return proceed;
@@ -1751,7 +1758,7 @@ MsOutlookAddrBookContactQuery_onForeachMailUserInContainerTableRow
     }
     else
     {
-    	MsOutlookUtils_log("Failed to open container table.");
+        MsOutlookUtils_log(_T("Failed to open container table."));
         /* We've failed but other parts of the hierarchy may still succeed. */
         proceed = JNI_TRUE;
     }

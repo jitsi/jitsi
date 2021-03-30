@@ -124,7 +124,7 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::foreachMailUser(
 
     HRESULT hr =  E_FAIL;
 
-    MsOutlookUtils_log("Executing query.");
+    MsOutlookUtils_log(_T("Executing query."));
     IMsOutlookAddrBookClient * msOutlookAddrBookClient = NULL;
     if((hr = CoCreateInstance(
             CLSID_MsOutlookAddrBookClient,
@@ -143,7 +143,7 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::foreachMailUser(
     }
     else
     {
-    	MsOutlookUtils_log("Error can't access the COM client.");
+        MsOutlookUtils_log(_T("Error can't access the COM client."));
     }
 
     free(charQuery);
@@ -233,7 +233,7 @@ boolean MsOutlookAddrBookServer::foreachMailUserCallback(
 
     if(callbackClient)
     {
-    	MsOutlookUtils_log("Contact received. The contact will be send to the client.");
+        MsOutlookUtils_log(_T("Contact received. The contact will be send to the client."));
         LPWSTR iUnknownW = StringUtils::MultiByteToWideChar(iUnknown);
         BSTR res = SysAllocString(iUnknownW);
 
@@ -245,7 +245,7 @@ boolean MsOutlookAddrBookServer::foreachMailUserCallback(
     }
     else
     {
-    	MsOutlookUtils_log("No callback client");
+        MsOutlookUtils_log(_T("No callback client"));
     }
 
     return (hr == S_OK);
@@ -343,7 +343,7 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_GetProps(
                 }
                 else
                 {
-                	MsOutlookUtils_log("Error receiving the properties.");
+                    MsOutlookUtils_log(_T("Error receiving the properties."));
                 }
 
                 for(int j = 0; j < nbPropIds; ++j)
@@ -356,19 +356,19 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_GetProps(
             }
             else
             {
-            	MsOutlookUtils_log("Memory allocation error.[4]");
+                MsOutlookUtils_log(_T("Memory allocation error.[4]"));
             }
             free(localPropsLength);
         }
         else
         {
-        	MsOutlookUtils_log("Memory allocation error.[5]");
+            MsOutlookUtils_log(_T("Memory allocation error.[5]"));
         }
         free(localProps);
     }
     else
     {
-    	MsOutlookUtils_log("Memory allocation error.[6]");
+        MsOutlookUtils_log(_T("Memory allocation error.[6]"));
     }
 
     return hr;

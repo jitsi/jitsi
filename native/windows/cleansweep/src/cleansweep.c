@@ -49,12 +49,12 @@ CleanSweep_rm(LPCTSTR path)
 }
 
 int CALLBACK
-WinMain(
+_tWinMain(
         HINSTANCE instance, HINSTANCE prevInstance,
-        LPSTR cmdLine,
+        LPTSTR cmdLine,
         int cmdShow)
 {
-    LPCTSTR productName = PRODUCTNAME;
+    LPCTSTR productName = _T(PRODUCTNAME);
     size_t productNameLength = _tcslen(productName);
 
     /* If we do not have the product name, we cannot really delete anything. */

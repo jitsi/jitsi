@@ -18,15 +18,16 @@
 #include "MAPINotification.h"
 
 #include "MAPISession.h"
-#include "net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService.h"
-#include "net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery.h"
+#include <net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService.h>
+#include <net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery.h>
 #include "MsOutlookAddrBookContactSourceService.h"
-#include "MsOutlookAddrBookContactQuery.h"
 #include "MsOutlookUtils.h"
 #include "MsOutlookCalendar.h"
 
-#include <mapidefs.h>
-#include <stdio.h>
+#include <windows.h>
+#include <tchar.h>
+#include <MAPIDefS.h>
+#include <cstdio>
 #include <unknwn.h>
 
 /**
@@ -77,7 +78,7 @@ void (*MAPINotification_callCalendarInsertedMethod)(LPSTR iUnknown) = NULL;
 void (*MAPINotification_callCalendarUpdatedMethod)(LPSTR iUnknown) = NULL;
 
 
-typedef LONG (__attribute__((__stdcall__)) MAPINotification_callback)(LPVOID, DWORD, LPNOTIFICATION);
+typedef LONG (CALLBACK MAPINotification_callback)(LPVOID, DWORD, LPNOTIFICATION);
 
 ULONG MAPINotification_registerNotifyMessageDataBase(
         LPMDB iUnknown,
@@ -103,7 +104,7 @@ boolean MAPINotification_callCallbackMethod(LPSTR iUnknown, long objectAddr)
 {
     if(objectAddr <= 0)
     {
-    	MsOutlookUtils_log("Callback object is null. We are calling insert method");
+        MsOutlookUtils_log(_T("Callback object is null. We are calling insert method"));
         MAPINotification_jniCallInsertedMethod(iUnknown);
         return true;
     }
@@ -138,25 +139,25 @@ boolean MAPINotification_callCallbackMethod(LPSTR iUnknown, long objectAddr)
                 }
                 else
                 {
-                	MsOutlookUtils_log("Error in MAPI Notification.[4]");
+                    MsOutlookUtils_log(_T("Error in MAPI Notification.[4]"));
                 }
 
                 tmpJniEnv->DeleteLocalRef(callbackClass);
             }
             else
             {
-            	MsOutlookUtils_log("Error in MAPI Notification.[3]");
+                MsOutlookUtils_log(_T("Error in MAPI Notification.[3]"));
             }
         }
         else
         {
-        	MsOutlookUtils_log("Error in MAPI Notification.[2]");
+            MsOutlookUtils_log(_T("Error in MAPI Notification.[2]"));
         }
         MAPINotification_VM->DetachCurrentThread();
     }
     else
     {
-    	MsOutlookUtils_log("Error in MAPI Notification.");
+        MsOutlookUtils_log(_T("Error in MAPI Notification."));
     }
 
     return proceed;
@@ -212,7 +213,7 @@ void MAPINotification_jniCallInsertedMethod(LPSTR iUnknown)
         }
         else
         {
-        	MsOutlookUtils_log("MAPI notification delegate is null.");
+            MsOutlookUtils_log(_T("MAPI notification delegate is null."));
         }
 
         tmpJniEnv->DeleteLocalRef(value);
@@ -922,25 +923,25 @@ ULONG MAPINotification_registerNotifyMessageDataBase(
 	if (HR_SUCCEEDED(hResult))
 	{
 		MsOutlookUtils_log(
-				"Successfully found folder to register notifications.");
+                _T("Successfully found folder to register notifications."));
 		iUnknown->Advise(
 				(ULONG) entrySize,
 				(LPENTRYID) entryID,
 				MAPINotification_EVENT_MASK,
 				*adviseSink,
-				(ULONG *) &nbConnection);
+				(ULONG_PTR *) &nbConnection);
 	}
 	else
 	{
 		if(type == CONTACTS_FOLDER_TYPE)
 		{
 			MsOutlookUtils_log(
-					"Contacts folder for the message store doesn't exists");
+                    _T("Contacts folder for the message store doesn't exists"));
 		}
 		else
 		{
 			MsOutlookUtils_log(
-					"Calendar folder for the message store doesn't exists");
+                    _T("Calendar folder for the message store doesn't exists"));
 		}
 	}
 
@@ -964,7 +965,7 @@ ULONG MAPINotification_registerNotifyTable(
 {
     HrAllocAdviseSink(&MAPINotification_tableChanged, iUnknown, adviseSink);
     ULONG nbConnection = 0;
-    iUnknown->Advise(fnevTableModified, *adviseSink, (ULONG *) &nbConnection);
+    iUnknown->Advise(fnevTableModified, *adviseSink, (ULONG_PTR *) &nbConnection);
 
     return nbConnection;
 }

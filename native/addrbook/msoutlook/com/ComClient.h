@@ -18,7 +18,7 @@
 #ifndef __MSOUTLOOKADDRBOOKCOM_COMCLIENT_H
 #define __MSOUTLOOKADDRBOOKCOM_COMCLIENT_H
 
-#include "IMsOutlookAddrBookServer.h"
+#include <IMsOutlookAddrBookServer_i.h>
 
 /**
  * Starts and stops registration for the COM client.

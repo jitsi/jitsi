@@ -16,6 +16,15 @@
  * limitations under the License.
  */
 
+// The Java invocation API doesn't support unicode
+#ifdef UNICODE
+#undef UNICODE
+#endif
+
+#ifdef _UNICODE
+#undef _UNICODE
+#endif
+
 #include "run.h"
 
 #include <windows.h>

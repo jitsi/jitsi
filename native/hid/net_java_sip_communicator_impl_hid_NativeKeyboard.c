@@ -22,7 +22,7 @@
  * \author Sebastien Vincent
  */
 
-#include "net_java_sip_communicator_impl_hid_NativeKeyboard.h"
+#include <net_java_sip_communicator_impl_hid_NativeKeyboard.h>
 
 #include "KeyboardUtil.h"
 

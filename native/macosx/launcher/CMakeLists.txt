@@ -4,8 +4,8 @@ project(Jitsi OBJC)
 find_package(JNI REQUIRED)
 
 add_executable(${PROJECT_NAME} MACOSX_BUNDLE
-        launcher.m
-)
+               launcher.m
+               )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
                            ${JNI_INCLUDE_DIRS})

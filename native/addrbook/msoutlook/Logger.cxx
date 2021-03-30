@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 #include "Logger.h"
-#include <windows.h>
-#include <string.h>
+#include <tchar.h>
+#include <cstdio>
 
 #define LOGGER_DATE_STRING_LENGTH 25
 
@@ -27,125 +27,129 @@
  * @param pLogFile the filename of the log file.
  * @param pLogPath the path of the log file.
  */
-Logger::Logger(const char* pLogFile, const char* pLogPath, int pLogLevel)
+Logger::Logger(LPCTSTR pLogFile, LPCTSTR pLogPath, int pLogLevel)
 {
-	logLevel = pLogLevel;
-	canWriteInFile = false;
-	if(pLogPath != NULL && strlen(pLogPath) != 0)
-	{
-		logPath = (char*)malloc((strlen(pLogPath)+1)*sizeof(char));
-		memcpy(logPath, pLogPath, strlen(pLogPath) + 1);
-		if(pLogFile != NULL && strlen(pLogFile) != 0)
-		{
-//			This code enables different log files for every instance of the application.
-//			char *dateString = (char*)malloc(LOGGER_DATE_STRING_LENGTH*sizeof(char));
-//			getCurrentTimeString(dateString);
-//			logFile = (char*)malloc((strlen(pLogPath) + strlen(pLogFile) + strlen(dateString) + 1)*sizeof(char));
-//			sprintf(logFile, "%s%s%s", pLogPath, dateString, pLogFile);
-//			free(dateString);
-			logFile = (char*)malloc((strlen(pLogPath) + strlen(pLogFile) + 1)*sizeof(char));
-			sprintf(logFile, "%s%s", pLogPath, pLogFile);
-			file = fopen(logFile, "w");
-			if(file != NULL)
-			{
-				canWriteInFile = true;
-			}
-		}
-		
-	}
+    logLevel = pLogLevel;
+    canWriteInFile = false;
+    if(pLogPath != nullptr && _tcslen(pLogPath) != 0)
+    {
+        logPath = new TCHAR[(_tcslen(pLogPath) + 1)];
+        memcpy(logPath, pLogPath, _tcslen(pLogPath) + 1);
+        if(pLogFile != nullptr && _tcslen(pLogFile) != 0)
+        {
+            logFile = new TCHAR[(_tcslen(pLogPath) + _tcslen(pLogFile) + 1)];
+            _stprintf(logFile, _T("%s%s"), pLogPath, pLogFile);
+            if (_tfopen_s(&file, logFile, _T("w")) == 0)
+            {
+                canWriteInFile = file != nullptr;
+            }
+        }
+    }
 
-	if(!canWriteInFile)
-	{
-		logPath = NULL;
-		logFile = NULL;
-		file = NULL;
-	}
+    if(!canWriteInFile)
+    {
+        if (logPath)
+        {
+            delete[] logPath;
+            logPath = nullptr;
+        }
+    
+        if (logFile)
+        {
+            delete[] logFile;
+            logFile = nullptr;
+        }
+    
+        file = nullptr;
+    }
 }
 
 Logger::~Logger()
 {
-	if(logPath != NULL)
-	{
-		free(logPath);
-	}
+    if (logPath)
+    {
+        delete[] logPath;
+        logPath = nullptr;
+    }
 
-	if(logFile != NULL)
-	{
-		free(logFile);
-	}
+    if (logFile)
+    {
+        delete[] logFile;
+        logFile = nullptr;
+    }
 
-	if(canWriteInFile)
-		fclose(file);
+    if(canWriteInFile)
+        fclose(file);
 }
 
-const char* Logger::getCurrentFile()
+LPCTSTR Logger::getCurrentFile()
 {
-	return "";
+    return _T("");
 }
 
 /**
  * Returns current timestamp string.
  */
-void Logger::getCurrentTimeString(char* dateString)
+void Logger::getCurrentTimeString(LPTSTR dateString)
 {
-	SYSTEMTIME systemTime;
-	GetSystemTime(&systemTime);
-	sprintf(dateString,"%u-%02u-%02u-%02u-%02u-%02u.%u",
-		systemTime.wYear,
-		systemTime.wMonth,
-		systemTime.wDay,
-		systemTime.wHour,
-		systemTime.wMinute,
-		systemTime.wSecond,
-		systemTime.wMilliseconds);
+    SYSTEMTIME systemTime;
+    GetSystemTime(&systemTime);
+    _stprintf(dateString,_T("%u-%02u-%02u-%02u-%02u-%02u.%u"),
+        systemTime.wYear,
+        systemTime.wMonth,
+        systemTime.wDay,
+        systemTime.wHour,
+        systemTime.wMinute,
+        systemTime.wSecond,
+        systemTime.wMilliseconds);
 }
 
 /**
  * Logs a message
  * @param message the message.
  */
-void Logger::log(const char* message)
+void Logger::log(LPCTSTR message)
 {
-	if(canWriteInFile && logLevel >= LOGGER_LEVEL_TRACE)
-	{
-		char *dateString = (char*)malloc(LOGGER_DATE_STRING_LENGTH*sizeof(char));
-		getCurrentTimeString(dateString);
-		fprintf(file, "%s %s: %s\n",dateString, getCurrentFile(), message);
-		fflush(file);
-		free(dateString);
-	}
+    if(canWriteInFile && logLevel >= LOGGER_LEVEL_TRACE)
+    {
+        auto dateString = new TCHAR[LOGGER_DATE_STRING_LENGTH];
+        getCurrentTimeString(dateString);
+        _ftprintf(file, _T("%s %s: %s\n"), dateString, getCurrentFile(), message);
+        fflush(file);
+        delete[] dateString;
+    }
 }
 
 /**
  * Logs a message
  * @param message the message.
  */
-void Logger::logInfo(const char* message)
+void Logger::logInfo(LPCTSTR message)
 {
-	if(canWriteInFile && logLevel >= LOGGER_LEVEL_INFO )
-	{
-		char *dateString = (char*)malloc(LOGGER_DATE_STRING_LENGTH*sizeof(char));
-		getCurrentTimeString(dateString);
-		fprintf(file, "%s %s: %s\n",dateString, getCurrentFile(), message);
-		fflush(file);
-		free(dateString);
-	}
+    if(canWriteInFile && logLevel >= LOGGER_LEVEL_INFO )
+    {
+        auto dateString = new TCHAR[LOGGER_DATE_STRING_LENGTH];
+        getCurrentTimeString(dateString);
+        _ftprintf(file, _T("%s %s: %s\n"), dateString, getCurrentFile(), message);
+        fflush(file);
+        delete[] dateString;
+    }
 }
 
 /**
  * Returns the path of the log file.
  */
-char* Logger::getLogPath()
+LPCTSTR Logger::getLogPath()
 {
-	return logPath;
+    return logPath;
 }
 
 /**
  * Returns the current log level.
  */
-int Logger::getLogLevel()
+int Logger::getLogLevel() const
 {
-	return logLevel;
+    return logLevel;
 }
 
 

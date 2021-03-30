@@ -3,8 +3,6 @@ project(win_shared)
 
 file(GLOB_RECURSE SOURCE_FILES "src/*.c")
 
-configure_file(config.h.in include/config.h)
-
 add_library(${PROJECT_NAME} STATIC
             ${SOURCE_FILES}
             )

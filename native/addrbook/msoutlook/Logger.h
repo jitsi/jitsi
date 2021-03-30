@@ -18,7 +18,8 @@
 #ifndef _NET_JAVA_SIP_COMMUNICATOR_PLUGIN_ADDRBOOK_MSOUTLOOK_LOGGER_H_
 #define _NET_JAVA_SIP_COMMUNICATOR_PLUGIN_ADDRBOOK_MSOUTLOOK_LOGGER_H_
 
-#include <stdio.h>
+#include <cstdio>
+#include <Windows.h>
 
 #define LOGGER_LEVEL_INFO 0
 #define LOGGER_LEVEL_TRACE 1
@@ -31,12 +32,12 @@ class Logger
 	/**
 	 * The full file name of the log file
 	 */
-	char* logFile;
+    LPTSTR logFile;
 
 	/**
 	 * The path of the file.
 	 */
-	char* logPath;
+    LPTSTR logPath;
 
 	/**
 	 * The file handle.
@@ -56,12 +57,12 @@ class Logger
 	/**
 	 * Returns current timestamp string.
 	 */
-	void getCurrentTimeString(char*);
+	static void getCurrentTimeString(LPTSTR);
 
 	/**
 	 * Not implemented.
 	 */
-	const char* getCurrentFile();
+    LPCTSTR getCurrentFile();
 
 public:
 	/**
@@ -70,7 +71,7 @@ public:
 	 * @param pLogPath the path of the log file.
 	 * @param pLogLevel the current log level
 	 */
-	Logger(const char* pLogFile, const char* pLogPath, int pLogLevel);
+	Logger(LPCTSTR pLogFile, LPCTSTR pLogPath, int pLogLevel);
 
 	/**
 	 * Destructor.
@@ -81,23 +82,23 @@ public:
 	 * Logs a message
 	 * @param message the message.
 	 */
-	void log(const char* message);
+	void log(LPCTSTR message);
 
 	/**
 	 * Logs a message
 	 * @param message the message.
 	 */
-	void logInfo(const char* message);
+	void logInfo(LPCTSTR message);
 
 	/**
 	 * Returns the path of the log file.
 	 */
-	char* getLogPath();
+    LPCTSTR getLogPath();
 
 	/**
 	 * Returns the current log level.
 	 */
-	int getLogLevel();
+	int getLogLevel() const;
 };
 
 #endif

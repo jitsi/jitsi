@@ -13,6 +13,7 @@ target_link_libraries(${PRODUCTNAME} LINK_PUBLIC
                       )
 target_include_directories(${PRODUCTNAME} PUBLIC
                            include
+                           ${CONFIG_INCLUDE_DIR}
                            ${JNI_INCLUDE_DIRS}
                            ${CMAKE_CURRENT_SOURCE_DIR}/../../../resources/install/windows
                            )

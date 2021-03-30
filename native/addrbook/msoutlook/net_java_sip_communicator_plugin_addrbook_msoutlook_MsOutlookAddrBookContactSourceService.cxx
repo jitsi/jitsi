@@ -31,19 +31,27 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
      jobject notificationsDelegate, jstring logPath, jint logLevel)
 {
     HRESULT hr;
-    const char* logFileString = jniEnv->GetStringUTFChars(logPath, NULL);
-	MsOutlookUtils_createLogger("msoutlookaddrbook.log", logFileString, logLevel);
+#ifdef UNICODE
+    const jchar *logFileString = jniEnv->GetStringChars(logPath, NULL);
+#else
+    char *logFileString = jniEnv->GetStringUTFChars(logPath, NULL);
+#endif
+    MsOutlookUtils_createLogger(_T("msoutlookaddrbook.log"), (LPTSTR)logFileString, logLevel);
     MAPINotification_registerJniNotificationsDelegate(
       jniEnv,
       notificationsDelegate);
 
+#ifdef UNICODE
+    jniEnv->ReleaseStringChars(logPath, logFileString);
+#else
     jniEnv->ReleaseStringUTFChars(logPath, logFileString);
+#endif
 
     hr = MsOutlookAddrBookContactSourceService_MAPIInitializeCOMServer();
 
     if (HR_FAILED(hr))
     {
-    	MsOutlookUtils_log("Failed to init COM Server");
+        MsOutlookUtils_log(_T("Failed to init COM Server"));
         // Report any possible error regardless of where it has come from.
         MsOutlookMAPIHResultException_throwNew(
                 jniEnv,
@@ -68,7 +76,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
  * @return 64 if Outlook 64 bits version is installed. 32 if Outlook 32 bits
  * version is installed. -1 otherwise.
  */
-JNIEXPORT int JNICALL
+JNIEXPORT jint JNICALL
 Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_getOutlookBitnessVersion
     (JNIEnv *jniEnv, jclass clazz)
 {
@@ -81,7 +89,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
  * @return 2013 for "Outlook 2013", 2010 for "Outlook 2010", 2007 for "Outlook
  * 2007" or 2003 for "Outlook 2003". -1 otherwise.
  */
-JNIEXPORT int JNICALL
+JNIEXPORT jint JNICALL
 Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_getOutlookVersion
     (JNIEnv *jniEnv, jclass clazz)
 {

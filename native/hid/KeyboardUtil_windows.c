@@ -78,7 +78,7 @@ void generateKey(jchar key, jboolean pressed)
 
     modifiers = HIBYTE(letter);
     letter = LOBYTE(letter);
-       
+
     if(pressed)
     {
         /* shift */

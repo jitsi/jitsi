@@ -17,15 +17,13 @@
  */
 #include "ComClient.h"
 
-#include "../MAPIBitness.h"
 #include "MsOutlookAddrBookServerClassFactory.h"
 #include "MsOutlookAddrBookClientClassFactory.h"
 #include "../MsOutlookUtils.h"
 #include "TypeLib.h"
 
-
-#include <process.h>
-#include <stdio.h>
+#include <tchar.h>
+#include <cstdio>
 
 /**
  * Starts and stops registration for the COM client.
@@ -56,7 +54,7 @@ void ComClient_start(void)
 {
     HRESULT hr = E_FAIL;
 
-    MsOutlookUtils_log("Starting COM client.");
+    MsOutlookUtils_log(_T("Starting COM client."));
     if((hr = CoInitializeEx(NULL, COINIT_MULTITHREADED)) == S_OK
             || hr == S_FALSE)
     {
@@ -72,19 +70,18 @@ void ComClient_start(void)
                     IID_IMsOutlookAddrBookServer,
                     (void**) &ComClient_iServer)) == S_OK)
             {
-                WCHAR * path = (WCHAR*) L"IMsOutlookAddrBookClient.tlb"; 
-                ComClient_typeLib = TypeLib_loadRegTypeLib(path);
+                ComClient_typeLib = TypeLib_loadRegTypeLib();
 
                 ClassFactory *ComClient_classFactory
                     = new MsOutlookAddrBookClientClassFactory();
                 if(ComClient_classFactory->registerClassObject() != S_OK)
                 {
-                	MsOutlookUtils_log("Failed to start COM client.[1]");
+                    MsOutlookUtils_log(_T("Failed to start COM client.[1]"));
                     ComClient_classFactory->Release();
                     ComClient_classFactory = NULL;
                 }
                 ::CoResumeClassObjects();
-                MsOutlookUtils_log("COM Client is started.");
+                MsOutlookUtils_log(_T("COM Client is started."));
                 retry = 0;
             }
             Sleep(1000);
@@ -93,7 +90,7 @@ void ComClient_start(void)
     }
     else
     {
-    	MsOutlookUtils_log("Failed to start COM client.");
+        MsOutlookUtils_log(_T("Failed to start COM client."));
     }
 }
 

@@ -29,8 +29,8 @@
 
 #include <initguid.h>
 #include <jni.h>
-#include <Mapidefs.h>
-#include <Mapix.h>
+#include <MAPIDefS.h>
+#include <MAPIX.h>
 #include <windows.h>
 #include "Logger.h"
 
@@ -79,20 +79,20 @@ MsOutlookUtils_getFolderEntryIDByType
             }
             else
             {
-            	MsOutlookUtils_log("MsOutlookUtils_getFolderEntryIDByType: Not enough memory.");
+                MsOutlookUtils_log(_T("MsOutlookUtils_getFolderEntryIDByType: Not enough memory."));
                 hResult = MAPI_E_NOT_ENOUGH_MEMORY;
             }
             MAPIFreeBuffer(prop);
         }
         else
         {
-        	MsOutlookUtils_log("MsOutlookUtils_getFolderEntryIDByType: Error getting the property.");
+            MsOutlookUtils_log(_T("MsOutlookUtils_getFolderEntryIDByType: Error getting the property."));
         }
         folder->Release();
     }
     else
     {
-    	MsOutlookUtils_log("MsOutlookUtils_getFolderEntryIDByType: Error opening the folder.");
+        MsOutlookUtils_log(_T("MsOutlookUtils_getFolderEntryIDByType: Error opening the folder."));
     }
     return hResult;
 }
@@ -143,14 +143,14 @@ MsOutlookUtils_HrGetOneProp(
         }
         if (!propHasBeenAssignedTo)
         {
-        	MsOutlookUtils_log("MsOutlookUtils_HrGetOneProp: Property not found.");
+            MsOutlookUtils_log(_T("MsOutlookUtils_HrGetOneProp: Property not found."));
             hResult = MAPI_E_NOT_FOUND;
         }
         MAPIFreeBuffer(values);
     }
     else
     {
-    	MsOutlookUtils_log("MsOutlookUtils_HrGetOneProp: MAPI getProps error.");
+        MsOutlookUtils_log(_T("MsOutlookUtils_HrGetOneProp: MAPI getProps error."));
     }
     return hResult;
 }
@@ -169,7 +169,7 @@ MsOutlookUtils_IMAPIProp_GetProps(
     jobjectArray javaProps = NULL;
     const char *nativeEntryId = jniEnv->GetStringUTFChars(entryId, NULL);
     jsize propIdCount = jniEnv->GetArrayLength(propIds);
-    long nativePropIds[propIdCount];
+    long *nativePropIds = new long[propIdCount];
 
     for(int i = 0; i < propIdCount; ++i)
     {
@@ -402,7 +402,7 @@ MsOutlookUtils_IMAPIProp_GetProps(
                     }
                     else
                     {
-                    	MsOutlookUtils_log("Error in the server call for getting properties.");
+                        MsOutlookUtils_log(_T("Error in the server call for getting properties."));
                         MsOutlookMAPIHResultException_throwNew(
                                 jniEnv,
                                 hr,
@@ -418,7 +418,7 @@ MsOutlookUtils_IMAPIProp_GetProps(
                 }
                 else
                 {
-                	MsOutlookUtils_log("Server is not available.");
+                    MsOutlookUtils_log(_T("Server is not available."));
                 }
 
 
@@ -431,39 +431,40 @@ MsOutlookUtils_IMAPIProp_GetProps(
             }
             else
             {
-            	MsOutlookUtils_log("Allocating memory error.[1]");
+                MsOutlookUtils_log(_T("Allocating memory error.[1]"));
             }
             free(propsLength);
         }
         else
-		{
-			MsOutlookUtils_log("Allocating memory error.[2]");
-		}
+        {
+            MsOutlookUtils_log(_T("Allocating memory error.[2]"));
+        }
         free(props);
     }
     else
-	{
-		MsOutlookUtils_log("Allocating memory error.[3]");
-	}
+    {
+        MsOutlookUtils_log(_T("Allocating memory error.[3]"));
+    }
 
+    delete[] nativePropIds;
     jniEnv->ReleaseStringUTFChars(entryId, nativeEntryId);
 
     return javaProps;
 }
 
-void MsOutlookUtils_createLogger(const char* logFile, const char* logPath,
+void MsOutlookUtils_createLogger(LPCTSTR logFile, LPCTSTR logPath,
 		int logLevel)
 {
 	logger = new Logger(logFile, logPath, logLevel);
 }
 
-void MsOutlookUtils_log(const char* message)
+void MsOutlookUtils_log(LPCTSTR message)
 {
 	if(logger != NULL)
 		logger->log(message);
 }
 
-void MsOutlookUtils_logInfo(const char* message)
+void MsOutlookUtils_logInfo(LPCTSTR message)
 {
 	if(logger != NULL)
 		logger->logInfo(message);
@@ -475,7 +476,7 @@ void MsOutlookUtils_deleteLogger()
 		free(logger);
 }
 
-char* MsOutlookUtils_getLoggerPath()
+LPCTSTR MsOutlookUtils_getLoggerPath()
 {
 	if(logger != NULL)
 		return logger->getLogPath();
@@ -495,7 +496,7 @@ MsOutlookUtils_isValidDefaultMailClient
     (LPCTSTR name, DWORD nameLength)
 {
     jboolean validDefaultMailClient = JNI_FALSE;
-    MsOutlookUtils_logInfo("We are validating the default mail client.");
+    MsOutlookUtils_logInfo(_T("We are validating the default mail client."));
     if ((0 != nameLength) && (0 != name[0]))
     {
         LPTSTR str;
@@ -513,7 +514,7 @@ MsOutlookUtils_isValidDefaultMailClient
         _tcsncpy(str, name, nameLength);
         *(str + nameLength) = 0;
 
-        MsOutlookUtils_logInfo("We are searching in HKLM for the key");
+        MsOutlookUtils_logInfo(_T("We are searching in HKLM for the key"));
         MsOutlookUtils_logInfo(keyName);
         if (ERROR_SUCCESS
                 == RegOpenKeyEx(
@@ -523,13 +524,13 @@ MsOutlookUtils_isValidDefaultMailClient
                         KEY_QUERY_VALUE,
                         &key))
         {
-        	MsOutlookUtils_logInfo("The key is found");
+        	MsOutlookUtils_logInfo(_T("The key is found"));
             validDefaultMailClient = JNI_TRUE;
             RegCloseKey(key);
         }
 		else
 		{
-			MsOutlookUtils_logInfo("The key for default mail client is not found");
+			MsOutlookUtils_logInfo(_T("The key for default mail client is not found"));
 		}
     }
     return validDefaultMailClient;
@@ -537,7 +538,7 @@ MsOutlookUtils_isValidDefaultMailClient
 
 bool MsOutlookUtils_isOutlookDefaultMailClient()
 {
-	MsOutlookUtils_logInfo("Outlook is installed and we are checking if it is default mail client.");
+	MsOutlookUtils_logInfo(_T("Outlook is installed and we are checking if it is default mail client."));
 
 	boolean result = false;
 	HKEY regKey;
@@ -554,7 +555,7 @@ bool MsOutlookUtils_isOutlookDefaultMailClient()
 					KEY_QUERY_VALUE,
 					&regKey))
 	{
-		MsOutlookUtils_logInfo("HKCU\\Software\\Clients\\Mail exists.");
+		MsOutlookUtils_logInfo(_T("HKCU\\Software\\Clients\\Mail exists."));
 		DWORD defaultValueSize = defaultValueCapacity;
 		LONG regQueryValueEx = RegQueryValueEx(
 				regKey,
@@ -583,41 +584,41 @@ bool MsOutlookUtils_isOutlookDefaultMailClient()
 								defaultValueLength)
 							== 0)
 					{
-						MsOutlookUtils_logInfo("The default value of HKCU\\Software\\Clients\\Mail is Microsoft Office .");
+						MsOutlookUtils_logInfo(_T("The default value of HKCU\\Software\\Clients\\Mail is Microsoft Office ."));
 						result = true;
 					}
 					else
 					{
-						MsOutlookUtils_logInfo("The default value of HKCU\\Software\\Clients\\Mail is not Microsoft Office .");
+						MsOutlookUtils_logInfo(_T("The default value of HKCU\\Software\\Clients\\Mail is not Microsoft Office ."));
 						MsOutlookUtils_logInfo(defaultValue);
 					}
 				}
 				else
 				{
-					MsOutlookUtils_logInfo("Not valid default mail client for the default value of HKCU\\Software\\Clients\\Mail .");
+					MsOutlookUtils_logInfo(_T("Not valid default mail client for the default value of HKCU\\Software\\Clients\\Mail ."));
 				}
 			}
 			else
 			{
-				MsOutlookUtils_logInfo("Wrong type for the default value of HKCU\\Software\\Clients\\Mail .");
+				MsOutlookUtils_logInfo(_T("Wrong type for the default value of HKCU\\Software\\Clients\\Mail ."));
 			}
 			break;
 		}
 		case ERROR_FILE_NOT_FOUND:
-			MsOutlookUtils_logInfo("Failed to retrieve the default value of HKCU\\Software\\Clients\\Mail . ERROR_FILE_NOT_FOUND");
+			MsOutlookUtils_logInfo(_T("Failed to retrieve the default value of HKCU\\Software\\Clients\\Mail . ERROR_FILE_NOT_FOUND"));
 			break;
 		case ERROR_MORE_DATA:
-			MsOutlookUtils_logInfo("Failed to retrieve the default value of HKCU\\Software\\Clients\\Mail . ERROR_MORE_DATA");
+			MsOutlookUtils_logInfo(_T("Failed to retrieve the default value of HKCU\\Software\\Clients\\Mail . ERROR_MORE_DATA"));
 			break;
 		default:
-			MsOutlookUtils_logInfo("Failed to retrieve the default value of HKCU\\Software\\Clients\\Mail . Unknown error.");
+			MsOutlookUtils_logInfo(_T("Failed to retrieve the default value of HKCU\\Software\\Clients\\Mail . Unknown error."));
 			break;
 		}
 		RegCloseKey(regKey);
 	}
 	else
 	{
-		MsOutlookUtils_logInfo("Failed to open HKCU\\Software\\Clients\\Mail .");
+		MsOutlookUtils_logInfo(_T("Failed to open HKCU\\Software\\Clients\\Mail ."));
 	}
 
 	if(result)
@@ -631,7 +632,7 @@ bool MsOutlookUtils_isOutlookDefaultMailClient()
 							KEY_QUERY_VALUE,
 							&regKey))
 	{
-		MsOutlookUtils_logInfo("HKLM\\Software\\Clients\\Mail exists.");
+		MsOutlookUtils_logInfo(_T("HKLM\\Software\\Clients\\Mail exists."));
 		DWORD defaultValueSize = defaultValueCapacity;
 		LONG regQueryValueEx
 			= RegQueryValueEx(
@@ -653,24 +654,24 @@ bool MsOutlookUtils_isOutlookDefaultMailClient()
 					&& (JNI_TRUE
 							== MsOutlookUtils_isValidDefaultMailClient(_T("Microsoft Outlook"), 17)))
 			{
-				MsOutlookUtils_logInfo("The default value of HKLM\\Software\\Clients\\Mail is Microsoft Office .");
+				MsOutlookUtils_logInfo(_T("The default value of HKLM\\Software\\Clients\\Mail is Microsoft Office ."));
 				result = true;
 			}
 			else
 			{
-				MsOutlookUtils_logInfo("The default value of HKLM\\Software\\Clients\\Mail is not Microsoft Office .");
+				MsOutlookUtils_logInfo(_T("The default value of HKLM\\Software\\Clients\\Mail is not Microsoft Office ."));
 				MsOutlookUtils_logInfo(defaultValue);
 			}
 		}
 		else
 		{
-			MsOutlookUtils_logInfo("Failed to retrieve the default value of HKLM\\Software\\Clients\\Mail .");
+			MsOutlookUtils_logInfo(_T("Failed to retrieve the default value of HKLM\\Software\\Clients\\Mail ."));
 		}
 		RegCloseKey(regKey);
 	}
 	else
 	{
-		MsOutlookUtils_logInfo("HKLM\\Software\\Clients\\Mail doesn't exists.");
+		MsOutlookUtils_logInfo(_T("HKLM\\Software\\Clients\\Mail doesn't exists."));
 	}
 
 	return result;

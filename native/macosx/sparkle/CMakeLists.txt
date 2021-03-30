@@ -7,8 +7,8 @@ find_package(JNI REQUIRED)
 find_package(Sparkle REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
-        net_java_sip_communicator_impl_sparkle_SparkleActivator.m
-)
+            net_java_sip_communicator_impl_sparkle_SparkleActivator.m
+            )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
                            ${JNI_INCLUDE_DIRS}

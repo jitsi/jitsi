@@ -26,7 +26,7 @@
  * @author Vincent Lucas
  */
 
-LPTYPELIB TypeLib_loadRegTypeLib(WCHAR* path);
+LPTYPELIB TypeLib_loadRegTypeLib();
 void TypeLib_releaseTypeLib(LPTYPELIB iTypeLib);
 
 #endif

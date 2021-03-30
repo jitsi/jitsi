@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-#include "net_java_sip_communicator_impl_galagonotification_GalagoNotification.h"
+#include <net_java_sip_communicator_impl_galagonotification_GalagoNotification.h>
 
 #include <stdlib.h>
 #include <dbus/dbus.h>
@@ -246,7 +246,7 @@ static dbus_bool_t
 GalagoNotification_messageAppendString(
     JNIEnv *env, DBusMessageIter *iter, jstring jstr)
 {
-    const jbyte *str;
+    const char *str;
     dbus_bool_t success;
     const char *emptyStr = "";  /* cannot append NULL, use "" in this case */
 
@@ -416,7 +416,7 @@ Java_net_java_sip_communicator_impl_galagonotification_GalagoNotification_dbus_1
         GalagoNotification_throwException(env, &error);
         dbus_error_free(&error);
     }
-    return connection;
+    return (jlong) connection;
 }
 
 JNIEXPORT void JNICALL

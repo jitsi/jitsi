@@ -78,6 +78,7 @@ char* MsOutlookAddrBookContactQuery_getStringUnicodeProp
 int MsOutlookAddrBookContactQuery_compareEntryIds
     (LPSTR id1, LPSTR id2);
 
-#define MsOutlookAddrBookContactQuery_UUID_Address (UUID){0x00062004, 0x0000, 0x0000, {0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46}}
+#include <initguid.h>
+DEFINE_GUID(MsOutlookAddrBookContactQuery_UUID_Address, 0x00062004, 0x0000, 0x0000, 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46);
 
 #endif

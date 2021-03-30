@@ -78,7 +78,7 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                 255 // The size limit of key name as documented in MSDN
                     + 20 // \Outlook\InstallRoot
                     + 1]; // The terminating null character
-        MsOutlookUtils_logInfo("Searching for outlook InstallRoot.");
+        MsOutlookUtils_logInfo(_T("Searching for outlook InstallRoot."));
         while (1)
         {
             LONG regEnumKeyEx;
@@ -98,23 +98,23 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                         NULL,
                         NULL);
             if (ERROR_NO_MORE_ITEMS == regEnumKeyEx)
-			{
-            	MsOutlookUtils_logInfo("No more Software\\Microsoft\\Office items.");
+            {
+                MsOutlookUtils_logInfo(_T("No more Software\\Microsoft\\Office items."));
                 break;
-			}
+            }
 
             i++;
             if (ERROR_SUCCESS != regEnumKeyEx)
-			{
-            	MsOutlookUtils_logInfo("Error quering the next Software\\Microsoft\\Office item.");
+            {
+                MsOutlookUtils_logInfo(_T("Error quering the next Software\\Microsoft\\Office item."));
                 continue;
-			}
+            }
 
             str = installRootKeyName + subkeyNameLength;
             memcpy(str, _T("\\Outlook\\InstallRoot"), 20 * sizeof(TCHAR));
             *(str + 20) = 0;
-			MsOutlookUtils_log("Trying to open the following key:");
-			MsOutlookUtils_log(installRootKeyName);
+            MsOutlookUtils_log(_T("Trying to open the following key:"));
+            MsOutlookUtils_log(installRootKeyName);
             if (ERROR_SUCCESS
                     == RegOpenKeyEx(
                             regKey,
@@ -123,7 +123,7 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                             KEY_QUERY_VALUE,
                             &installRootKey))
             {
-            	MsOutlookUtils_logInfo("The key is opened successfully.");
+                MsOutlookUtils_logInfo(_T("The key is opened successfully."));
                 if ((ERROR_SUCCESS
                         == RegQueryValueEx(
                                 installRootKey,
@@ -135,7 +135,7 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                     && (REG_SZ == pathValueType)
                     && pathValueSize)
                 {
-                	MsOutlookUtils_logInfo("Path value found.");
+                    MsOutlookUtils_logInfo(_T("Path value found."));
                     LPTSTR pathValue;
 
                     // MSDN says "the string may not have been stored with the
@@ -151,10 +151,10 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                     {
                         pathValue = (LPTSTR)::malloc(pathValueSize);
                         if (!pathValue)
-						{
-                        	MsOutlookUtils_logInfo("Error with memory allocation for the pathValue.");
+                        {
+                            MsOutlookUtils_logInfo(_T("Error with memory allocation for the pathValue."));
                             continue;
-						}
+                        }
                     }
 
                     if (ERROR_SUCCESS
@@ -165,12 +165,12 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                                     NULL,
                                     (LPBYTE) pathValue, &pathValueSize))
                     {
-                    	MsOutlookUtils_logInfo("The path value is retrieved");
+                        MsOutlookUtils_logInfo(_T("The path value is retrieved"));
                         DWORD pathValueLength = pathValueSize / sizeof(TCHAR);
 
                         if (pathValueLength)
                         {
-                        	MsOutlookUtils_logInfo("The path value is retrieved successfully. The length is not 0.");
+                            MsOutlookUtils_logInfo(_T("The path value is retrieved successfully. The length is not 0."));
                             DWORD fileAttributes;
 
                             str = pathValue + (pathValueLength - 1);
@@ -178,42 +178,42 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                                 str++;
                             memcpy(str, _T("\\Outlook.exe"), 12 * sizeof(TCHAR));
                             *(str + 12) = 0;
-                            MsOutlookUtils_logInfo("Trying to retrieve atributes for:");
+                            MsOutlookUtils_logInfo(_T("Trying to retrieve atributes for:"));
                             MsOutlookUtils_logInfo(pathValue);
                             fileAttributes = GetFileAttributes(pathValue);
                             if (INVALID_FILE_ATTRIBUTES != fileAttributes)
-							{
-                            	MsOutlookUtils_logInfo("The file exists.");
+                            {
+                                MsOutlookUtils_logInfo(_T("The file exists."));
                                 hResult = S_OK;
-							}
-							else
-							{
-								MsOutlookUtils_logInfo("The file doesn't exists");
-							}
+                            }
+                            else
+                            {
+                                MsOutlookUtils_logInfo(_T("The file doesn't exists"));
+                            }
                         }
-						else
-						{
-							MsOutlookUtils_logInfo("Error - the length of the path value is 0.");
-						}
+                        else
+                        {
+                            MsOutlookUtils_logInfo(_T("Error - the length of the path value is 0."));
+                        }
                     }
-					else
-					{
-						MsOutlookUtils_logInfo("Error retrieving the pathValue.");
-					}
+                    else
+                    {
+                        MsOutlookUtils_logInfo(_T("Error retrieving the pathValue."));
+                    }
 
                     if (pathValue != installRootKeyName)
                         free(pathValue);
                 }
-				else
-				{
-					MsOutlookUtils_logInfo("Error Path value not found.");
-				}
+                else
+                {
+                    MsOutlookUtils_logInfo(_T("Error Path value not found."));
+                }
                 RegCloseKey(installRootKey);
             }
-			else
-			{
-				MsOutlookUtils_logInfo("Error openning the key.");
-			}
+            else
+            {
+                MsOutlookUtils_logInfo(_T("Error openning the key."));
+            }
         }
         RegCloseKey(regKey);
 
@@ -222,36 +222,36 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
         // client.
         if (HR_SUCCEEDED(hResult))
         {
-        	if(MsOutlookUtils_isOutlookDefaultMailClient())
-        	{
-        		hResult = S_OK;
-        	}
-        	else
-        	{
-        		hResult = MAPI_E_NO_SUPPORT;
-        	}
+            if(MsOutlookUtils_isOutlookDefaultMailClient())
+            {
+                hResult = S_OK;
+            }
+            else
+            {
+                hResult = MAPI_E_NO_SUPPORT;
+            }
         }
-		else
-		{
-			MsOutlookUtils_logInfo("Outlook is not installed.");
-		}
+        else
+        {
+            MsOutlookUtils_logInfo(_T("Outlook is not installed."));
+        }
     }
-	else
-	{
-		MsOutlookUtils_logInfo("Error opening HKLM\\Software\\Microsoft\\Office registry.");
-	}
+    else
+    {
+        MsOutlookUtils_logInfo(_T("Error opening HKLM\\Software\\Microsoft\\Office registry."));
+    }
 
     // If we've determined that we'd like to go on with MAPI, try to load it.
     if (HR_SUCCEEDED(hResult))
     {
-    	MsOutlookUtils_logInfo("Loading MAPI.");
+        MsOutlookUtils_logInfo(_T("Loading MAPI."));
         MsOutlookAddrBookContactSourceService_hMapiLib
             = ::LoadLibrary(_T("mapi32.dll"));
 
         hResult = MAPI_E_NO_SUPPORT;
         if(MsOutlookAddrBookContactSourceService_hMapiLib)
         {
-        	MsOutlookUtils_logInfo("Loading MAPI functions");
+            MsOutlookUtils_logInfo(_T("Loading MAPI functions"));
             // get and check function pointers
             MsOutlookAddrBookContactSourceService_mapiInitialize
                 = (LPMAPIINITIALIZE) GetProcAddress(
@@ -366,7 +366,7 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                         if(HR_SUCCEEDED(hResult)
                                 && MAPISession_getMapiSession() == NULL)
                         {
-                        	MsOutlookUtils_logInfo("MAPI logon.");
+                            MsOutlookUtils_logInfo(_T("MAPI logon."));
                             LPMAPISESSION mapiSession = NULL;
                             hResult = MsOutlookAddrBook_mapiLogonEx(
                                     0,
@@ -377,7 +377,7 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                                     &mapiSession);
                             if(HR_SUCCEEDED(hResult))
                             {
-                            	MsOutlookUtils_logInfo("MAPI logon success.");
+                                MsOutlookUtils_logInfo(_T("MAPI logon success."));
                                 // Register the notification of contact changed,
                                 // created and deleted.
                                 MAPINotification_registerNotifyAllMsgStores(
@@ -385,12 +385,12 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                             }
                             else
                             {
-                            	MsOutlookUtils_logInfo("MAPI logon error.");
+                                MsOutlookUtils_logInfo(_T("MAPI logon error."));
                             }
                         }
                         else
                         {
-                        	MsOutlookUtils_logInfo("Error calling MAPI init from MAPI library.");
+                            MsOutlookUtils_logInfo(_T("Error calling MAPI init from MAPI library."));
                         }
                         ::SetCurrentDirectory(lpszWorkingDir);
                         MAPISession_unlock();
@@ -398,7 +398,7 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                     else
                     {
                         hResult = HRESULT_FROM_WIN32(::GetLastError());
-                        MsOutlookUtils_logInfo("Error getting current directory.[1]");
+                        MsOutlookUtils_logInfo(_T("Error getting current directory.[1]"));
                     }
 
                     ::free(lpszWorkingDir);
@@ -406,30 +406,30 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                 else
                 {
                     hResult = HRESULT_FROM_WIN32(::GetLastError());
-                    MsOutlookUtils_logInfo("Error getting current directory.[2]");
+                    MsOutlookUtils_logInfo(_T("Error getting current directory.[2]"));
                 }
             }
             else
             {
-            	MsOutlookUtils_logInfo("Cannot get MAPI functions.");
+                MsOutlookUtils_logInfo(_T("Cannot get MAPI functions."));
             }
         }
         else
         {
-        	MsOutlookUtils_logInfo("Error while loading MAPI library.");
+            MsOutlookUtils_logInfo(_T("Error while loading MAPI library."));
         }
     }
     else
     {
-    	MsOutlookUtils_logInfo("ERROR - we won't load MAPI.");
+        MsOutlookUtils_logInfo(_T("ERROR - we won't load MAPI."));
     }
 
     if (HR_FAILED(hResult))
     {
-    	MsOutlookUtils_logInfo("ERROR - in MAPI native init.");
+        MsOutlookUtils_logInfo(_T("ERROR - in MAPI native init."));
         if(MsOutlookAddrBookContactSourceService_hMapiLib)
         {
-        	MsOutlookUtils_logInfo("ERROR - free MAPI library.");
+            MsOutlookUtils_logInfo(_T("ERROR - free MAPI library."));
             FreeLibrary(MsOutlookAddrBookContactSourceService_hMapiLib);
             MsOutlookAddrBookContactSourceService_hMapiLib = NULL;
         }
@@ -448,39 +448,39 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitializeCOMServer(void)
     HRESULT hr = E_FAIL;
 
     MAPISession_lock();
-    MsOutlookUtils_log("Init com server.");
+    MsOutlookUtils_log(_T("Init com server."));
 
     IMsOutlookAddrBookServer * ComClient_iServer = NULL;
     if((hr = CoInitializeEx(NULL, COINIT_MULTITHREADED)) == S_OK
                 || hr == S_FALSE)
-	{
-		if((hr = CoCreateInstance(
-				CLSID_MsOutlookAddrBookServer,
-				NULL,
-				CLSCTX_LOCAL_SERVER,
-				IID_IMsOutlookAddrBookServer,
-				(void**) &ComClient_iServer)) == S_OK)
-		{
-			MsOutlookUtils_log("COM Server already started");
-			if(ComClient_iServer)
-			{
-				ComClient_iServer->Release();
-				ComClient_iServer = NULL;
-			}
-			return E_FAIL;
-		}
-	}
+    {
+        if((hr = CoCreateInstance(
+                CLSID_MsOutlookAddrBookServer,
+                NULL,
+                CLSCTX_LOCAL_SERVER,
+                IID_IMsOutlookAddrBookServer,
+                (void**) &ComClient_iServer)) == S_OK)
+        {
+            MsOutlookUtils_log(_T("COM Server already started"));
+            if(ComClient_iServer)
+            {
+                ComClient_iServer->Release();
+                ComClient_iServer = NULL;
+            }
+            return E_FAIL;
+        }
+    }
 
     // Start COM service
     if((hr = MsOutlookAddrBookContactSourceService_startComServer()) == S_OK)
     {
-    	MsOutlookUtils_log("COM Server started.");
+        MsOutlookUtils_log(_T("COM Server started."));
         // Start COM client
         ComClient_start();
     }
     else
     {
-    	MsOutlookUtils_log("Failed to start COM Server.");
+        MsOutlookUtils_log(_T("Failed to start COM Server."));
     }
 
     MAPISession_unlock();
@@ -558,7 +558,7 @@ HRESULT MsOutlookAddrBookContactSourceService_NativeMAPIInitialize
     (jlong version, jlong flags,
      void * deletedMethod, void * insertedMethod, void * updatedMethod)
 {
-	MsOutlookUtils_logInfo("MAPI native init.");
+    MsOutlookUtils_logInfo(_T("MAPI native init."));
     MAPINotification_registerNativeNotificationsDelegate(
             deletedMethod, insertedMethod, updatedMethod);
 
@@ -584,20 +584,20 @@ HRESULT MsOutlookAddrBookContactSourceService_startComServer(void)
     if(bitness != -1)
     {
         // Start COM service
-        char applicationName32[] = "jmsoutlookaddrbookcomserver32.exe";
-        char applicationName64[] = "jmsoutlookaddrbookcomserver64.exe";
-        char * applicationName = applicationName32;
+        TCHAR applicationName32[] = _T("jmsoutlookaddrbookcomserver32.exe");
+        TCHAR applicationName64[] = _T("jmsoutlookaddrbookcomserver64.exe");
+        LPTSTR applicationName = applicationName32;
         if(bitness == 64)
         {
             applicationName = applicationName64;
         }
-        int applicationNameLength = strlen(applicationName);
-        char currentDirectory[FILENAME_MAX - applicationNameLength - 8];
+        const int applicationNameLength = sizeof(applicationName32);
+        TCHAR currentDirectory[FILENAME_MAX - applicationNameLength - 8];
         GetCurrentDirectory(
                 FILENAME_MAX - applicationNameLength - 8,
                 currentDirectory);
-        char comServer[FILENAME_MAX];
-        sprintf(comServer, "%s/native/%s", currentDirectory, applicationName);
+        TCHAR comServer[FILENAME_MAX];
+        _stprintf(comServer, _T("%s/native/%s"), currentDirectory, applicationName);
 
         STARTUPINFO startupInfo;
         PROCESS_INFORMATION processInfo;
@@ -605,48 +605,48 @@ HRESULT MsOutlookAddrBookContactSourceService_startComServer(void)
         memset(&processInfo, 0, sizeof(processInfo));
         startupInfo.dwFlags = STARTF_USESHOWWINDOW;
         startupInfo.wShowWindow = SW_HIDE;
-        char* loggerPath = MsOutlookUtils_getLoggerPath();
+        LPCTSTR loggerPath = MsOutlookUtils_getLoggerPath();
         int loggerPathLenght = 0;
-        char* comServerWithLogger;
-        char* appNameWithLogger;
-        char* loggerPathEscaped = NULL;
+        LPTSTR comServerWithLogger;
+        LPTSTR appNameWithLogger;
+        LPTSTR loggerPathEscaped = NULL;
         if(loggerPath != NULL)
         {
-        	int loggerLevel = MsOutlookUtils_getLoggerLevel();
-        	char* loggerPathEscaped = (char* ) malloc(strlen(loggerPath) *
-        			sizeof(char) * 2);
-        	int i = 0;
-        	while(*loggerPath != '\0')
-        	{
-        		*(loggerPathEscaped + i) = *loggerPath;
-        		i++;
-        		if(*loggerPath == '\\')
-        		{
-        			*(loggerPathEscaped + i) = '\\';
-					i++;
-        		}
-        		loggerPath++;
-        	}
-        	*(loggerPathEscaped + i) = '\0';
-        	loggerPathLenght = strlen(loggerPathEscaped);
-			comServerWithLogger
-				= (char*) malloc(
-						(FILENAME_MAX + loggerPathLenght) * sizeof(char));
-			appNameWithLogger
-				= (char*) malloc(
-						(FILENAME_MAX + loggerPathLenght) * sizeof(char));
-        	sprintf(comServerWithLogger, "%s \"%s\" %d", comServer,
-        			loggerPathEscaped, loggerLevel);
-        	sprintf(appNameWithLogger, "%s \"%s\" %d", applicationName
-        			, loggerPathEscaped, loggerLevel);
+            int loggerLevel = MsOutlookUtils_getLoggerLevel();
+            LPTSTR loggerPathEscaped = (LPTSTR) malloc(_tcslen(loggerPath) *
+                    sizeof(char) * 2);
+            int i = 0;
+            while(*loggerPath != '\0')
+            {
+                *(loggerPathEscaped + i) = *loggerPath;
+                i++;
+                if(*loggerPath == '\\')
+                {
+                    *(loggerPathEscaped + i) = '\\';
+                    i++;
+                }
+                loggerPath++;
+            }
+            *(loggerPathEscaped + i) = '\0';
+            loggerPathLenght = _tcslen(loggerPathEscaped);
+            comServerWithLogger
+                = (LPTSTR) malloc(
+                        (FILENAME_MAX + loggerPathLenght) * sizeof(char));
+            appNameWithLogger
+                = (LPTSTR) malloc(
+                        (FILENAME_MAX + loggerPathLenght) * sizeof(char));
+            _stprintf(comServerWithLogger, _T("%s \"%s\" %d"), comServer,
+                    loggerPathEscaped, loggerLevel);
+            _stprintf(appNameWithLogger, _T("%s \"%s\" %d"), applicationName
+                    , loggerPathEscaped, loggerLevel);
         }
         else
         {
-        	comServerWithLogger = comServer;
-        	appNameWithLogger = applicationName;
+            comServerWithLogger = comServer;
+            appNameWithLogger = applicationName;
         }
         // Test 2 files: 0 for the build version, 1 for the git source version.
-        char * serverExec[2];
+        LPTSTR serverExec[2];
         serverExec[0] = comServerWithLogger;
         serverExec[1] = appNameWithLogger;
         for(int i = 0; i < 2; ++i)
@@ -662,22 +662,22 @@ HRESULT MsOutlookAddrBookContactSourceService_startComServer(void)
                 MsOutlookAddrBookContactSourceService_comServerHandle
                     = processInfo.hProcess;
                 MsOutlookUtils_logInfo(serverExec[i]);
-                MsOutlookUtils_logInfo("COM Server started successful.[1]");
+                MsOutlookUtils_logInfo(_T("COM Server started successful.[1]"));
                 if(loggerPath != NULL)
-				{
-                	free(comServerWithLogger);
-                	free(appNameWithLogger);
-				}
-                MsOutlookUtils_logInfo("COM Server started successful.[2]");
+                {
+                    free(comServerWithLogger);
+                    free(appNameWithLogger);
+                }
+                MsOutlookUtils_logInfo(_T("COM Server started successful.[2]"));
                 return S_OK;
             }
         }
         if(loggerPath != NULL)
-		{
-			free(comServerWithLogger);
-			free(appNameWithLogger);
-			free(loggerPathEscaped);
-		}
+        {
+            free(comServerWithLogger);
+            free(appNameWithLogger);
+            free(loggerPathEscaped);
+        }
     }
 
     return E_FAIL;

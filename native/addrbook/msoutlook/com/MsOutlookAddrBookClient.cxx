@@ -17,12 +17,8 @@
  */
 #include "MsOutlookAddrBookClient.h"
 
-#include <stdio.h>
-#include <wchar.h>
-
 #include "../MAPINotification.h"
 #include "../MsOutlookCalendar.h"
-#include "../net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery.h"
 #include "../StringUtils.h"
 #include "../MsOutlookUtils.h"
 
