@@ -132,6 +132,7 @@ jobs:
           CFLAGS: ${{ steps.expand_arch.outputs.gcc_arch }}
           CXXFLAGS: ${{ steps.expand_arch.outputs.gcc_arch }}
           DEBIAN_FRONTEND: noninteractive
+          JAVA_HOME: ${{ steps.install_java.outputs.path }}
         run: |
           sudo dpkg --add-architecture ${{ steps.expand_arch.outputs.ubuntu_arch }}
           sudo apt-get update && sudo apt-get install -y \
@@ -142,7 +143,7 @@ jobs:
             libxtst-dev:${{ steps.expand_arch.outputs.ubuntu_arch }} \
             libgtk2.0-dev:${{ steps.expand_arch.outputs.ubuntu_arch }}
           cd $GITHUB_WORKSPACE/native
-          cmake -B cmake-build -DMAIN_VERSION=${{ needs.version.outputs.jitsi_version_full }}
+          cmake -B cmake-build -DMAIN_VERSION=${{ needs.version.outputs.jitsi_version_full }} -DJAVA_HOME=${{ steps.install_java.outputs.path }}
           cmake --build cmake-build --config Release --target install
 
       - name: Build deb
