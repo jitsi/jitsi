@@ -82,6 +82,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          # for version in CMake
+          fetch-depth: 0
 
       - name: Set up Java
         uses: actions/setup-java@v1
@@ -268,6 +271,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          # for version in CMake
+          fetch-depth: 0
 
       - name: Set up Java
         uses: actions/setup-java@v1
