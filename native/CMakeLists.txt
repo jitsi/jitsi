@@ -86,6 +86,9 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 if (WIN32)
     if (NOT DEFINED OCSDK_DIR OR NOT DEFINED MAPI_HEADERS_DIR)
         include(ExternalProject)
+        if (NOT DEFINED PRIVATE_SDK_REPO)
+            set(PRIVATE_SDK_REPO https://github.com/jitsi/jitsi-3rdparty-nonredist)
+        endif ()
         externalproject_add(private_sdks
                             GIT_REPOSITORY https://github.com/jitsi/jitsi-3rdparty-nonredist
                             GIT_TAG 78e50e82a2fca3dbbeb3f0b6921ef6fc14dcdb8e

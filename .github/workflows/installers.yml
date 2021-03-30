@@ -210,11 +210,19 @@ jobs:
       - name: Verify Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1.0.3
 
+      - name: Prepare SDK Download
+        run: |
+          echo ${{ secrets.PRIVATE_SDK_KEY }} > ~/.ssh/private-sdk
+          echo Host privatesdk >> ~/.ssh/config
+          echo User git >> ~/.ssh/config
+          echo Hostname github.com >> ~/.ssh/config
+          echo IdentityFile ~/.ssh/private-sdk >> ~/.ssh/config
+
       - name: Build natives
         shell: cmd
         run: |
           cd %GITHUB_WORKSPACE%\native
-          cmake -B cmake-build-${{ matrix.arch }} -A ${{ steps.expand_arch.outputs.cmake_arch }} -DMAIN_VERSION=${{ needs.version.outputs.jitsi_version_full }}
+          cmake -B cmake-build-${{ matrix.arch }} -A ${{ steps.expand_arch.outputs.cmake_arch }} -DMAIN_VERSION=${{ needs.version.outputs.jitsi_version_full }} -DPRIVATE_SDK_REPO=git@privatesdk:jitsi/jitsi-3rdparty-nonredist.git
           cmake --build cmake-build-${{ matrix.arch }} --config Release --target install
 
       - name: Build Outlook COM Server natives (x86 and x64)
@@ -292,7 +300,7 @@ jobs:
 
       - name: Build natives
         run: |
-          cd $GITHUB_WORKSPACE/native/macosx
+          cd $GITHUB_WORKSPACE/native
           cmake -B cmake-build -DMAIN_VERSION=${{ needs.version.outputs.jitsi_version_full }}
           cmake --build cmake-build --config Release --verbose
 
