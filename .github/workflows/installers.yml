@@ -91,6 +91,7 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: ${{ env.INSTALLER_JAVA_VERSION }}
+          architecture: ${{ matrix.arch }}
 
       - name: Cache Maven dependencies
         uses: actions/cache@v2
@@ -189,6 +190,7 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: ${{ env.INSTALLER_JAVA_VERSION }}
+          architecture: ${{ matrix.arch }}
 
       - name: Cache Maven dependencies
         uses: actions/cache@v2
