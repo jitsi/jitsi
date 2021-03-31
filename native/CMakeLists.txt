@@ -84,29 +84,13 @@ configure_file(config.h.in include/config.h)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 if (WIN32)
-    if (NOT DEFINED OCSDK_DIR OR NOT DEFINED MAPI_HEADERS_DIR)
-        include(ExternalProject)
-        if (NOT DEFINED PRIVATE_SDK_REPO)
-            set(PRIVATE_SDK_REPO https://github.com/jitsi/jitsi-3rdparty-nonredist)
-        endif ()
-        externalproject_add(private_sdks
-                            GIT_REPOSITORY https://github.com/jitsi/jitsi-3rdparty-nonredist
-                            GIT_TAG 78e50e82a2fca3dbbeb3f0b6921ef6fc14dcdb8e
-                            GIT_SHALLOW true
-                            CONFIGURE_COMMAND ""
-                            BUILD_COMMAND ""
-                            INSTALL_COMMAND ""
-                            )
-        externalproject_get_property(private_sdks SOURCE_DIR)
-        if (NOT DEFINED OCSDK_DIR)
-            set(OCSDK_DIR ${SOURCE_DIR}/ocsdk2007)
-            set(OCSDK_DIR_INTERNAL private_sdks)
-        endif ()
-        if (NOT DEFINED MAPI_HEADERS_DIR)
-            set(MAPI_HEADERS_DIR ${SOURCE_DIR}/outlook2010mapi)
-            set(MAPI_HEADERS_DIR_INTERNAL private_sdks)
-        endif ()
+    if (NOT DEFINED OCSDK_DIR)
+        message(FATAL_ERROR "OCSDK_DIR not set")
     endif ()
+    if (NOT DEFINED MAPI_HEADERS_DIR)
+        message(FATAL_ERROR "MAPI_HEADERS_DIR not set")
+    endif ()
+
     add_definitions(-DUNICODE -D_UNICODE -D_CRT_SECURE_NO_WARNINGS)
     add_subdirectory(windows)
 elseif (APPLE)

@@ -13,10 +13,6 @@ add_executable(${PROJECT_NAME} WIN32
                jmsoutlookaddrbookcomserver.rc
                )
 
-if (DEFINED MAPI_HEADERS_DIR_INTERNAL)
-    add_dependencies(${PROJECT_NAME} ${MAPI_HEADERS_DIR_INTERNAL})
-endif ()
-
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(BITNESS_SUFFIX "64")
 else ()

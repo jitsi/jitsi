@@ -13,10 +13,6 @@ add_library(${PROJECT_NAME} SHARED
             jsmofficecomm.def
             )
 
-if (DEFINED OCSDK_DIR_INTERNAL)
-    add_dependencies(${PROJECT_NAME} ${OCSDK_DIR_INTERNAL})
-endif ()
-
 add_idl(msgrua_idl ${OCSDK_DIR}/msgrua.idl)
 
 target_link_libraries(${PROJECT_NAME} LINK_PUBLIC

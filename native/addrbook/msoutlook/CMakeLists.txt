@@ -12,10 +12,6 @@ add_library(${PROJECT_NAME} SHARED
             jmsoutlookaddrbook.rc
             )
 
-if (DEFINED MAPI_HEADERS_DIR_INTERNAL)
-    add_dependencies(${PROJECT_NAME} ${MAPI_HEADERS_DIR_INTERNAL})
-endif ()
-
 target_link_libraries(${PROJECT_NAME} LINK_PUBLIC
                       advapi32
                       uuid
