@@ -182,8 +182,10 @@ jobs:
         run: |
           if [ "${{ matrix.arch }}" == "x86" ]; then
             echo "::set-output name=cmake_arch::Win32"
+            echo "::set-output name=cmake_opposite_arch::x64"
           else
             echo "::set-output name=cmake_arch::x64"
+            echo "::set-output name=cmake_opposite_arch::Win32"
           fi;
 
       - name: Checkout
@@ -243,16 +245,17 @@ jobs:
             -DMAPI_HEADERS_DIR=%GITHUB_WORKSPACE%\build\private-sdk\outlook2010mapi
           cmake --build cmake-build-${{ matrix.arch }} --config Release --target install
 
-      - name: Build Outlook COM Server natives (x86 and x64)
+      - name: Build Outlook COM Server natives for oppsite arch (${{ steps.expand_arch.outputs.cmake_opposite_arch }})
         env:
           JAVA_HOME: ${{ steps.install_java.outputs.path }}
         shell: cmd
         run: |
           cd %GITHUB_WORKSPACE%\native
-          cmake -B cmake-build-x86 -A Win32 -DMAIN_VERSION=${{ needs.version.outputs.jitsi_version_full }}
-          cmake --build cmake-build-x86 --config Release --target install.jmsoutlookaddrbookcomserver
-          cmake -B cmake-build-x64 -A x64 -DMAIN_VERSION=${{ needs.version.outputs.jitsi_version_full }}
-          cmake --build cmake-build-x64 --config Release --target install.jmsoutlookaddrbookcomserver
+          cmake -B cmake-build-${{ steps.expand_arch.outputs.cmake_opposite_arch }} -A ${{ steps.expand_arch.outputs.cmake_opposite_arch }} ^
+            -DMAIN_VERSION=${{ needs.version.outputs.jitsi_version_full }} ^
+            -DOCSDK_DIR=%GITHUB_WORKSPACE%\build\private-sdk\ocsdk2007 ^
+            -DMAPI_HEADERS_DIR=%GITHUB_WORKSPACE%\build\private-sdk\outlook2010mapi
+          cmake --build cmake-build-${{ steps.expand_arch.outputs.cmake_opposite_arch }} --config Release --target install.jmsoutlookaddrbookcomserver
           cd %GITHUB_WORKSPACE%
           copy lib\native\windows-x64\jmsoutlookaddrbookcomserver64.exe lib\native\windows-x86\jmsoutlookaddrbookcomserver64.exe
           copy lib\native\windows-x86\jmsoutlookaddrbookcomserver32.exe lib\native\windows-x64\jmsoutlookaddrbookcomserver32.exe
