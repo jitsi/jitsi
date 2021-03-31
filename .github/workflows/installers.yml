@@ -124,9 +124,11 @@ jobs:
           if [ "${{ matrix.arch }}" == "x86" ]; then
             echo "::set-output name=gcc_arch::-m32"
             echo "::set-output name=ubuntu_arch::i386"
+            echo "::set-output name=pkgconfig_arch::i386"
           else
             echo "::set-output name=gcc_arch::-m64"
             echo "::set-output name=ubuntu_arch::amd64"
+            echo "::set-output name=pkgconfig_arch::x86_64"
           fi;
 
       - name: Build natives
@@ -135,6 +137,7 @@ jobs:
           CXXFLAGS: ${{ steps.expand_arch.outputs.gcc_arch }}
           DEBIAN_FRONTEND: noninteractive
           JAVA_HOME: ${{ steps.install_java.outputs.path }}
+          PKG_CONFIG_PATH: /usr/lib/${{ steps.expand_arch.outputs.pkgconfig_arch }}-linux-gnu/pkgconfig/
         run: |
           sudo dpkg --add-architecture ${{ steps.expand_arch.outputs.ubuntu_arch }}
           sudo apt-get update && sudo apt-get install -y \
@@ -143,7 +146,10 @@ jobs:
             libdbus-1-dev:${{ steps.expand_arch.outputs.ubuntu_arch }} \
             libxss-dev:${{ steps.expand_arch.outputs.ubuntu_arch }} \
             libxtst-dev:${{ steps.expand_arch.outputs.ubuntu_arch }} \
-            libgtk2.0-dev:${{ steps.expand_arch.outputs.ubuntu_arch }}
+            libgtk2.0-dev:${{ steps.expand_arch.outputs.ubuntu_arch }} \
+            libx11-dev:${{ steps.expand_arch.outputs.ubuntu_arch }} \
+            libxext-dev:${{ steps.expand_arch.outputs.ubuntu_arch }} \
+            libxtst-dev:${{ steps.expand_arch.outputs.ubuntu_arch }}
           cd $GITHUB_WORKSPACE/native
           cmake -B cmake-build -DMAIN_VERSION=${{ needs.version.outputs.jitsi_version_full }} -DJAVA_HOME=${{ steps.install_java.outputs.path }}
           cmake --build cmake-build --config Release --target install
@@ -194,6 +200,7 @@ jobs:
           path: build/private-sdk
 
       - name: Set up Java
+        id: install_java
         uses: actions/setup-java@v1
         with:
           java-version: ${{ env.INSTALLER_JAVA_VERSION }}
@@ -225,6 +232,8 @@ jobs:
         uses: gradle/wrapper-validation-action@v1.0.3
 
       - name: Build natives
+        env:
+          JAVA_HOME: ${{ steps.install_java.outputs.path }}
         shell: cmd
         run: |
           cd %GITHUB_WORKSPACE%\native
@@ -235,6 +244,8 @@ jobs:
           cmake --build cmake-build-${{ matrix.arch }} --config Release --target install
 
       - name: Build Outlook COM Server natives (x86 and x64)
+        env:
+          JAVA_HOME: ${{ steps.install_java.outputs.path }}
         shell: cmd
         run: |
           cd %GITHUB_WORKSPACE%\native
@@ -282,6 +293,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Java
+        id: install_java
         uses: actions/setup-java@v1
         with:
           java-version: ${{ env.INSTALLER_JAVA_VERSION }}
@@ -311,6 +323,8 @@ jobs:
         uses: gradle/wrapper-validation-action@v1.0.3
 
       - name: Build natives
+        env:
+          JAVA_HOME: ${{ steps.install_java.outputs.path }}
         run: |
           cd $GITHUB_WORKSPACE/native
           cmake -B cmake-build -DMAIN_VERSION=${{ needs.version.outputs.jitsi_version_full }}

@@ -1,6 +1,7 @@
 project(galagonotification C)
 
-find_package(DBus REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(DBUS REQUIRED dbus-1)
 add_library(${PROJECT_NAME} SHARED
             net_java_sip_communicator_impl_galagonotification_GalagoNotification.c
             )
