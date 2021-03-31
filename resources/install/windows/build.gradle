@@ -19,7 +19,7 @@ task copyLauncher(type: Copy, group: 'installer-wix') {
 task copyCleansweep(type: Copy, group: 'installer-wix') {
     from nativeSrcDir
     into wixTempDir
-    include '**/cmake-build-*/cleansweep/**/*.exe'
+    include '**/cmake-build-*/windows/cleansweep/**/*.exe'
     includeEmptyDirs = false
     eachFile {
         path = name
