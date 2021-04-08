@@ -34,7 +34,7 @@ ext {
     def mavenMatcher = project.version =~ /^(?<MAJOR>\d+)\.(?<MINOR>\d+)(\.(?<REVISION>\d+))?(\.(?<BUILD>\d+))?(-(?<SUFFIX>\S+))?$/
     def gitVersion
     if (!project.hasProperty('gitVersion')) {
-        gitVersion = 'git describe --match Jitsi-[0-9.]* --long --dirty --always'.execute().text.trim()
+        gitVersion = 'git describe --match Jitsi-[0-9.]* --long --dirty --always'.execute([], project.buildDir).text.trim()
     } else {
         gitVersion = project.property('gitVersion')
     }

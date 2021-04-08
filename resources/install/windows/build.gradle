@@ -9,7 +9,7 @@ def arch = project.property('application.target')
 task copyLauncher(type: Copy, group: 'installer-wix') {
     from nativeSrcDir
     into wixTargetDir
-    include '**/cmake-build-*/run/**/*.exe'
+    include '**/cmake-build-*/windows/run/**/*.exe'
     includeEmptyDirs = false
     eachFile {
         path = name
