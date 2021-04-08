@@ -33,7 +33,7 @@
 
 #include <Cocoa/Cocoa.h>
 #include <Sparkle.h>
-#include "net_java_sip_communicator_impl_sparkle_SparkleActivator.h"
+#include <net_java_sip_communicator_impl_sparkle_SparkleActivator.h>
 
 /*
  * Class:     net_java_sip_communicator_impl_sparkle_SparkleActivator

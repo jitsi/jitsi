@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.16)
 project(sparkle_init OBJC)
 
 set(CMAKE_PREFIX_PATH ${PROJECT_SOURCE_DIR}/../../../resources/install/src/mac/dist/Jitsi.app/Contents/Frameworks)
@@ -12,6 +11,7 @@ add_library(${PROJECT_NAME} SHARED
 
 target_include_directories(${PROJECT_NAME} PUBLIC
                            ${JNI_INCLUDE_DIRS}
+                           ${CMAKE_CURRENT_LIST_DIR}/../../../modules/impl/sparkle/target/native/javah
                            ${SPARKLE_INCLUDE_DIR}
                            )
 

@@ -17,6 +17,7 @@
  */
 package net.java.sip.communicator.impl.sparkle;
 
+import lombok.extern.slf4j.*;
 import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
@@ -27,11 +28,10 @@ import org.osgi.framework.*;
  *
  * @author Romain Kuntz
  */
+@Slf4j
 public class SparkleActivator
     extends DependentActivator
 {
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SparkleActivator.class);
-
     /**
      * Native method declaration
      *

@@ -1,8 +1,8 @@
-project(sysactivitynotifications C)
 
 set(OS_SOURCES "")
 set(OS_LIBS "")
 if (WIN32)
+    project(sysactivitynotifications C)
     set(OS_LIBS
         iphlpapi
         )
@@ -11,6 +11,7 @@ if (WIN32)
         net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications.cpp
         )
 elseif (APPLE)
+    project(sysactivitynotifications OBJC)
     set(OS_LIBS
         "-framework AppKit"
         "-framework Carbon"
@@ -21,6 +22,7 @@ elseif (APPLE)
         net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications.m
         )
 elseif (UNIX AND NOT APPLE)
+    project(sysactivitynotifications C)
     find_package(X11 REQUIRED)
     find_package(GTK2 REQUIRED)
     if (NOT X11_FOUND)
