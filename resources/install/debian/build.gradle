@@ -3,8 +3,7 @@ def debArch = project.property('application.target') == 'x64'
         : 'x86'
 
 buildDeb {
-    archiveVersion = versionFull
-    release = '1'
+    version = "${versionFull}~groovy"
     vendor = 'jitsi.org'
     url = 'https://desktop.jitsi.org'
     license = 'Apache-2.0'
