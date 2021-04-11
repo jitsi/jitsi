@@ -207,6 +207,7 @@ jobs:
         env:
           UBUNTUTOOLS_UBUNTU_MIRROR: http://azure.archive.ubuntu.com/ubuntu
           UBUNTUTOOLS_DEBIAN_MIRROR: http://debian-archive.trafficmanager.net/debian/
+          UBUNTUTOOLS_DEBSEC_MIRROR: http://debian-archive.trafficmanager.net/debian-security
         run: |
           if [[ "${{ steps.deb_cache.outputs.cache-hit }}" != "true" ]]; then
             pbuilder-dist ${{ matrix.dist }} ${{ matrix.arch }} create
@@ -218,6 +219,7 @@ jobs:
         env:
           UBUNTUTOOLS_UBUNTU_MIRROR: http://azure.archive.ubuntu.com/ubuntu
           UBUNTUTOOLS_DEBIAN_MIRROR: http://debian-archive.trafficmanager.net/debian/
+          UBUNTUTOOLS_DEBSEC_MIRROR: http://debian-archive.trafficmanager.net/debian-security
           GPG_PASSPHRASE: "${{ secrets.GPG_PW }}"
         run: |
           cat <(echo -e "${{ secrets.GPG_KEY }}") | gpg --batch --import
