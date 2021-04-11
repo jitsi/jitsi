@@ -36,11 +36,15 @@ VERSION_SHORT="${MAJOR}.${MINOR}.${NCOMMITS}"
 if [[ "$SUFFIX" == "" ]]; then
   VERSION_FULL="${VERSION_SHORT}+${HASH}"
 elif [[ "$SUFFIX" == "SNAPSHOT" ]]; then
-  VERSION_FULL="${VERSION_SHORT}.$(date -u '+%Y%m%d%H%M%S')+${HASH}"
+  VERSION_FULL="${VERSION_SHORT}-$(date -u '+%Y%m%d%H%M%S')+${HASH}"
+  VERSION_DEB="${VERSION_SHORT}.$(date -u '+%Y%m%d%H%M%S')+${HASH}"
 else
-  VERSION_FULL="${VERSION_SHORT}.${SUFFIX}+${HASH}"
+  VERSION_FULL="${VERSION_SHORT}-${SUFFIX}+${HASH}"
+  VERSION_DEB="${VERSION_SHORT}.${SUFFIX}+${HASH}"
 fi;
 echo "VERSION_SHORT=${VERSION_SHORT}"
 echo "VERSION_FULL=${VERSION_FULL}"
+echo "VERSION_DEB=${VERSION_DEB}"
 echo "::set-output name=jitsi_version_short::${VERSION_SHORT}"
 echo "::set-output name=jitsi_version_full::${VERSION_FULL}"
+echo "::set-output name=jitsi_version_deb::${VERSION_DEB}"

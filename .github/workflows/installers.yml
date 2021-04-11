@@ -19,6 +19,7 @@ jobs:
       jitsi_version_hash: ${{ steps.parse.outputs.jitsi_version_hash }}
       jitsi_version_short: ${{ steps.parse.outputs.jitsi_version_short }}
       jitsi_version_full: ${{ steps.parse.outputs.jitsi_version_full }}
+      jitsi_version_deb: ${{ steps.parse.outputs.jitsi_version_deb }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -186,7 +187,7 @@ jobs:
             --distribution=${{ matrix.dist }} \
             --force-distribution \
             --spawn-editor=never \
-            --new-version=${{ needs.version.outputs.jitsi_version_full }}~${{ matrix.dist }}
+            --new-version=${{ needs.version.outputs.jitsi_version_deb }}~${{ matrix.dist }}
           dpkg-source -I.git -I.idea -b .
           #pbuilder-dist ${{ matrix.dist }} ${{ matrix.arch }} build \
           #  --source-only-changes \
