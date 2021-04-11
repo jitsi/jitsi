@@ -124,10 +124,35 @@ jobs:
           name: jitsi-debian-${{ matrix.arch }}
           path: resources/install/build/distributions/
 
+  deb_src_prepare:
+    name: Create local Maven repo
+    runs-on: ubuntu-latest
+    needs: version
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ env.INSTALLER_JAVA_VERSION }}
+          distribution: adopt
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v2
+        with:
+          path: debian/maven-repo
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-offlinemaven-
+
+      - name: Prepare go-offline
+        run: mvn -B -DskipTests -Dmaven.repo.local=debian/maven-repo de.qaware.maven:go-offline-maven-plugin:1.2.8:resolve-dependencies
+
   deb_src:
     name: ${{ matrix.vendor }} ${{ matrix.dist }} ${{ matrix.arch }}
     runs-on: ubuntu-latest
-    needs: version
+    needs: [ version, deb_src_prepare ]
     strategy:
       fail-fast: false
       matrix:
@@ -158,7 +183,7 @@ jobs:
           path: debian/maven-repo
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
-            ${{ runner.os }}-maven-${{ matrix.arch }}-
+            ${{ runner.os }}-offlinemaven-
 
       - name: Prepare go-offline
         run: mvn -B -DskipTests -Dmaven.repo.local=debian/maven-repo de.qaware.maven:go-offline-maven-plugin:1.2.8:resolve-dependencies
@@ -169,6 +194,25 @@ jobs:
         run: |
           sudo apt-get update -y
           sudo apt-get install -y binutils ubuntu-dev-tools pbuilder debootstrap debian-archive-keyring git-buildpackage
+
+      - name: Cache pbuilder archive
+        uses: actions/cache@v2
+        id: deb_cache
+        with:
+          path: ~/pbuilder/${{ matrix.dist }}*-base.tgz
+          key: pbuilder-${{ matrix.dist }}-${{ matrix.arch }}
+
+      - name: Create or update pbuilder base
+        id: pbuilder_create
+        env:
+          UBUNTUTOOLS_UBUNTU_MIRROR: http://azure.archive.ubuntu.com/ubuntu
+          UBUNTUTOOLS_DEBIAN_MIRROR: http://debian-archive.trafficmanager.net/debian/
+        run: |
+          if [[ "${{ steps.deb_cache.outputs.cache-hit }}" != "true" ]]; then
+            pbuilder-dist ${{ matrix.dist }} ${{ matrix.arch }} create
+          else
+            pbuilder-dist ${{ matrix.dist }} ${{ matrix.arch }} update
+          fi;
 
       - name: Build deb archive
         env:
