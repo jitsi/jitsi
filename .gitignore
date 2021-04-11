@@ -14,6 +14,8 @@ sip-communicator.utest.bin
 target/
 out/
 build/
+debian/maven-repo/
+lib/native/
 test-reports/
 felix-cache/
 .gradle/

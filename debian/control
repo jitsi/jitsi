@@ -1,0 +1,56 @@
+Source: jitsi
+Section: net
+Priority: optional
+Maintainer: Jitsi Team <dev@jitsi.org>
+Uploaders: Ingo Bauersachs <ingo@jitsi.org>
+Homepage: https://github.com/jitsi/jitsi
+Vcs-Git: https://github.com/jitsi/jitsi.git
+Vcs-Browser: https://github.com/jitsi/jitsi
+Standards-Version: 4.5.0
+Build-Depends:
+ debhelper (>= 11),
+ javahelper,
+ dpkg-dev (>= 1.16.1),
+ default-jdk,
+ maven,
+ cmake (>= 3.10),
+ pkg-config,
+ libdbus-1-dev,
+ libxss-dev,
+ libxtst-dev,
+ libgtk2.0-dev,
+ libx11-dev,
+ libxext-dev,
+ libxtst-dev,
+
+Package: jitsi
+Architecture: all
+Depends:
+ ${misc:Depends},
+ default-jre (>= 2:1.11) | openjdk-11-jre,
+ libjitsi-jni (>= ${source:Version}),
+ libjitsi-jni (<< ${source:Version}.1),
+Recommends:
+ libjitsi-lgpl-dependencies-java,
+Description: VoIP and Instant Messaging client
+ Jitsi is an application that allows you to do audio/video conversations
+ over the Internet through the SIP and XMPP/Jabber protocol, as well as
+ chat with your friends using some of the most popular instant messaging
+ protocols such as SIP/SIMPLE, XMPP/Jabber, IRC and others.
+ .
+ Java-only part of the package.
+
+Package: libjitsi-jni
+Architecture: i386 amd64
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends}
+Recommends:
+ libappindicator1,
+Description: VoIP and Instant Messaging client
+ Jitsi is an application that allows you to do audio/video conversations
+ over the Internet through the SIP and XMPP/Jabber protocol, as well as
+ chat with your friends using some of the most popular instant messaging
+ protocols such as SIP/SIMPLE, XMPP/Jabber, IRC and others.
+ .
+ Native/JNI part of the package.

@@ -1,7 +1,7 @@
 if (APPLE)
     cmake_minimum_required(VERSION 3.19)
 else ()
-    cmake_minimum_required(VERSION 3.16)
+    cmake_minimum_required(VERSION 3.10)
 endif ()
 project(jitsi_desktop_natives)
 
@@ -22,6 +22,10 @@ endif ()
 
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON)
 set(CMAKE_DISABLE_SOURCE_CHANGES ON)
+
+if (${CMAKE_VERSION} VERSION_LESS "3.14" AND UNIX AND NOT APPLE)
+    include(GNUInstallDirs)
+endif ()
 
 if ("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
     message(SEND_ERROR "In-source builds are not allowed.")
@@ -50,24 +54,26 @@ if (WIN32)
         set(GRADLE_${Name} "${Value}")
     endforeach ()
 
-    find_package(Git QUIET REQUIRED)
-    execute_process(
-            COMMAND "${GIT_EXECUTABLE}" describe --match "Jitsi-[0-9\\.]*" --long --dirty --always
-            WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-            RESULT_VARIABLE res
-            OUTPUT_VARIABLE GIT_VERSION
-            ERROR_QUIET
-            OUTPUT_STRIP_TRAILING_WHITESPACE)
+    if (NOT DEFINED GIT_VERSION)
+        find_package(Git QUIET REQUIRED)
+        execute_process(
+                COMMAND "${GIT_EXECUTABLE}" describe --match "Jitsi-[0-9\\.]*" --long --dirty --always
+                WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+                RESULT_VARIABLE res
+                OUTPUT_VARIABLE GIT_VERSION
+                ERROR_QUIET
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-    set_property(GLOBAL APPEND
-                 PROPERTY CMAKE_CONFIGURE_DEPENDS
-                 "${CMAKE_SOURCE_DIR}/.git/index")
+        set_property(GLOBAL APPEND
+                     PROPERTY CMAKE_CONFIGURE_DEPENDS
+                     "${CMAKE_SOURCE_DIR}/.git/index")
+    endif ()
 
     string(REGEX REPLACE "(Jitsi-[0-9.]+-([0-9]+)-)(.*)" "\\2;\\3" _git_parts "${GIT_VERSION}")
-    string(REGEX REPLACE "([0-9]+)\\.([0-9]+).*" "\\1;\\2" _gradle_parts "${MAIN_VERSION}")
+    string(REGEX REPLACE "([0-9]+)\\.([0-9]+).*" "\\1;\\2" _mainversion_parts "${MAIN_VERSION}")
     string(REGEX REPLACE ".+(-(.+))$" "\\2" VERSION_SUFFIX "${MAIN_VERSION}")
-    list(GET _gradle_parts 0 VERSION_MAJOR)
-    list(GET _gradle_parts 1 VERSION_MINOR)
+    list(GET _mainversion_parts 0 VERSION_MAJOR)
+    list(GET _mainversion_parts 1 VERSION_MINOR)
     list(GET _git_parts 0 VERSION_REVISION)
     list(GET _git_parts 1 VERSION_HASH)
     string(JOIN "." VERSION_SHORT ${VERSION_MAJOR} ${VERSION_MINOR} ${VERSION_REVISION})

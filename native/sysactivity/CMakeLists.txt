@@ -29,11 +29,23 @@ elseif (UNIX AND NOT APPLE)
         message(FATAL_ERROR "libx11-dev is missing")
     endif ()
     if (NOT X11_Xss_FOUND)
-        message(FATAL_ERROR "libxss-dev is missing")
+        if (NOT X11_Xinput_FOUND)
+            message(FATAL_ERROR "libxss-dev is missing")
+        else ()
+            set(XSS_LIB ${X11_Xinput_LIB})
+        endif ()
+    else ()
+        set(XSS_LIB ${X11_Xss_LIB})
     endif ()
     if (NOT GTK2_FOUND)
         message(FATAL_ERROR "libgtk2.0-dev is missing")
     endif ()
+
+    set(OS_LIBS
+        ${GTK2_LIBRARIES}
+        ${X11_LIBRARIES}
+        ${XSS_LIB}
+        )
     set(OS_SOURCES
         net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications.c
         )
@@ -58,6 +70,12 @@ target_include_directories(${PROJECT_NAME} PUBLIC
                            ${CMAKE_BINARY_DIR}/include/
                            )
 
-install(TARGETS ${PROJECT_NAME}
-        RUNTIME DESTINATION "."
-        LIBRARY DESTINATION ".")
+if (NOT DEFINED SKIP_CUSTOM_INSTALL_DESTINATION)
+    install(TARGETS ${PROJECT_NAME}
+            RUNTIME DESTINATION "."
+            LIBRARY DESTINATION ".")
+else ()
+    install(TARGETS ${PROJECT_NAME}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+endif ()

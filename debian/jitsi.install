@@ -1,0 +1,7 @@
+resources/install/debian/jitsi.desktop usr/share/applications
+resources/install/debian/jitsi.svg usr/share/pixmaps
+resources/install/debian/jitsi-*.xpm usr/share/pixmaps
+resources/install/debian/jitsi usr/bin
+resources/install/src/main/dist/* usr/share/jitsi
+target/classpath usr/share/jitsi/config
+target/bundles/*.jar usr/share/jitsi/lib

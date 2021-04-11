@@ -16,6 +16,12 @@ target_include_directories(${PROJECT_NAME} PUBLIC
                            ${CMAKE_BINARY_DIR}/include/
                            )
 
-install(TARGETS ${PROJECT_NAME}
-        RUNTIME DESTINATION "."
-        LIBRARY DESTINATION ".")
+if (NOT DEFINED SKIP_CUSTOM_INSTALL_DESTINATION)
+    install(TARGETS ${PROJECT_NAME}
+            RUNTIME DESTINATION "."
+            LIBRARY DESTINATION ".")
+else ()
+    install(TARGETS ${PROJECT_NAME}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+endif ()

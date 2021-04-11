@@ -70,11 +70,6 @@
         <configuration>
           <instructions>
             <Bundle-Activator>net.java.sip.communicator.impl.galagonotification.GalagoNotificationActivator</Bundle-Activator>
-            <Bundle-NativeCode>
-              linux-x86/libgalagonotification.so;osname=Linux;processor=x86,
-              linux-x64/libgalagonotification.so;osname=Linux;processor=x86-64,
-              *
-            </Bundle-NativeCode>
           </instructions>
         </configuration>
       </plugin>

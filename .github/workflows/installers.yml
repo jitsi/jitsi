@@ -27,52 +27,9 @@ jobs:
 
       - name: Parse version
         id: parse
-        run: |
-          MVNVER=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
-          MVNVER_MATCHER="^([0-9]+)\.([0-9]+)(\.([0-9]+))?(\.([0-9]+))?(-([A-Za-z0-9-]+))?"
-          if [[ $MVNVER =~ $MVNVER_MATCHER ]]; then
-            MAJOR=${BASH_REMATCH[1]}
-            MINOR=${BASH_REMATCH[2]}
-            SUFFIX=${BASH_REMATCH[8]}
-            echo "${MAJOR}"
-            echo "${MINOR}"
-            echo "${SUFFIX}"
-            echo "::set-output name=jitsi_version_major::${MAJOR}"
-            echo "::set-output name=jitsi_version_minor::${MINOR}"
-            echo "::set-output name=jitsi_version_suffix::${SUFFIX}"
-          else
-            echo "$MVNVER did not match $MVNVER_MATCHER"
-            exit 1
-          fi;
+        run: ${{ github.workspace }}/.github/workflows/version.sh
 
-          GITVER=`git describe --match Jitsi-[0-9.]* --long --dirty --always`
-          echo "${GITVER}"
-          echo "::set-output name=jitsi_version_git::${GITVER}"
-          GITVER_MATCHER="^((Jitsi-[0-9.]+)-([0-9]+)-)?([A-Za-z0-9-]+)$"
-          if [[ $GITVER =~ $GITVER_MATCHER ]]; then
-            NCOMMITS=${BASH_REMATCH[3]}
-            HASH=${BASH_REMATCH[4]}
-            echo "${NCOMMITS}"
-            echo "${HASH}"
-            echo "::set-output name=jitsi_version_ncommits::${NCOMMITS}"
-            echo "::set-output name=jitsi_version_hash::${HASH}"
-          else
-            echo "$GITVER did not match $GITVER_MATCHER"
-            exit 1
-          fi;
-
-          VERSION_SHORT="${MAJOR}.${MINOR}.${NCOMMITS}"
-          if [[ "$SUFFIX" == "" ]]; then
-            VERSION_FULL="${VERSION_SHORT}+${HASH}"
-          else
-            VERSION_FULL="${VERSION_SHORT}-${SUFFIX}+${HASH}"
-          fi;
-          echo "${VERSION_SHORT}"
-          echo "${VERSION_FULL}"
-          echo "::set-output name=jitsi_version_short::${VERSION_SHORT}"
-          echo "::set-output name=jitsi_version_full::${VERSION_FULL}"
-
-  deb:
+  deb_bin:
     name: Ubuntu ${{ matrix.arch }}
     runs-on: ubuntu-latest
     needs: version
@@ -82,9 +39,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          # for version in CMake
-          fetch-depth: 0
 
       - name: Set up Java
         id: install_java
@@ -160,13 +114,93 @@ jobs:
           ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_PW }}
         run: |
           cd $GITHUB_WORKSPACE/resources/install
-          ./gradlew --no-daemon signDeb -Papplication.target=${{ matrix.arch }} -Pversion=${{ needs.version.outputs.jitsi_version_full }} -PgitVersion=${{ needs.version.outputs.jitsi_version_git }}
+          ./gradlew --no-daemon buildDeb -Papplication.target=${{ matrix.arch }} -Pversion=${{ needs.version.outputs.jitsi_version_full }} -PgitVersion=${{ needs.version.outputs.jitsi_version_git }}
 
       - name: Upload deb
         uses: actions/upload-artifact@v2
         with:
           name: jitsi-debian-${{ matrix.arch }}
           path: resources/install/build/distributions/
+
+  deb_src:
+    name: ${{ matrix.vendor }} ${{ matrix.dist }} ${{ matrix.arch }}
+    runs-on: ubuntu-latest
+    needs: version
+    strategy:
+      fail-fast: false
+      matrix:
+        include: [
+          { vendor: ubuntu, dist: bionic, arch: i386 },
+          { vendor: ubuntu, dist: bionic, arch: amd64 },
+          { vendor: ubuntu, dist: focal, arch: amd64 },
+          { vendor: ubuntu, dist: groovy, arch: amd64 },
+          { vendor: debian, dist: buster, arch: i386 },
+          { vendor: debian, dist: buster, arch: amd64 },
+        ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          #for gbp dch
+          fetch-depth: 0
+
+      - name: Set up Java
+        id: install_java
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ env.INSTALLER_JAVA_VERSION }}
+          architecture: ${{ matrix.arch }}
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v2
+        with:
+          path: debian/maven-repo
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-${{ matrix.arch }}-
+
+      - name: Prepare go-offline
+        run: mvn -B -DskipTests -Dmaven.repo.local=debian/maven-repo de.qaware.maven:go-offline-maven-plugin:1.2.8:resolve-dependencies
+
+      - name: Install dev packages
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y binutils ubuntu-dev-tools pbuilder debootstrap debian-archive-keyring git-buildpackage
+
+      - name: Build deb archive
+        env:
+          UBUNTUTOOLS_UBUNTU_MIRROR: http://azure.archive.ubuntu.com/ubuntu
+          UBUNTUTOOLS_DEBIAN_MIRROR: http://debian-archive.trafficmanager.net/debian/
+          GPG_PASSPHRASE: "${{ secrets.GPG_PW }}"
+        run: |
+          cat <(echo -e "${{ secrets.GPG_KEY }}") | gpg --batch --import
+          #SINCE=$(git describe --match "v[0-9\.]*" --abbrev=0)
+          export SINCE=6c43def42
+          gbp dch \
+            --ignore-branch \
+            --since $SINCE \
+            --meta \
+            --release \
+            --distribution=${{ matrix.dist }} \
+            --force-distribution \
+            --spawn-editor=never \
+            --new-version=${{ needs.version.outputs.jitsi_version_full }}~${{ matrix.dist }}
+          dpkg-source -I.git -I.idea -b .
+          #pbuilder-dist ${{ matrix.dist }} ${{ matrix.arch }} build \
+          #  --source-only-changes \
+          #  --debbuildopts --buildinfo-option="-O" \
+          #  --buildresult ~/pbuilder/${{ matrix.vendor }}-${{ matrix.dist }}-${{ matrix.arch }}_result \
+          #  ../jitsi_*.dsc
+          cd ~/pbuilder/${{ matrix.vendor }}-${{ matrix.dist }}-${{ matrix.arch }}_result
+          debsign -S -edev@jitsi.org *_source.changes --re-sign -p${{ github.workspace }}/.github/workflows/gpg-wrap.sh
+
+      - name: Upload package as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.vendor }}-${{ matrix.dist }}-${{ matrix.arch }}
+          path: ~/pbuilder/${{ matrix.vendor }}-${{ matrix.dist }}-${{ matrix.arch }}_result/*
 
   wix:
     name: Windows ${{ matrix.arch }}
@@ -190,9 +224,6 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          # for version in CMake
-          fetch-depth: 0
 
       - name: Private SDK Download
         uses: actions/checkout@v2
@@ -241,6 +272,7 @@ jobs:
           cd %GITHUB_WORKSPACE%\native
           cmake -B cmake-build-${{ matrix.arch }} -A ${{ steps.expand_arch.outputs.cmake_arch }} ^
             -DMAIN_VERSION=${{ needs.version.outputs.jitsi_version_full }} ^
+            -DGIT_VERSION=${{ needs.version.outputs.jitsi_version_git }} ^
             -DOCSDK_DIR=%GITHUB_WORKSPACE%\build\private-sdk\ocsdk2007 ^
             -DMAPI_HEADERS_DIR=%GITHUB_WORKSPACE%\build\private-sdk\outlook2010mapi
           cmake --build cmake-build-${{ matrix.arch }} --config Release --target install
@@ -300,9 +332,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          # for version in CMake
-          fetch-depth: 0
 
       - name: Set up Java
         id: install_java
@@ -352,3 +381,40 @@ jobs:
         with:
           name: jitsi-mac
           path: resources/install/build/install/jitsi.dmg
+
+  release:
+    if: github.ref == 'refs/heads/master'
+    needs: [ version, deb_src ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download binaries
+        uses: actions/download-artifact@v2
+        with:
+          path: target
+
+      - name: Push packages to ppa and Cloudsmith
+        env:
+          CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
+        run: |
+          REPO_NAME="jitsi-desktop-snapshots"
+          #if [ "${{ github.ref }}" == "refs/heads/master" ]; then
+          #  REPO_NAME="jitsi-desktop"
+          #fi;
+          cd target
+          for dist in */ ; do
+            if [[ "$dist" =~ ^(debian|ubuntu)- ]]; then
+              IFS='-' read -r -a triplet <<< "${dist/\//}"
+              # source only upload to ppa
+              if [[ "${triplet[0]}" == "ubuntu" && "${triplet[2]}" == "amd64" ]]; then
+                echo "Upload ${dist}*_source.changes to ppa:jitsi/$REPO_NAME"
+                dput ppa:jitsi/$REPO_NAME ${dist}*_source.changes
+              fi;
+              # upload all architecture-specific binaries to cloudsmith, but only one java-all
+              #echo "Upload ${dist}libjitsi-jni_*.deb to Cloudsmith"
+              #cloudsmith push deb jitsi/$REPO_NAME/${triplet[0]}/${triplet[1]} ${dist}libjitsi-jni_*.deb
+              #if [[ "${triplet[2]}" == "amd64" ]]; then
+              #  echo "Upload ${dist}jitsi_*_all.deb to Cloudsmith"
+              #  cloudsmith push deb jitsi/$REPO_NAME/${triplet[0]}/${triplet[1]} ${dist}jitsi_*_all.deb
+              #fi;
+            fi;
+          done;

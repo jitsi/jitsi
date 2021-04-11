@@ -38,6 +38,16 @@ elseif (UNIX AND NOT APPLE)
     if (NOT X11_FOUND)
         message(FATAL_ERROR "libx11-dev is missing")
     endif ()
+
+    find_package(Threads REQUIRED)
+    if (NOT Threads_FOUND)
+        message(FATAL_ERROR "Could not find pthreads")
+    endif ()
+
+    set(OS_LIBS
+        ${X11_LIBRARIES}
+        Threads::Threads
+        )
     set(OS_SOURCES
         net_java_sip_communicator_impl_globalshortcut_NativeKeyboardHook.cc
         )
@@ -61,6 +71,12 @@ target_include_directories(${PROJECT_NAME} PUBLIC
                            ${CMAKE_BINARY_DIR}/include/
                            )
 
-install(TARGETS ${PROJECT_NAME}
-        RUNTIME DESTINATION "."
-        LIBRARY DESTINATION ".")
+if (NOT DEFINED SKIP_CUSTOM_INSTALL_DESTINATION)
+    install(TARGETS ${PROJECT_NAME}
+            RUNTIME DESTINATION "."
+            LIBRARY DESTINATION ".")
+else ()
+    install(TARGETS ${PROJECT_NAME}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+endif ()

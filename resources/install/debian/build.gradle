@@ -3,7 +3,7 @@ def debArch = project.property('application.target') == 'x64'
         : 'x86'
 
 buildDeb {
-    version = "${versionFull}~groovy"
+    archiveVersion = versionFull
     vendor = 'jitsi.org'
     url = 'https://desktop.jitsi.org'
     license = 'Apache-2.0'
@@ -48,8 +48,4 @@ messaging protocols such as SIP/SIMPLE, XMPP/Jabber and others.
         include "jitsi"
         fileMode 0755
     }
-}
-
-task signDeb(type: Sign, dependsOn: buildDeb) {
-    sign buildDeb
 }
