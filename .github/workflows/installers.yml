@@ -189,11 +189,11 @@ jobs:
             --spawn-editor=never \
             --new-version=${{ needs.version.outputs.jitsi_version_deb }}~${{ matrix.dist }}
           dpkg-source -I.git -I.idea -b .
-          #pbuilder-dist ${{ matrix.dist }} ${{ matrix.arch }} build \
-          #  --source-only-changes \
-          #  --debbuildopts --buildinfo-option="-O" \
-          #  --buildresult ~/pbuilder/${{ matrix.vendor }}-${{ matrix.dist }}-${{ matrix.arch }}_result \
-          #  ../jitsi_*.dsc
+          pbuilder-dist ${{ matrix.dist }} ${{ matrix.arch }} build \
+            --source-only-changes \
+            --debbuildopts --buildinfo-option="-O" \
+            --buildresult ~/pbuilder/${{ matrix.vendor }}-${{ matrix.dist }}-${{ matrix.arch }}_result \
+            ../jitsi_*.dsc
           cd ~/pbuilder/${{ matrix.vendor }}-${{ matrix.dist }}-${{ matrix.arch }}_result
           debsign -S -edev@jitsi.org *_source.changes --re-sign -p${{ github.workspace }}/.github/workflows/gpg-wrap.sh
 
