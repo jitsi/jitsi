@@ -438,6 +438,10 @@ jobs:
     needs: [ version, deb_src ]
     runs-on: ubuntu-latest
     steps:
+      - name: Install dput
+        run: |
+          sudo apt-get -y install dput
+
       - name: Download binaries
         uses: actions/download-artifact@v2
         with:
