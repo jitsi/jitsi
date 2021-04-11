@@ -31,7 +31,7 @@ jobs:
         run: ${{ github.workspace }}/.github/workflows/version.sh
 
   deb_bin:
-    name: Ubuntu generic binary ${{ matrix.arch }}
+    name: Generic deb binary ${{ matrix.arch }}
     runs-on: ubuntu-latest
     needs: version
     strategy:
@@ -434,7 +434,7 @@ jobs:
           path: resources/install/build/install/jitsi.dmg
 
   release:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/new-build'
     needs: [ version, deb_src ]
     runs-on: ubuntu-latest
     steps:
@@ -448,7 +448,7 @@ jobs:
           CLOUDSMITH_API_KEY: ${{ secrets.CLOUDSMITH_API_KEY }}
         run: |
           REPO_NAME="jitsi-desktop-snapshots"
-          #if [ "${{ github.ref }}" == "refs/heads/master" ]; then
+          #if [ "${{ github.ref }}" == "refs/heads/new-build" ]; then
           #  REPO_NAME="jitsi-desktop"
           #fi;
           cd target
