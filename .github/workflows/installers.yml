@@ -287,6 +287,7 @@ jobs:
           cd %GITHUB_WORKSPACE%\native
           cmake -B cmake-build-${{ steps.expand_arch.outputs.cmake_opposite_arch }} -A ${{ steps.expand_arch.outputs.cmake_opposite_arch }} ^
             -DMAIN_VERSION=${{ needs.version.outputs.jitsi_version_full }} ^
+            -DGIT_VERSION=${{ needs.version.outputs.jitsi_version_git }} ^
             -DOCSDK_DIR=%GITHUB_WORKSPACE%\build\private-sdk\ocsdk2007 ^
             -DMAPI_HEADERS_DIR=%GITHUB_WORKSPACE%\build\private-sdk\outlook2010mapi
           cmake --build cmake-build-${{ steps.expand_arch.outputs.cmake_opposite_arch }} --config Release --target install.jmsoutlookaddrbookcomserver
