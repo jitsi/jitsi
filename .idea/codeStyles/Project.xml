@@ -40,7 +40,6 @@
     </TypeScriptCodeStyleSettings>
     <XML>
       <option name="XML_ALIGN_ATTRIBUTES" value="false" />
-      <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />
     </XML>
     <codeStyleSettings language="ECMA Script Level 4">
       <option name="KEEP_BLANK_LINES_IN_CODE" value="1" />
