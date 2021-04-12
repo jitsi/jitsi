@@ -96,13 +96,6 @@ if (WIN32)
     set(CONFIG_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/include)
     configure_file(config.h.in include/config.h)
 
-    if (NOT DEFINED OCSDK_DIR)
-        message(FATAL_ERROR "OCSDK_DIR not set")
-    endif ()
-    if (NOT DEFINED MAPI_HEADERS_DIR)
-        message(FATAL_ERROR "MAPI_HEADERS_DIR not set")
-    endif ()
-
     add_definitions(-DUNICODE -D_UNICODE -D_CRT_SECURE_NO_WARNINGS)
     add_subdirectory(windows)
 elseif (APPLE)
