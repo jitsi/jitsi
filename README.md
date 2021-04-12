@@ -12,7 +12,7 @@ Please do not confuse this project
 with [Jitsi Meet](https://github.com/jitsi/jitsi-meet), the online video
 conferencing solution with a free instance at https://meet.jit.si.
 
-<img style="float: right;" src="docs/jitsi-main-window.png" alt="Jitsi Desktop">
+<img align=right src="docs/jitsi-main-window.png" alt="Jitsi Desktop" width=210>
 
 ## Support
 
