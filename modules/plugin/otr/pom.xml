@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <packaging>bundle</packaging>
   <parent>
-    <groupId>org.jitsi</groupId>
+    <groupId>org.jitsi.desktop</groupId>
     <artifactId>plugin-parent</artifactId>
     <version>${revision}</version>
   </parent>
@@ -31,47 +31,47 @@
       <artifactId>org.otr4j</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.jitsi</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>jitsi-util</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.jitsi</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>jitsi-osgi-util</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.jitsi</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>jitsi-desktoputil</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.jitsi</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>service-browserlauncher</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.jitsi</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>service-contactlist</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.jitsi</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>service-ui-service</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.jitsi</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>service-msghistory</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.jitsi</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>service-protocol</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.jitsi</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>service-resourcemanager</artifactId>
       <version>${project.version}</version>
     </dependency>

@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <packaging>bundle</packaging>
   <parent>
-    <groupId>org.jitsi</groupId>
+    <groupId>org.jitsi.desktop</groupId>
     <artifactId>service-parent</artifactId>
     <version>${revision}</version>
   </parent>
@@ -37,22 +37,22 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.jitsi</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>jitsi-util</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.jitsi</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>jitsi-osgi-util</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.jitsi</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>jitsi-launcher</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.jitsi</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>service-ui-service</artifactId>
       <version>${project.version}</version>
     </dependency>

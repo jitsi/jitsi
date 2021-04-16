@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <packaging>bundle</packaging>
   <parent>
-    <groupId>org.jitsi</groupId>
+    <groupId>org.jitsi.desktop</groupId>
     <artifactId>service-parent</artifactId>
     <version>${revision}</version>
   </parent>
@@ -17,7 +17,7 @@
       <artifactId>osgi.core</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.jitsi</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>service-protocol</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -27,7 +27,7 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.jitsi</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>jitsi-protocol-mock</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>

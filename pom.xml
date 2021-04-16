@@ -4,7 +4,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.jitsi</groupId>
+  <groupId>org.jitsi.desktop</groupId>
   <artifactId>jitsi</artifactId>
   <version>${revision}</version>
   <packaging>pom</packaging>
@@ -31,6 +31,7 @@
     <slf4jVersion>1.7.30</slf4jVersion>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <lombok.version>1.18.18</lombok.version>
+    <jitsiGeneralGroupId>org.jitsi</jitsiGeneralGroupId>
     <rootdir>${project.basedir}</rootdir>
     <!-- keep this empty default for Linux builds -->
     <jitsi-deps-arch></jitsi-deps-arch>
@@ -378,6 +379,19 @@
               </artifactItems>
               <outputDirectory>${maven.multiModuleProjectDirectory}/target/bundles</outputDirectory>
               <includeScope>runtime</includeScope>
+            </configuration>
+          </execution>
+          <execution>
+            <id>copy-repo</id>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${maven.multiModuleProjectDirectory}/target/repo</outputDirectory>
+              <includeScope>runtime</includeScope>
+              <useRepositoryLayout>true</useRepositoryLayout>
+              <excludeGroupIds>${project.groupId}</excludeGroupIds>
+              <excludeArtifactIds>jitsi-lgpl-dependencies</excludeArtifactIds>
             </configuration>
           </execution>
         </executions>

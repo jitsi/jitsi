@@ -6,7 +6,7 @@
   <modelVersion>4.0.0</modelVersion>
   <packaging>bundle</packaging>
   <parent>
-    <groupId>org.jitsi</groupId>
+    <groupId>org.jitsi.desktop</groupId>
     <artifactId>impl-parent</artifactId>
     <version>${revision}</version>
   </parent>
@@ -27,47 +27,47 @@
       <artifactId>commons-compress</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.jitsi</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>jitsi-util</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.jitsi</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>jitsi-osgi-util</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.jitsi</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>jitsi-desktoputil</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.jitsi</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>service-browserlauncher</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.jitsi</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>service-notification-service</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.jitsi</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>service-ui-service</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.jitsi</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>service-protocol</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.jitsi</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>service-resourcemanager</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.jitsi</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>service-systray-service</artifactId>
       <version>${project.version}</version>
     </dependency>
