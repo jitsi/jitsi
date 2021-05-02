@@ -195,7 +195,17 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>org.igniterealtime.jbosh</groupId>
+            <artifactId>jbosh</artifactId>
+          </exclusion>
         </exclusions>
+      </dependency>
+      <dependency>
+        <!-- pin jbosh to avoid requiring maven-metadata.xml in the local repo -->
+        <groupId>org.igniterealtime.jbosh</groupId>
+        <artifactId>jbosh</artifactId>
+        <version>0.9.2</version>
       </dependency>
       <dependency><groupId>org.igniterealtime.smack</groupId><artifactId>smack-tcp</artifactId><version>${smackVersion}</version></dependency>
       <dependency><groupId>org.igniterealtime.smack</groupId><artifactId>smack-debug</artifactId><version>${smackVersion}</version></dependency>
@@ -306,6 +316,11 @@
           <artifactId>maven-deploy-plugin</artifactId>
           <version>3.0.0-M1</version>
         </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>3.2.0</version>
+        </plugin>
       </plugins>
     </pluginManagement>
 
@@ -388,13 +403,19 @@
             </goals>
             <configuration>
               <outputDirectory>${maven.multiModuleProjectDirectory}/target/repo</outputDirectory>
-              <includeScope>runtime</includeScope>
               <useRepositoryLayout>true</useRepositoryLayout>
               <excludeGroupIds>${project.groupId}</excludeGroupIds>
               <excludeArtifactIds>jitsi-lgpl-dependencies</excludeArtifactIds>
             </configuration>
           </execution>
         </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.maven.wagon</groupId>
+            <artifactId>wagon-ssh</artifactId>
+            <version>3.4.3</version>
+          </dependency>
+        </dependencies>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

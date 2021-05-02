@@ -7,33 +7,36 @@ export JAVA_HOME=/usr/lib/jvm/default-java
 #export DH_VERBOSE=1
 
 DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
-RULES_DIR := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
-MVN_CMD := mvn -B -Dmaven.repo.local=$(RULES_DIR)/maven-repo -DskipTests -Dnotimestamp=true -Dlocale=en_US -Drevision=$(DEB_VERSION_UPSTREAM)
 
 %:
 	dh $@
 
 override_dh_auto_configure:
+	dh_auto_configure -Smaven
+	rsync -a debian/local-maven-repo/ debian/maven-repo
 	dh_auto_configure -Scmake --sourcedirectory=native -- \
 		-DCMAKE_LIBRARY_ARCHITECTURE="$(DEB_HOST_MULTIARCH)" \
 		-DSKIP_CUSTOM_INSTALL_DESTINATION=ON
 
 override_dh_auto_build:
-	$(MVN_CMD) package
+	dh_auto_build -Smaven
 	sed -E 's/\:/\n/g' target/launcher-classpath | awk -F "/" '{print "lib/"$$NF}' > target/classpath
 	echo lib/`find target/bundles -type f -iname "jitsi-launcher-*.jar*" -printf "%f"` >> target/classpath
 	dh_auto_build -Scmake
 
 override_dh_auto_test:
-	# do nothing, the test don't work
+	# do nothing, the tests don't work
+
+override_dh_install:
+	# do nothing, indep and arch will take care of it
 
 override_dh_auto_install-indep:
-	dh_install -pjitsi -Xorange -Xsparkle -Xgrowl -Xmac_widgets -X.pom
+	dh_install -pjitsi -Xorange -Xsparkle -Xgrowl -Xmac_widgets -X.pom -Xjitsi-lgpl-dependencies
 
 override_dh_auto_install-arch:
 	dh_auto_install -plibjitsi-jni -Scmake
 	dh_install -plibjitsi-jni usr/lib/$(DEB_HOST_MULTIARCH)/*.so usr/lib/jni/
 
 override_dh_auto_clean:
-	$(MVN_CMD) clean
+	dh_auto_clean -Smaven
 	dh_auto_clean -Scmake

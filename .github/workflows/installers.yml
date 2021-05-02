@@ -141,13 +141,13 @@ jobs:
       - name: Cache Maven dependencies
         uses: actions/cache@v2
         with:
-          path: debian/maven-repo
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          path: debian/local-maven-repo
+          key: ${{ runner.os }}-offlinemaven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-offlinemaven-
 
       - name: Prepare go-offline
-        run: mvn -B -DskipTests -Dmaven.repo.local=debian/maven-repo de.qaware.maven:go-offline-maven-plugin:1.2.8:resolve-dependencies
+        run: mvn -B -DskipTests -DtargetRepository=debian/local-maven-repo -DcopyPoms=true -DartifactTypes=Dependency org.jitsi:go-offline-maven-plugin:1.2.8-jitsi.1:resolve-dependencies
 
   deb_src:
     name: ${{ matrix.vendor }} ${{ matrix.dist }} ${{ matrix.arch }}
@@ -180,13 +180,10 @@ jobs:
       - name: Cache Maven dependencies
         uses: actions/cache@v2
         with:
-          path: debian/maven-repo
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          path: debian/local-maven-repo
+          key: ${{ runner.os }}-offlinemaven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-offlinemaven-
-
-      - name: Prepare go-offline
-        run: mvn -B -DskipTests -Dmaven.repo.local=debian/maven-repo de.qaware.maven:go-offline-maven-plugin:1.2.8:resolve-dependencies
 
       - name: Install dev packages
         env:
@@ -224,6 +221,9 @@ jobs:
         run: |
           cat <(echo -e "${{ secrets.GPG_KEY }}") | gpg --batch --import
           #SINCE=$(git describe --match "v[0-9\.]*" --abbrev=0)
+          # mh_pathpoms cannot handle ${revision} resulting in failed builds
+          mvn -B versions:set -DgenerateBackupPoms=false -DnewVersion=${{ needs.version.outputs.jitsi_version_deb }}~${{ matrix.dist }}
+          # truncate changelog
           export SINCE=6c43def42
           gbp dch \
             --ignore-branch \

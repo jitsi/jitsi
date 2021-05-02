@@ -14,6 +14,7 @@ sip-communicator.utest.bin
 target/
 out/
 build/
+debian/local-maven-repo/
 debian/maven-repo/
 lib/native/
 test-reports/
