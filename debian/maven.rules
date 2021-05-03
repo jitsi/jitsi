@@ -16,8 +16,9 @@
 # and version starting with 3., replacing the version with 3.x
 #   junit junit jar s/3\..*/3.x/
 
-# the only dependency that is in the ppa
-org.jitsi jitsi-lgpl-dependencies * s/.*/debian/ *
+# the only dependency that is in the ppa, but take it from Maven
+# because adding a ppa for Debian isn't quite working
+#org.jitsi jitsi-lgpl-dependencies * s/.*/debian/ *
 
 # plugins
 org.apache.felix maven-bundle-plugin * s/.*/3.5.1/ *
