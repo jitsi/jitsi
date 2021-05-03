@@ -18,7 +18,6 @@ Build-Depends:
  libmaven-bundle-plugin-java,
  libmaven-jar-plugin-java,
  libwagon-ssh-java,
- libjitsi-lgpl-dependencies-java,
  rsync,
  cmake (>= 3.10),
  pkg-config,
