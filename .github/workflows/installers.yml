@@ -241,7 +241,7 @@ jobs:
             --buildresult ~/pbuilder/${{ matrix.vendor }}-${{ matrix.dist }}-${{ matrix.arch }}_result \
             ../jitsi_*.dsc
           cd ~/pbuilder/${{ matrix.vendor }}-${{ matrix.dist }}-${{ matrix.arch }}_result
-          debsign -S -edev@jitsi.org *_source.changes --re-sign -p${{ github.workspace }}/.github/workflows/gpg-wrap.sh
+          debsign -S -edev+maven@jitsi.org *_source.changes --re-sign -p${{ github.workspace }}/.github/workflows/gpg-wrap.sh
 
       - name: Upload package as artifact
         uses: actions/upload-artifact@v2
