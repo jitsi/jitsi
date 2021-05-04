@@ -23,6 +23,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
+import lombok.extern.slf4j.*;
 import net.java.sip.communicator.plugin.generalconfig.autoaway.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.gui.*;
@@ -31,7 +32,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 
-import net.java.sip.communicator.util.osgi.ServiceUtils;
+import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
@@ -41,15 +42,11 @@ import org.osgi.framework.*;
  *
  * @author Yana Stamcheva
  */
+@Slf4j
 public class GeneralConfigPluginActivator
-    extends AbstractServiceDependentActivator
-    implements  ServiceListener
+    extends DependentActivator
+    implements ServiceListener
 {
-    /**
-     * The logger.
-     */
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GeneralConfigPluginActivator.class);
-
     /**
      * The configuration service.
      */
@@ -114,16 +111,31 @@ public class GeneralConfigPluginActivator
         =
         "net.java.sip.communicator.plugin.generalconfig.xmppconfig.DISABLED";
 
+    public GeneralConfigPluginActivator()
+    {
+        super(
+            ResourceManagementService.class,
+            ConfigurationService.class,
+            MessageHistoryService.class,
+            UIService.class,
+            SystrayService.class
+        );
+    }
+
     /**
      * Starts this bundle.
      */
     @Override
-    public void start(Object dependentService)
+    public void startWithServices(BundleContext bundleContext)
     {
-        uiService = (UIService)dependentService;
+        GeneralConfigPluginActivator.bundleContext = bundleContext;
+        resourceService = getService(ResourceManagementService.class);
+        uiService = getService(UIService.class);
+        messageHistoryService = getService(MessageHistoryService.class);
+        configService = getService(ConfigurationService.class);
+        systrayService = getService(SystrayService.class);
 
-        Dictionary<String, String> properties
-            = new Hashtable<String, String>();
+        Dictionary<String, String> properties = new Hashtable<>();
 
         // If the general configuration form is disabled don't continue.
         if (!getConfigurationService().getBoolean(DISABLED_PROP, false))
@@ -232,32 +244,13 @@ public class GeneralConfigPluginActivator
     }
 
     /**
-     * The dependent class. We are waiting for the ui service.
-     * @return
-     */
-    @Override
-    public Class<?> getDependentServiceClass()
-    {
-        return UIService.class;
-    }
-
-    /**
-     * The bundle context to use.
-     * @param context the context to set.
-     */
-    @Override
-    public void setBundleContext(BundleContext context)
-    {
-        bundleContext = context;
-    }
-
-    /**
      * Stops this bundle.
      * @param bc the bundle context
      * @throws Exception if something goes wrong
      */
     public void stop(BundleContext bc) throws Exception
     {
+        super.stop(bc);
         stopThread();
     }
 
@@ -267,15 +260,8 @@ public class GeneralConfigPluginActivator
      * @return the <tt>ConfigurationService</tt> obtained from the bundle
      * context
      */
-    public static ConfigurationService getConfigurationService() {
-        if(configService == null) {
-            ServiceReference configReference = bundleContext
-                .getServiceReference(ConfigurationService.class.getName());
-
-            configService = (ConfigurationService) bundleContext
-                .getService(configReference);
-        }
-
+    public static ConfigurationService getConfigurationService()
+    {
         return configService;
     }
 
@@ -287,14 +273,6 @@ public class GeneralConfigPluginActivator
      */
     static SystrayService getSystrayService()
     {
-        if(systrayService == null) {
-            ServiceReference configReference = bundleContext
-                .getServiceReference(SystrayService.class.getName());
-
-            systrayService = (SystrayService) bundleContext
-                .getService(configReference);
-        }
-
         return systrayService;
     }
 
@@ -413,11 +391,6 @@ public class GeneralConfigPluginActivator
      */
     public static ResourceManagementService getResources()
     {
-        if (resourceService == null)
-            resourceService
-                = ServiceUtils.getService(
-                bundleContext,
-                ResourceManagementService.class);
         return resourceService;
     }
 
@@ -428,9 +401,6 @@ public class GeneralConfigPluginActivator
      */
     public static MessageHistoryService getMessageHistoryService()
     {
-        if (messageHistoryService == null)
-            messageHistoryService = ServiceUtils.getService(bundleContext,
-                MessageHistoryService.class);
         return messageHistoryService;
     }
 

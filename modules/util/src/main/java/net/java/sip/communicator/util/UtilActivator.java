@@ -17,6 +17,8 @@
  */
 package net.java.sip.communicator.util;
 
+import lombok.extern.slf4j.*;
+import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
 
@@ -28,19 +30,16 @@ import org.osgi.framework.*;
  *
  * @author Emil Ivov
  */
-public class UtilActivator
-    extends AbstractServiceDependentActivator<ConfigurationService>
+@Slf4j
+public class UtilActivator extends DependentActivator
     implements Thread.UncaughtExceptionHandler
 {
-    /**
-     * The <tt>Logger</tt> used by the <tt>UtilActivator</tt> class and its
-     * instances for logging output.
-     */
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UtilActivator.class);
-
     private static ConfigurationService configurationService;
 
-    public static BundleContext bundleContext;
+    public UtilActivator()
+    {
+        super(ConfigurationService.class);
+    }
 
     /**
      * Calls <tt>Thread.setUncaughtExceptionHandler()</tt>
@@ -51,23 +50,11 @@ public class UtilActivator
      *   release all services used by this bundle.
      */
     @Override
-    public void start(ConfigurationService configService) throws Exception
+    public void startWithServices(BundleContext bundleContext) throws Exception
     {
-        configurationService = configService;
-        logger.trace("Setting default uncaught exception handler.");
+        configurationService = getService(ConfigurationService.class);
+        logger.trace("Setting default uncaught exception handler");
         Thread.setDefaultUncaughtExceptionHandler(this);
-    }
-
-    @Override
-    public Class<ConfigurationService> getDependentServiceClass()
-    {
-        return ConfigurationService.class;
-    }
-
-    @Override
-    public void setBundleContext(BundleContext context)
-    {
-        bundleContext = context;
     }
 
     /**
@@ -83,25 +70,9 @@ public class UtilActivator
      */
     public void uncaughtException(Thread thread, Throwable exc)
     {
-        logger.error("An uncaught exception occurred in thread="
-                     + thread
-                     + " and message was: "
-                     + exc.getMessage()
-                     , exc);
-    }
-
-    /**
-     * Doesn't do anything.
-     *
-     * @param context The execution context of the bundle being stopped.
-     * @throws Exception If this method throws an exception, the bundle is
-     *   still marked as stopped, and the Framework will remove the bundle's
-     *   listeners, unregister all services registered by the bundle, and
-     *   release all services used by the bundle.
-     */
-    public void stop(BundleContext context)
-        throws Exception
-    {
+        logger.error(
+            "An uncaught exception occurred in thread={}, and message was: {}",
+            thread, exc.getMessage(), exc);
     }
 
     /**

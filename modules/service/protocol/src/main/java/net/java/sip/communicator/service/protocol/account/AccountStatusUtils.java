@@ -20,7 +20,6 @@ package net.java.sip.communicator.service.protocol.account;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.util.osgi.*;
-import net.java.sip.communicator.util.*;
 
 import java.util.*;
 
@@ -45,30 +44,11 @@ public class AccountStatusUtils
     public static Object getProtocolProviderLastStatus(
             ProtocolProviderService protocolProvider)
     {
-        if(getProtocolPresenceOpSet(protocolProvider) != null)
+        if(protocolProvider.getOperationSet(OperationSetPresence.class) != null)
             return getLastPresenceStatus(protocolProvider);
         else
             return getGlobalStatusService()
                     .getLastStatusString(protocolProvider);
-    }
-
-    /**
-     * Returns the presence operation set for the given protocol provider.
-     *
-     * @param protocolProvider The protocol provider for which the
-     * presence operation set is searched.
-     * @return the presence operation set for the given protocol provider.
-     */
-    public static OperationSetPresence getProtocolPresenceOpSet(
-            ProtocolProviderService protocolProvider)
-    {
-        OperationSet opSet
-            = protocolProvider.getOperationSet(OperationSetPresence.class);
-
-        return
-            (opSet instanceof OperationSetPresence)
-                ? (OperationSetPresence) opSet
-                : null;
     }
 
     /**
@@ -202,7 +182,7 @@ public class AccountStatusUtils
         {
             globalStatusService
                 = ServiceUtils.getService(
-                        UtilActivator.bundleContext,
+                        ProtocolProviderActivator.getBundleContext(),
                         GlobalStatusService.class);
         }
 

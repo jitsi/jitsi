@@ -17,8 +17,7 @@
  */
 package net.java.sip.communicator.impl.dns;
 
-import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.osgi.ServiceUtils;
+import lombok.extern.slf4j.*;
 import org.jitsi.service.packetlogging.*;
 import org.xbill.DNS.*;
 
@@ -29,34 +28,15 @@ import java.net.*;
  *
  * @author Damian Minkov
  */
+@Slf4j
 public class DnsJavaLogger
     implements PacketLogger
 {
-    /**
-     * The logger.
-     */
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DnsJavaLogger.class);
+    private final PacketLoggingService packetLoggingService;
 
-    /**
-     * The packet logging service.
-     */
-    private PacketLoggingService packetLoggingService = null;
-
-    /**
-     * Obtain packet logging service.
-     * @return
-     */
-    private PacketLoggingService getPacketLoggingService()
+    public DnsJavaLogger(PacketLoggingService packetLoggingService)
     {
-        if(packetLoggingService == null
-            && UtilActivator.bundleContext != null)
-        {
-            packetLoggingService = ServiceUtils.getService(
-                UtilActivator.bundleContext,
-                PacketLoggingService.class);
-        }
-
-        return packetLoggingService;
+        this.packetLoggingService = packetLoggingService;
     }
 
     @Override
@@ -89,7 +69,7 @@ public class DnsJavaLogger
                     SocketAddress remote,
                     String prefix, byte[] data)
     {
-        if(getPacketLoggingService() == null
+        if(packetLoggingService == null
             || !(local instanceof InetSocketAddress
                 && remote instanceof InetSocketAddress))
         {
@@ -105,9 +85,7 @@ public class DnsJavaLogger
         if(prefix.contains("TCP"))
             transportName = PacketLoggingService.TransportName.TCP;
 
-        boolean isSender = true;
-        if(prefix.contains("read"))
-            isSender = false;
+        boolean isSender = !prefix.contains("read");
 
         byte[] srcAddr;
         int srcPort;
@@ -129,7 +107,7 @@ public class DnsJavaLogger
             srcPort = remoteAddress.getPort();
         }
 
-        getPacketLoggingService().logPacket(
+        packetLoggingService.logPacket(
             PacketLoggingService.ProtocolName.DNS,
             srcAddr,
             srcPort,

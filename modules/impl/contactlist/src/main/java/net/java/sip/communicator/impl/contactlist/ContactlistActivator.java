@@ -19,17 +19,15 @@ package net.java.sip.communicator.impl.contactlist;
 
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
-import net.java.sip.communicator.util.osgi.ServiceUtils;
+import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
 /**
  * @author Emil Ivov
  */
-public class ContactlistActivator
-    extends AbstractServiceDependentActivator<ResourceManagementService>
+public class ContactlistActivator extends DependentActivator
 {
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ContactlistActivator.class);
 
@@ -37,36 +35,26 @@ public class ContactlistActivator
 
     private static AccountManager accountManager;
 
-    private static BundleContext bundleContext;
+    public ContactlistActivator()
+    {
+        super(
+            ResourceManagementService.class,
+            AccountManager.class
+        );
+    }
 
     @Override
-    public void start(ResourceManagementService res)
+    public void startWithServices(BundleContext bundleContext)
     {
-        if (logger.isDebugEnabled())
-            logger.debug("Service Impl: " + getClass().getName() + " [  STARTED ]");
-
-        mclServiceImpl = new MetaContactListServiceImpl(res);
+        accountManager = getService(AccountManager.class);
+        mclServiceImpl = new MetaContactListServiceImpl(
+            getService(ResourceManagementService.class));
 
         //reg the icq account man.
         bundleContext.registerService(MetaContactListService.class.getName(),
             mclServiceImpl, null);
 
         mclServiceImpl.start(bundleContext);
-
-        if (logger.isDebugEnabled())
-            logger.debug("Service Impl: " + getClass().getName() + " [REGISTERED]");
-    }
-
-    @Override
-    public Class<ResourceManagementService> getDependentServiceClass()
-    {
-        return ResourceManagementService.class;
-    }
-
-    @Override
-    public void setBundleContext(BundleContext context)
-    {
-        bundleContext = context;
     }
 
     /**
@@ -81,8 +69,8 @@ public class ContactlistActivator
      */
     public void stop(BundleContext context) throws Exception
     {
-        if (logger.isTraceEnabled())
-            logger.trace("Stopping the contact list.");
+        logger.trace("Stopping the contact list.");
+        super.stop(context);
         if(mclServiceImpl != null)
             mclServiceImpl.stop(context);
     }
@@ -93,11 +81,6 @@ public class ContactlistActivator
      */
     public static AccountManager getAccountManager()
     {
-        if(accountManager == null)
-        {
-            accountManager
-                = ServiceUtils.getService(bundleContext, AccountManager.class);
-        }
         return accountManager;
     }
 }

@@ -19,12 +19,13 @@ package net.java.sip.communicator.plugin.sipaccregwizz;
 
 import java.util.*;
 
+import lombok.extern.slf4j.*;
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
+import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
 
@@ -33,15 +34,13 @@ import org.osgi.framework.*;
  *
  * @author Yana Stamcheva
  */
-public class SIPAccRegWizzActivator
-    extends AbstractServiceDependentActivator
+@Slf4j
+public class SIPAccRegWizzActivator extends DependentActivator
 {
     /**
      * OSGi bundle context.
      */
     public static BundleContext bundleContext;
-
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SIPAccRegWizzActivator.class);
 
     private static WizardContainer wizardContainer;
 
@@ -58,20 +57,33 @@ public class SIPAccRegWizzActivator
 
     private static CertificateService certService;
 
+    public SIPAccRegWizzActivator()
+    {
+        super(
+            UIService.class,
+            ConfigurationService.class,
+            BrowserLauncherService.class,
+            CertificateService.class
+        );
+    }
+
     /**
      * Starts this bundle.
      */
     @Override
-    public void start(Object dependentService)
+    public void startWithServices(BundleContext bundleContext)
     {
-        uiService = (UIService)dependentService;
+        SIPAccRegWizzActivator.bundleContext = bundleContext;
+        uiService = getService(UIService.class);
+        configService = getService(ConfigurationService.class);
+        browserLauncherService = getService(BrowserLauncherService.class);
+        certService = getService(CertificateService.class);
 
         wizardContainer = uiService.getAccountRegWizardContainer();
 
         sipWizard = new SIPAccountRegistrationWizard(wizardContainer);
 
-        Hashtable<String, String> containerFilter
-            = new Hashtable<String, String>();
+        Hashtable<String, String> containerFilter = new Hashtable<>();
 
         containerFilter.put(
                 ProtocolProviderFactory.PROTOCOL,
@@ -81,30 +93,6 @@ public class SIPAccRegWizzActivator
             AccountRegistrationWizard.class.getName(),
             sipWizard,
             containerFilter);
-    }
-
-    /**
-     * The dependent class. We are waiting for the ui service.
-     * @return the ui service class.
-     */
-    @Override
-    public Class<?> getDependentServiceClass()
-    {
-        return UIService.class;
-    }
-
-    /**
-     * The bundle context to use.
-     * @param context the context to set.
-     */
-    @Override
-    public void setBundleContext(BundleContext context)
-    {
-        bundleContext = context;
-    }
-
-    public void stop(BundleContext bundleContext) throws Exception
-    {
     }
 
     /**
@@ -158,15 +146,8 @@ public class SIPAccRegWizzActivator
      * @return the <tt>BrowserLauncherService</tt> obtained from the bundle
      * context
      */
-    public static BrowserLauncherService getBrowserLauncher() {
-        if (browserLauncherService == null) {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(BrowserLauncherService.class.getName());
-
-            browserLauncherService = (BrowserLauncherService) bundleContext
-                .getService(serviceReference);
-        }
-
+    public static BrowserLauncherService getBrowserLauncher()
+    {
         return browserLauncherService;
     }
 
@@ -178,15 +159,6 @@ public class SIPAccRegWizzActivator
      */
     public static ConfigurationService getConfigurationService()
     {
-        if (configService == null)
-        {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(ConfigurationService.class.getName());
-
-            configService = (ConfigurationService)bundleContext
-                .getService(serviceReference);
-        }
-
         return configService;
     }
 
@@ -198,15 +170,6 @@ public class SIPAccRegWizzActivator
      */
     public static CertificateService getCertificateService()
     {
-        if (certService == null)
-        {
-            ServiceReference serviceReference = bundleContext
-                .getServiceReference(CertificateService.class.getName());
-
-            certService = (CertificateService)bundleContext
-                .getService(serviceReference);
-        }
-
         return certService;
     }
 

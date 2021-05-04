@@ -17,9 +17,10 @@
  */
 package net.java.sip.communicator.impl.galagonotification;
 
+import lombok.extern.slf4j.*;
 import net.java.sip.communicator.service.systray.*;
 
-import net.java.sip.communicator.util.osgi.ServiceUtils;
+import net.java.sip.communicator.util.osgi.*;
 import org.apache.commons.lang3.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
@@ -31,16 +32,9 @@ import org.osgi.framework.*;
  *
  * @author Lubomir Marinov
  */
-public class GalagoNotificationActivator
-    implements BundleActivator
+@Slf4j
+public class GalagoNotificationActivator extends DependentActivator
 {
-
-    /**
-     * The <tt>Logger</tt> used by the <tt>GalagoNotificationActivator</tt>
-     * class and its instances for logging output.
-     */
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GalagoNotificationActivator.class);
-
     /**
      * The context in which the galagonotification bundle is executing.
      */
@@ -67,11 +61,14 @@ public class GalagoNotificationActivator
      */
     public static ResourceManagementService getResources()
     {
-        if (resources == null)
-            resources = ServiceUtils.getService(
-                bundleContext,
-                ResourceManagementService.class);
         return resources;
+    }
+
+    public GalagoNotificationActivator()
+    {
+        super(
+            ResourceManagementService.class
+        );
     }
 
     /**
@@ -86,7 +83,7 @@ public class GalagoNotificationActivator
      * system
      * @see BundleActivator#start(BundleContext)
      */
-    public void start(BundleContext bundleContext)
+    public void startWithServices(BundleContext bundleContext)
         throws Exception
     {
         if (!SystemUtils.IS_OS_LINUX)
@@ -99,6 +96,7 @@ public class GalagoNotificationActivator
             return;
         }
 
+        resources = getService(ResourceManagementService.class);
         long dbusConnection = GalagoNotification.dbus_bus_get_session();
         if (dbusConnection != 0)
         {
@@ -180,6 +178,7 @@ public class GalagoNotificationActivator
     public void stop(BundleContext bundleContext)
         throws Exception
     {
+        super.stop(bundleContext);
         if (dbusConnection != 0)
         {
             GalagoNotification.dbus_connection_unref(dbusConnection);

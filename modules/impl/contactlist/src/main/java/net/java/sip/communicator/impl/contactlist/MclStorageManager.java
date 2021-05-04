@@ -289,8 +289,7 @@ public class MclStorageManager
      * @throws XMLException if there is a problem with the file syntax.
      */
     void start(BundleContext bc, MetaContactListServiceImpl mclServImpl)
-        throws IOException,
-        XMLException
+        throws IOException
     {
         bundleContext = bc;
 

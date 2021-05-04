@@ -988,7 +988,7 @@ public class GuiActivator extends DependentActivator
                     = providerFactory.getProviderForAccount(accountId);
 
                 protocolProvider
-                    = UtilActivator.bundleContext.getService(serRef);
+                    = GuiActivator.bundleContext.getService(serRef);
                 if (protocolProvider != null)
                     break;
             }

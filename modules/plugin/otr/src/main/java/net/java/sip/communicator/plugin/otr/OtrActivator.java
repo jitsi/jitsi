@@ -19,13 +19,13 @@ package net.java.sip.communicator.plugin.otr;
 
 import java.util.*;
 
+import lombok.extern.slf4j.*;
 import net.java.sip.communicator.plugin.otr.authdialog.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.osgi.ServiceUtils;
+import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
@@ -36,8 +36,9 @@ import org.osgi.framework.*;
  * @author George Politis
  * @author Pawel Domas
  */
+@Slf4j
 public class OtrActivator
-    extends AbstractServiceDependentActivator
+    extends DependentActivator
     implements ServiceListener
 {
 
@@ -52,12 +53,6 @@ public class OtrActivator
      * add it here for convenience.
      */
     public static ConfigurationService configService;
-
-    /**
-     * The <tt>Logger</tt> used by the <tt>OtrActivator</tt> class and its
-     * instances for logging output.
-     */
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OtrActivator.class);
 
     /**
      * Indicates if the security/chat config form should be disabled, i.e.
@@ -117,6 +112,17 @@ public class OtrActivator
      */
     private static OtrContactManager otrContactManager;
 
+    public OtrActivator()
+    {
+        super(
+            ConfigurationService.class,
+            UIService.class,
+            MessageHistoryService.class,
+            MetaContactListService.class,
+            ResourceManagementService.class
+        );
+    }
+
     /**
      * Gets an {@link AccountID} by its UID.
      *
@@ -130,9 +136,6 @@ public class OtrActivator
 
         Map<Object, ProtocolProviderFactory> providerFactoriesMap =
             OtrActivator.getProtocolProviderFactories();
-
-        if (providerFactoriesMap == null)
-            return null;
 
         for (ProtocolProviderFactory providerFactory
                 : providerFactoriesMap.values())
@@ -155,18 +158,14 @@ public class OtrActivator
     public static List<AccountID> getAllAccountIDs()
     {
         Map<Object, ProtocolProviderFactory> providerFactoriesMap =
-            OtrActivator.getProtocolProviderFactories();
+            getProtocolProviderFactories();
 
-        if (providerFactoriesMap == null)
-            return null;
-
-        List<AccountID> accountIDs = new Vector<AccountID>();
+        List<AccountID> accountIDs = new ArrayList<>();
 
         for (ProtocolProviderFactory providerFactory
                 : providerFactoriesMap.values())
         {
-            for (AccountID accountID : providerFactory.getRegisteredAccounts())
-                accountIDs.add(accountID);
+            accountIDs.addAll(providerFactory.getRegisteredAccounts());
         }
 
         return accountIDs;
@@ -180,7 +179,7 @@ public class OtrActivator
                     bundleContext,
                     ProtocolProviderFactory.class);
         Map<Object, ProtocolProviderFactory> providerFactoriesMap
-            = new Hashtable<Object, ProtocolProviderFactory>();
+            = new Hashtable<>();
 
         if (!serRefs.isEmpty())
         {
@@ -198,16 +197,6 @@ public class OtrActivator
     }
 
     private OtrTransformLayer otrTransformLayer;
-
-    /**
-     * The dependent class. We are waiting for the ui service.
-     * @return the ui service class.
-     */
-    @Override
-    public Class<?> getDependentServiceClass()
-    {
-        return UIService.class;
-    }
 
     private void handleProviderAdded(ProtocolProviderService provider)
     {
@@ -241,12 +230,9 @@ public class OtrActivator
         Object sService =
             bundleContext.getService(serviceEvent.getServiceReference());
 
-        if (logger.isTraceEnabled())
-        {
-            logger.trace(
-                    "Received a service event for: "
-                        + sService.getClass().getName());
-        }
+        logger.trace(
+                "Received a service event for: {}",
+                    sService.getClass().getName());
 
         // we don't care if the source service is not a protocol provider
         if (!(sService instanceof ProtocolProviderService))
@@ -269,26 +255,15 @@ public class OtrActivator
         }
     }
 
-    /**
-     * The bundle context to use.
-     * @param context the context to set.
-     */
-    @Override
-    public void setBundleContext(BundleContext context)
-    {
-        bundleContext = context;
-    }
-
     /*
      * Implements AbstractServiceDependentActivator#start(UIService).
      */
     @Override
-    public void start(Object dependentService)
+    public void startWithServices(BundleContext bundleContext)
     {
-        configService
-            = ServiceUtils.getService(
-                    bundleContext,
-                    ConfigurationService.class);
+        OtrActivator.bundleContext = bundleContext;
+        configService = getService(ConfigurationService.class);
+
         // Check whether someone has disabled this plug-in.
         if(configService.getBoolean(OTR_DISABLED_PROP, false))
         {
@@ -296,17 +271,10 @@ public class OtrActivator
             return;
         }
 
-        resourceService
-            = ServiceUtils.getService(
-            bundleContext,
-            ResourceManagementService.class);
-        if (resourceService == null)
-        {
-            configService = null;
-            return;
-        }
-
-        uiService = (UIService) dependentService;
+        messageHistoryService = getService(MessageHistoryService.class);
+        resourceService = getService(ResourceManagementService.class);
+        uiService = getService(UIService.class);
+        metaCListService = getService(MetaContactListService.class);
 
         // Init static variables, don't proceed without them.
         scOtrEngine = new ScOtrEngineImpl();
@@ -325,12 +293,8 @@ public class OtrActivator
 
         if (!protocolProviderRefs.isEmpty())
         {
-            if (logger.isDebugEnabled())
-            {
-                logger.debug(
-                        "Found " + protocolProviderRefs.size()
-                            + " already installed providers.");
-            }
+            logger.debug("Found {} already installed providers",
+                protocolProviderRefs.size());
             for (ServiceReference<ProtocolProviderService> protocolProviderRef
                     : protocolProviderRefs)
             {
@@ -343,8 +307,7 @@ public class OtrActivator
 
         if(!OSUtils.IS_ANDROID)
         {
-            Hashtable<String, String> containerFilter
-                = new Hashtable<String, String>();
+            Hashtable<String, String> containerFilter = new Hashtable<>();
 
             // Register the right-click menu item.
             containerFilter.put(Container.CONTAINER_ID,
@@ -403,9 +366,7 @@ public class OtrActivator
         if (!configService.getBoolean(OTR_CHAT_CONFIG_DISABLED_PROP, false)
                 && !OSUtils.IS_ANDROID)
         {
-            Dictionary<String, String> properties
-                = new Hashtable<String, String>();
-
+            Dictionary<String, String> properties = new Hashtable<>();
             properties.put( ConfigurationForm.FORM_TYPE,
                             ConfigurationForm.SECURITY_TYPE);
             // Register the configuration form.
@@ -426,6 +387,7 @@ public class OtrActivator
     @Override
     public void stop(BundleContext bc) throws Exception
     {
+        super.stop(bc);
         // Unregister transformation layer.
         // start listening for newly register or removed protocol providers
         bundleContext.removeServiceListener(this);
@@ -463,13 +425,6 @@ public class OtrActivator
      */
     public static MetaContactListService getContactListService()
     {
-        if (metaCListService == null)
-        {
-            metaCListService
-                = ServiceUtils.getService(
-                        bundleContext,
-                        MetaContactListService.class);
-        }
         return metaCListService;
     }
 
@@ -480,13 +435,6 @@ public class OtrActivator
      */
     public static MessageHistoryService getMessageHistoryService()
     {
-        if (messageHistoryService == null)
-        {
-            messageHistoryService
-                = ServiceUtils.getService(
-                        bundleContext,
-                        MessageHistoryService.class);
-        }
         return messageHistoryService;
     }
 

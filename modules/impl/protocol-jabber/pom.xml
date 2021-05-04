@@ -123,6 +123,10 @@
       <artifactId>smack-bosh</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.igniterealtime.jbosh</groupId>
+      <artifactId>jbosh</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.igniterealtime.smack</groupId>
       <artifactId>smack-tcp</artifactId>
     </dependency>

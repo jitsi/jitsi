@@ -102,7 +102,7 @@ public class AccountUtils
                 if (ref != null)
                 {
                     ProtocolProviderService protocolProvider
-                        = UtilActivator.bundleContext.getService(ref);
+                        = ProtocolProviderActivator.getBundleContext().getService(ref);
 
                     if ((protocolProvider.getOperationSet(opSetClass) != null)
                             && protocolProvider.isRegistered())
@@ -144,7 +144,8 @@ public class AccountUtils
                 if (ref != null)
                 {
                     ProtocolProviderService protocolProvider
-                        = UtilActivator.bundleContext.getService(ref);
+                        = ProtocolProviderActivator.getBundleContext()
+                        .getService(ref);
 
                     if ((protocolProvider.getOperationSet(opSetClass) != null)
                             && protocolProvider.isRegistered())
@@ -234,7 +235,8 @@ public class AccountUtils
 
                 if (ref != null)
                 {
-                    return UtilActivator.bundleContext.getService(ref);
+                    return ProtocolProviderActivator.getBundleContext()
+                        .getService(ref);
                 }
             }
         }
@@ -272,14 +274,15 @@ public class AccountUtils
         try
         {
             Collection<ServiceReference<ProtocolProviderFactory>> refs
-                = UtilActivator.bundleContext.getServiceReferences(
+                = ProtocolProviderActivator.getBundleContext()
+                .getServiceReferences(
                         ProtocolProviderFactory.class,
                         osgiFilter);
 
             if ((refs != null) && !refs.isEmpty())
             {
                 protocolProviderFactory
-                    = UtilActivator.bundleContext.getService(
+                    = ProtocolProviderActivator.getBundleContext().getService(
                             refs.iterator().next());
             }
         }
@@ -312,7 +315,8 @@ public class AccountUtils
                 if (ref != null)
                 {
                     ProtocolProviderService protocolProvider
-                        = UtilActivator.bundleContext.getService(ref);
+                        = ProtocolProviderActivator.getBundleContext()
+                        .getService(ref);
 
                     registeredProviders.add(protocolProvider);
                 }

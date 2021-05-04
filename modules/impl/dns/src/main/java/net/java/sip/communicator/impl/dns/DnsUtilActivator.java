@@ -26,6 +26,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.osgi.*;
 import org.apache.commons.lang3.StringUtils;
 import org.jitsi.service.configuration.*;
+import org.jitsi.service.packetlogging.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 import org.xbill.DNS.*;
@@ -105,28 +106,26 @@ public class DnsUtilActivator
         super(
             ConfigurationService.class,
             ResourceManagementService.class,
-            NotificationService.class
+            NotificationService.class,
+            PacketLoggingService.class
         );
     }
 
     /**
      * Calls <tt>Thread.setUncaughtExceptionHandler()</tt>
-     *
-     * @throws Exception If this method throws an exception, this bundle is
-     *   marked as stopped and the Framework will remove this bundle's
-     *   listeners, unregister all services registered by this bundle, and
-     *   release all services used by this bundle.
      */
     @Override
-    public void startWithServices(BundleContext context) throws Exception
+    public void startWithServices(BundleContext context)
     {
         logger.info("DNS service ... [STARTING]");
         bundleContext = context;
         context.addServiceListener(this);
         configurationService = getService(ConfigurationService.class);
+        notificationService = getService(NotificationService.class);
+        resourceService = getService(ResourceManagementService.class);
         bundleContext.registerService(DnsConfigService.class, this, null);
 
-        Lookup.setPacketLogger(new DnsJavaLogger());
+        Lookup.setPacketLogger(new DnsJavaLogger(getService(PacketLoggingService.class)));
 
         if(loadDNSProxyForward(configurationService))
         {
@@ -166,7 +165,7 @@ public class DnsUtilActivator
     /**
      * Checks settings and if needed load forwarding of dns to the server
      * that is specified.
-     * @return whether loading was successfull or <tt>false</tt> if it is not or
+     * @return whether loading was successful or <tt>false</tt> if it is not or
      * was not enabled.
      */
     private static boolean loadDNSProxyForward(
@@ -305,13 +304,6 @@ public class DnsUtilActivator
      */
     public static NotificationService getNotificationService()
     {
-        if (notificationService == null)
-        {
-            notificationService
-                = ServiceUtils.getService(
-                        bundleContext,
-                        NotificationService.class);
-        }
         return notificationService;
     }
 
@@ -322,12 +314,6 @@ public class DnsUtilActivator
      */
     public static ResourceManagementService getResources()
     {
-        if (resourceService == null)
-        {
-            resourceService = ServiceUtils.getService(
-                bundleContext,
-                ResourceManagementService.class);
-        }
         return resourceService;
     }
 

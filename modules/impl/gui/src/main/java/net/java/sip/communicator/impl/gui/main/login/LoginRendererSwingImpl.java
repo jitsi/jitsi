@@ -94,7 +94,7 @@ public class LoginRendererSwingImpl
         ProtocolProviderService protocolProvider, long date)
     {
         OperationSetPresence presence
-            = AccountStatusUtils.getProtocolPresenceOpSet(protocolProvider);
+            = protocolProvider.getOperationSet(OperationSetPresence.class);
 
         OperationSetMultiUserChat multiUserChat =
             MUCService.getMultiUserChatOpSet(protocolProvider);

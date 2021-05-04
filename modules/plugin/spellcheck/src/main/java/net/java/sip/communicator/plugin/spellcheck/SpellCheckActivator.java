@@ -22,6 +22,7 @@ import java.util.*;
 import net.java.sip.communicator.service.gui.*;
 
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.fileaccess.*;
 import org.osgi.framework.*;
@@ -33,8 +34,7 @@ import javax.swing.*;
  *
  * @author Damian Johnson
  */
-public class SpellCheckActivator
-    extends AbstractServiceDependentActivator
+public class SpellCheckActivator extends DependentActivator
 {
     /**
      * Our Logger.
@@ -51,19 +51,28 @@ public class SpellCheckActivator
 
     private static SpellChecker checker = null;
 
+    public SpellCheckActivator()
+    {
+        super(
+            UIService.class,
+            FileAccessService.class,
+            ConfigurationService.class
+        );
+    }
+
     /**
      * Called when this bundle is started.
-     *
-     * @param dependentService the service we depend on.
      */
     @Override
-    public void start(Object dependentService)
+    public void startWithServices(BundleContext bundleContext)
     {
-        // UI-Service started.
+        SpellCheckActivator.bundleContext = bundleContext;
+        uiService = getService(UIService.class);
+        faService = getService(FileAccessService.class);
+        configService = getService(ConfigurationService.class);
 
          // adds button to toggle spell checker
-        Hashtable<String, String> containerFilter =
-            new Hashtable<String, String>();
+        Hashtable<String, String> containerFilter = new Hashtable<>();
         containerFilter.put(Container.CONTAINER_ID,
             Container.CONTAINER_CHAT_TOOL_BAR.getID());
 
@@ -100,27 +109,6 @@ public class SpellCheckActivator
             },
             containerFilter);
 
-    }
-
-    /**
-     * Setting context to the activator, as soon as we have one.
-     *
-     * @param context the context to set.
-     */
-    @Override
-    public void setBundleContext(BundleContext context)
-    {
-        bundleContext = context;
-    }
-
-    /**
-     * This activator depends on UIService.
-     * @return the class name of uiService.
-     */
-    @Override
-    public Class<?> getDependentServiceClass()
-    {
-        return UIService.class;
     }
 
     /**
@@ -167,15 +155,6 @@ public class SpellCheckActivator
      */
     public static UIService getUIService()
     {
-        if (uiService != null)
-            return uiService;
-
-        // retrieves needed services
-        ServiceReference uiServiceRef =
-            bundleContext.getServiceReference(UIService.class.getName());
-
-        uiService = (UIService) bundleContext.getService(uiServiceRef);
-
         return uiService;
     }
 
@@ -186,15 +165,6 @@ public class SpellCheckActivator
      */
     public static FileAccessService getFileAccessService()
     {
-        if (faService != null)
-            return faService;
-
-        ServiceReference faServiceReference =
-            bundleContext
-                .getServiceReference(FileAccessService.class.getName());
-        faService =
-            (FileAccessService) bundleContext.getService(faServiceReference);
-
         return faService;
     }
 
@@ -205,23 +175,6 @@ public class SpellCheckActivator
      */
     public static ConfigurationService getConfigService()
     {
-        if (configService != null)
-            return configService;
-
-        ServiceReference configServiceRef =
-            bundleContext.getServiceReference(ConfigurationService.class
-                .getName());
-
-        configService =
-            (ConfigurationService) bundleContext.getService(configServiceRef);
-
         return configService;
-    }
-
-    /**
-     * Stops this bundles.
-     */
-    public void stop(BundleContext arg0) throws Exception
-    {
     }
 }

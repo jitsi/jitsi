@@ -25,6 +25,11 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>jitsi-osgi-util</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>service-dnsservice</artifactId>
       <version>${project.version}</version>
     </dependency>

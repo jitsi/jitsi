@@ -19,6 +19,7 @@ package net.java.sip.communicator.util.osgi;
 
 import java.util.*;
 import java.util.stream.*;
+import lombok.extern.slf4j.*;
 import org.osgi.framework.*;
 import org.osgi.util.tracker.*;
 import org.slf4j.*;
@@ -67,10 +68,8 @@ public abstract class DependentActivator
     public final void start(BundleContext bundleContext)
     {
         logger.info(
-            "Starting, setting up service tracker for "
-                + dependentServices.size()
-                + " dependencies"
-        );
+            "Starting, setting up service tracker for {}  dependencies",
+                + dependentServices.size());
         this.bundleContext = bundleContext;
         for (Map.Entry<Class<?>, ServiceTracker<?, ?>> ds
             : dependentServices.entrySet())
@@ -97,9 +96,8 @@ public abstract class DependentActivator
         if (runningServices.size() == dependentServices.size())
         {
             openTrackers.remove(this);
-            logger.debug("Got service "
-                + service.getClass().getSimpleName()
-                + ", starting now"
+            logger.debug("Got service {}, starting now",
+                service.getClass().getSimpleName()
             );
             try
             {
@@ -117,20 +115,19 @@ public abstract class DependentActivator
             missingServices.removeIf(s -> runningServices.stream()
                 .anyMatch(rs -> s.isAssignableFrom(rs.getClass())));
             openTrackers.put(this, missingServices);
-            logger.trace("Got service "
-                + service.getClass().getSimpleName()
-                + ", still waiting for "
-                + missingServices.size()
-                + " services: \n\t"
-                + missingServices.stream().map(Class::getSimpleName).collect(
-                Collectors.joining(",\n\t"))
+            logger.trace(
+                "Got service {}, still waiting for {} services: \n\t{}",
+                service.getClass().getSimpleName(),
+                missingServices.size(),
+                missingServices.stream().map(Class::getSimpleName)
+                    .collect(Collectors.joining(",\n\t"))
             );
         }
 
         if (logger.isTraceEnabled() && !openTrackers.isEmpty())
         {
-            logger.trace("Open service requests:\n\t"
-                + openTrackers.entrySet().stream()
+            logger.trace("Open service requests:\n\t{}",
+                openTrackers.entrySet().stream()
                 .map(e -> e.getKey().getClass().getSimpleName()
                     + " is waiting for "
                     + e.getValue().size()
@@ -156,7 +153,7 @@ public abstract class DependentActivator
             }
         }
 
-        throw new IllegalStateException("Service not yet started");
+        throw new IllegalStateException("Service not yet started: " + serviceClass.getName());
     }
 
     @Override

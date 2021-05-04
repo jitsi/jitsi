@@ -34,8 +34,7 @@ import org.osgi.framework.*;
  *
  * @author Ingo Bauersachs
  */
-public class ThunderbirdActivator
-    extends AbstractServiceDependentActivator<ConfigurationService>
+public class ThunderbirdActivator extends DependentActivator
 {
     /** OSGi context. */
     private static BundleContext bundleContext;
@@ -50,6 +49,7 @@ public class ThunderbirdActivator
     private static PhoneNumberI18nService phoneNumberI18nService;
 
     private static ConfigurationService configService;
+    private static ResourceManagementService resourceManagementService;
 
     /**
      * Gets the configuration service.
@@ -66,8 +66,7 @@ public class ThunderbirdActivator
      */
     static ResourceManagementService getResources()
     {
-        return ServiceUtils.getService(bundleContext,
-            ResourceManagementService.class);
+        return resourceManagementService;
     }
 
     /**
@@ -111,14 +110,26 @@ public class ThunderbirdActivator
         }
     }
 
+    public ThunderbirdActivator()
+    {
+        super(
+            ConfigurationService.class,
+            ResourceManagementService.class,
+            PhoneNumberI18nService.class
+        );
+    }
+
     /**
      * Searches the configuration for Thunderbird address books and registers a
      * {@link ContactSourceService} for each found config.
      */
     @Override
-    public void start(ConfigurationService configService)
+    public void startWithServices(BundleContext bundleContext)
     {
-        this.configService = configService;
+        ThunderbirdActivator.bundleContext = bundleContext;
+        configService = getService(ConfigurationService.class);
+        phoneNumberI18nService = getService(PhoneNumberI18nService.class);
+        resourceManagementService = getService(ResourceManagementService.class);
         List<String> configs =
             configService.getPropertyNamesByPrefix(
                 ThunderbirdContactSourceService.PNAME_BASE_THUNDERBIRD_CONFIG,
@@ -150,24 +161,13 @@ public class ThunderbirdActivator
             properties);
     }
 
-    @Override
-    public Class<ConfigurationService> getDependentServiceClass()
-    {
-        return ConfigurationService.class;
-    }
-
-    @Override
-    public void setBundleContext(BundleContext context)
-    {
-        ThunderbirdActivator.bundleContext = context;
-    }
-
     /**
      * Unregisters all {@link ContactSourceService}s that were registered by
      * this activator.
      */
     public void stop(BundleContext bundleContext) throws Exception
     {
+        super.stop(bundleContext);
         for (ServiceRegistration<ContactSourceService> sr : registrations
             .values())
         {
@@ -183,13 +183,6 @@ public class ThunderbirdActivator
      */
     public static PhoneNumberI18nService getPhoneNumberI18nService()
     {
-        if(phoneNumberI18nService == null)
-        {
-            phoneNumberI18nService = ServiceUtils.getService(
-                bundleContext,
-                PhoneNumberI18nService.class);
-        }
-
         return phoneNumberI18nService;
     }
 }

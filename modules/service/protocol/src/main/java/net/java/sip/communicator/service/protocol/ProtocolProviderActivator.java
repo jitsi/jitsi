@@ -96,14 +96,6 @@ public class ProtocolProviderActivator
      */
     public static ConfigurationService getConfigurationService()
     {
-        if (configurationService == null)
-        {
-            configurationService
-                = (ConfigurationService)
-                    bundleContext.getService(
-                        bundleContext.getServiceReference(
-                            ConfigurationService.class.getName()));
-        }
         return configurationService;
     }
 
@@ -117,14 +109,6 @@ public class ProtocolProviderActivator
      */
     public static ResourceManagementService getResourceService()
     {
-        if (resourceService == null)
-        {
-            resourceService
-                = (ResourceManagementService)
-                    bundleContext.getService(
-                        bundleContext.getServiceReference(
-                            ResourceManagementService.class.getName()));
-        }
         return resourceService;
     }
 
@@ -135,13 +119,6 @@ public class ProtocolProviderActivator
      */
     public static FileAccessService getFileAccessService()
     {
-        if (fileAccessService == null)
-        {
-            fileAccessService
-                = ServiceUtils.getService(
-                bundleContext,
-                FileAccessService.class);
-        }
         return fileAccessService;
     }
 
@@ -199,6 +176,9 @@ public class ProtocolProviderActivator
     public void startWithServices(BundleContext bundleContext)
     {
         ProtocolProviderActivator.bundleContext = bundleContext;
+        fileAccessService = getService(FileAccessService.class);
+        configurationService = getService(ConfigurationService.class);
+        resourceService = getService(ResourceManagementService.class);
 
         accountManager = new AccountManager(bundleContext);
         accountManagerServiceRegistration =

@@ -979,10 +979,9 @@ public class ConfigurationUtils
             }
         });
 
-        if (pins != null)
+        String title = configService.getString("service.gui.APPLICATION_NAME");
+        if (pins != null && title != null)
         {
-            String title = configService
-                .getString("service.gui.APPLICATION_NAME");
             for (File pin : pins)
             {
                 if (pin.getName().contains(title))

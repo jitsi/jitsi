@@ -17,10 +17,11 @@
  */
 package net.java.sip.communicator.impl.netaddr;
 
+import lombok.extern.slf4j.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.util.*;
 
-import net.java.sip.communicator.util.osgi.ServiceUtils;
+import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.packetlogging.*;
 import org.osgi.framework.*;
@@ -31,14 +32,9 @@ import org.osgi.framework.*;
  *
  * @author Emil Ivov
  */
-public class NetaddrActivator
-    extends AbstractServiceDependentActivator<ConfigurationService>
+@Slf4j
+public class NetaddrActivator extends DependentActivator
 {
-    /**
-     * The logger for this class.
-     */
-    private static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(NetworkAddressManagerServiceImpl.class);
-
     /**
      * The OSGi bundle context.
      */
@@ -60,10 +56,20 @@ public class NetaddrActivator
      */
     private static PacketLoggingService packetLoggingService  = null;
 
-    @Override
-    public void start(ConfigurationService dependentService) throws Exception
+    public  NetaddrActivator()
     {
-        configurationService = dependentService;
+        super(
+            ConfigurationService.class,
+            PacketLoggingService.class
+        );
+    }
+
+    @Override
+    public void startWithServices(BundleContext bundleContext)
+    {
+        NetaddrActivator.bundleContext = bundleContext;
+        configurationService = getService(ConfigurationService.class);
+        packetLoggingService = getService(PacketLoggingService.class);
         //in here we load static properties that should be else where
         //System.setProperty("java.net.preferIPv4Stack", "false");
         //System.setProperty("java.net.preferIPv6Addresses", "true");
@@ -83,18 +89,6 @@ public class NetaddrActivator
             NetworkAddressManagerService.class.getName(), networkAMS, null);
 
         logger.info("Network Address Manager Service ...[REGISTERED]");
-    }
-
-    @Override
-    public Class<ConfigurationService> getDependentServiceClass()
-    {
-        return ConfigurationService.class;
-    }
-
-    @Override
-    public void setBundleContext(BundleContext context)
-    {
-        bundleContext = context;
     }
 
     /**
@@ -120,13 +114,6 @@ public class NetaddrActivator
      */
     public static PacketLoggingService getPacketLogging()
     {
-        if (packetLoggingService == null)
-        {
-            packetLoggingService
-                = ServiceUtils.getService(
-                        bundleContext,
-                        PacketLoggingService.class);
-        }
         return packetLoggingService;
     }
 
