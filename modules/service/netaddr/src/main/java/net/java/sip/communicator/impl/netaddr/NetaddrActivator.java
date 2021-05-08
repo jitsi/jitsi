@@ -17,11 +17,15 @@
  */
 package net.java.sip.communicator.impl.netaddr;
 
+import com.typesafe.config.*;
+import kotlin.jvm.functions.*;
 import lombok.extern.slf4j.*;
 import net.java.sip.communicator.service.netaddr.*;
-import net.java.sip.communicator.util.*;
 
 import net.java.sip.communicator.util.osgi.*;
+import org.ice4j.ice.*;
+import org.jitsi.config.*;
+import org.jitsi.metaconfig.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.packetlogging.*;
 import org.osgi.framework.*;
@@ -88,6 +92,34 @@ public class NetaddrActivator extends DependentActivator
         bundleContext.registerService(
             NetworkAddressManagerService.class.getName(), networkAMS, null);
 
+        MetaconfigSettings.Companion.setCacheEnabled(false);
+        MetaconfigSettings.Companion.setLogger(new MetaconfigLogger()
+        {
+            @Override
+            public void warn(Function0<String> function0)
+            {
+                if (logger.isWarnEnabled())
+                    logger.warn(function0.invoke());
+            }
+
+            @Override
+            public void error(Function0<String> function0)
+            {
+                if (logger.isErrorEnabled())
+                    logger.error(function0.invoke());
+            }
+
+            @Override
+            public void debug(Function0<String> function0)
+            {
+                if (logger.isDebugEnabled())
+                    logger.debug(function0.invoke());
+            }
+        });
+        ConfigSource defaults = new TypesafeConfigSource("defaults",
+            ConfigFactory
+                .defaultReference(AgentConfig.class.getClassLoader()));
+        JitsiConfig.Companion.useDebugNewConfig(defaults);
         logger.info("Network Address Manager Service ...[REGISTERED]");
     }
 

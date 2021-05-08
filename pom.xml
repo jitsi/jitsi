@@ -29,6 +29,7 @@
     <smackVersion>4.2.4-4fa73bd</smackVersion>
     <jxmppVersion>0.6.3</jxmppVersion>
     <slf4jVersion>1.7.30</slf4jVersion>
+    <kotlin.version>1.3.72</kotlin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <lombok.version>1.18.18</lombok.version>
     <jitsiGeneralGroupId>org.jitsi</jitsiGeneralGroupId>
@@ -56,6 +57,7 @@
       <dependency><groupId>org.slf4j</groupId><artifactId>jcl-over-slf4j</artifactId><version>${slf4jVersion}</version></dependency>
       <dependency><groupId>org.slf4j</groupId><artifactId>log4j-over-slf4j</artifactId><version>${slf4jVersion}</version></dependency>
       <dependency><groupId>org.jitsi</groupId><artifactId>org.otr4j</artifactId><version>0.23</version></dependency>
+      <dependency><groupId>org.jetbrains.kotlin</groupId><artifactId>kotlin-osgi-bundle</artifactId><version>${kotlin.version}</version></dependency>
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>
         <artifactId>httpclient-osgi</artifactId>

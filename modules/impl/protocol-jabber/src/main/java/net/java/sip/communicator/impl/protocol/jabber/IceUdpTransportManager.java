@@ -61,7 +61,7 @@ public class IceUdpTransportManager
     /**
      * Default STUN server address.
      */
-    protected static final String DEFAULT_STUN_SERVER_ADDRESS = "stun.jitsi.net";
+    protected static final String DEFAULT_STUN_SERVER_ADDRESS = "turn.jitsi.net";
 
     /**
      * Default STUN server port.
