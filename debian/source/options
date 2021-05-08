@@ -1,0 +1,11 @@
+tar-ignore=.git
+tar-ignore=.github
+tar-ignore=.idea
+tar-ignore=lib
+tar-ignore=resources/install/gradle
+tar-ignore=resources/install/mac
+tar-ignore=resources/install/main/mac
+tar-ignore=resources/install/main/windows
+tar-ignore=resources/install/windows
+tar-ignore=resources/install/gradle*
+tar-ignore=resources/install/settings.gradle
