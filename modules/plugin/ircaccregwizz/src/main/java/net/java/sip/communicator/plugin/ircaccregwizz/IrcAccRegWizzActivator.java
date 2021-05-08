@@ -24,6 +24,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 
 import net.java.sip.communicator.util.osgi.*;
+import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
 /**
@@ -43,6 +44,7 @@ public class IrcAccRegWizzActivator extends DependentActivator
     public IrcAccRegWizzActivator()
     {
         super(
+            ResourceManagementService.class,
             UIService.class
         );
     }
@@ -54,6 +56,8 @@ public class IrcAccRegWizzActivator extends DependentActivator
     {
         logger.info("Loading irc account wizard.");
         UIService uiService = getService(UIService.class);
+        Resources.resourcesService =
+            getService(ResourceManagementService.class);
 
         WizardContainer wizardContainer =
             uiService.getAccountRegWizardContainer();

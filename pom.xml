@@ -363,7 +363,7 @@
           <source>1.8</source>
           <target>1.8</target>
           <compilerArgs>
-            <arg>-Xlint:all</arg>
+            <arg>-Xlint:all,-serial</arg>
           </compilerArgs>
           <annotationProcessorPaths>
             <path>

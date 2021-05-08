@@ -184,11 +184,6 @@ public class ProtocolProviderActivator
         accountManagerServiceRegistration =
             bundleContext.registerService(AccountManager.class.getName(),
                 accountManager, null);
-        if(logger.isTraceEnabled())
-        {
-            logger.trace("ProtocolProviderActivator will create "
-                + "SingleCallInProgressPolicy instance.");
-        }
     }
 
     /**

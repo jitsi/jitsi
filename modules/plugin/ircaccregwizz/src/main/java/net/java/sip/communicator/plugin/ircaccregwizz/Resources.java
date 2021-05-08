@@ -30,7 +30,7 @@ import org.jitsi.service.resources.*;
  */
 public class Resources
 {
-    private static ResourceManagementService resourcesService;
+    static ResourceManagementService resourcesService;
 
     /**
      * A constant pointing to the IRC protocol logo image.
@@ -51,7 +51,7 @@ public class Resources
      */
     public static String getString(String key)
     {
-        return getResources().getI18NString(key);
+        return resourcesService.getI18NString(key);
     }
 
     /**
@@ -61,20 +61,6 @@ public class Resources
      */
     public static byte[] getImage(ImageID imageID)
     {
-        return getResources().getImageInBytes(imageID.getId());
-    }
-
-    /**
-     * Returns the <tt>ResourceManagementService</tt>.
-     *
-     * @return the <tt>ResourceManagementService</tt>.
-     */
-    public static ResourceManagementService getResources()
-    {
-        if (resourcesService == null)
-            resourcesService = ServiceUtils.getService(
-                IrcAccRegWizzActivator.bundleContext,
-                ResourceManagementService.class);
-        return resourcesService;
+        return resourcesService.getImageInBytes(imageID.getId());
     }
 }

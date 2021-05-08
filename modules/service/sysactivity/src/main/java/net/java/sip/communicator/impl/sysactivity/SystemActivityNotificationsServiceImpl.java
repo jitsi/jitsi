@@ -136,8 +136,11 @@ public class SystemActivityNotificationsServiceImpl
     {
         SystemActivityNotifications.stop();
 
-        if (getCurrentRunningManager() != null)
-            getCurrentRunningManager().stop();
+        if (currentRunningManager != null)
+        {
+            currentRunningManager.stop();
+            currentRunningManager = null;
+        }
 
         eventDispatcher.stop();
 
@@ -591,13 +594,13 @@ public class SystemActivityNotificationsServiceImpl
      */
     private SystemActivityManager getCurrentRunningManager()
     {
-        if(currentRunningManager == null)
+        if(currentRunningManager == null && OSUtils.IS_LINUX)
         {
             try
             {
                 currentRunningManager = new NetworkManagerListenerImpl(this);
             }
-            catch (NoClassDefFoundError ndef)
+            catch (NoClassDefFoundError | UnsatisfiedLinkError ndef)
             {
                 if (ndef.getMessage().contains("DBusException"))
                 {
