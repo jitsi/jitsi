@@ -58,7 +58,7 @@ public class PropsTableModel
     public void propertyChange(PropertyChangeEvent evt)
     {
         // If new property was added
-        if (evt.getOldValue() == null)
+        if (evt.getOldValue() == null && evt.getNewValue() != null)
             addRow(new Object[] {evt.getPropertyName(), evt.getNewValue()});
     }
 

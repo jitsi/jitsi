@@ -17,7 +17,7 @@
  */
 package net.java.sip.communicator.plugin.propertieseditor;
 
-import net.java.sip.communicator.util.osgi.ServiceUtils;
+import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.ResourceManagementService;
 
@@ -32,13 +32,8 @@ import org.osgi.framework.*;
  * @author Pawel Domas
  */
 public class PropertiesEditorActivator
-    implements BundleActivator
+    extends DependentActivator
 {
-    /**
-     * The bundle context.
-     */
-    private static BundleContext bundleContext;
-
     /**
      * The configuration service.
      */
@@ -50,11 +45,6 @@ public class PropertiesEditorActivator
     private static ResourceManagementService resourceManagementService;
 
     /**
-     * The ui service
-     */
-    private static UIService uiService;
-
-    /**
      * Returns the <tt>ConfigurationService</tt> obtained from the
      * <tt>BundleContext</tt>.
      *
@@ -63,13 +53,6 @@ public class PropertiesEditorActivator
      */
     public static ConfigurationService getConfigurationService()
     {
-        if (configService == null)
-        {
-            configService
-                = ServiceUtils.getService(
-                        bundleContext,
-                        ConfigurationService.class);
-        }
         return configService;
     }
 
@@ -82,41 +65,30 @@ public class PropertiesEditorActivator
      */
     public static ResourceManagementService getResourceManagementService()
     {
-        if (resourceManagementService == null)
-        {
-            resourceManagementService
-                = ServiceUtils.getService(
-                        bundleContext,
-                        ResourceManagementService.class);
-        }
         return resourceManagementService;
     }
 
-    /**
-     * Returns the <tt>UIService</tt> obtained from the <tt>BundleContext</tt>.
-     *
-     * @return the <tt>UIService</tt> obtained from the <tt>BundleContext</tt>.
-     */
-    public static UIService getUIService()
+    public PropertiesEditorActivator()
     {
-        if (uiService == null)
-            uiService = ServiceUtils.getService(bundleContext, UIService.class);
-        return uiService;
+        super(
+            ConfigurationService.class,
+            ResourceManagementService.class
+        );
     }
 
     /**
      * Starts this bundle and adds the <td>PropertiesEditorPanel</tt> contained
      * in it to the configuration window obtained from the <tt>UIService</tt>.
      *
-     * @param bc the <tt>BundleContext</tt>
-     * @throws Exception if one of the operation executed in the start method
-     * fails
+     * @param bundleContext the <tt>BundleContext</tt>
      */
-    public void start(BundleContext bc) throws Exception
+    @Override
+    public void startWithServices(BundleContext bundleContext)
     {
-        bundleContext = bc;
+        configService = getService(ConfigurationService.class);
+        resourceManagementService = getService(ResourceManagementService.class);
 
-        Dictionary<String, String> properties = new Hashtable<String, String>();
+        Dictionary<String, String> properties = new Hashtable<>(1);
 
         properties.put(
                 ConfigurationForm.FORM_TYPE,
@@ -131,13 +103,4 @@ public class PropertiesEditorActivator
                         1002, true),
                 properties);
     }
-
-    /**
-     * Stops this bundle.
-     *
-     * @param bc the <tt>BundleContext</tt>
-     * @throws Exception if one of the operation executed in the stop method
-     * fails
-     */
-    public void stop(BundleContext bc) throws Exception {}
 }

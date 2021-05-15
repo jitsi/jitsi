@@ -94,7 +94,7 @@ public class PropertiesEditorPanel
         JScrollPane scrollPane = new JScrollPane(propsTable);
         SearchField searchField = new SearchField("", propsTable);
 
-        buttonsPanel = new ButtonsPanel(propsTable, searchField);
+        buttonsPanel = new ButtonsPanel(propsTable);
 
         centerPanel = new TransparentPanel(new BorderLayout());
         centerPanel.add(scrollPane, BorderLayout.CENTER);

@@ -30,11 +30,11 @@ import org.jitsi.service.resources.*;
 
 /**
  * The panel containing all buttons for the <tt>PropertiesEditorPanel</tt>.
- * 
+ *
  * @author Marin Dzhigarov
  */
-public class ButtonsPanel 
-    extends TransparentPanel 
+public class ButtonsPanel
+    extends TransparentPanel
     implements ActionListener
 {
     /**
@@ -42,7 +42,7 @@ public class ButtonsPanel
      */
     private static final long serialVersionUID = 1L;
 
-    private final ConfigurationService confService 
+    private final ConfigurationService confService
         = PropertiesEditorActivator.getConfigurationService();
 
     /**
@@ -63,10 +63,8 @@ public class ButtonsPanel
     /**
      * Creates an instance of <tt>ButtonsPanel</tt>.
      * @param propsTable the table containing all properties.
-     * @param searchBox the search box panel containing the search box text 
-     * field.
      */
-    public ButtonsPanel(JTable propsTable, SearchField searchField)
+    public ButtonsPanel(JTable propsTable)
     {
         this.propsTable = propsTable;
 
@@ -141,8 +139,7 @@ public class ButtonsPanel
 
             confService.removeProperty(selectedProperty);
             ((DefaultTableModel) propsTable.getModel()).removeRow(modelRow);
-            propsTable.clearSelection();
-            defaultButtonState();
+            propsTable.setRowSelectionInterval(viewRow, viewRow);
         }
     }
 }
