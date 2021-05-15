@@ -93,9 +93,9 @@
               !com.sun.jna.platform.win32,
               !com.sun.jna.platform.win32.COM,
               *,
-              com.apple.eawt;resolution:=optional
-              com.sun.jna.win32;resolution:=optional
-              com.sun.jna.platform.win32;resolution:=optional
+              com.apple.eawt;resolution:=optional,
+              com.sun.jna.win32;resolution:=optional,
+              com.sun.jna.platform.win32;resolution:=optional,
               com.sun.jna.platform.win32.COM;resolution:=optional
             </Import-Package>
             <Export-Package>net.java.sip.communicator.service.desktop</Export-Package>
