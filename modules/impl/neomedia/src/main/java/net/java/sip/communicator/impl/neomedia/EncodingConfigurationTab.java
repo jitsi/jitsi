@@ -84,7 +84,7 @@ public class EncodingConfigurationTab
         downButton = new JButton(resources.getI18NString(downKey));
         downButton.setMnemonic(resources.getI18nMnemonic(downKey));
         downButton.setOpaque(false);
-        upButton.addActionListener(e -> move(false));
+        downButton.addActionListener(e -> move(false));
 
         Container buttonBar = new TransparentPanel(new GridLayout(0, 1));
         buttonBar.add(upButton);
