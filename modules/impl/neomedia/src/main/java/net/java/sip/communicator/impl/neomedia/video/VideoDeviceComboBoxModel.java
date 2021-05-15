@@ -17,6 +17,7 @@
  */
 package net.java.sip.communicator.impl.neomedia.video;
 
+import java.util.stream.*;
 import javax.swing.*;
 import net.java.sip.communicator.impl.neomedia.*;
 import org.jitsi.impl.neomedia.*;
@@ -27,9 +28,10 @@ class VideoDeviceComboBoxModel
 {
     public VideoDeviceComboBoxModel(MediaServiceImpl mediaService)
     {
-        super(mediaService.getDeviceConfiguration()
-            .getAvailableVideoCaptureDevices(MediaUseCase.CALL).stream()
-            .map(CaptureDeviceViewModel::new)
+        super(Stream.concat(mediaService.getDeviceConfiguration()
+                .getAvailableVideoCaptureDevices(MediaUseCase.CALL).stream()
+                .map(CaptureDeviceViewModel::new),
+            Stream.of(new CaptureDeviceViewModel(null)))
             .toArray(CaptureDeviceViewModel[]::new));
     }
 }
