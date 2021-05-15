@@ -31,7 +31,7 @@ override_dh_install:
 	# do nothing, indep and arch will take care of it
 
 override_dh_auto_install-indep:
-	dh_install -pjitsi -Xorange -Xsparkle -Xgrowl -Xmac_widgets -X.pom -Xjitsi-lgpl-dependencies
+	dh_install -pjitsi -Xorange -Xsparkle -Xmac_widgets -X.pom -Xjitsi-lgpl-dependencies
 
 override_dh_auto_install-arch:
 	dh_auto_install -plibjitsi-jni -Scmake

@@ -152,7 +152,6 @@ distributions {
             exclude '*.bat'
             exclude '*orange*'
             exclude '*sparkle*'
-            exclude '*growl*'
             exclude '*mac_widgets*'
         }
     }
@@ -165,11 +164,6 @@ distributions {
                 exclude '*.bat'
                 exclude '*dbus*'
                 exclude '*galago*'
-
-                // something with executable_path and load_path, explanation at
-                // https://wincent.com/wiki/%40executable_path%2C_%40load_path_and_%40rpath
-                // not sure which dylib is which (/lib/native vs src/mac/dist)
-                exclude '*libgrowl4j.*'
             }
 
             into('Jitsi.app/Contents/PlugIns') {
@@ -194,7 +188,6 @@ distributions {
             exclude '*dbus*'
             exclude '*orange*'
             exclude '*sparkle*'
-            exclude '*growl*'
             exclude '*mac_widgets*'
             exclude '*galago*'
 

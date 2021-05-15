@@ -15,7 +15,6 @@
     <module>contactlist</module>
     <module>dns</module>
     <module>galagonotification</module>
-    <module>growlnotification</module>
     <module>gui</module>
     <module>hid</module>
     <module>muc</module>
