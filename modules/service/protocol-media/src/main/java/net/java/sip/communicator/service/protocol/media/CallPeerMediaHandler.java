@@ -459,8 +459,8 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     protected void closeStream(MediaType mediaType)
     {
-        if (logger.isDebugEnabled())
-            logger.debug("Closing " + mediaType + " stream for " + getPeer());
+        logger.debug("Closing {} stream for {}", mediaType, getPeer());
+
         /*
          * This CallPeerMediaHandler releases its reference to the MediaStream
          * it has initialized via #initStream().

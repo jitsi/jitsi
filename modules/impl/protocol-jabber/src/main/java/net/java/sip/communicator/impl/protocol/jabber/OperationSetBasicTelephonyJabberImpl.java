@@ -597,11 +597,15 @@ public class OperationSetBasicTelephonyJabberImpl
             }
         }
 
-        if(logger.isInfoEnabled())
-            logger.info("Full JID for outgoing call: " + fullCalleeURI
-                            + ", priority " + bestPriority);
+        logger.info("Full JID for outgoing call: {}, priority {}",
+            fullCalleeURI, bestPriority);
 
-        return fullCalleeURI.asEntityFullJidOrThrow();
+        if (fullCalleeURI != null)
+        {
+            return fullCalleeURI.asEntityFullJidOrThrow();
+        }
+
+        return null;
     }
 
     /**
