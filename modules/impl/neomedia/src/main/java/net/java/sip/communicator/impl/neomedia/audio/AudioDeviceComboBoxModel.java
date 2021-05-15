@@ -22,11 +22,9 @@ import java.util.*;
 
 import javax.media.*;
 import javax.swing.*;
-import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.neomedia.*;
 import org.jitsi.impl.neomedia.device.*;
-import org.jitsi.service.neomedia.*;
 
 /**
  * Implements <tt>ComboBoxModel</tt> for a specific <tt>DeviceConfiguration</tt>
@@ -45,8 +43,6 @@ class AudioDeviceComboBoxModel
      */
     private final DeviceConfiguration deviceConfiguration;
 
-    AudioSystem audioSystem;
-
     /**
      * All the devices.
      */
@@ -56,6 +52,8 @@ class AudioDeviceComboBoxModel
      * The type of the media for this combo.
      */
     private final AudioSystem.DataFlow type;
+
+    private boolean initializing = true;
 
     /**
      * Creates device combobox model
@@ -69,8 +67,8 @@ class AudioDeviceComboBoxModel
     {
         this.deviceConfiguration = deviceConfiguration;
         this.type = type;
-        audioSystem = deviceConfiguration.getAudioSystem();
         getDevices().forEach(this::addElement);
+        initializing = false;
         super.setSelectedItem(getSelectedDevice());
         deviceConfiguration.addPropertyChangeListener(this);
     }
@@ -87,6 +85,7 @@ class AudioDeviceComboBoxModel
             return devices;
         }
 
+        AudioSystem audioSystem = deviceConfiguration.getAudioSystem();
         if (audioSystem == null)
         {
             return Collections.emptyList();
@@ -107,6 +106,7 @@ class AudioDeviceComboBoxModel
      */
     private CaptureDeviceViewModel getSelectedDevice()
     {
+        AudioSystem audioSystem = deviceConfiguration.getAudioSystem();
         if (audioSystem == null)
         {
             return null;
@@ -142,8 +142,10 @@ class AudioDeviceComboBoxModel
             if (SwingUtilities.isEventDispatchThread())
             {
                 devices = null;
+                initializing = true;
                 super.removeAllElements();
                 getDevices().forEach(this::addElement);
+                initializing = false;
             }
             else
             {
@@ -156,7 +158,7 @@ class AudioDeviceComboBoxModel
     public void setSelectedItem(Object item)
     {
         // We cannot clear the selection of DeviceConfiguration.
-        if (item == null)
+        if (item == null || initializing)
         {
             return;
         }
