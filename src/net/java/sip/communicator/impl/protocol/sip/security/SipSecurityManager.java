@@ -352,6 +352,15 @@ public class SipSecurityManager
     }
 
     /**
+     * Handles call ended by dropping its cached value.
+     * @param callId the call-id of the call that ended.
+     */
+    public void handleCallEnded(String callId)
+    {
+        cachedCredentials.dropCachedAuthorizationHeader(callId);
+    }
+
+    /**
      * Sets the SecurityAuthority instance that should be queried for user
      * credentials.
      *
