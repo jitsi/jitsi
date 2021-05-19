@@ -960,6 +960,8 @@ public class ProtocolProviderServiceSipImpl
                 }
             }
         }
+
+        getSipSecurityManager().handleTransactionTerminate(transaction);
     }
 
     /**
