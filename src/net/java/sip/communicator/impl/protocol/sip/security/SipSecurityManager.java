@@ -361,6 +361,15 @@ public class SipSecurityManager
     }
 
     /**
+     * Passes through transaction terminate to cachedCredentials.
+     * @param transaction the transaction that got terminated.
+     */
+    public void handleTransactionTerminate(Transaction transaction)
+    {
+        cachedCredentials.handleTransactionTerminate(transaction.getBranchId());
+    }
+
+    /**
      * Sets the SecurityAuthority instance that should be queried for user
      * credentials.
      *

@@ -58,46 +58,6 @@ class CredentialsCache
 
     /**
      * Returns the credentials corresponding to the specified realm
-     * or null if none could be found.
-     *
-     * @param realm the realm that the credentials apply to
-     * @return the credentials corresponding to the specified realm
-     * or null if none could be found.
-     */
-    CredentialsCacheEntry get(String realm)
-    {
-        return this.authenticatedRealms.get(realm);
-    }
-
-    /**
-     * Returns the list of realms that <tt>branchID</tt> has been used to
-     * authenticate against.
-     *
-     * @param branchID the transaction branchID that we are looking for.
-     *
-     * @return the list of realms that <tt>branchID</tt> has been used to
-     * authenticate against.
-     */
-    List<String> getRealms(String branchID)
-    {
-        List<String> realms = new LinkedList<String>();
-
-        Iterator<Entry<String, CredentialsCacheEntry>> credentials =
-            authenticatedRealms.entrySet().iterator();
-
-        while ( credentials.hasNext())
-        {
-            Entry<String, CredentialsCacheEntry> entry = credentials.next();
-
-            if (entry.getValue().containsBranchID(branchID))
-                realms.add(entry.getKey());
-        }
-
-        return realms;
-    }
-
-    /**
-     * Returns the credentials corresponding to the specified realm
      * or null if none could be found and removes the entry from the cache.
      *
      * @param realm the realm that the credentials apply to
@@ -152,5 +112,25 @@ class CredentialsCache
     AuthorizationHeader getCachedAuthorizationHeader(String callid)
     {
         return this.authenticatedCalls.get(callid);
+    }
+
+    /**
+     * Handles transaction terminated, drops it from any cache entry.
+     *
+     * @param branchID the branch id.
+     */
+    public void handleTransactionTerminate(String branchID)
+    {
+        Iterator<Entry<String, CredentialsCacheEntry>> credentials = authenticatedRealms.entrySet().iterator();
+
+        while ( credentials.hasNext())
+        {
+            Entry<String, CredentialsCacheEntry> entry = credentials.next();
+            CredentialsCacheEntry cacheEntry = entry.getValue();
+            if (cacheEntry.containsBranchID(branchID))
+            {
+                cacheEntry.popBranchID(branchID);
+            }
+        }
     }
 }
