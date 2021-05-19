@@ -754,6 +754,31 @@ public class CallSipImpl
     }
 
     /**
+     * Passes to security manager that call was ended.
+     *
+     * @param newState the <tt>CallState</tt> into which this <tt>Call</tt> is
+     * to enter
+     * @param cause the <tt>CallPeerChangeEvent</tt> which is the cause for the
+     * request to have this <tt>Call</tt> enter the specified <tt>CallState</tt>
+     * @see Call#setCallState(CallState, CallPeerChangeEvent)
+     */
+    @Override
+    protected void setCallState(CallState newState, CallPeerChangeEvent cause)
+    {
+        try
+        {
+            super.setCallState(newState, cause);
+        }
+        finally
+        {
+            if (CallState.CALL_ENDED.equals(getCallState()))
+            {
+                this.getProtocolProvider().getSipSecurityManager().handleCallEnded(getCallID());
+            }
+        }
+    }
+
+    /**
      * Task that will retransmit ringing response
      */
     private class RingingResponseTask

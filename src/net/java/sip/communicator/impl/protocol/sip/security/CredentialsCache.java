@@ -39,22 +39,19 @@ class CredentialsCache
     /**
      * Contains call->realms mappings
      */
-    private Hashtable<String, CredentialsCacheEntry> authenticatedRealms
-                            = new Hashtable<String, CredentialsCacheEntry>();
+    private Hashtable<String, CredentialsCacheEntry> authenticatedRealms = new Hashtable<>();
 
     /**
      * Contains callid->authorization header mappings
      */
-    private Hashtable<String, AuthorizationHeader> authenticatedCalls
-                            =  new Hashtable<String, AuthorizationHeader>();
+    private Hashtable<String, AuthorizationHeader> authenticatedCalls = new Hashtable<>();
 
     /**
      * Cache credentials for the specified call and realm
      * @param realm the realm that the specify credentials apply to
      * @param cacheEntry the credentials
      */
-    void cacheEntry(String realm,
-                    CredentialsCacheEntry cacheEntry)
+    void cacheEntry(String realm, CredentialsCacheEntry cacheEntry)
     {
         authenticatedRealms.put(realm, cacheEntry);
     }
@@ -132,6 +129,15 @@ class CredentialsCache
                                   AuthorizationHeader authorization)
     {
         authenticatedCalls.put(callid, authorization);
+    }
+
+    /**
+     * Drops a cached value.
+     * @param callid the id of the call that the needs to be dropped.
+     */
+    void dropCachedAuthorizationHeader(String callid)
+    {
+        this.authenticatedCalls.remove(callid);
     }
 
     /**
