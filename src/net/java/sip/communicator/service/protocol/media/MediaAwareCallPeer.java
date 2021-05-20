@@ -1223,6 +1223,9 @@ public abstract class MediaAwareCallPeer
      * that RTCP BYEs are sent whenever necessary, and when it is deployed this
      * code should be removed.
      *
+     * The method removeReceiveStreamForSsrc takes care and to clean statistics for this ssrc and avoid
+     * accumulating it over time.
+     *
      * @param conferenceMember a <tt>ConferenceMember</tt> to be removed from
      * the list of <tt>ConferenceMember</tt> reported by this peer. If the
      * specified <tt>ConferenceMember</tt> is no contained in the list, no event
@@ -1232,8 +1235,15 @@ public abstract class MediaAwareCallPeer
     {
         MediaStream videoStream = getMediaHandler().getStream(MediaType.VIDEO);
         if (videoStream != null)
-            videoStream.removeReceiveStreamForSsrc(
-                    conferenceMember.getVideoSsrc());
+        {
+            videoStream.removeReceiveStreamForSsrc(conferenceMember.getVideoSsrc());
+        }
+
+        MediaStream audioStream = getMediaHandler().getStream(MediaType.AUDIO);
+        if (audioStream != null)
+        {
+            audioStream.removeReceiveStreamForSsrc(conferenceMember.getAudioSsrc());
+        }
 
         super.removeConferenceMember(conferenceMember);
     }
