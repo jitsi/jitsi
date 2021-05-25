@@ -1245,6 +1245,33 @@ public abstract class MediaAwareCallPeer
             audioStream.removeReceiveStreamForSsrc(conferenceMember.getAudioSsrc());
         }
 
+        // if there is a conference call we need to clear same ssrc from the sender stats
+        if (this.getCall() != null)
+        {
+            MediaAwareCallConference callConference = this.getCall().getConference();
+
+            if (callConference != null)
+            {
+                callConference.getCallPeers().stream().forEach(cp ->
+                {
+                    if (cp instanceof MediaAwareCallPeer)
+                    {
+                        MediaAwareCallPeer<?, ?, ?> pm = (MediaAwareCallPeer<?, ?, ?>) cp;
+                        MediaStream as = pm.getMediaHandler().getStream(MediaType.AUDIO);
+                        if (as != null)
+                        {
+                            as.getMediaStreamStats().clearSendSsrc(conferenceMember.getAudioSsrc());
+                        }
+                        MediaStream vs = pm.getMediaHandler().getStream(MediaType.VIDEO);
+                        if (vs != null)
+                        {
+                            vs.getMediaStreamStats().clearSendSsrc(conferenceMember.getVideoSsrc());
+                        }
+                    }
+                });
+            }
+        }
+
         super.removeConferenceMember(conferenceMember);
     }
 
