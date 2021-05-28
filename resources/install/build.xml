@@ -2392,7 +2392,7 @@
             if="application.home.dirname">
         <replace file="${debianize.dir}/sh/${package.name}"
              token="net.java.sip.communicator.launcher.SIPCommunicator"
-             value="-Dnet.java.sip.communicator.SC_HOME_DIR_NAME=${application.home.dirname} net.java.sip.communicator.launcher.SIPCommunicator"/>
+             value="-Dnet.java.sip.communicator.SC_HOME_DIR_NAME=${application.home.dirname} -Djdk.gtk.version=2.2 net.java.sip.communicator.launcher.SIPCommunicator"/>
     </target>
 
     <target name="-deb-control-file"

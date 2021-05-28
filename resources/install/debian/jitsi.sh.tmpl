@@ -33,7 +33,7 @@ LIBPATH=$SCDIR/lib
 CLASSPATH=/usr/share/java/org.apache.felix.framework.jar:/usr/share/java/org.apache.felix.main.jar:$SCDIR/sc-bundles/dnsjava.jar:$SCDIR/sc-bundles/sc-launcher.jar:$JITSI_COMMON_DIR/util.jar/launchutils.jar:$LIBPATH
 FELIX_CONFIG=$LIBPATH/felix.client.run.properties
 LOG_CONFIG=$LIBPATH/logging.properties
-COMMAND="$javabin $CLIENTARGS -classpath $CLASSPATH -Djna.library.path=/usr/lib/jni -Dfelix.config.properties=file:$FELIX_CONFIG -Djava.util.logging.config.file=$LOG_CONFIG $SPLASH_ARG net.java.sip.communicator.launcher.SIPCommunicator"
+COMMAND="$javabin $CLIENTARGS -classpath $CLASSPATH -Djna.library.path=/usr/lib/jni -Dfelix.config.properties=file:$FELIX_CONFIG -Djava.util.logging.config.file=$LOG_CONFIG $SPLASH_ARG -Djdk.gtk.version=2.2 net.java.sip.communicator.launcher.SIPCommunicator"
 
 # set add LIBPATH to LD_LIBRARY_PATH for any sc natives (e.g. jmf .so's)
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}/usr/lib/jni"
