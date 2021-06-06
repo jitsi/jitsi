@@ -20,7 +20,6 @@ package net.java.sip.communicator.service.protocol.account;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 

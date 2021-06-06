@@ -24,7 +24,6 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.gui.account.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.account.*;
 
 /**
  * The <tt>LoginRendererSwingImpl</tt> provides a Swing base implementation of

@@ -44,7 +44,6 @@ import net.java.sip.communicator.service.replacement.directimage.*;
 import net.java.sip.communicator.service.replacement.smilies.*;
 import net.java.sip.communicator.service.shutdown.*;
 import net.java.sip.communicator.service.systray.*;
-import net.java.sip.communicator.util.*;
 
 import net.java.sip.communicator.util.osgi.DependentActivator;
 import net.java.sip.communicator.util.osgi.ServiceUtils;

@@ -21,7 +21,6 @@ import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import net.java.sip.communicator.service.gui.AlertUIService;
 import net.java.sip.communicator.service.protocol.AccountManager;
 import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
 

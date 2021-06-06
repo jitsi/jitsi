@@ -20,7 +20,6 @@ package net.java.sip.communicator.launcher;
 import java.io.*;
 
 import java.util.*;
-import java.util.logging.*;
 import net.java.sip.communicator.launchutils.*;
 import org.apache.felix.framework.*;
 import org.apache.felix.main.*;

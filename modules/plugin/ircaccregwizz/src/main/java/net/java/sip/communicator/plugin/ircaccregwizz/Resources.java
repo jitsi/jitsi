@@ -19,7 +19,6 @@ package net.java.sip.communicator.plugin.ircaccregwizz;
 
 import net.java.sip.communicator.service.resources.*;
 
-import net.java.sip.communicator.util.osgi.ServiceUtils;
 import org.jitsi.service.resources.*;
 
 /**

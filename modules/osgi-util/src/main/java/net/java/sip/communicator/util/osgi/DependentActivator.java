@@ -19,7 +19,6 @@ package net.java.sip.communicator.util.osgi;
 
 import java.util.*;
 import java.util.stream.*;
-import lombok.extern.slf4j.*;
 import org.osgi.framework.*;
 import org.osgi.util.tracker.*;
 import org.slf4j.*;
