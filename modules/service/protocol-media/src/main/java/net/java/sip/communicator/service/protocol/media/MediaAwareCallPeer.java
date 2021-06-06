@@ -1221,6 +1221,9 @@ public abstract class MediaAwareCallPeer
      * that RTCP BYEs are sent whenever necessary, and when it is deployed this
      * code should be removed.
      *
+     * The method removeReceiveStreamForSsrc takes care and to clean statistics for this ssrc and avoid
+     * accumulating it over time.
+     *
      * @param conferenceMember a <tt>ConferenceMember</tt> to be removed from
      * the list of <tt>ConferenceMember</tt> reported by this peer. If the
      * specified <tt>ConferenceMember</tt> is no contained in the list, no event
@@ -1230,8 +1233,42 @@ public abstract class MediaAwareCallPeer
     {
         MediaStream videoStream = getMediaHandler().getStream(MediaType.VIDEO);
         if (videoStream != null)
-            videoStream.removeReceiveStreamForSsrc(
-                    conferenceMember.getVideoSsrc());
+        {
+            videoStream.removeReceiveStreamForSsrc(conferenceMember.getVideoSsrc());
+        }
+
+        MediaStream audioStream = getMediaHandler().getStream(MediaType.AUDIO);
+        if (audioStream != null)
+        {
+            audioStream.removeReceiveStreamForSsrc(conferenceMember.getAudioSsrc());
+        }
+
+        // if there is a conference call we need to clear same ssrc from the sender stats
+        if (this.getCall() != null)
+        {
+            MediaAwareCallConference callConference = this.getCall().getConference();
+
+            if (callConference != null)
+            {
+                callConference.getCallPeers().stream().forEach(cp ->
+                {
+                    if (cp instanceof MediaAwareCallPeer)
+                    {
+                        MediaAwareCallPeer<?, ?, ?> pm = (MediaAwareCallPeer<?, ?, ?>) cp;
+                        MediaStream as = pm.getMediaHandler().getStream(MediaType.AUDIO);
+                        if (as != null)
+                        {
+                            as.getMediaStreamStats().clearSendSsrc(conferenceMember.getAudioSsrc());
+                        }
+                        MediaStream vs = pm.getMediaHandler().getStream(MediaType.VIDEO);
+                        if (vs != null)
+                        {
+                            vs.getMediaStreamStats().clearSendSsrc(conferenceMember.getVideoSsrc());
+                        }
+                    }
+                });
+            }
+        }
 
         super.removeConferenceMember(conferenceMember);
     }
