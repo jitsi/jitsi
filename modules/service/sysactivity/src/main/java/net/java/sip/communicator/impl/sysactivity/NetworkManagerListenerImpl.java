@@ -21,10 +21,10 @@ import lombok.extern.slf4j.*;
 import net.java.sip.communicator.impl.sysactivity.DBusNetworkManager.*;
 import net.java.sip.communicator.service.sysactivity.event.*;
 import org.apache.commons.lang3.*;
-import org.freedesktop.DBus.*;
 import org.freedesktop.dbus.connections.impl.*;
 import org.freedesktop.dbus.exceptions.*;
 import org.freedesktop.dbus.interfaces.*;
+import org.freedesktop.dbus.interfaces.DBus.*;
 
 /**
  * Responsible for subscribe and dispatch signals from NetworkManager. Uses dbus

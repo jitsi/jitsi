@@ -5,7 +5,7 @@ def debArch = project.property('application.target') == 'x64'
 buildDeb {
     archiveVersion = versionFull
     vendor = 'jitsi.org'
-    url = 'https://desktop.jitsi.org'
+    url = project.property('application.web')
     license = 'Apache-2.0'
     packager = 'Ingo Bauersachs <ingo@jitsi.org>'
     maintainer = 'Ingo Bauersachs <ingo@jitsi.org>'
