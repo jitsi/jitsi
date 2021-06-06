@@ -387,7 +387,7 @@ public class MediaAwareCallConference
          * better not try to use it on Android at this time because of
          * performance issues that might arise.
          */
-        if (MediaType.VIDEO.equals(mediaType)
+        if (mediaType == MediaType.VIDEO
                 && (!OSUtils.IS_ANDROID || isConferenceFocus()))
         {
             synchronized (translatorSyncRoot)

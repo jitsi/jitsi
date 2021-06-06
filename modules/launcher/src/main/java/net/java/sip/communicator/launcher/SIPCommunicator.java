@@ -119,7 +119,6 @@ public class SIPCommunicator implements BundleActivator
         setSystemProperties();
         setScHomeDir();
         logger = LoggerFactory.getLogger(SIPCommunicator.class);
-        LogManager.getLogManager().reset();
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
         logger.info("home={}, cache={}, log={}, dir={}",

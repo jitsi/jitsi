@@ -22,8 +22,8 @@ import java.util.*;
 
 import javax.sdp.*;
 
+import lombok.extern.slf4j.*;
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
-import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 
@@ -46,6 +46,7 @@ import ch.imvs.sdes4j.srtp.*;
  * @author Emil Ivov
  * @author Lyubomir Marinov
  */
+@Slf4j
 public class CallPeerMediaHandlerSipImpl
     extends CallPeerMediaHandler<CallPeerSipImpl>
 {
@@ -57,11 +58,6 @@ public class CallPeerMediaHandlerSipImpl
     private static final String DTLS_SRTP_FINGERPRINT_ATTR = "fingerprint";
 
     private static final String DTLS_SRTP_SETUP_ATTR = "setup";
-
-    /**
-     * Our class logger.
-     */
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CallPeerMediaHandlerSipImpl.class);
 
     /**
      * The last ( and maybe only ) session description that we generated for
@@ -91,7 +87,7 @@ public class CallPeerMediaHandlerSipImpl
     /**
      * The current quality controls for this peer media handler if any.
      */
-    private QualityControlWrapper qualityControls;
+    private final QualityControlWrapper qualityControls;
 
     /**
      * The lock we use to make sure that we won't be processing a second
@@ -169,27 +165,20 @@ public class CallPeerMediaHandlerSipImpl
         String userName
             = getPeer().getProtocolProvider().getAccountID().getUserID();
 
-        SessionDescription sDes
-            = SdpUtils.createSessionDescription(
-                    getTransportManager().getLastUsedLocalHost(),
-                    userName,
-                    mediaDescs);
-
-        //ICE HACK - please fix
-        //new IceTransportManagerSipImpl(getPeer()).startCandidateHarvest(
-        //    sDes, null, false, false, false, false, false );
-
-        this.localSess = sDes;
+        this.localSess = SdpUtils.createSessionDescription(
+                getTransportManager().getLastUsedLocalHost(),
+                userName,
+                mediaDescs);
         return localSess;
     }
 
     /**
-     * Creates a <tt>Vector</tt> containing the <tt>MediaDescription</tt>s of
+     * Creates a <tt>List</tt> containing the <tt>MediaDescription</tt>s of
      * streams that this handler is prepared to initiate depending on available
      * <tt>MediaDevice</tt>s and local on-hold and video transmission
      * preferences.
      *
-     * @return a <tt>Vector</tt> containing the <tt>MediaDescription</tt>s of
+     * @return a <tt>List</tt> containing the <tt>MediaDescription</tt>s of
      * streams that this handler is prepared to initiate.
      *
      * @throws OperationFailedException if we fail to create the descriptions
@@ -200,7 +189,7 @@ public class CallPeerMediaHandlerSipImpl
         throws OperationFailedException
     {
         //Audio Media Description
-        Vector<MediaDescription> mediaDescs = new Vector<MediaDescription>();
+        List<MediaDescription> mediaDescs = new ArrayList<>();
 
         QualityPreset sendQualityPreset = null;
         QualityPreset receiveQualityPreset = null;
@@ -220,8 +209,7 @@ public class CallPeerMediaHandlerSipImpl
 
             if (!isDeviceActive(dev, sendQualityPreset, receiveQualityPreset))
             {
-                logger.warn("No active device for "  + mediaType.toString()
-                + " was found!");
+                logger.warn("No active device for {} was found!", mediaType);
                 continue;
             }
 
@@ -477,16 +465,14 @@ public class CallPeerMediaHandlerSipImpl
         throws OperationFailedException,
                IllegalArgumentException
     {
-        Vector<MediaDescription> answerDescriptions
+        List<MediaDescription> answerDescriptions
             = createMediaDescriptionsForAnswer(offer);
-        //wrap everything up in a session description
-        SessionDescription answer
-            = SdpUtils.createSessionDescription(
-                    getTransportManager().getLastUsedLocalHost(),
-                    getUserName(),
-                    answerDescriptions);
 
-        this.localSess = answer;
+        //wrap everything up in a session description
+        this.localSess = SdpUtils.createSessionDescription(
+                getTransportManager().getLastUsedLocalHost(),
+                getUserName(),
+                answerDescriptions);
         return localSess;
     }
 
@@ -515,14 +501,12 @@ public class CallPeerMediaHandlerSipImpl
     {
         List<MediaDescription> answerDescriptions
             = createMediaDescriptionsForAnswer(newOffer);
-        // wrap everything up in a session description
-        SessionDescription newAnswer
-            = SdpUtils.createSessionUpdateDescription(
-                    previousAnswer,
-                    getTransportManager().getLastUsedLocalHost(),
-                    answerDescriptions);
 
-        this.localSess = newAnswer;
+        // wrap everything up in a session description
+        this.localSess = SdpUtils.createSessionUpdateDescription(
+                previousAnswer,
+                getTransportManager().getLastUsedLocalHost(),
+                answerDescriptions);
         return localSess;
     }
 
@@ -534,14 +518,14 @@ public class CallPeerMediaHandlerSipImpl
      * @param offer the offer that we'd like the newly generated session
      * descriptions to answer.
      *
-     * @return a <tt>Vector</tt> containing the <tt>MediaDescription</tt>s
+     * @return a <tt>List</tt> containing the <tt>MediaDescription</tt>s
      * answering those provided in the <tt>offer</tt>.
      * @throws OperationFailedException if there's a problem handling the
      * <tt>offer</tt>
      * @throws IllegalArgumentException if there's a problem with the syntax
      * or semantics of <tt>newOffer</tt>.
      */
-    private Vector<MediaDescription> createMediaDescriptionsForAnswer(
+    private List<MediaDescription> createMediaDescriptionsForAnswer(
             SessionDescription offer)
         throws OperationFailedException,
                IllegalArgumentException
@@ -549,8 +533,8 @@ public class CallPeerMediaHandlerSipImpl
         List<MediaDescription> remoteDescriptions
             = SdpUtils.extractMediaDescriptions(offer);
         // prepare to generate answers to all the incoming descriptions
-        Vector<MediaDescription> answerDescriptions
-            = new Vector<MediaDescription>(remoteDescriptions.size());
+        List<MediaDescription> answerDescriptions
+            = new ArrayList<>(remoteDescriptions.size());
 
         this.setCallInfoURL(SdpUtils.getCallInfoURL(offer));
 
@@ -569,7 +553,7 @@ public class CallPeerMediaHandlerSipImpl
                 : ProtocolProviderFactory.SAVP_OFF;
 
         boolean masterStreamSet = false;
-        List<MediaType> seenMediaTypes = new ArrayList<MediaType>();
+        List<MediaType> seenMediaTypes = new ArrayList<>();
 
         for (MediaDescription mediaDescription : remoteDescriptions)
         {
@@ -599,7 +583,7 @@ public class CallPeerMediaHandlerSipImpl
                 continue;
             }
 
-            MediaType mediaType = null;
+            MediaType mediaType;
             try
             {
                 mediaType = SdpUtils.getMediaType(mediaDescription);
@@ -745,7 +729,7 @@ public class CallPeerMediaHandlerSipImpl
                     // do nothing
                 }
 
-                if(frameRate > 0)
+                if(frameRate > 0 && qualityControls != null)
                     qualityControls.setMaxFrameRate(frameRate);
             }
 
@@ -937,7 +921,7 @@ public class CallPeerMediaHandlerSipImpl
 
                     // SDP attributes
                     @SuppressWarnings("unchecked")
-                    Vector<Attribute> attrs = localMd.getAttributes(true);
+                    List<Attribute> attrs = localMd.getAttributes(true);
 
                     // setup
                     DtlsControl.Setup setup
@@ -1044,9 +1028,8 @@ public class CallPeerMediaHandlerSipImpl
 
             // fingerprint
             @SuppressWarnings("unchecked")
-            Vector<Attribute> attrs = remoteMd.getAttributes(false);
-            Map<String, String> remoteFingerprints
-                = new LinkedHashMap<String, String>();
+            List<Attribute> attrs = remoteMd.getAttributes(false);
+            Map<String, String> remoteFingerprints = new LinkedHashMap<>();
 
             if (attrs != null)
             {
@@ -1149,7 +1132,7 @@ public class CallPeerMediaHandlerSipImpl
         if (remoteMd == null) // act as initiator
         {
             @SuppressWarnings("unchecked")
-            Vector<Attribute> atts = localMd.getAttributes(true);
+            List<Attribute> atts = localMd.getAttributes(true);
 
             for (SrtpCryptoAttribute ca
                     : sdesControl.getInitiatorCryptoAttributes())
@@ -1249,11 +1232,8 @@ public class CallPeerMediaHandlerSipImpl
      *
      * @return a <tt>List</tt> of (RTP) transport protocols to be announced in a
      * SDP media description
-     * @throws OperationFailedException if the value of the <tt>AccountID</tt>
-     * property {@link ProtocolProviderFactory#SAVP_OPTION} is invalid
      */
     private List<String> getRtpTransports()
-        throws OperationFailedException
     {
         AccountID accountID = getPeer().getProtocolProvider().getAccountID();
         int savpOption
@@ -1264,7 +1244,7 @@ public class CallPeerMediaHandlerSipImpl
                         ProtocolProviderFactory.SAVP_OPTION,
                         ProtocolProviderFactory.SAVP_OFF)
                 : ProtocolProviderFactory.SAVP_OFF;
-        List<String> result = new ArrayList<String>(3);
+        List<String> result = new ArrayList<>(3);
 
         if (savpOption == ProtocolProviderFactory.SAVP_OFF)
         {
@@ -1411,7 +1391,7 @@ public class CallPeerMediaHandlerSipImpl
         this.setCallInfoURL(SdpUtils.getCallInfoURL(answer));
 
         boolean masterStreamSet = false;
-        List<MediaType> seenMediaTypes = new ArrayList<MediaType>();
+        List<MediaType> seenMediaTypes = new ArrayList<>();
 
         for (MediaDescription mediaDescription : remoteDescriptions)
         {
@@ -1684,18 +1664,6 @@ public class CallPeerMediaHandlerSipImpl
     }
 
     /**
-     * Returns a reference to the currently valid network address manager
-     * service for use by this handler's generic ancestor.
-     *
-     * @return a reference to the currently valid {@link
-     * NetworkAddressManagerService}
-     */
-    protected NetworkAddressManagerService getNetworkAddressManagerService()
-    {
-        return SipActivator.getNetworkAddressManagerService();
-    }
-
-    /**
      * Returns a reference to the currently valid media service for use by this
      * handler's generic ancestor.
      *
@@ -1704,17 +1672,6 @@ public class CallPeerMediaHandlerSipImpl
     protected ConfigurationService getConfigurationService()
     {
         return SipActivator.getConfigurationService();
-    }
-
-    /**
-     * Returns a reference to the currently valid media service for use by this
-     * handler's generic ancestor.
-     *
-     * @return a reference to the currently valid {@link MediaService}
-     */
-    protected MediaService getMediaService()
-    {
-        return SipActivator.getMediaService();
     }
 
     /**
@@ -1811,20 +1768,18 @@ public class CallPeerMediaHandlerSipImpl
             MediaDescription mediaDescription)
     {
         @SuppressWarnings("unchecked")
-        Vector<Attribute> attrs = mediaDescription.getAttributes(true);
-        Vector<SrtpCryptoAttribute> peerAttributes
-            = new Vector<SrtpCryptoAttribute>(attrs.size());
+        List<Attribute> attrs = mediaDescription.getAttributes(true);
+        List<SrtpCryptoAttribute> peerAttributes
+            = new ArrayList<>(attrs.size());
 
-        Attribute a;
-        for(int i = 0; i < attrs.size(); ++i)
+        for (Attribute attr : attrs)
         {
             try
             {
-                a = attrs.get(i);
-                if (a.getName().equals("crypto"))
+                if (attr.getName().equals("crypto"))
                 {
                     peerAttributes.add(
-                            SrtpCryptoAttribute.create(a.getValue()));
+                        SrtpCryptoAttribute.create(attr.getValue()));
                 }
             }
             catch (Exception e)
