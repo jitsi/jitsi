@@ -55,7 +55,7 @@ public class CallInfoFrame
     /**
      * The telephony conference to compute and display the statistics of.
      */
-    private CallConference callConference;
+    private final CallConference callConference;
 
     /**
      * The call info window.
@@ -86,7 +86,7 @@ public class CallInfoFrame
     /**
      * Dummy URL to indicate that the certificate should be displayed.
      */
-    private final String CERTIFICATE_URL = "jitsi://viewCertificate";
+    private static final String CERTIFICATE_URL = "jitsi://viewCertificate";
 
     /**
      * Creates a new frame containing the statistical information for a specific
@@ -178,11 +178,10 @@ public class CallInfoFrame
      */
     private boolean constructCallInfo()
     {
-        StringBuffer stringBuffer = new StringBuffer();
+        StringBuilder stringBuffer = new StringBuilder();
 
-        stringBuffer.append(
-            "<html><body><p align=\"left\">"
-                + "<font color=\"" + fontColor + "\" size=\"3\">");
+        stringBuffer.append("<html><body><p align=\"left\"><font color=\"")
+            .append(fontColor).append("\" size=\"3\">");
 
         stringBuffer.append(getLineString(resources.getI18NString(
             "service.gui.callinfo.CALL_INFORMATION"), ""));
@@ -192,7 +191,7 @@ public class CallInfoFrame
          * TODO A telephony conference may consist of a single Call with
          * multiple CallPeers but it may as well consist of multiple Calls.
          */
-        if (calls.size() <= 0)
+        if (calls.isEmpty())
         {
             return false;
         }
@@ -273,7 +272,7 @@ public class CallInfoFrame
      * @param stringBuffer the <tt>StringBuffer</tt>, where call peer info will
      * be added
      */
-    private void constructCallPeersInfo(StringBuffer stringBuffer)
+    private void constructCallPeersInfo(StringBuilder stringBuffer)
     {
         for (CallPeer callPeer : callConference.getCallPeers())
         {
@@ -295,7 +294,7 @@ public class CallInfoFrame
      * @param stringBuffer the <tt>StringBuffer</tt>, where call peer info will
      * be added
      */
-    private void constructPeerInfo(CallPeer callPeer, StringBuffer stringBuffer)
+    private void constructPeerInfo(CallPeer callPeer, StringBuilder stringBuffer)
     {
         stringBuffer.append(getLineString(callPeer.getAddress(), ""));
 
@@ -403,27 +402,27 @@ public class CallInfoFrame
                     "TurnCandidateHarvester",
                     "UPNPHarvester"
                 };
-                for(int i = 0; i < harvesterNames.length; ++i)
+                for (String harvesterName : harvesterNames)
                 {
                     harvestingTime = callPeerMediaHandler.getHarvestingTime(
-                            harvesterNames[i]);
-                    if(harvestingTime != 0)
+                        harvesterName);
+                    if (harvestingTime != 0)
                     {
                         stringBuffer.append(getLineString(
-                                    resources.getI18NString(
-                                        "service.gui.callinfo.HARVESTING_TIME")
-                                    + " " + harvesterNames[i],
-                                    harvestingTime
-                                    + " "
-                                    + resources.getI18NString(
-                                        "service.gui.callinfo.HARVESTING_MS_FOR"
-                                        )
-                                    + " "
-                                    + callPeerMediaHandler.getNbHarvesting(
-                                        harvesterNames[i])
-                                    + " "
-                                    + resources.getI18NString(
-                                        "service.gui.callinfo.HARVESTS")));
+                            resources.getI18NString(
+                                "service.gui.callinfo.HARVESTING_TIME")
+                                + " " + harvesterName,
+                            harvestingTime
+                                + " "
+                                + resources.getI18NString(
+                                "service.gui.callinfo.HARVESTING_MS_FOR"
+                            )
+                                + " "
+                                + callPeerMediaHandler.getNbHarvesting(
+                                harvesterName)
+                                + " "
+                                + resources.getI18NString(
+                                "service.gui.callinfo.HARVESTS")));
                     }
                 }
             }
@@ -445,7 +444,7 @@ public class CallInfoFrame
     private void constructAudioVideoInfo(
             CallPeerMediaHandler<?> callPeerMediaHandler,
             MediaStream mediaStream,
-            StringBuffer stringBuffer,
+            StringBuilder stringBuffer,
             MediaType mediaType)
     {
         MediaStreamStats2 mediaStreamStats
@@ -587,27 +586,37 @@ public class CallInfoFrame
                     resources.getI18NString("service.gui.callinfo.LOCAL_IP"),
                     mediaStreamStats.getLocalIPAddress()
                     + " / "
-                    + String.valueOf(mediaStreamStats.getLocalPort())));
+                    + mediaStreamStats.getLocalPort()));
 
             stringBuffer.append(
                 getLineString(
                     resources.getI18NString("service.gui.callinfo.REMOTE_IP"),
                     mediaStreamStats.getRemoteIPAddress()
                     + " / "
-                    + String.valueOf(mediaStreamStats.getRemotePort())));
+                    + mediaStreamStats.getRemotePort()));
         }
 
 
         stringBuffer.append(
             getLineString(
                 resources.getI18NString(
-                    "service.gui.callinfo.BANDWITH"),
+                    "service.gui.callinfo.BANDWIDTH"),
                     "&darr; "
                     + (int) mediaStreamStats.getReceiveStats().getBitrate()/1024
                         + " Kbps "
                     + " &uarr; "
                     + (int) mediaStreamStats.getSendStats().getBitrate()/1024
                         + " Kbps"));
+
+        stringBuffer.append(
+            getLineString(
+                resources.getI18NString("service.gui.callinfo.BYTES"),
+                "&darr; "
+                    + (int) mediaStreamStats.getReceiveStats().getBytes()/1024
+                    + " KB "
+                    + " &uarr; "
+                    + (int) mediaStreamStats.getSendStats().getBytes()/1024
+                    + " KB"));
 
         stringBuffer.append(
             getLineString(
@@ -625,11 +634,11 @@ public class CallInfoFrame
         stringBuffer.append(getLineString(
                  resources.getI18NString(
                          "service.gui.callinfo.DISCARDED_PERCENT"),
-                 String.valueOf((int)mediaStreamStats.getPercentDiscarded()
-                         + "%")));
+            (int) mediaStreamStats.getPercentDiscarded()
+                + "%"));
         stringBuffer.append(getLineString(
             resources.getI18NString("service.gui.callinfo.DISCARDED_TOTAL"),
-            String.valueOf(mediaStreamStats.getNbDiscarded())
+            mediaStreamStats.getNbDiscarded()
                 + " (" + mediaStreamStats.getNbDiscardedLate() + " late, "
                 + mediaStreamStats.getNbDiscardedFull() + " full, "
                 + mediaStreamStats.getNbDiscardedShrink() + " shrink, "
@@ -747,7 +756,7 @@ public class CallInfoFrame
      * media handler must returns it encryption method.
      */
     private void appendStreamEncryptionMethod(
-            StringBuffer stringBuffer,
+            StringBuilder stringBuffer,
             CallPeerMediaHandler<?> callPeerMediaHandler,
             MediaStream mediaStream,
             MediaType mediaType)
