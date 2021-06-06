@@ -46,7 +46,7 @@ import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 
-import org.apache.commons.lang3.*;
+import org.apache.commons.text.*;
 import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
 

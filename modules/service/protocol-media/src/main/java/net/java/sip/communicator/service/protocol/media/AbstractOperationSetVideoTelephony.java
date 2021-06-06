@@ -115,22 +115,6 @@ public abstract class AbstractOperationSetVideoTelephony<
     }
 
     /**
-     * Gets the visual/video <tt>Component</tt> available in this telephony for
-     * a specific <tt>CallPeer</tt>.
-     *
-     * @param peer the <tt>CallPeer</tt> whose video is to be retrieved
-     * @return the visual/video <tt>Component</tt> available in this telephony
-     * for the specified <tt>peer</tt> if any; otherwise, <tt>null</tt>
-     */
-    @Deprecated
-    public Component getVisualComponent(CallPeer peer)
-    {
-        List<Component> visualComponents = getVisualComponents(peer);
-
-        return visualComponents.isEmpty() ? null : visualComponents.get(0);
-    }
-
-    /**
      * Gets the visual/video <tt>Component</tt>s available in this telephony for
      * a specific <tt>CallPeer</tt>.
      *

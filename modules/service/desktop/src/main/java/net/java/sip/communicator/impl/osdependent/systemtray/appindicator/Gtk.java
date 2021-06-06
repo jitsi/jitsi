@@ -22,13 +22,12 @@ import com.sun.jna.*;
 /**
  * JNA mappings for the gtk2 library. Only functions required for the tray menu
  * are defined.
- * 
+ *
  * @author Ingo Bauersachs
  */
 interface Gtk extends Library
 {
-    static final Gtk INSTANCE =
-        (Gtk) Native.loadLibrary("gtk-x11-2.0", Gtk.class);
+    Gtk INSTANCE = Native.load("gtk-x11-2.0", Gtk.class);
 
     public enum GtkIconSize
     {
@@ -48,7 +47,7 @@ interface Gtk extends Library
     Pointer gtk_separator_menu_item_new();
     void gtk_menu_item_set_submenu(Pointer menu_item, Pointer submenu);
     void gtk_image_menu_item_set_image(Pointer image_menu_item, Pointer image);
-    void gtk_image_menu_item_set_always_show_image(Pointer image_menu_item, int always_show); 
+    void gtk_image_menu_item_set_always_show_image(Pointer image_menu_item, int always_show);
     void gtk_menu_item_set_label(Pointer menu_item, String label);
     void gtk_menu_shell_append(Pointer menu_shell, Pointer child);
     void gtk_widget_set_sensitive(Pointer widget, int sesitive);

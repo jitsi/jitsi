@@ -99,10 +99,10 @@ public class OutgoingFileTransferJabberImpl
             {
                 if (protocolProvider.isFeatureListSupported(
                                 protocolProvider.getFullJid(receiver),
-                                new String[]{"urn:xmpp:thumbs:0",
-                                    "urn:xmpp:bob"}))
+                    "urn:xmpp:thumbs:0",
+                    "urn:xmpp:bob"))
                 {
-                    protocolProvider.getConnection().addPacketInterceptor(
+                    protocolProvider.getConnection().addStanzaInterceptor(
                         this,
                         new AndFilter(
                             IQTypeFilter.SET,
@@ -232,6 +232,6 @@ public class OutgoingFileTransferJabberImpl
                 + fileTransferPacket.toXML());
         }
         // Remove this packet interceptor after we're done.
-        protocolProvider.getConnection().removePacketInterceptor(this);
+        protocolProvider.getConnection().removeStanzaInterceptor(this);
     }
 }

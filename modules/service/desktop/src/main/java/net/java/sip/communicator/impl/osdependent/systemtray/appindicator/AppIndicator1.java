@@ -24,21 +24,21 @@ import com.sun.jna.*;
 
 /**
  * JNA mappings for libappindicator1.
- * 
+ *
  * @author Ingo Bauersachs
  */
 interface AppIndicator1 extends Library
 {
-    static final AppIndicator1 INSTANCE =
-        (AppIndicator1) Native.loadLibrary("appindicator", AppIndicator1.class);
+    AppIndicator1 INSTANCE =
+        Native.load("appindicator", AppIndicator1.class);
 
-    static final String APP_INDICATOR_SIGNAL_NEW_ICON            = "new-icon";
-    static final String APP_INDICATOR_SIGNAL_NEW_ATTENTION_ICON  = "new-attention-icon";
-    static final String APP_INDICATOR_SIGNAL_NEW_STATUS          = "new-status";
-    static final String APP_INDICATOR_SIGNAL_NEW_LABEL           = "new-label";
-    static final String APP_INDICATOR_SIGNAL_CONNECTION_CHANGED  = "connection-changed";
-    static final String APP_INDICATOR_SIGNAL_NEW_ICON_THEME_PATH = "new-icon-theme-path";
-    static final String APP_INDICATOR_SIGNAL_SCROLL_EVENT        = "scroll-event";
+    String APP_INDICATOR_SIGNAL_NEW_ICON            = "new-icon";
+    String APP_INDICATOR_SIGNAL_NEW_ATTENTION_ICON  = "new-attention-icon";
+    String APP_INDICATOR_SIGNAL_NEW_STATUS          = "new-status";
+    String APP_INDICATOR_SIGNAL_NEW_LABEL           = "new-label";
+    String APP_INDICATOR_SIGNAL_CONNECTION_CHANGED  = "connection-changed";
+    String APP_INDICATOR_SIGNAL_NEW_ICON_THEME_PATH = "new-icon-theme-path";
+    String APP_INDICATOR_SIGNAL_SCROLL_EVENT        = "scroll-event";
 
     /**
      * The category provides grouping for the indicators so that users can find
@@ -88,9 +88,9 @@ interface AppIndicator1 extends Library
         public /*Gobject.GObjectClass*/ Pointer parent_class;
 
         // DBus Signals
-        public Pointer new_icon; 
-        public Pointer new_attention_icon; 
-        public Pointer new_status; 
+        public Pointer new_icon;
+        public Pointer new_attention_icon;
+        public Pointer new_status;
         public Pointer new_icon_theme_path;
         public Pointer new_label;
 
@@ -112,16 +112,16 @@ interface AppIndicator1 extends Library
         public Pointer app_indicator_reserved_6;
 
         @Override
-        protected List getFieldOrder() {
+        protected List<String> getFieldOrder() {
             return Arrays.asList(
                 "parent_class",
                 "new_icon",
                 "new_attention_icon",
-                "new_status", 
+                "new_status",
                 "new_icon_theme_path",
                 "new_label",
 
-                "connection_changed", 
+                "connection_changed",
                 "scroll_event",
                 "app_indicator_reserved_ats",
 

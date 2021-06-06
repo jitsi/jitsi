@@ -23,13 +23,13 @@ import com.sun.jna.win32.*;
 
 /**
  * Extension to missing user32 Windows APIs
- * 
+ *
  * @author Ingo Bauersachs
  */
 interface User32Ex
     extends StdCallLibrary
 {
-    User32Ex INSTANCE = (User32Ex) Native.loadLibrary("user32", User32Ex.class,
+    User32Ex INSTANCE = Native.load("user32", User32Ex.class,
         W32APIOptions.DEFAULT_OPTIONS);
 
     /**

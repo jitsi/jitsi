@@ -50,6 +50,8 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 
 import org.apache.commons.lang3.*;
+import org.apache.commons.text.*;
+import org.apache.commons.text.StringEscapeUtils;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.fileaccess.*;
 
@@ -942,7 +944,6 @@ public class ChatConversationPanel
      * message to the document.
      *
      * @param message the message string
-     * @param contentType
      */
     private void finishMessageAdd(final String message)
     {
@@ -1069,7 +1070,6 @@ public class ChatConversationPanel
      * links. This method expects <u>only</u> the message's <u>body</u> to be
      * provided.
      *
-     * @param message the message to be formatted
      * @param contentType the content type of the message to be formatted
      * @param keyword the word to be highlighted
      * @return the formatted message
@@ -2173,7 +2173,7 @@ public class ChatConversationPanel
                 {
                     // always add from the end of previous match, to current one
                     // or from the start to the first match
-                    buff.append(msg.substring(startPos, startMatchPosition));
+                    buff.append(msg, startPos, startMatchPosition);
 
                     final String plaintext =
                         StringEscapeUtils.unescapeHtml4(plainTextAsHtml);

@@ -28,7 +28,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.resources.*;
 
-import org.apache.commons.lang3.*;
+import org.apache.commons.text.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.event.*;
 import org.jitsi.service.neomedia.recording.*;

@@ -179,7 +179,7 @@ public class SmackPacketDebugger
         for(ExtensionElement pex : packet.getExtensions())
             newMsg.addExtension(pex);
 
-        newMsg.setError(packet.getError());
+        newMsg.setError(XMPPError.getBuilder(packet.getError()));
 
         newMsg.setType(oldMsg.getType());
         newMsg.setThread(oldMsg.getThread());

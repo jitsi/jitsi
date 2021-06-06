@@ -66,17 +66,6 @@ public interface OperationSetVideoTelephony
         throws OperationFailedException;
 
     /**
-     * Gets the visual/video <tt>Component</tt> available in this telephony for
-     * a specific <tt>CallPeer</tt>.
-     *
-     * @param peer the <tt>CallPeer</tt> whose video is to be retrieved
-     * @return the visual/video <tt>Component</tt> available in this telephony
-     * for the specified <tt>peer</tt> if any; otherwise, <tt>null</tt>
-     */
-    @Deprecated
-    public Component getVisualComponent(CallPeer peer);
-
-    /**
      * Gets the visual/video <tt>Component</tt>s available in this telephony for
      * a specific <tt>CallPeer</tt>.
      *

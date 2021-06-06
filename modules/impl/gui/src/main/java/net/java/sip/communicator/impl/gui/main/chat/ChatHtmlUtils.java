@@ -27,7 +27,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.util.*;
 
-import org.apache.commons.lang3.*;
+import org.apache.commons.text.*;
 
 /**
  *
@@ -658,7 +658,7 @@ public class ChatHtmlUtils
         messageTag.append(DATE_ATTRIBUTE).append("=\"")
             .append(sdf.format(date)).append("\" ");
         messageTag.append(String.format("%s=\"%s\" ",
-            ORIGINAL_MESSAGE_ATTRIBUTE, StringEscapeUtils.escapeXml(message)));
+            ORIGINAL_MESSAGE_ATTRIBUTE, StringEscapeUtils.escapeXml10(message)));
         messageTag.append(IncomingMessageStyle
             .createSingleMessageStyle(isHistory, isEdited, true));
         messageTag.append(">");
@@ -708,7 +708,7 @@ public class ChatHtmlUtils
         messageTag.append(DATE_ATTRIBUTE).append("=\"")
             .append(sdf.format(date)).append("\" ");
         messageTag.append(String.format("%s=\"%s\" ",
-            ORIGINAL_MESSAGE_ATTRIBUTE, StringEscapeUtils.escapeXml(message)));
+            ORIGINAL_MESSAGE_ATTRIBUTE, StringEscapeUtils.escapeXml10(message)));
         messageTag.append(IncomingMessageStyle
             .createSingleMessageStyle(isHistory, isEdited, false));
         messageTag.append(">");

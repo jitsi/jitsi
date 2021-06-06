@@ -524,7 +524,7 @@ public class ServerStoredContactListJabberImpl
                     }
                 }
             };
-            jabberProvider.getConnection().addPacketInterceptor(
+            jabberProvider.getConnection().addStanzaInterceptor(
                 presenceInterceptor, new StanzaTypeFilter(Presence.class));
 
             // modify our reply timeout because some XMPP may send "result" IQ
@@ -537,7 +537,7 @@ public class ServerStoredContactListJabberImpl
             getParentProvider().getConnection().setReplyTimeout(
                 SmackConfiguration.getDefaultReplyTimeout());
 
-            jabberProvider.getConnection().removePacketInterceptor(
+            jabberProvider.getConnection().removeStanzaInterceptor(
                 presenceInterceptor);
         }
         catch (XMPPErrorException ex)

@@ -38,7 +38,7 @@ public class WindowsStartup
     /**
      * The key under which startup keys are placed.
      */
-    private static String REGISTRY_STARTUP_KEY =
+    private static final String REGISTRY_STARTUP_KEY =
             "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
 
     /**
@@ -46,7 +46,7 @@ public class WindowsStartup
      */
     public interface PSAPI extends StdCallLibrary
     {
-        PSAPI INSTANCE = (PSAPI)Native.loadLibrary("psapi", PSAPI.class);
+        PSAPI INSTANCE = Native.load("psapi", PSAPI.class);
         int GetModuleFileNameExA (
             WinNT.HANDLE process,
             Pointer hModule,
@@ -100,7 +100,7 @@ public class WindowsStartup
               String executableFileName = null;
               String filePath = getModuleFilename();
 
-              if(filePath != null && filePath.length() > 0)
+              if(filePath.length() > 0)
               {
                   int ix = filePath.lastIndexOf(File.separatorChar);
 

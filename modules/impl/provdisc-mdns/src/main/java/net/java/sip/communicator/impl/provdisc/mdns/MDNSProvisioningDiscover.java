@@ -46,20 +46,12 @@ public class MDNSProvisioningDiscover
      * List of <tt>ProvisioningListener</tt> that will be notified when
      * a provisioning URL is retrieved.
      */
-    private List<DiscoveryListener> listeners =
-        new ArrayList<DiscoveryListener>();
+    private final List<DiscoveryListener> listeners = new ArrayList<>();
 
     /**
      * Reference to JmDNS singleton.
      */
     private JmDNS jmdns = null;
-
-    /**
-     * Constructor.
-     */
-    public MDNSProvisioningDiscover()
-    {
-    }
 
     /**
      * Thread entry point. It runs <tt>discoverProvisioningURL</tt> in a
@@ -90,7 +82,7 @@ public class MDNSProvisioningDiscover
      */
     public String discoverProvisioningURL()
     {
-        StringBuffer url = new StringBuffer();
+        StringBuilder url = new StringBuilder();
 
         try
         {
@@ -116,7 +108,10 @@ public class MDNSProvisioningDiscover
         {
             String protocol = info.getApplication();
 
-            url.append(info.getURL(protocol));
+            if (info.getURLs(protocol).length > 0)
+            {
+                url.append(info.getURLs(protocol)[0]);
+            }
 
             Enumeration<String> en = info.getPropertyNames();
 

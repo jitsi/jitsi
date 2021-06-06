@@ -26,8 +26,8 @@ import com.sun.jna.*;
  */
 interface Gobject extends Library
 {
-    static final Gobject INSTANCE =
-        (Gobject) Native.loadLibrary("gobject-2.0", Gobject.class);
+    Gobject INSTANCE =
+        Native.load("gobject-2.0", Gobject.class);
 
     interface SignalHandler extends Callback
     {

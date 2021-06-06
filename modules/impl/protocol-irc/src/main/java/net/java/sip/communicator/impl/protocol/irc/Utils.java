@@ -17,7 +17,7 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
-import org.apache.commons.lang3.*;
+import org.apache.commons.text.*;
 
 /**
  * Some IRC-related utility methods.

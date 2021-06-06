@@ -1993,7 +1993,7 @@ public class OperationSetPersistentPresenceJabberImpl
 
         // Intercepts all sent presence packet in order to add the
         // photo tag.
-        parentProvider.getConnection().addPacketInterceptor(
+        parentProvider.getConnection().addStanzaInterceptor(
             new VCardTempXUpdateInterceptor(vCardTempXUpdatePresenceExtension),
             new StanzaTypeFilter(Presence.class));
     }

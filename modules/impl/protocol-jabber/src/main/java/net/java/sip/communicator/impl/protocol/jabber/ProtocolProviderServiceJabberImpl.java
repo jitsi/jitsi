@@ -1282,7 +1282,7 @@ public class ProtocolProviderServiceJabberImpl
             // sets the debugger
             debugger.setConnection(connection);
             connection.addAsyncStanzaListener(debugger.inbound, null);
-            connection.addPacketInterceptor(debugger.outbound, null);
+            connection.addStanzaInterceptor(debugger.outbound, null);
         }
 
         int keepAliveInterval =

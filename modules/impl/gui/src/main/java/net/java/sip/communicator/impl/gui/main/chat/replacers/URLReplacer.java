@@ -21,7 +21,7 @@ import java.util.regex.*;
 
 import net.java.sip.communicator.impl.gui.main.chat.*;
 
-import org.apache.commons.lang3.*;
+import org.apache.commons.text.*;
 
 /**
  * The URL replacer used for replacing identified URL's with variations that are

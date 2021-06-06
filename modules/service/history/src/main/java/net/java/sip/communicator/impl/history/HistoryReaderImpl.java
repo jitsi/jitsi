@@ -28,7 +28,7 @@ import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.event.*;
 import net.java.sip.communicator.service.history.records.*;
 
-import org.apache.commons.lang3.*;
+import org.apache.commons.text.*;
 import org.w3c.dom.*;
 
 /**
