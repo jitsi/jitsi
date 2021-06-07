@@ -299,7 +299,7 @@ public class LaunchArgHandler
                 // do nothing already handled by startup script/binary
                 continue;
             }
-            else if (args[i].startsWith("--notray"))
+            else if (args[i].startsWith("--notray") || args[i].equals("-n"))
             {
                 System.setProperty("disable-tray", "true");
                 continue;
