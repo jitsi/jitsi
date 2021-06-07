@@ -1,6 +1,6 @@
 Name:     jitsi
-Version:  2.9
-Release:  5537
+Version:  2.11
+Release:  5633
 Summary:  Jitsi - Open Source Video Calls and Chat
 Packager: Damian Minkov <damencho@jitsi.org>
 
@@ -13,7 +13,6 @@ BuildRoot: %{_topdir}/buildroot
 AutoReqProv:   no
 BuildRequires: java-devel >= 1:1.7
 BuildRequires: ant
-BuildRequires: ant-nodeps
 BuildRequires: gzip
 BuildRequires: git
 
@@ -130,7 +129,6 @@ sed -i -e "s/\/launchutils.jar//" $RPM_BUILD_ROOT/usr/bin/jitsi
 %files
 %defattr(-,root,root,-)
 %{_bindir}/jitsi
-#%{_libdir}/jitsi/
 /usr/share/jitsi
 /usr/share/applications/jitsi*
 /usr/share/pixmaps/jitsi*
