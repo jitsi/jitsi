@@ -3079,10 +3079,10 @@
                  link="${debian.src.dir}/lib/installer-exclude/irc-api-1.0.jar"/>
         <symlink resource="/usr/share/java/slf4j-api.jar"
                  overwrite="true"
-                 link="${debian.src.dir}/lib/installer-exclude/slf4j-api-1.7.5.jar"/>
+                 link="${debian.src.dir}/lib/installer-exclude/slf4j-api-1.7.30.jar"/>
         <symlink resource="/usr/share/java/slf4j-jdk14.jar"
                  overwrite="true"
-                 link="${debian.src.dir}/lib/installer-exclude/slf4j-jdk14-1.7.5.jar"/>
+                 link="${debian.src.dir}/lib/installer-exclude/slf4j-jdk14-1.7.30.jar"/>
 
         <!-- jmyspell -->
         <mkdir dir="${debian.src.dir}/lib/src/jmyspell/classes"/>
@@ -4057,7 +4057,7 @@
             <attribute name="Bundle-SymbolicName"
                        value="slf4j.api"/>
             <attribute name="Bundle-Version"
-                       value="1.7.5"/>
+                       value="1.7.30"/>
             <attribute name="System-Bundle"
                        value="yes"/>
             <attribute name="Export-Package"
@@ -4081,7 +4081,7 @@
             <attribute name="Bundle-SymbolicName"
                        value="slf4j.jdk14"/>
             <attribute name="Bundle-Version"
-                       value="1.7.5"/>
+                       value="1.7.30"/>
             <attribute name="System-Bundle"
                        value="yes"/>
             <attribute name="Export-Package"
