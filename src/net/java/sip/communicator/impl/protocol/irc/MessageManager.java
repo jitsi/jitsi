@@ -18,6 +18,7 @@
 package net.java.sip.communicator.impl.protocol.irc;
 
 import net.java.sip.communicator.impl.protocol.irc.exception.*;
+import net.java.sip.communicator.impl.protocol.irc.properties.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -90,6 +91,12 @@ public class MessageManager
      * Identity manager.
      */
     private final IdentityManager identity;
+
+    /**
+     * The <tt>ConfigurationService</tt> to be used to access configuration
+     */
+    private final org.jitsi.service.configuration.ConfigurationService configurationService
+        = IrcActivator.getConfigurationService();
 
     /**
      * Constructor.
@@ -472,6 +479,11 @@ public class MessageManager
         public void onUserPrivMessage(final UserPrivMsg msg)
         {
             final String user = msg.getSource().getNick();
+            if(isUserIgnored(user))
+            {
+                return;
+            }
+
             final MessageIrcImpl message =
                 MessageIrcImpl.newMessageFromIRC(msg.getText());
             final Contact from =
@@ -500,6 +512,11 @@ public class MessageManager
         public void onUserNotice(final UserNotice msg)
         {
             final String user = msg.getSource().getNick();
+            if(isUserIgnored(msg.getSource().getNick()))
+            {
+                return;
+            }
+
             final Contact from =
                 MessageManager.this.provider.getPersistentPresence()
                     .findOrCreateContactByID(user);
@@ -526,6 +543,17 @@ public class MessageManager
                 MessageIrcImpl.newActionFromIRC(msg.getText());
             MessageManager.this.provider.getBasicInstantMessaging()
                 .fireMessageReceived(message, from);
+        }
+
+        /**
+         *
+         * @param user the name of the user to be checked
+         * @return
+         */
+        private boolean isUserIgnored(String user)
+        {
+            return configurationService.getString(
+                IrcProperties.PROP_IRC_IGNORE,"").contains(user.toLowerCase());
         }
     }
 }

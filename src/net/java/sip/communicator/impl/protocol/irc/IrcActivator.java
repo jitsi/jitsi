@@ -110,6 +110,9 @@ public class IrcActivator
                     ircProviderFactory,
                     hashtable);
 
+        hashtable.put( ConfigurationForm.FORM_TYPE,
+                ConfigurationForm.ADVANCED_TYPE);
+
         if (LOGGER.isInfoEnabled())
         {
             LOGGER.info("IRC protocol implementation [STARTED].");

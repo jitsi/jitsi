@@ -21,8 +21,11 @@ import java.util.*;
 
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.configuration.*;
+import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
 /**
@@ -49,6 +52,16 @@ public class IrcAccRegWizzActivator
     private IrcAccountRegistrationWizard ircWizard;
 
     /**
+     * Resource management service instance.
+     */
+    private static ResourceManagementService resourceService;
+
+    /**
+     * Configuration Service instance.
+     */
+    private static ConfigurationService configService;
+
+    /**
      * Start the IRC account registration wizard.
      *
      * @param dependentService dependent service
@@ -73,6 +86,16 @@ public class IrcAccRegWizzActivator
 
         bundleContext.registerService(
             AccountRegistrationWizard.class.getName(), ircWizard,
+            containerFilter);
+
+        bundleContext.registerService(
+            ConfigurationForm.class.getName(),
+            new LazyConfigurationForm(
+                IrcIgnoreConfigForm.class.getName(),
+                getClass().getClassLoader(),
+                null,
+                "plugin.irc.IRC_IGNORE_CONFIG",
+                0, true),
             containerFilter);
 
         if (logger.isInfoEnabled())
@@ -143,5 +166,34 @@ public class IrcAccRegWizzActivator
     public static UIService getUIService()
     {
         return uiService;
+    }
+
+    /**
+     * Returns the <tt>ResourceManagementService</tt>.
+     *
+     * @return the <tt>ResourceManagementService</tt>.
+     */
+    public static ResourceManagementService getResources()
+    {
+        if (resourceService == null)
+        {
+            resourceService
+                = ResourceManagementServiceUtils.getService(bundleContext);
+        }
+        return resourceService;
+    }
+
+    /**
+     * Return the configuration service impl.
+     *
+     * @return the Configuration service
+     */
+    public static ConfigurationService getConfigurationService()
+    {
+        if(configService == null)
+        {
+            configService = ServiceUtils.getService(bundleContext, ConfigurationService.class);
+        }
+        return configService;
     }
 }
