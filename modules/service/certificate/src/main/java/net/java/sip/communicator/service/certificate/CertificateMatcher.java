@@ -33,6 +33,6 @@ public interface CertificateMatcher
      *            client.
      * @throws CertificateException When any certificate parsing fails.
      */
-    public void verify(Iterable<String> identitiesToTest, X509Certificate cert)
+    void verify(Iterable<String> identitiesToTest, X509Certificate cert)
         throws CertificateException;
 }

@@ -35,6 +35,7 @@ import org.apache.http.client.*;
 import org.apache.http.client.config.*;
 import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.*;
+import org.apache.http.conn.ssl.*;
 import org.apache.http.entity.*;
 import org.apache.http.entity.mime.*;
 import org.apache.http.impl.client.*;
@@ -435,6 +436,8 @@ public class HttpUtils
         return HttpClientBuilder.create()
             .setUserAgent(userAgent)
             .setSSLContext(sslCtx)
+            // The custom SSLContext already takes care of validating the hostname
+            .setSSLHostnameVerifier(new NoopHostnameVerifier())
             .setDefaultRequestConfig(RequestConfig.copy(RequestConfig.DEFAULT)
                 .setSocketTimeout(10_000)
                 .setConnectTimeout(10_000)

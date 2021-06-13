@@ -34,8 +34,8 @@ public abstract class AbstractProvisioningDiscoveryService
      * List of <tt>ProvisioningListener</tt> that will be notified when
      * a provisioning URL is retrieved.
      */
-    private List<DiscoveryListener> listeners =
-        new ArrayList<DiscoveryListener>();
+    private final List<DiscoveryListener> listeners =
+        new ArrayList<>();
 
     /**
      * Get the name of the method name used to retrieve provisioning URL.
@@ -82,10 +82,7 @@ public abstract class AbstractProvisioningDiscoveryService
      */
     public void removeDiscoveryListener(DiscoveryListener listener)
     {
-        if(listeners.contains(listener))
-        {
-            listeners.remove(listener);
-        }
+        listeners.remove(listener);
     }
 
     /**

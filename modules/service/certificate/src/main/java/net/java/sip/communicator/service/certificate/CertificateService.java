@@ -40,7 +40,7 @@ public interface CertificateService
      * Property for always trust mode. When enabled certificate check is
      * skipped.
      */
-    public final static String PNAME_ALWAYS_TRUST =
+    String PNAME_ALWAYS_TRUST =
         "net.java.sip.communicator.service.gui.ALWAYS_TRUST_MODE_ENABLED";
 
     /**
@@ -48,34 +48,34 @@ public interface CertificateService
      * the user is not asked and the error is directly reported to the calling
      * service.
      */
-    public final static String PNAME_NO_USER_INTERACTION =
+    String PNAME_NO_USER_INTERACTION =
         "net.java.sip.communicator.service.tls.NO_USER_INTERACTION";
 
     /**
      * The property name prefix of all client authentication configurations.
      */
-    public static final String PNAME_CLIENTAUTH_CERTCONFIG_BASE =
+    String PNAME_CLIENTAUTH_CERTCONFIG_BASE =
         "net.java.sip.communicator.service.cert.clientauth";
 
     /**
      * Property that is being applied to the system property
      * <tt>javax.net.ssl.trustStoreType</tt>
      */
-    public static final String PNAME_TRUSTSTORE_TYPE =
+    String PNAME_TRUSTSTORE_TYPE =
         "net.java.sip.communicator.service.cert.truststore.type";
 
     /**
      * Property that is being applied to the system property
      * <tt>javax.net.ssl.trustStore</tt>
      */
-    public static final String PNAME_TRUSTSTORE_FILE =
+    String PNAME_TRUSTSTORE_FILE =
         "net.java.sip.communicator.service.cert.truststore.file";
 
     /**
      * Property that is being applied to the system property
      * <tt>javax.net.ssl.trustStorePassword</tt>
      */
-    public static final String PNAME_TRUSTSTORE_PASSWORD =
+    String PNAME_TRUSTSTORE_PASSWORD =
         "net.java.sip.communicator.service.cert.truststore.password";
 
     /**
@@ -83,14 +83,14 @@ public interface CertificateService
      * <tt>com.sun.net.ssl.checkRevocation</tt> and
      * <tt>com.sun.security.enableCRLDP</tt>
      */
-    public static final String PNAME_REVOCATION_CHECK_ENABLED =
+    String PNAME_REVOCATION_CHECK_ENABLED =
         "net.java.sip.communicator.service.cert.revocation.enabled";
 
     /**
      * Property that is being applied to the Security property
      * <tt>ocsp.enable</tt>
      */
-    public static final String PNAME_OCSP_ENABLED =
+    String PNAME_OCSP_ENABLED =
         "net.java.sip.communicator.service.cert.ocsp.enabled";
 
     // ------------------------------------------------------------------------
@@ -99,18 +99,18 @@ public interface CertificateService
     /**
      * Result of user interaction. User does not trust this certificate.
      */
-    public final static int DO_NOT_TRUST = 0;
+    int DO_NOT_TRUST = 0;
 
     /**
      * Result of user interaction. User will always trust this certificate.
      */
-    public final static int TRUST_ALWAYS = 1;
+    int TRUST_ALWAYS = 1;
 
     /**
      * Result of user interaction. User will trust this certificate
      * only for the current session.
      */
-    public final static int TRUST_THIS_SESSION_ONLY = 2;
+    int TRUST_THIS_SESSION_ONLY = 2;
 
     // ------------------------------------------------------------------------
     // Client authentication configuration
@@ -120,7 +120,7 @@ public interface CertificateService
      *
      * @return List of the saved authentication configurations.
      */
-    public List<CertificateConfigEntry> getClientAuthCertificateConfigs();
+    List<CertificateConfigEntry> getClientAuthCertificateConfigs();
 
     /**
      * Deletes a saved {@link CertificateConfigEntry}.
@@ -128,7 +128,7 @@ public interface CertificateService
      * @param id The ID ({@link CertificateConfigEntry#getId()}) of the entry to
      *            delete.
      */
-    public void removeClientAuthCertificateConfig(String id);
+    void removeClientAuthCertificateConfig(String id);
 
     /**
      * Saves or updates the passed {@link CertificateConfigEntry} to the config.
@@ -137,14 +137,14 @@ public interface CertificateService
      *
      * @param entry The @see CertificateConfigEntry to save or update.
      */
-    public void setClientAuthCertificateConfig(CertificateConfigEntry entry);
+    void setClientAuthCertificateConfig(CertificateConfigEntry entry);
 
     /**
      * Gets a list of all supported KeyStore types.
      *
      * @return a list of all supported KeyStore types.
      */
-    public List<KeyStoreType> getSupportedKeyStoreTypes();
+    List<KeyStoreType> getSupportedKeyStoreTypes();
 
     // ------------------------------------------------------------------------
     // Certificate trust handling
@@ -159,7 +159,7 @@ public interface CertificateService
      * @return An SSL context based on a user confirming trust manager.
      * @throws GeneralSecurityException
      */
-    public SSLContext getSSLContext() throws GeneralSecurityException;
+    SSLContext getSSLContext() throws GeneralSecurityException;
 
     /**
      * Get an SSL Context with the specified trustmanager.
@@ -169,7 +169,7 @@ public interface CertificateService
      * @return An SSL context based on the supplied trust manager.
      * @throws GeneralSecurityException
      */
-    public SSLContext getSSLContext(X509ExtendedTrustManager trustManager)
+    SSLContext getSSLContext(X509ExtendedTrustManager trustManager)
         throws GeneralSecurityException;
 
     /**
@@ -183,7 +183,7 @@ public interface CertificateService
      * @return An SSL context based on the supplied trust manager.
      * @throws GeneralSecurityException
      */
-    public SSLContext getSSLContext(String clientCertConfig,
+    SSLContext getSSLContext(String clientCertConfig,
         X509ExtendedTrustManager trustManager)
         throws GeneralSecurityException;
 
@@ -197,7 +197,7 @@ public interface CertificateService
      * @return An SSL context based on the supplied trust manager.
      * @throws GeneralSecurityException
      */
-    public SSLContext getSSLContext(KeyManager[] keyManagers,
+    SSLContext getSSLContext(KeyManager[] keyManagers,
         X509ExtendedTrustManager trustManager)
         throws GeneralSecurityException;
 
@@ -215,7 +215,7 @@ public interface CertificateService
      * @return TrustManager to use in an SSLContext
      * @throws GeneralSecurityException
      */
-    public X509ExtendedTrustManager getTrustManager(Iterable<String> identitiesToTest)
+    X509ExtendedTrustManager getTrustManager(Iterable<String> identitiesToTest)
         throws GeneralSecurityException;
 
     /**
@@ -227,7 +227,7 @@ public interface CertificateService
      * @return TrustManager to use in an SSLContext
      * @throws GeneralSecurityException
      */
-    public X509ExtendedTrustManager getTrustManager(String identityToTest)
+    X509ExtendedTrustManager getTrustManager(String identityToTest)
         throws GeneralSecurityException;
 
     /**
@@ -240,7 +240,7 @@ public interface CertificateService
      * @return TrustManager to use in an SSLContext
      * @throws GeneralSecurityException
      */
-    public X509ExtendedTrustManager getTrustManager(
+    X509ExtendedTrustManager getTrustManager(
         final String identityToTest,
         final CertificateMatcher clientVerifier,
         final CertificateMatcher serverVerifier)
@@ -260,7 +260,7 @@ public interface CertificateService
      * @return TrustManager to use in an SSLContext
      * @throws GeneralSecurityException
      */
-    public X509ExtendedTrustManager getTrustManager(
+    X509ExtendedTrustManager getTrustManager(
         final Iterable<String> identitiesToTest,
         final CertificateMatcher clientVerifier,
         final CertificateMatcher serverVerifier)
@@ -275,6 +275,6 @@ public interface CertificateService
      *            for the current session.
      * @throws CertificateException when the thumbprint could not be calculated
      */
-    public void addCertificateToTrust(Certificate cert, String trustFor,
+    void addCertificateToTrust(Certificate cert, String trustFor,
         int trustMode) throws CertificateException;
 }

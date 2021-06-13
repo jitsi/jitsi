@@ -31,6 +31,7 @@ import javax.security.auth.callback.*;
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.gui.*;
+import org.apache.commons.lang3.*;
 import org.apache.http.*;
 import org.apache.http.client.fluent.*;
 import org.apache.http.conn.ssl.*;
@@ -109,14 +110,14 @@ public class CertificateServiceImpl
     /**
      * Stores the certificates that are trusted as long as this service lives.
      */
-    private Map<String, List<String>> sessionAllowedCertificates =
-        new HashMap<String, List<String>>();
+    private final Map<String, List<String>> sessionAllowedCertificates =
+        new HashMap<>();
 
     /**
      * Caches retrievals of AIA information (downloaded certs or failures).
      */
-    private Map<URI, AiaCacheEntry> aiaCache =
-        new HashMap<URI, AiaCacheEntry>();
+    private final Map<URI, AiaCacheEntry> aiaCache =
+        new HashMap<>();
 
     // ------------------------------------------------------------------------
     // Map access helpers
@@ -131,13 +132,8 @@ public class CertificateServiceImpl
      */
     private List<String> getSessionCertEntry(String propName)
     {
-        List<String> entry = sessionAllowedCertificates.get(propName);
-        if (entry == null)
-        {
-            entry = new LinkedList<String>();
-            sessionAllowedCertificates.put(propName, entry);
-        }
-        return entry;
+        return sessionAllowedCertificates
+            .computeIfAbsent(propName, k -> new LinkedList<>());
     }
 
     /**
@@ -185,9 +181,7 @@ public class CertificateServiceImpl
         String tsPassword = credService.loadPassword(PNAME_TRUSTSTORE_PASSWORD);
 
         // use the OS store as default store on Windows
-        if (tsType == null
-            && !"meta:default".equals(tsType)
-            && OSUtils.IS_WINDOWS)
+        if (tsType == null && OSUtils.IS_WINDOWS)
         {
             tsType = "Windows-ROOT";
             config.setProperty(PNAME_TRUSTSTORE_TYPE, tsType);
@@ -231,8 +225,7 @@ public class CertificateServiceImpl
      */
     public List<CertificateConfigEntry> getClientAuthCertificateConfigs()
     {
-        List<CertificateConfigEntry> map =
-            new LinkedList<CertificateConfigEntry>();
+        List<CertificateConfigEntry> map = new LinkedList<>();
         for (String propName : config.getPropertyNamesByPrefix(
             PNAME_CLIENTAUTH_CERTCONFIG_BASE, false))
         {
@@ -394,7 +387,6 @@ public class CertificateServiceImpl
     }
 
     private Builder loadKeyStore(final CertificateConfigEntry entry)
-        throws KeyStoreException
     {
         final File f = new File(entry.getKeyStore());
         final KeyStoreType kt = entry.getKeyStoreType();
@@ -574,7 +566,7 @@ public class CertificateServiceImpl
         throws GeneralSecurityException
     {
         return getTrustManager(
-            Arrays.asList(new String[]{identityToTest}),
+            Collections.singletonList(identityToTest),
             new EMailAddressMatcher(),
             new BrowserLikeHostnameMatcher()
         );
@@ -596,7 +588,7 @@ public class CertificateServiceImpl
         throws GeneralSecurityException
     {
         return getTrustManager(
-            Arrays.asList(new String[]{identityToTest}),
+            Collections.singletonList(identityToTest),
             clientVerifier,
             serverVerifier
         );
@@ -623,20 +615,23 @@ public class CertificateServiceImpl
             TrustManagerFactory.getInstance(TrustManagerFactory
                 .getDefaultAlgorithm());
 
-        //workaround for https://bugs.openjdk.java.net/browse/JDK-6672015
         KeyStore ks = null;
-        String tsType =
-            System.getProperty("javax.net.ssl.trustStoreType", null);
-        if ("Windows-ROOT".equals(tsType))
+        if (SystemUtils.isJavaVersionAtMost(JavaVersion.JAVA_1_8))
         {
-            try
+            //workaround for https://bugs.openjdk.java.net/browse/JDK-6672015
+            String tsType =
+                System.getProperty("javax.net.ssl.trustStoreType", null);
+            if ("Windows-ROOT".equals(tsType))
             {
-                ks = KeyStore.getInstance(tsType);
-                ks.load(null, null);
-            }
-            catch (Exception e)
-            {
-                logger.error("Could not rename Windows-ROOT aliases", e);
+                try
+                {
+                    ks = KeyStore.getInstance(tsType);
+                    ks.load(null, null);
+                }
+                catch (Exception e)
+                {
+                    logger.error("Could not rename Windows-ROOT aliases", e);
+                }
             }
         }
 
@@ -725,7 +720,9 @@ public class CertificateServiceImpl
                         chain = tryBuildChain(chain);
                     }
                     catch (Exception e)
-                    {} // don't care and take the chain as is
+                    {
+                        // don't care and take the chain as is
+                    }
 
                     if(serverCheck)
                         tm.checkServerTrusted(chain, authType);
@@ -746,9 +743,9 @@ public class CertificateServiceImpl
                 {
                     String thumbprint = getThumbprint(
                         chain[0], THUMBPRINT_HASH_ALGORITHM);
-                    String message = null;
-                    List<String> propNames = new LinkedList<String>();
-                    List<String> storedCerts = new LinkedList<String>();
+                    String message;
+                    List<String> propNames = new LinkedList<>();
+                    List<String> storedCerts = new LinkedList<>();
                     String appName =
                         R.getSettingsString("service.gui.APPLICATION_NAME");
 
@@ -769,8 +766,9 @@ public class CertificateServiceImpl
                         // get the thumbprints from the permanent allowances
                         String hashes = config.getString(propName);
                         if (hashes != null)
-                            for(String h : hashes.split(","))
-                                storedCerts.add(h);
+                        {
+                            Collections.addAll(storedCerts, hashes.split(","));
+                        }
 
                         // get the thumbprints from the session allowances
                         List<String> sessionCerts =
@@ -811,8 +809,10 @@ public class CertificateServiceImpl
                             // get the thumbprints from the permanent allowances
                             String hashes = config.getString(propName);
                             if (hashes != null)
-                                for(String h : hashes.split(","))
-                                    storedCerts.add(h);
+                            {
+                                Collections
+                                    .addAll(storedCerts, hashes.split(","));
+                            }
 
                             // get the thumbprints from the session allowances
                             List<String> sessionCerts =
@@ -870,11 +870,8 @@ public class CertificateServiceImpl
 
                 // prepare for the newly created chain
                 List<X509Certificate> newChain =
-                    new ArrayList<X509Certificate>(chain.length + 4);
-                for (X509Certificate cert : chain)
-                {
-                    newChain.add(cert);
-                }
+                    new ArrayList<>(chain.length + 4);
+                Collections.addAll(newChain, chain);
 
                 // search from the topmost certificate upwards
                 X509Certificate current = chain[chain.length - 1];
@@ -987,7 +984,7 @@ public class CertificateServiceImpl
                 .asStream());
     }
 
-    protected class BrowserLikeHostnameMatcher
+    protected static class BrowserLikeHostnameMatcher
         implements CertificateMatcher
     {
         public void verify(Iterable<String> identitiesToTest,
@@ -1018,7 +1015,7 @@ public class CertificateServiceImpl
         }
     }
 
-    protected class EMailAddressMatcher
+    protected static class EMailAddressMatcher
         implements CertificateMatcher
     {
         public void verify(Iterable<String> identitiesToTest,
@@ -1108,15 +1105,10 @@ public class CertificateServiceImpl
         }
         byte[] encodedCert = cert.getEncoded();
         StringBuilder sb = new StringBuilder(encodedCert.length * 2);
-        Formatter f = new Formatter(sb);
-        try
+        try (Formatter f = new Formatter(sb))
         {
             for (byte b : digest.digest(encodedCert))
                 f.format("%02x", b);
-        }
-        finally
-        {
-            f.close();
         }
         return sb.toString();
     }
@@ -1155,13 +1147,13 @@ public class CertificateServiceImpl
             return Collections.emptyList();
         }
 
-        List<String> matchedAltNames = new LinkedList<String>();
+        List<String> matchedAltNames = new LinkedList<>();
         for (List<?> item : altNames)
         {
             if (item.contains(altNameType))
             {
                 Integer type = (Integer) item.get(0);
-                if (type.intValue() == altNameType)
+                if (type == altNameType)
                     matchedAltNames.add((String) item.get(1));
             }
         }
