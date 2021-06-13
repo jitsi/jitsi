@@ -147,7 +147,7 @@ jobs:
             ${{ runner.os }}-offlinemaven-
 
       - name: Prepare go-offline
-        run: mvn -B -DskipTests -DtargetRepository=debian/local-maven-repo -DcopyPoms=true -DartifactTypes=Dependency org.jitsi:go-offline-maven-plugin:1.2.8-jitsi.1:resolve-dependencies
+        run: mvn -B -DskipTests -DtargetRepository=debian/local-maven-repo -DcopyPoms=true -DartifactTypes=Dependency org.jitsi:go-offline-maven-plugin:1.2.8-jitsi.2:resolve-dependencies
 
   deb_src:
     name: ${{ matrix.vendor }} ${{ matrix.dist }} ${{ matrix.arch }}
