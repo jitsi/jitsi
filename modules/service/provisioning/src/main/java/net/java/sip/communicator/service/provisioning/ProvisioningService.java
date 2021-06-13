@@ -30,7 +30,7 @@ public interface ProvisioningService
      * @return <tt>true</tt> if the provisioning is enabled, <tt>false</tt> -
      * otherwise
      */
-    public String getProvisioningMethod();
+    String getProvisioningMethod();
 
     /**
      * Enables the provisioning with the given method. If the provisioningMethod
@@ -38,26 +38,12 @@ public interface ProvisioningService
      *
      * @param provisioningMethod the provisioning method
      */
-    public void setProvisioningMethod(String provisioningMethod);
-
-    /**
-     * Returns provisioning username if any.
-     *
-     * @return provisioning username
-     */
-    public String getProvisioningUsername();
-
-    /**
-     * Returns provisioning password if any.
-     *
-     * @return provisioning password
-     */
-    public String getProvisioningPassword();
+    void setProvisioningMethod(String provisioningMethod);
 
     /**
      * Returns the provisioning URI.
      *
      * @return the provisioning URI
      */
-    public String getProvisioningUri();
+    String getProvisioningUri();
 }

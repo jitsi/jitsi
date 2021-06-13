@@ -21,13 +21,14 @@ import java.io.*;
 import java.net.*;
 import java.net.URI;
 
+import java.nio.charset.*;
+import java.util.concurrent.atomic.*;
 import javax.sip.address.*;
 
 import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.xcaperror.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.utils.*;
-import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.httputil.*;
 
@@ -37,7 +38,6 @@ import org.apache.http.client.*;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.*;
 import org.apache.http.impl.client.*;
-import org.osgi.framework.*;
 
 /**
  * Base HTTP XCAP client implementation.
@@ -98,26 +98,6 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
      * Indicates whether or not client is connected.
      */
     private boolean connected;
-
-    /**
-     * The service we use to interact with user regarding certificates.
-     */
-    private CertificateService certificateVerification;
-
-    /**
-     * Creates an instance of this XCAP client.
-     */
-    public BaseHttpXCapClient()
-    {
-        ServiceReference guiVerifyReference
-            = SipActivator.getBundleContext().getServiceReference(
-                CertificateService.class.getName());
-
-        if(guiVerifyReference != null)
-            certificateVerification
-                = (CertificateService)SipActivator.getBundleContext()
-                    .getService(guiVerifyReference);
-    }
 
     /**
      * Connects user to XCap server.
@@ -188,11 +168,8 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
     protected XCapHttpResponse get(URI uri)
             throws XCapException
     {
-        DefaultHttpClient httpClient = null;
-        try
+        try (CloseableHttpClient httpClient = createHttpClient())
         {
-            httpClient = createHttpClient();
-
             HttpGet getMethod = new HttpGet(uri);
             getMethod.setHeader("Connection", "close");
 
@@ -235,11 +212,6 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
                                 userAddress.getDisplayName()});
             showError(e, null, errorMessage);
             throw new XCapException(errorMessage, e);
-        }
-        finally
-        {
-            if(httpClient != null)
-                httpClient.getConnectionManager().shutdown();
         }
     }
 
@@ -285,11 +257,8 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
     public XCapHttpResponse put(XCapResource resource)
             throws XCapException
     {
-        DefaultHttpClient httpClient = null;
-        try
+        try (CloseableHttpClient httpClient = createHttpClient())
         {
-            httpClient = createHttpClient();
-
             URI resourceUri = getResourceURI(resource.getId());
             HttpPut putMethod = new HttpPut(resourceUri);
             putMethod.setHeader("Connection", "close");
@@ -317,11 +286,6 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
                     resource.getId().toString());
             throw new XCapException(errorMessage, e);
         }
-        finally
-        {
-            if(httpClient != null)
-                httpClient.getConnectionManager().shutdown();
-        }
     }
 
     /**
@@ -336,11 +300,8 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
             throws XCapException
     {
         assertConnected();
-        DefaultHttpClient httpClient = null;
-        try
+        try (CloseableHttpClient httpClient = createHttpClient())
         {
-            httpClient = createHttpClient();
-
             URI resourceUri = getResourceURI(resourceId);
             HttpDelete deleteMethod = new HttpDelete(resourceUri);
             deleteMethod.setHeader("Connection", "close");
@@ -362,11 +323,6 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
                     "%1s resource cannot be deleted",
                     resourceId.toString());
             throw new XCapException(errorMessage, e);
-        }
-        finally
-        {
-            if(httpClient != null)
-                httpClient.getConnectionManager().shutdown();
         }
     }
 
@@ -428,7 +384,7 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
      *
      * @return the HTTP client.
      */
-    private DefaultHttpClient createHttpClient()
+    private CloseableHttpClient createHttpClient()
         throws IOException
     {
         XCapCredentialsProvider credentialsProvider
@@ -438,7 +394,8 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
             new UsernamePasswordCredentials(getUserName(), password));
 
         return HttpUtils.getHttpClient(
-            null , null, uri.getHost(), credentialsProvider);
+            null , null, uri.getHost(),
+            new AtomicReference<>(credentialsProvider));
     }
 
     /**
@@ -475,7 +432,6 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
      * Reads response from http.
      * @param response the response
      * @return the result String.
-     * @throws IOException
      */
     private static String readResponse(HttpResponse response)
             throws IOException
@@ -486,7 +442,7 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
             return "";
         }
         byte[] content = StreamUtils.read(responseEntity.getContent());
-        return new String(content, "UTF-8");
+        return new String(content, StandardCharsets.UTF_8);
     }
 
     /**
@@ -545,7 +501,7 @@ public abstract class BaseHttpXCapClient implements HttpXCapClient
     /**
      * Our credentials provider simple impl.
      */
-    private class XCapCredentialsProvider
+    private static class XCapCredentialsProvider
         implements CredentialsProvider
     {
         /**

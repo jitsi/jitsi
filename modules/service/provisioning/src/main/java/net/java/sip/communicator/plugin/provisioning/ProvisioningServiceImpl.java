@@ -32,7 +32,6 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
@@ -109,17 +108,7 @@ public class ProvisioningServiceImpl
     /**
      * List of allowed configuration prefixes.
      */
-    private List<String> allowedPrefixes = new ArrayList<String>();
-
-    /**
-     * Authentication username.
-     */
-    private static String provUsername = null;
-
-    /**
-     * Authentication password.
-     */
-    private static String provPassword = null;
+    private final List<String> allowedPrefixes = new ArrayList<>();
 
     /**
      * Prefix that can be used to indicate a property that will be
@@ -247,26 +236,6 @@ public class ProvisioningServiceImpl
      }
 
     /**
-     * Returns provisioning username.
-     *
-     * @return provisioning username
-     */
-    public String getProvisioningUsername()
-    {
-        return provUsername;
-    }
-
-    /**
-     * Returns provisioning password.
-     *
-     * @return provisioning password
-     */
-    public String getProvisioningPassword()
-    {
-        return provPassword;
-    }
-
-    /**
      * Retrieve configuration file from provisioning URL.
      * This method is blocking until configuration file is retrieved from the
      * network or if an exception happen
@@ -276,25 +245,10 @@ public class ProvisioningServiceImpl
      */
     private InputStream retrieveConfigurationFile(String url)
     {
-        return retrieveConfigurationFile(url, null);
-    }
-
-    /**
-     * Retrieve configuration file from provisioning URL.
-     * This method is blocking until configuration file is retrieved from the
-     * network or if an exception happen
-     *
-     * @param url provisioning URL
-     * @param parameters the already filled parameters if any.
-     * @return Stream of provisioning data
-     */
-    private InputStream retrieveConfigurationFile(String url,
-                                           List<NameValuePair> parameters)
-    {
         try
         {
-            String arg = null;
-            String args[] = null;
+            String arg;
+            String[] args = null;
 
             URL u = new URL(url);
             InetAddress ipaddr =
@@ -302,7 +256,7 @@ public class ProvisioningServiceImpl
                     getLocalHost(InetAddress.getByName(u.getHost()));
 
             // Get any system environment identified by ${env.xyz}
-            Pattern p = Pattern.compile("\\$\\{env\\.([^\\}]*)\\}");
+            Pattern p = Pattern.compile("\\$\\{env\\.([^}]*)}");
             Matcher m = p.matcher(url);
             StringBuffer sb = new StringBuffer();
             while(m.find())
@@ -317,7 +271,7 @@ public class ProvisioningServiceImpl
             url = sb.toString();
 
             // Get any system property variable identified by ${system.xyz}
-            p = Pattern.compile("\\$\\{system\\.([^\\}]*)\\}");
+            p = Pattern.compile("\\$\\{system\\.([^}]*)}");
             m = p.matcher(url);
             sb = new StringBuffer();
             while(m.find())
@@ -331,59 +285,59 @@ public class ProvisioningServiceImpl
             m.appendTail(sb);
             url = sb.toString();
 
-            if(url.indexOf("${home.location}") != -1)
+            if(url.contains("${home.location}"))
             {
                 url = url.replace("${home.location}",
                     ProvisioningActivator.getConfigurationService()
                         .getScHomeDirLocation());
             }
 
-            if(url.indexOf("${home.name}") != -1)
+            if(url.contains("${home.name}"))
             {
                 url = url.replace("${home.name}",
                     ProvisioningActivator.getConfigurationService()
                         .getScHomeDirName());
             }
 
-            if(url.indexOf("${uuid}") != -1)
+            if(url.contains("${uuid}"))
             {
                 url = url.replace("${uuid}",
                     (String)ProvisioningActivator.getConfigurationService()
                         .getProperty(PROVISIONING_UUID_PROP));
             }
 
-            if(url.indexOf("${osname}") != -1)
+            if(url.contains("${osname}"))
             {
                 url = url.replace("${osname}", System.getProperty("os.name"));
             }
 
-            if(url.indexOf("${arch}") != -1)
+            if(url.contains("${arch}"))
             {
                 url = url.replace("${arch}", System.getProperty("os.arch"));
             }
 
-            if(url.indexOf("${resx}") != -1 || url.indexOf("${resy}") != -1)
+            if(url.contains("${resx}") || url.contains("${resy}"))
             {
                 Rectangle screen = ScreenInformation.getScreenBounds();
 
-                if(url.indexOf("${resx}") != -1)
+                if(url.contains("${resx}"))
                 {
                     url = url.replace("${resx}", String.valueOf(screen.width));
                 }
 
-                if(url.indexOf("${resy}") != -1)
+                if(url.contains("${resy}"))
                 {
                     url = url.replace("${resy}", String.valueOf(screen.height));
                 }
             }
 
-            if(url.indexOf("${build}") != -1)
+            if(url.contains("${build}"))
             {
                 url = url.replace("${build}",
                         System.getProperty("sip-communicator.version"));
             }
 
-            if(url.indexOf("${locale}") != -1)
+            if(url.contains("${locale}"))
             {
                 String locale =
                     ProvisioningActivator.getConfigurationService().getString(
@@ -394,12 +348,12 @@ public class ProvisioningServiceImpl
                 url = url.replace("${locale}", locale);
             }
 
-            if(url.indexOf("${ipaddr}") != -1)
+            if(url.contains("${ipaddr}"))
             {
                 url = url.replace("${ipaddr}", ipaddr.getHostAddress());
             }
 
-            if(url.indexOf("${hostname}") != -1)
+            if(url.contains("${hostname}"))
             {
                 String name;
                 if(OSUtils.IS_WINDOWS)
@@ -414,7 +368,7 @@ public class ProvisioningServiceImpl
                 url = url.replace("${hostname}", name);
             }
 
-            if(url.indexOf("${hwaddr}") != -1)
+            if(url.contains("${hwaddr}"))
             {
                 if(ipaddr != null)
                 {
@@ -437,7 +391,7 @@ public class ProvisioningServiceImpl
 
                             if(inet.equals(ipaddr))
                             {
-                                byte hw[] =
+                                byte[] hw =
                                     ProvisioningActivator.
                                         getNetworkAddressManagerService().
                                             getHardwareAddress(iface);
@@ -445,14 +399,13 @@ public class ProvisioningServiceImpl
                                 if(hw == null || hw.length == 0)
                                     continue;
 
-                                StringBuffer buf =
-                                    new StringBuffer();
+                                StringBuilder buf =
+                                    new StringBuilder();
 
                                 for(byte h : hw)
                                 {
                                     int hi = h >= 0 ? h : h + 256;
-                                    String t = new String(
-                                            (hi <= 0xf) ? "0" : "");
+                                    String t = (hi <= 0xf) ? "0" : "";
                                     t += Integer.toHexString(hi);
                                     buf.append(t);
                                     buf.append(":");
@@ -483,74 +436,54 @@ public class ProvisioningServiceImpl
                 url = url.substring(0, url.indexOf('?'));
             }
 
-            ArrayList<String> paramNames = null;
-            ArrayList<String> paramValues = null;
-            int usernameIx = -1;
-            int passwordIx = -1;
+            Map<String, String> paramNames = null;
+            String usernameIx = null;
+            String passwordIx = null;
 
             if(args != null && args.length > 0)
             {
-                paramNames = new ArrayList<String>(args.length);
-                paramValues = new ArrayList<String>(args.length);
+                paramNames = new HashMap<>(args.length);
 
                 String usernameParam = "${username}";
                 String passwordParam = "${password}";
 
-                for(int i = 0; i < args.length; i++)
+                for (String value : args)
                 {
-                    String s = args[i];
-
-                    int equalsIndex = s.indexOf("=");
+                    int equalsIndex = value.indexOf("=");
                     String currentParamName = null;
 
                     if (equalsIndex > -1)
                     {
-                        currentParamName = s.substring(0, equalsIndex);
+                        currentParamName = value.substring(0, equalsIndex);
                     }
-
-                    // pre loaded value we will reuse.
-                    String preloadedParamValue =
-                        getParamValue(parameters, currentParamName);
 
                     // If we find the username or password parameter at this
                     // stage we replace it with an empty string.
                     // or if we have an already filled value we will reuse it.
-                    if(s.indexOf(usernameParam) != -1)
+                    if (value.contains(usernameParam))
                     {
-                        if(preloadedParamValue != null)
-                        {
-                            s = s.replace(usernameParam, preloadedParamValue);
-                        }
-                        else
-                            s = s.replace(usernameParam, "");
-                        usernameIx = paramNames.size();
+                        value = value.replace(usernameParam, "");
+                        usernameIx = currentParamName;
                     }
-                    else if(s.indexOf(passwordParam) != -1)
+                    else if (value.contains(passwordParam))
                     {
-                        if(preloadedParamValue != null)
-                        {
-                            s = s.replace(passwordParam, preloadedParamValue);
-                        }
-                        else
-                            s = s.replace(passwordParam, "");
-                        passwordIx = paramNames.size();
+                        value = value.replace(passwordParam, "");
+                        passwordIx = currentParamName;
                     }
 
                     if (equalsIndex > -1)
                     {
-                        paramNames.add(currentParamName);
-                        paramValues.add(s.substring(equalsIndex + 1));
+                        paramNames.put(currentParamName, value.substring(equalsIndex + 1));
                     }
                     else
                     {
-                        if(logger.isInfoEnabled())
+                        if (logger.isInfoEnabled())
                         {
                             logger.info(
-                                    "Invalid provisioning request parameter: \""
-                                    + s + "\", is replaced by \"" + s + "=\"");
+                                "Invalid provisioning request parameter: \""
+                                    + value + "\", is replaced by \"" + value + "=\"");
                         }
-                        paramNames.add(s);
-                        paramValues.add("");
+                        paramNames.put(value, "");
                     }
                 }
             }
@@ -565,31 +498,8 @@ public class ProvisioningServiceImpl
                         PROPERTY_PROVISIONING_USERNAME,
                         PROPERTY_PROVISIONING_PASSWORD,
                         paramNames,
-                        paramValues,
                         usernameIx,
-                        passwordIx,
-                        new HttpUtils.RedirectHandler()
-                        {
-                            @Override
-                            public boolean handleRedirect(
-                                String location,
-                                List<NameValuePair> parameters)
-                            {
-                                if(!hasParams(location))
-                                    return false;
-
-                                // if we have parameters proceed
-                                retrieveConfigurationFile(location, parameters);
-
-                                return true;
-                            }
-
-                            @Override
-                            public boolean hasParams(String location)
-                            {
-                                return location.contains("${");
-                            }
-                        });
+                        passwordIx);
             }
             catch(Throwable t)
             {
@@ -653,60 +563,22 @@ public class ProvisioningServiceImpl
                 return null;
             }
 
-            String userPass[] = res.getCredentials();
-            if(userPass[0] != null && userPass[1] != null)
-            {
-                provUsername = userPass[0];
-                provPassword = userPass[1];
-            }
+            // Chain a ProgressMonitorInputStream to the
+            // URLConnection's InputStream
+            ProgressMonitorInputStream pin =
+                new ProgressMonitorInputStream(null, u.toString(),
+                    res.getContent());
 
-            InputStream in = res.getContent();
-
-            // Skips ProgressMonitorInputStream wrapper on Android
-            if(!OSUtils.IS_ANDROID)
-            {
-                // Chain a ProgressMonitorInputStream to the
-                // URLConnection's InputStream
-                final ProgressMonitorInputStream pin;
-                pin = new ProgressMonitorInputStream(null, u.toString(), in);
-
-                // Set the maximum value of the ProgressMonitor
-                ProgressMonitor pm = pin.getProgressMonitor();
-                pm.setMaximum((int)res.getContentLength());
-
-                // Uses ProgressMonitorInputStream if available
-                return pin;
-            }
-
-            return in;
+            // Set the maximum value of the ProgressMonitor
+            ProgressMonitor pm = pin.getProgressMonitor();
+            pm.setMaximum((int)res.getContentLength());
+            return pin;
         }
         catch (Exception e)
         {
-            if (logger.isInfoEnabled())
-                logger.info("Error retrieving provisioning file!", e);
+            logger.info("Error retrieving provisioning file!", e);
             return null;
         }
-    }
-
-    /**
-     * Search param value for the supplied name.
-     * @param parameters the parameters can be null.
-     * @param paramName the name to search.
-     * @return the corresponding parameter value.
-     */
-    private static String getParamValue(List<NameValuePair> parameters,
-                                        String paramName)
-    {
-        if(parameters == null || paramName == null)
-            return null;
-
-        for(NameValuePair nv : parameters)
-        {
-            if(nv.getName().equals(paramName))
-                return nv.getValue();
-        }
-
-        return null;
     }
 
     /**
@@ -717,45 +589,36 @@ public class ProvisioningServiceImpl
     private void updateConfiguration(final InputStream data)
     {
         Properties fileProps = new OrderedProperties();
-        InputStream in = null;
 
-        try
+        try (InputStream in = new BufferedInputStream(data))
         {
-            in = new BufferedInputStream(data);
             fileProps.load(in);
 
-            Iterator<Map.Entry<Object, Object> > it
-                = fileProps.entrySet().iterator();
-
-            while(it.hasNext())
+            for (Map.Entry<Object, Object> entry : fileProps.entrySet())
             {
-                Map.Entry<Object, Object> entry = it.next();
-                String key = (String)entry.getKey();
+                String key = (String) entry.getKey();
                 Object value = entry.getValue();
 
                 // skip empty keys, prevent them going into the configuration
-                if(key.trim().length() == 0)
+                if (key.trim().length() == 0)
                     continue;
 
-                if(key.equals(PROVISIONING_ALLOW_PREFIX_PROP))
+                if (key.equals(PROVISIONING_ALLOW_PREFIX_PROP))
                 {
-                    String prefixes[] = ((String)value).split("\\|");
+                    String[] prefixes = ((String) value).split("\\|");
 
                     /* updates allowed prefixes list */
-                    for(String s : prefixes)
-                    {
-                        allowedPrefixes.add(s);
-                    }
+                    Collections.addAll(allowedPrefixes, prefixes);
                     continue;
                 }
-                else if(key.equals(PROVISIONING_ENFORCE_PREFIX_PROP))
+                else if (key.equals(PROVISIONING_ENFORCE_PREFIX_PROP))
                 {
-                    checkEnforcePrefix((String)value);
+                    checkEnforcePrefix((String) value);
                     continue;
                 }
 
                 /* check that properties is allowed */
-                if(!isPrefixAllowed(key))
+                if (!isPrefixAllowed(key))
                 {
                     continue;
                 }
@@ -771,24 +634,14 @@ public class ProvisioningServiceImpl
                 ProvisioningActivator.getConfigurationService().
                     reloadConfiguration();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 logger.error("Cannot reload configuration");
             }
         }
-        catch(IOException e)
+        catch (IOException e)
         {
             logger.warn("Error during load of provisioning file");
-        }
-        finally
-        {
-            try
-            {
-                in.close();
-            }
-            catch(IOException e)
-            {
-            }
         }
     }
 
@@ -849,8 +702,7 @@ public class ProvisioningServiceImpl
         }
         else if(key.startsWith(SYSTEM_PROP_PREFIX))
         {
-            String sysKey = key.substring(
-                SYSTEM_PROP_PREFIX.length(), key.length());
+            String sysKey = key.substring(SYSTEM_PROP_PREFIX.length());
 
             System.setProperty(sysKey, (String)value);
         }
@@ -874,7 +726,7 @@ public class ProvisioningServiceImpl
     {
         ConfigurationService config =
             ProvisioningActivator.getConfigurationService();
-        String prefixes[] = null;
+        String[] prefixes;
 
         if(enforcePrefix == null)
         {
