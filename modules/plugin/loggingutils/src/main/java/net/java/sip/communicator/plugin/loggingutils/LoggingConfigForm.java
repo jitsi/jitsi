@@ -20,16 +20,13 @@ package net.java.sip.communicator.plugin.loggingutils;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.service.httputil.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jitsi.service.packetlogging.*;
 import org.jitsi.service.resources.*;
 
@@ -42,22 +39,6 @@ public class LoggingConfigForm
     implements ActionListener,
         DocumentListener
 {
-    /**
-     * Serial version UID.
-     */
-    private static final long serialVersionUID = 0L;
-
-    /**
-     * Our Logger.
-     */
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LoggingConfigForm.class);
-
-    /**
-     * Upload location property.
-     */
-    private static final String UPLOAD_LOCATION_PROPETY =
-            "plugin.loggingutils.uploadlocation";
-
     /**
      * The enable packet logging check box.
      */
@@ -112,11 +93,6 @@ public class LoggingConfigForm
      * Archive logs button.
      */
     private JButton archiveButton;
-
-    /**
-     * Archive logs button.
-     */
-    private JButton uploadLogsButton;
 
     /**
      * Creates Packet Logging Config form.
@@ -243,39 +219,6 @@ public class LoggingConfigForm
         c.gridx = 0;
         c.gridy = 4;
         mainPanel.add(archiveButton, c);
-
-        if(StringUtils.isNotEmpty(getUploadLocation()))
-        {
-            uploadLogsButton = new JButton(
-                resources.getI18NString("plugin.loggingutils.UPLOAD_LOGS_BUTTON"));
-            uploadLogsButton.addActionListener(this);
-
-            c.insets = new Insets(10, 0, 0, 0);
-            c.gridy = 5;
-            mainPanel.add(uploadLogsButton, c);
-        }
-    }
-
-    /**
-     * Checks the property in configuration service and if missing there get it
-     * from default settings.
-     * @return the upload location.
-     */
-    static String getUploadLocation()
-    {
-        // check first in configuration it can be manually set
-        // or by provisioning
-        String uploadLocation =
-            LoggingUtilsActivator.getConfigurationService()
-                .getString(UPLOAD_LOCATION_PROPETY);
-        // if missing check default settings
-        if(uploadLocation == null || uploadLocation.length() == 0)
-        {
-            uploadLocation = LoggingUtilsActivator.getResourceService()
-                .getSettingsString(UPLOAD_LOCATION_PROPETY);
-        }
-
-        return uploadLocation;
     }
 
     /**
@@ -354,24 +297,7 @@ public class LoggingConfigForm
         else if(source.equals(archiveButton))
         {
             // don't block the UI thread
-            new Thread(new Runnable()
-            {
-                public void run()
-                {
-                    collectLogs();
-                }
-            }).start();
-        }
-        else if(source.equals(uploadLogsButton))
-        {
-            // don't block the UI thread
-            new Thread(new Runnable()
-            {
-                public void run()
-                {
-                    uploadLogs();
-                }
-            }).start();
+            new Thread(this::collectLogs).start();
         }
     }
 
@@ -417,7 +343,7 @@ public class LoggingConfigForm
             // set file count only if its un integer
             try
             {
-                int newFileCount = Integer.valueOf(fileCountField.getText());
+                int newFileCount = Integer.parseInt(fileCountField.getText());
                 fileCountField.setForeground(Color.black);
                 LoggingUtilsActivator.getPacketLoggingService()
                     .getConfiguration().setLogfileCount(newFileCount);
@@ -432,10 +358,10 @@ public class LoggingConfigForm
             // set file size only if its un integer
             try
             {
-                int newFileSize = Integer.valueOf(fileSizeField.getText());
+                int newFileSize = Integer.parseInt(fileSizeField.getText());
                 fileSizeField.setForeground(Color.black);
                 LoggingUtilsActivator.getPacketLoggingService()
-                    .getConfiguration().setLimit(newFileSize * 1000);
+                    .getConfiguration().setLimit(newFileSize * 1000L);
             }
             catch(Throwable t)
             {
@@ -497,256 +423,6 @@ public class LoggingConfigForm
                             bodyMsgKey,
                             new String[]{dest.getAbsolutePath()}),
                     null);
-        }
-    }
-
-    /**
-     * Shows a dialog with input for logs description.
-     */
-    private void uploadLogs()
-    {
-        ResourceManagementService resources =
-            LoggingUtilsActivator.getResourceService();
-
-        final SIPCommDialog dialog = new SIPCommDialog(false)
-        {
-            /**
-             * Serial version UID.
-             */
-            private static final long serialVersionUID = 0L;
-
-            /**
-             * Dialog is closed. Do nothing.
-             * @param escaped <tt>true</tt> if this dialog has been
-             * closed by pressing
-             */
-            @Override
-            protected void close(boolean escaped)
-            {}
-        };
-
-        dialog.setModal(true);
-        dialog.setTitle(resources.getI18NString(
-            "plugin.loggingutils.UPLOAD_LOGS_BUTTON"));
-
-        Container container = dialog.getContentPane();
-        container.setLayout(new GridBagLayout());
-
-        JLabel descriptionLabel = new JLabel("Add a comment:");
-        final JTextArea commentTextArea = new JTextArea();
-        commentTextArea.setRows(4);
-        final JButton uploadButton = new JButton(
-            resources.getI18NString("plugin.loggingutils.UPLOAD_BUTTON"));
-        final SIPCommTextField emailField = new SIPCommTextField(resources
-            .getI18NString("plugin.loggingutils.ARCHIVE_UPREPORT_EMAIL"));
-        final JCheckBox emailCheckBox = new SIPCommCheckBox(
-            "Email me when more information is available");
-        emailCheckBox.setSelected(true);
-        emailCheckBox.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                if(!emailCheckBox.isSelected())
-                {
-                    uploadButton.setEnabled(true);
-                    emailField.setEnabled(false);
-                }
-                else
-                {
-                    emailField.setEnabled(true);
-
-                    if(emailField.getText() != null
-                        && emailField.getText().trim().length() > 0)
-                        uploadButton.setEnabled(true);
-                    else
-                        uploadButton.setEnabled(false);
-                }
-            }
-        });
-
-        emailField.getDocument().addDocumentListener(new DocumentListener()
-        {
-            public void insertUpdate(DocumentEvent e)
-            {
-                updateButtonsState();
-            }
-
-            public void removeUpdate(DocumentEvent e)
-            {
-                updateButtonsState();
-            }
-
-            public void changedUpdate(DocumentEvent e){}
-
-            /**
-             * Check whether we should enable upload button.
-             */
-            private void updateButtonsState()
-            {
-                if(emailCheckBox.isSelected() && emailField.getText() != null
-                    && emailField.getText().trim().length() > 0)
-                    uploadButton.setEnabled(true);
-                else
-                    uploadButton.setEnabled(false);
-            }
-        });
-
-        GridBagConstraints c = new GridBagConstraints();
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.insets = new Insets(10, 10, 3, 10);
-        c.weightx = 1.0;
-        c.gridx = 0;
-        c.gridy = 0;
-
-        container.add(descriptionLabel, c);
-
-        c.insets = new Insets(0, 10, 10, 10);
-        c.gridy = 1;
-        container.add(new JScrollPane(commentTextArea), c);
-
-        c.insets = new Insets(0, 10, 0, 10);
-        c.gridy = 2;
-        container.add(emailCheckBox, c);
-
-        c.insets = new Insets(0, 10, 10, 10);
-        c.gridy = 3;
-        container.add(emailField, c);
-
-        JButton cancelButton = new JButton(
-            resources.getI18NString("service.gui.CANCEL"));
-        cancelButton.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                dialog.dispose();
-            }
-        });
-
-        uploadButton.setEnabled(false);
-        uploadButton.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                try
-                {
-                    final ArrayList<String> paramNames = new ArrayList<String>();
-                    final ArrayList<String> paramValues = new ArrayList<String>();
-
-                    if(emailCheckBox.isSelected())
-                    {
-                        paramNames.add("Email");
-                        paramValues.add(emailField.getText());
-                    }
-
-                    paramNames.add("Description");
-                    paramValues.add(commentTextArea.getText());
-
-                    // don't block the UI thread we may need to show
-                    // some ui for password input if protected area on the way
-                    new Thread(new Runnable()
-                    {
-                        public void run()
-                        {
-                            uploadLogs(
-                                getUploadLocation(),
-                                LogsCollector.getDefaultFileName(),
-                                paramNames.toArray(new String[]{}),
-                                paramValues.toArray(new String[]{}));
-                        }
-                    }).start();
-                }
-                finally
-                {
-                    dialog.dispose();
-                }
-            }
-        });
-        JPanel buttonsPanel = new TransparentPanel(
-            new FlowLayout(FlowLayout.RIGHT));
-        buttonsPanel.add(uploadButton);
-        buttonsPanel.add(cancelButton);
-
-        c.anchor = GridBagConstraints.LINE_END;
-        c.weightx = 0;
-        c.gridy = 4;
-        container.add(buttonsPanel, c);
-
-        dialog.setVisible(true);
-    }
-
-    /**
-     * Upload files to pre-configured url.
-     * @param uploadLocation the location we are uploading to.
-     * @param fileName the filename we use for the resulting filename we upload.
-     * @param params the optional parameter names.
-     * @param values the optional parameter values.
-     */
-    static void uploadLogs(
-        String uploadLocation,
-        String fileName,
-        String[] params,
-        String[] values)
-    {
-        try
-        {
-            File tempDir = LoggingUtilsActivator.getFileAccessService()
-                .getTemporaryDirectory();
-            File newDest = new File(tempDir, fileName);
-
-            File optionalFile = null;
-
-            // if we have some description params
-            // save them to file and add it to archive
-            if(params != null)
-            {
-                optionalFile = new File(
-                    LoggingUtilsActivator.getFileAccessService().
-                        getTemporaryDirectory(),
-                    "description.txt");
-                OutputStream out = new FileOutputStream(optionalFile);
-                for(int i = 0; i < params.length; i++)
-                {
-                    out.write((params[i] + " : "
-                        + values[i] + "\r\n").getBytes("UTF-8"));
-                }
-                out.flush();
-                out.close();
-            }
-
-            newDest = LogsCollector.collectLogs(newDest, optionalFile);
-
-            // don't leave any unneeded information
-            if(optionalFile != null)
-                optionalFile.delete();
-
-            if(uploadLocation == null)
-                return;
-
-            if(HttpUtils.postFile(uploadLocation, "logs", newDest) != null)
-            {
-                NotificationService notificationService
-                    = LoggingUtilsActivator.getNotificationService();
-
-                if(notificationService != null)
-                {
-                    ResourceManagementService resources
-                        = LoggingUtilsActivator.getResourceService();
-                    String bodyMsgKey = "plugin.loggingutils.ARCHIVE_MESSAGE_OK";
-
-                    notificationService.fireNotification(
-                            LOGFILES_ARCHIVED,
-                            resources.getI18NString(
-                                    "plugin.loggingutils.ARCHIVE_BUTTON"),
-                            resources.getI18NString(
-                                    bodyMsgKey,
-                                    new String[]{uploadLocation}),
-                            null);
-                }
-            }
-        }
-        catch(Throwable e)
-        {
-            logger.error("Cannot upload file", e);
         }
     }
 }
