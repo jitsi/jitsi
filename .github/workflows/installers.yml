@@ -144,7 +144,7 @@ jobs:
           path: debian/local-maven-repo
           key: ${{ runner.os }}-offlinemaven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
-            ${{ runner.os }}-offlinemaven-
+            ${{ runner.os }}-offlinemaven-${{ hashFiles('**/pom.xml') }}
 
       - name: Prepare go-offline
         run: mvn -B -DskipTests -DtargetRepository=debian/local-maven-repo -DcopyPoms=true -DartifactTypes=Dependency org.jitsi:go-offline-maven-plugin:1.2.8-jitsi.3:resolve-dependencies
@@ -183,7 +183,7 @@ jobs:
           path: debian/local-maven-repo
           key: ${{ runner.os }}-offlinemaven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
-            ${{ runner.os }}-offlinemaven-
+            ${{ runner.os }}-offlinemaven-${{ hashFiles('**/pom.xml') }}
 
       - name: Install dev packages
         env:
