@@ -2756,6 +2756,8 @@ public class CallPeerMediaHandlerJabberImpl
                                         localFingerprint.getFingerprint());
                                 fingerprintPE.setHash(
                                         localFingerprint.getHash());
+                                fingerprintPE.setSetup(
+                                        localFingerprint.getSetup());
                                 localTransport.addChildExtension(fingerprintPE);
                             }
                         }

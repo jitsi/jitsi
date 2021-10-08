@@ -1264,6 +1264,8 @@ public class CallJabberImpl
                                         remoteFingerprint.getFingerprint());
                                 localFingerprint.setHash(
                                         remoteFingerprint.getHash());
+                                localFingerprint.setSetup(
+                                        remoteFingerprint.getSetup());
                                 localTransport.addChildExtension(
                                         localFingerprint);
                             }
@@ -1356,6 +1358,7 @@ public class CallJabberImpl
         }
         fingerprintPE.setFingerprint(fingerprint);
         fingerprintPE.setHash(hash);
+        fingerprintPE.setSetup(dtlsControl.getSetup().toString());
     }
 
     private void setTransportOnChannel(
