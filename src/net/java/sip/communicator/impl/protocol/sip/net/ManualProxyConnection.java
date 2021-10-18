@@ -76,7 +76,7 @@ public class ManualProxyConnection
                 lookups = NetworkUtils.getAandAAAARecords(address, port);
 
                 //no result found, reset state and indicate "out of addresses"
-                if(lookups.length == 0)
+                if(lookups == null || lookups.length == 0)
                 {
                     lookups = null;
                     return false;
@@ -98,12 +98,14 @@ public class ManualProxyConnection
             return false;
         }
 
+        socketAddress = lookups[lookupIndex];
+        lookupIndex++;
+
         //assign the next address and return lookup success
         if(logger.isDebugEnabled())
             logger.debug("Returning <" + socketAddress
                 + "> as next address for " + account);
-        socketAddress = lookups[lookupIndex];
-        lookupIndex++;
+
         return true;
     }
 
