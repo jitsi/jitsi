@@ -387,9 +387,18 @@ public class ClientCapabilities
 
                     return;
                 }
-            }catch(Exception ex)
+            }
+            catch(Exception ex)
             {
                 logger.error("Cannot send OPTIONS keep alive", ex);
+
+                // getLocalViaHeaders will try to establish a connection and will throw
+                // java.net.ConnectException: Connection refused (Connection refused) in case of failure
+                if(ex.getCause() instanceof IOException)
+                {
+                    // IOException problem with network
+                    disconnect();
+                }
             }
         }
    }
