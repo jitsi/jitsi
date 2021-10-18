@@ -136,18 +136,29 @@ public class PPReconnectWrapper
         // reconnection and we are interested only in few state changes
         if (!(evt.getSource() instanceof ProtocolProviderService)
             || !(state.equals(RegistrationState.REGISTERED)
-            || state.equals(RegistrationState.UNREGISTERED)
-            || state.equals(RegistrationState.CONNECTION_FAILED)))
+                || state.equals(RegistrationState.UNREGISTERED)
+                || state.equals(RegistrationState.CONNECTION_FAILED)))
             return;
 
         ProtocolProviderService pp = (ProtocolProviderService) evt.getSource();
 
         synchronized(localStateMutex)
         {
+            boolean wasInReconnecting = state.equals(RegistrationState.CONNECTION_FAILED)
+                && evt.getOldState().equals(RegistrationState.REGISTERING);
+
             // state is already handled, nothing to do
-            if (state.equals(localState))
+            // except when we were in connection failed, tried to reconnect and failed again
+            if (state.equals(localState)
+                && !wasInReconnecting)
             {
                 return;
+            }
+
+            if (wasInReconnecting)
+            {
+                // if reconnecting cancel
+                cancelReconnect();
             }
 
             this.localState = state;
