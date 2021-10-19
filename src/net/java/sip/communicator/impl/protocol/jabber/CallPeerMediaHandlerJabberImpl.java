@@ -1753,6 +1753,11 @@ public class CallPeerMediaHandlerJabberImpl
              * TODO If the offered transport is not supported, attempt to fall
              * back to a supported one using transport-replace.
              */
+            if (transport == null)
+            {
+                // Skip it to fix NPE and continue processing.
+                continue;
+            }
             setTransportManager(transport.getNamespace());
 
             boolean rtcpmux = false;
