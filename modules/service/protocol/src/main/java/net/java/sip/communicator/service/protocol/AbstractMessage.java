@@ -19,6 +19,7 @@ package net.java.sip.communicator.service.protocol;
 
 import java.io.*;
 import java.nio.charset.*;
+import java.util.*;
 
 /**
  * Represents a default implementation of {@link Message} in order to make it
@@ -82,8 +83,7 @@ public abstract class AbstractMessage
 
     protected String createMessageUID()
     {
-        return String.valueOf(System.currentTimeMillis())
-            + String.valueOf(hashCode());
+        return UUID.randomUUID().toString();
     }
 
     /**

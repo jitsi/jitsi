@@ -1543,30 +1543,16 @@ public class MessageHistoryServiceImpl
     public void serviceChanged(ServiceEvent serviceEvent)
     {
         Object sService = bundleContext.getService(serviceEvent.getServiceReference());
-
-        if (logger.isTraceEnabled())
-            logger.trace("Received a service event for: " + sService.getClass().getName());
-
-        // we don't care if the source service is not a protocol provider
-        if (! (sService instanceof ProtocolProviderService))
-        {
-            return;
-        }
-
-        if (logger.isDebugEnabled())
-            logger.debug("Service is a protocol provider.");
+        logger.debug("Received a service event for {}", sService.getClass().getName());
         if (serviceEvent.getType() == ServiceEvent.REGISTERED)
         {
-            if (logger.isDebugEnabled())
-                logger.debug("Handling registration of a new Protocol Provider.");
-
+            logger.debug("Handling registration of a new Protocol Provider");
             this.handleProviderAdded((ProtocolProviderService)sService);
         }
         else if (serviceEvent.getType() == ServiceEvent.UNREGISTERING)
         {
             this.handleProviderRemoved( (ProtocolProviderService) sService);
         }
-
     }
 
     /**
@@ -2800,7 +2786,16 @@ public class MessageHistoryServiceImpl
             loadRecentMessages();
 
         // start listening for newly register or removed protocol providers
-        bundleContext.addServiceListener(this);
+        try
+        {
+            bundleContext.addServiceListener(this,
+                "(objectClass=" + ProtocolProviderService.class.getName()
+                    + ")");
+        }
+        catch (InvalidSyntaxException e)
+        {
+            throw new RuntimeException(e);
+        }
 
         for (ProtocolProviderService pps : getCurrentlyAvailableProviders())
         {
@@ -2814,8 +2809,7 @@ public class MessageHistoryServiceImpl
      */
     List<ProtocolProviderService> getCurrentlyAvailableProviders()
     {
-        List<ProtocolProviderService> res
-            = new ArrayList<ProtocolProviderService>();
+        List<ProtocolProviderService> res = new ArrayList<>();
 
         ServiceReference[] protocolProviderRefs = null;
         try

@@ -21,7 +21,9 @@ import java.io.*;
 
 import java.util.*;
 import net.java.sip.communicator.launchutils.*;
+import org.apache.aries.spifly.dynamic.*;
 import org.apache.felix.framework.*;
+import org.apache.felix.framework.util.*;
 import org.apache.felix.main.*;
 import org.osgi.framework.*;
 import org.osgi.framework.launch.*;
@@ -178,7 +180,9 @@ public class SIPCommunicator implements BundleActivator
         @SuppressWarnings("rawtypes")
         Map configProps = Main.loadConfigProperties();
         Main.copySystemProperties(configProps);
-        configProps.put("felix.log.logger", new FelixLogger());
+        configProps.put(FelixConstants.LOG_LOGGER_PROP, new FelixLogger());
+        configProps.put(FelixConstants.SYSTEMBUNDLE_ACTIVATORS_PROP,
+            Collections.singletonList(new DynamicWeavingActivator()));
 
         // Create an instance of the framework.
         logger.info("Creating OSGi framework");

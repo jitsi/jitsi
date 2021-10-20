@@ -28,6 +28,7 @@ import org.jivesoftware.smack.XMPPException.*;
 import org.jivesoftware.smackx.search.*;
 import org.jivesoftware.smackx.search.ReportedData.*;
 import org.jivesoftware.smackx.xdata.*;
+import org.jivesoftware.smackx.xdata.packet.*;
 import org.jxmpp.jid.*;
 import org.jxmpp.jid.impl.*;
 import org.jxmpp.stringprep.*;
@@ -228,7 +229,7 @@ public class OperationSetUserSearchJabberImpl
         ReportedData data = null;
         try
         {
-            Form form = searchManager.getSearchForm(serviceName);
+            DataForm form = searchManager.getSearchForm(serviceName);
             data = searchManager.getSearchResults(form, serviceName);
         }
         catch (XMPPException
@@ -272,7 +273,7 @@ public class OperationSetUserSearchJabberImpl
         List<String> result = new ArrayList<>();
         for (Row row : rows)
         {
-            result.add(row.getValues(jidColumn.getVariable()).get(0));
+            result.add(row.getValues(jidColumn.getVariable()).get(0).toString());
         }
         return result;
     }

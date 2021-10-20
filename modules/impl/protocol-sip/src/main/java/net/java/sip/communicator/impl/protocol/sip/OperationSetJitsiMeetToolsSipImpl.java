@@ -23,7 +23,6 @@ import gov.nist.javax.sip.header.*;
 import javax.sip.*;
 import javax.sip.message.*;
 import javax.sip.header.*;
-import org.jivesoftware.smack.packet.*;
 import org.json.simple.*;
 import org.json.simple.parser.*;
 
@@ -84,7 +83,7 @@ public class OperationSetJitsiMeetToolsSipImpl
      * The list of {@link JitsiMeetRequestListener}.
      */
     private final List<JitsiMeetRequestListener> requestHandlers
-        = new CopyOnWriteArrayList<JitsiMeetRequestListener>();
+        = new CopyOnWriteArrayList<>();
 
     /**
      * Constructs new OperationSetJitsiMeetToolsSipImpl.
@@ -152,50 +151,6 @@ public class OperationSetJitsiMeetToolsSipImpl
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void addSupportedFeature(String featureName)
-    {
-        throw new RuntimeException("Not implemented for SIP");
-    }
-
-    @Override
-    public void removeSupportedFeature(String featureName)
-    {
-        throw new RuntimeException("Not implemented for SIP");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void sendPresenceExtension(ChatRoom chatRoom,
-                                      ExtensionElement extension)
-    {
-        throw new RuntimeException("Not implemented for SIP");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void removePresenceExtension(ChatRoom chatRoom,
-                                        ExtensionElement extension)
-    {
-        throw new RuntimeException("Not implemented for SIP");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setPresenceStatus(ChatRoom chatRoom, String statusMessage)
-    {
-        throw new RuntimeException("Not implemented for SIP");
-    }
-
-    /**
      * Sends a JSON to the specified <tt>callPeer</tt>.
      *
      * @param callPeer the CallPeer to which we send the JSONObject to.
@@ -214,7 +169,7 @@ public class OperationSetJitsiMeetToolsSipImpl
         {
             boolean bViaParam = params.containsKey(VIA_PARAMETER);
 
-            if (bViaParam == false)
+            if (!bViaParam)
             {
                 throw new OperationFailedException(
                     "Unspecified " + VIA_PARAMETER + " parameter!",
@@ -223,7 +178,7 @@ public class OperationSetJitsiMeetToolsSipImpl
 
             String viaParam = (String) params.get(VIA_PARAMETER);
 
-            if (viaParam.equalsIgnoreCase(VIA_SIP_INFO) == true)
+            if (viaParam.equalsIgnoreCase(VIA_SIP_INFO))
             {
                 CallPeerSipImpl peer = (CallPeerSipImpl) callPeer;
 
@@ -246,8 +201,7 @@ public class OperationSetJitsiMeetToolsSipImpl
                     peer.getJainSipProvider()
                         .getNewClientTransaction(info);
 
-                if (peer.getDialog().getState()
-                    == DialogState.TERMINATED)
+                if (peer.getDialog().getState() == DialogState.TERMINATED)
                 {
                     //this is probably because the call has just ended, so don't
                     //throw an exception. simply log and get lost.
@@ -257,12 +211,7 @@ public class OperationSetJitsiMeetToolsSipImpl
                 }
 
                 peer.getDialog().sendRequest(clientTransaction);
-
-                if (logger.isTraceEnabled())
-                {
-                    logger.trace("Request " + info.toString()
-                                    + " sent.");
-                }
+                logger.trace("Request {} sent", info);
             }
             else
             {
@@ -351,10 +300,10 @@ public class OperationSetJitsiMeetToolsSipImpl
 
                     if (callPeer == null)
                     {
-                        if (logger.isTraceEnabled() == true)
+                        if (logger.isTraceEnabled())
                         {
                             logger.trace("Could not find call peer for " +
-                                request.toString());
+                                request);
                         }
                     }
 
@@ -395,9 +344,7 @@ public class OperationSetJitsiMeetToolsSipImpl
                         }
                     }
 
-                    /**
-                     * If no call peer send 481/Transaction does not exist?
-                     */
+                    // If no call peer send 481/Transaction does not exist?
                     Response response = this.parentProvider
                         .getMessageFactory()
                         .createResponse(Response.OK,

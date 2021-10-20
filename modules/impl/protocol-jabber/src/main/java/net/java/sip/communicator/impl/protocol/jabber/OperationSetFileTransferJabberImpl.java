@@ -39,7 +39,7 @@ import org.jxmpp.jid.*;
 import org.jxmpp.jid.impl.*;
 import org.jxmpp.stringprep.*;
 
-import static org.jivesoftware.smack.packet.XMPPError.Condition.*;
+import static org.jivesoftware.smack.packet.StanzaError.Condition.*;
 
 /**
  * The Jabber implementation of the <tt>OperationSetFileTransfer</tt>
@@ -381,7 +381,7 @@ public class OperationSetFileTransferJabberImpl
 
         /**
          * Listens for file transfer packets.
-         * @param packet packet to be processed
+         * @param request packet to be processed
          */
         @Override
         public void fileTransferRequest(final FileTransferRequest request)
@@ -602,8 +602,8 @@ public class OperationSetFileTransferJabberImpl
 
                 if(jabberTransfer.getException() instanceof XMPPErrorException)
                 {
-                    XMPPError error = ((XMPPErrorException)
-                        jabberTransfer.getException()).getXMPPError();
+                    StanzaError error = ((XMPPErrorException)
+                        jabberTransfer.getException()).getStanzaError();
                     if (error != null)
                         if(error.getCondition() == not_acceptable
                            || error.getCondition() == forbidden)

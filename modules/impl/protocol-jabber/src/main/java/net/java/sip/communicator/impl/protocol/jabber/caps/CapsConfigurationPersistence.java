@@ -17,12 +17,12 @@
 package net.java.sip.communicator.impl.protocol.jabber.caps;
 
 import org.jitsi.service.configuration.*;
+import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
+import org.jivesoftware.smack.xml.*;
+import org.jivesoftware.smack.xml.XmlPullParser;
 import org.jivesoftware.smackx.caps.cache.*;
 import org.jivesoftware.smackx.disco.packet.*;
-import org.jxmpp.jid.*;
-import org.xmlpull.mxp1.*;
-import org.xmlpull.v1.*;
 
 import java.io.*;
 
@@ -44,7 +44,7 @@ public class CapsConfigurationPersistence
     /**
      * Configuration service instance used by this class.
      */
-    private ConfigurationService configService;
+    private final ConfigurationService configService;
 
     /**
      * The prefix of the <tt>ConfigurationService</tt> properties which persist.
@@ -66,38 +66,24 @@ public class CapsConfigurationPersistence
     @Override
     public void addDiscoverInfoByNodePersistent(String nodeVer, DiscoverInfo info)
     {
-        cleanupDiscoverInfo(info);
-        /*
-         * DiscoverInfo carries the node we're now associating it with a
-         * specific node so we'd better keep them in sync.
-         */
-        info.setNode(nodeVer);
+        DiscoverInfo cleanedDiscoverInfo = info.asBuilder(null)
+            .from(null)
+            .to(null)
+            .setNode(nodeVer).build();
 
         /*
          * If the specified info is a new association for the specified
          * node, remember it across application instances in order to not
          * query for it over the network.
          */
-        String xml = info.getChildElementXML().toString();
+        String xml = cleanedDiscoverInfo.getChildElementXML().toString();
 
-        if ((xml != null) && (xml.length() != 0))
+        if (xml.length() != 0)
         {
             this.configService
                 .setProperty(
                     CAPS_PROPERTY_NAME_PREFIX + nodeVer, xml);
         }
-    }
-
-    /**
-     * Removes from, to and packet-id from <tt>info</tt>.
-     *
-     * @param info the {@link DiscoverInfo} that we'd like to cleanup.
-     */
-    private static void cleanupDiscoverInfo(DiscoverInfo info)
-    {
-        info.setFrom((Jid) null);
-        info.setTo((Jid) null);
-        info.setStanzaId(null);
     }
 
     @Override
@@ -109,29 +95,21 @@ public class CapsConfigurationPersistence
 
         if((xml != null) && (xml.length() != 0))
         {
-            IQProvider discoverInfoProvider
+            IqProvider<IQ> discoverInfoProvider
                 = ProviderManager.getIQProvider(
                     "query",
                     "http://jabber.org/protocol/disco#info");
 
             if(discoverInfoProvider != null)
             {
-                XmlPullParser parser = new MXParser();
+                XmlPullParser parser;
 
                 try
                 {
-                    parser.setFeature(
-                        XmlPullParser.FEATURE_PROCESS_NAMESPACES,
-                        true);
-                    parser.setInput(new StringReader(xml));
-                    // Start the parser.
+                    parser = SmackXmlParser.newXmlParser(new StringReader(xml));
                     parser.next();
                 }
-                catch(XmlPullParserException xppex)
-                {
-                    parser = null;
-                }
-                catch(IOException ioex)
+                catch(IOException | org.jivesoftware.smack.xml.XmlPullParserException xppex)
                 {
                     parser = null;
                 }
@@ -142,7 +120,7 @@ public class CapsConfigurationPersistence
                     {
                         discoverInfo
                             = (DiscoverInfo)
-                                discoverInfoProvider.parse(parser);
+                                discoverInfoProvider.parse(parser, null);
                     }
                     catch(Exception ex)
                     {

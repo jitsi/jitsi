@@ -31,6 +31,7 @@ import org.jivesoftware.smackx.muc.*;
 import org.jivesoftware.smackx.muc.MultiUserChatException.*;
 import org.jivesoftware.smackx.muc.packet.*;
 import org.jivesoftware.smackx.xdata.*;
+import org.jivesoftware.smackx.xdata.form.*;
 import org.jivesoftware.smackx.xdata.packet.*;
 import org.jxmpp.jid.*;
 import org.jxmpp.jid.impl.*;
@@ -195,7 +196,7 @@ public class OperationSetMultiUserChatJabberImpl
 
             try
             {
-                Form form;
+                FillableForm form = null;
                 if(isPrivate)
                 {
                     Form initForm;
@@ -213,41 +214,20 @@ public class OperationSetMultiUserChatJabberImpl
                             e
                         );
                     }
-                    form = initForm.createAnswerForm();
-                    for (FormField initField : initForm.getFields())
+                    form = initForm.getFillableForm();
+                    //TODO is this init field stuff really required?
+                    for (FormField initField : initForm.getDataForm().getFields())
                     {
                         if( initField == null ||
-                            initField.getVariable() == null ||
+                            initField.getFieldName() == null ||
                             initField.getType() == FormField.Type.fixed ||
                             initField.getType() == FormField.Type.hidden)
                             continue;
-                        FormField submitField
-                            = form.getField(initField.getVariable());
-                        if(submitField == null)
-                            continue;
-                        for (String value : initField.getValues())
-                        {
-                            submitField.addValue(value);
-                        }
+                        form.setAnswer(initField.getFieldName(), initField.getValues());
                     }
-                    String[] fields =
-                    {
-                        "muc#roomconfig_membersonly",
-                        "muc#roomconfig_allowinvites",
-                        "muc#roomconfig_publicroom"
-                    };
-                    Boolean[] values = {true, true, false};
-                    for(int i = 0; i < fields.length; i++)
-                    {
-                        FormField field = new FormField(fields[i]);
-                        field.setType(FormField.Type.bool);
-                        form.addField(field);
-                        form.setAnswer(fields[i], values[i]);
-                    }
-                }
-                else
-                {
-                    form = new Form(DataForm.Type.submit);
+                    form.setAnswer("muc#roomconfig_membersonly", true);
+                    form.setAnswer("muc#roomconfig_allowinvites", true);
+                    form.setAnswer("muc#roomconfig_publicroom", false);
                 }
                 muc.sendConfigurationForm(form);
             }
@@ -415,7 +395,7 @@ public class OperationSetMultiUserChatJabberImpl
         List<DomainBareJid> serviceNames;
         try
         {
-            serviceNames = manager.getXMPPServiceDomains();
+            serviceNames = manager.getMucServiceDomains();
         }
         catch (XMPPException
             | InterruptedException
@@ -431,11 +411,11 @@ public class OperationSetMultiUserChatJabberImpl
         //now retrieve all chat rooms currently available for every service name
         for (DomainBareJid serviceName : serviceNames)
         {
-            List<HostedRoom> roomsOnThisService = new LinkedList<>();
+            Map<EntityBareJid, HostedRoom> roomsOnThisService;
             try
             {
-                roomsOnThisService
-                    .addAll(manager.getHostedRooms(serviceName));
+                roomsOnThisService =
+                    new HashMap<>(manager.getRoomsHostedBy(serviceName));
             }
             catch (XMPPException
                 | InterruptedException
@@ -450,7 +430,7 @@ public class OperationSetMultiUserChatJabberImpl
             }
 
             //now go through all rooms available on this service
-            for (HostedRoom hr : roomsOnThisService)
+            for (HostedRoom hr : roomsOnThisService.values())
             {
                 list.add(hr.getJid().toString());
             }
@@ -704,8 +684,8 @@ public class OperationSetMultiUserChatJabberImpl
 
         try
         {
-            EntityJid memberJid = JidCreate.from(
-                chatRoomMember.getContactAddress()).asEntityJidOrThrow();
+            EntityFullJid memberJid = JidCreate.from(
+                chatRoomMember.getContactAddress()).asEntityFullJidOrThrow();
             List<String> joinedRooms = new ArrayList<>();
             for (Jid jid : manager.getJoinedRooms(memberJid))
             {

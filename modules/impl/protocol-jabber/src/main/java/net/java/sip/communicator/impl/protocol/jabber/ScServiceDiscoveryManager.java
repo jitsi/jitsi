@@ -34,6 +34,7 @@ import org.jivesoftware.smackx.caps.packet.CapsExtension;
 import org.jivesoftware.smackx.disco.*;
 import org.jivesoftware.smackx.disco.packet.*;
 import org.jxmpp.jid.*;
+import org.jxmpp.stringprep.*;
 
 /**
  * An wrapper to smack's default {@link ServiceDiscoveryManager} that adds
@@ -199,7 +200,6 @@ public class ScServiceDiscoveryManager
 
         // For every XMPPConnection, add one EntityCapsManager.
         this.capsManager = EntityCapsManager.getInstanceFor(connection);
-        this.capsManager.setEntityNode(entityNode);
         EntityCapsManager.setPersistentCache(
             new CapsConfigurationPersistence(configService));
         connection.addAsyncStanzaListener(
@@ -607,7 +607,20 @@ public class ScServiceDiscoveryManager
                 iter.remove();
             }
         }
-        EntityCapsManager.removeUserCapsNode(contact.getAddress());
+
+        Jid contactJid = null;
+        try
+        {
+            contactJid =
+                ((ProtocolProviderServiceJabberImpl) parentProvider).getFullJid(contact);
+        }
+        catch (XmppStringprepException e)
+        {
+            logger.error("Failed to get JID from contact for caps removal", e);
+            return;
+        }
+
+        EntityCapsManager.removeUserCapsNode(contactJid);
 
         // fire only for the last one, at the end the event out
         // of the protocol will be one and for the contact

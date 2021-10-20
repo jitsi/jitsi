@@ -31,7 +31,7 @@ import java.util.concurrent.*;
  * @author Cristian Florin Ghita
  */
 public class OperationSetJitsiMeetToolsJabberImpl
-    implements OperationSetJitsiMeetTools
+    implements OperationSetJitsiMeetToolsJabber
 {
     private final ProtocolProviderServiceJabberImpl parentProvider;
 

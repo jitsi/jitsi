@@ -43,7 +43,7 @@ public interface ChatRoomConfigurationForm
      * @return a list of <tt>ChatRoomConfigurationFormField</tt>s, containing
      * the current configuration of the chat room
      */
-    public Iterator<ChatRoomConfigurationFormField> getConfigurationSet();
+    List<ChatRoomConfigurationFormField> getConfigurationSet();
 
     /**
      * Submits the information in this configuration form to the server.
@@ -51,5 +51,5 @@ public interface ChatRoomConfigurationForm
      * @throws OperationFailedException if the submit opeation do not succeed
      * for some reason (e.g. a wrong value is provided for a property)
      */
-    public void submit() throws OperationFailedException;
+    void submit() throws OperationFailedException;
 }

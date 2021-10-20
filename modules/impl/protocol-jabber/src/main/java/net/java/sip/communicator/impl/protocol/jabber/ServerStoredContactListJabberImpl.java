@@ -36,7 +36,6 @@ import org.jxmpp.stringprep.*;
 import org.osgi.framework.*;
 
 import static org.jivesoftware.smack.SmackException.*;
-import static org.jivesoftware.smack.packet.XMPPError.Condition.*;
 import static org.jivesoftware.smack.roster.packet.RosterPacket.ItemType.*;
 
 /**
@@ -547,7 +546,7 @@ public class ServerStoredContactListJabberImpl
 
             int errorCode = OperationFailedException.INTERNAL_ERROR;
 
-            XMPPError err = ex.getXMPPError();
+            StanzaError err = ex.getStanzaError();
             if(err != null)
             {
                 switch (err.getCondition())
@@ -819,7 +818,7 @@ public class ServerStoredContactListJabberImpl
             logger.error(errTxt, ex);
 
             int errorCode = OperationFailedException.INTERNAL_ERROR;
-            XMPPError err = ex.getXMPPError();
+            StanzaError err = ex.getStanzaError();
             if(err != null)
             {
                 switch (err.getCondition())

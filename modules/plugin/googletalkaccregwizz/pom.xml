@@ -61,6 +61,11 @@
       <artifactId>service-resourcemanager</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>jitsi-wrap</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 
   <build>

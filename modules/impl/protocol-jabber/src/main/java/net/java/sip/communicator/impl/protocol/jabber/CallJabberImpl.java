@@ -359,7 +359,7 @@ public class CallJabberImpl
         catch (XMPPErrorException e)
         {
             logger.error(
-                "Failed to allocate colibri channels: " + e.getXMPPError());
+                "Failed to allocate colibri channels: " + e.getStanzaError());
             return null;
         }
 

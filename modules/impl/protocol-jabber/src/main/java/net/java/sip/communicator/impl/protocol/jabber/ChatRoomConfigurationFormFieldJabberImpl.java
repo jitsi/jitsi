@@ -19,6 +19,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
+import java.util.stream.*;
 import net.java.sip.communicator.service.protocol.*;
 
 import org.jivesoftware.smackx.xdata.*;
@@ -39,10 +40,9 @@ public class ChatRoomConfigurationFormFieldJabberImpl
     private final FormField smackFormField;
 
     /**
-     * The smack library submit form field. It's the one that will care all
-     * values set by user, before submitting the form.
+     * Store the value the user has entered in the form.
      */
-    private final FormField smackSubmitFormField;
+    private final List<Object> fieldValues = new ArrayList<>();
 
     /**
      * Creates an instance of <tt>ChatRoomConfigurationFormFieldJabberImpl</tt>
@@ -50,19 +50,10 @@ public class ChatRoomConfigurationFormFieldJabberImpl
      * are the base of this implementation.
      *
      * @param formField the smack form field
-     * @param submitForm the smack submit form
      */
-    public ChatRoomConfigurationFormFieldJabberImpl(
-        FormField formField,
-        Form submitForm)
+    public ChatRoomConfigurationFormFieldJabberImpl(FormField formField)
     {
         this.smackFormField = formField;
-
-        if(!formField.getType().equals(FormField.Type.fixed))
-            this.smackSubmitFormField
-                = submitForm.getField(formField.getVariable());
-        else
-            this.smackSubmitFormField = null;
     }
 
     /**
@@ -72,7 +63,7 @@ public class ChatRoomConfigurationFormFieldJabberImpl
      */
     public String getName()
     {
-        return smackFormField.getVariable();
+        return smackFormField.getFieldName();
     }
 
     /**
@@ -102,13 +93,21 @@ public class ChatRoomConfigurationFormFieldJabberImpl
      */
     public Iterator<String> getOptions()
     {
-        List<String> options = new ArrayList<String>();
-        for (FormField.Option smackOption : smackFormField.getOptions())
+        if (smackFormField instanceof FormFieldWithOptions)
         {
-            options.add(smackOption.getValue());
-        }
+            List<String> options = new ArrayList<>();
+            for (FormField.Option smackOption :
+                ((FormFieldWithOptions) smackFormField).getOptions())
+            {
+                options.add(smackOption.getValue().getValue().toString());
+            }
 
-        return Collections.unmodifiableList(options).iterator();
+            return Collections.unmodifiableList(options).iterator();
+        }
+        else
+        {
+            return Collections.emptyListIterator();
+        }
     }
 
     /**
@@ -158,29 +157,27 @@ public class ChatRoomConfigurationFormFieldJabberImpl
      *
      * @return an Iterator over the list of values of this field
      */
-    public Iterator<?> getValues()
+    public List<?> getInitialValues()
     {
-        Iterator<?> valuesIter;
-
-        if(smackFormField.getType().equals(FormField.Type.bool))
+        if(smackFormField.getType() == FormField.Type.bool)
         {
-            List<Boolean> values = new ArrayList<Boolean>();
-
-            for (String smackValue : smackFormField.getValues())
+            List<Boolean> values = new ArrayList<>();
+            for (CharSequence smackValue : smackFormField.getValues())
             {
-                values
-                    .add(
-                        (smackValue.equals("1") || smackValue.equals("true"))
-                            ? Boolean.TRUE
-                            : Boolean.FALSE);
+                boolean boolVal =
+                    smackValue.equals("1") || smackValue.toString()
+                        .equalsIgnoreCase("true")
+                        ? Boolean.TRUE
+                        : Boolean.FALSE;
+                values.add(boolVal);
             }
 
-            valuesIter = values.iterator();
+            return values;
         }
         else
-            valuesIter = smackFormField.getValues().iterator();
-
-        return valuesIter;
+        {
+            return smackFormField.getValues();
+        }
     }
 
     /**
@@ -190,33 +187,23 @@ public class ChatRoomConfigurationFormFieldJabberImpl
      */
     public void addValue(Object value)
     {
-        if(value instanceof Boolean)
-            value = ((Boolean)value).booleanValue() ? "1" : "0";
-
-        smackSubmitFormField.addValue(value.toString());
+        fieldValues.add(value);
     }
 
     /**
-     * Sets the given list of values to this field.
-     *
-     * @param newValues the list of values to set
+     * Gets the value as entered by the user.
      */
-    public void setValues(Object[] newValues)
+    public List<Object> getValues()
     {
-        List<String> list = new ArrayList<String>();
+        return fieldValues;
+    }
 
-        for(Object value : newValues)
-        {
-            String stringValue;
-
-            if (value instanceof Boolean)
-                stringValue = ((Boolean) value).booleanValue() ? "1" : "0";
-            else
-                stringValue = (value == null) ? null : value.toString();
-
-            list.add(stringValue);
-        }
-
-        smackSubmitFormField.addValues(list);
+    /**
+     * Gets the value as entered by the user.
+     */
+    public List<CharSequence> getValuesAsString()
+    {
+        return fieldValues.stream().map(Object::toString).collect(
+            Collectors.toList());
     }
 }

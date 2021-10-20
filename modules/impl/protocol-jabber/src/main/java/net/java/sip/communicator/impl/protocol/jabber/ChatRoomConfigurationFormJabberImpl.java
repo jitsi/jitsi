@@ -19,11 +19,13 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
+import lombok.extern.slf4j.*;
 import net.java.sip.communicator.service.protocol.*;
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smackx.muc.*;
 import org.jivesoftware.smackx.xdata.*;
+import org.jivesoftware.smackx.xdata.form.*;
 
 /**
  * The Jabber implementation of the <tt>ChatRoomConfigurationForm</tt>
@@ -31,13 +33,12 @@ import org.jivesoftware.smackx.xdata.*;
  *
  * @author Yana Stamcheva
  */
+@Slf4j
 public class ChatRoomConfigurationFormJabberImpl
     implements ChatRoomConfigurationForm
 {
-    /**
-     * The logger of this class.
-     */
-    private org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ChatRoomConfigurationFormJabberImpl.class);
+    private final  List<ChatRoomConfigurationFormFieldJabberImpl> configFormFields
+        = new ArrayList<>();
 
     /**
      * The smack chat room configuration form.
@@ -45,15 +46,10 @@ public class ChatRoomConfigurationFormJabberImpl
     protected Form smackConfigForm;
 
     /**
-     * The form that will be filled out and submitted by user.
-     */
-    protected Form smackSubmitForm;
-
-    /**
      * The smack multi user chat is the one to which we'll send the form once
      * filled out.
      */
-    private MultiUserChat smackMultiUserChat;
+    private final MultiUserChat smackMultiUserChat;
 
     /**
      * Creates an instance of <tt>ChatRoomConfigurationFormJabberImpl</tt> by
@@ -69,7 +65,20 @@ public class ChatRoomConfigurationFormJabberImpl
     {
         this.smackMultiUserChat = multiUserChat;
         this.smackConfigForm = smackConfigForm;
-        this.smackSubmitForm = smackConfigForm.createAnswerForm();
+
+        for (FormField smackFormField
+            : smackConfigForm.getDataForm().getFields())
+        {
+            if(smackFormField == null
+                || smackFormField.getType().equals(FormField.Type.hidden))
+                continue;
+
+            ChatRoomConfigurationFormFieldJabberImpl jabberConfigField
+                = new ChatRoomConfigurationFormFieldJabberImpl(
+                smackFormField);
+
+            configFormFields.add(jabberConfigField);
+        }
     }
 
     /**
@@ -79,37 +88,50 @@ public class ChatRoomConfigurationFormJabberImpl
      * @return an Iterator over a list of
      * <tt>ChatRoomConfigurationFormFields</tt>
      */
-    public Iterator<ChatRoomConfigurationFormField> getConfigurationSet()
+    public List<ChatRoomConfigurationFormField> getConfigurationSet()
     {
-        Vector<ChatRoomConfigurationFormField> configFormFields = new Vector<ChatRoomConfigurationFormField>();
-        for (FormField smackFormField : smackConfigForm.getFields())
-        {
-            if(smackFormField == null
-                || smackFormField.getType().equals(FormField.Type.hidden))
-                continue;
-
-            ChatRoomConfigurationFormFieldJabberImpl jabberConfigField
-                = new ChatRoomConfigurationFormFieldJabberImpl(
-                    smackFormField, smackSubmitForm);
-
-            configFormFields.add(jabberConfigField);
-        }
-
-        return Collections.unmodifiableList(configFormFields).iterator();
+        return Collections.unmodifiableList(configFormFields);
     }
 
     /**
      * Sends the ready smack configuration form to the multi user chat.
      */
-    public void submit()
-        throws OperationFailedException
+    public void submit() throws OperationFailedException
     {
-        if (logger.isTraceEnabled())
-            logger.trace("Sends chat room configuration form to the server.");
-
+        logger.trace("Sends chat room configuration form to the server.");
         try
         {
-            smackMultiUserChat.sendConfigurationForm(smackSubmitForm);
+            FillableForm submitForm = smackConfigForm.getFillableForm();
+            for (ChatRoomConfigurationFormFieldJabberImpl f : configFormFields)
+            {
+                if (f.getType().equals(
+                    ChatRoomConfigurationFormField.TYPE_TEXT_FIXED))
+                {
+                    continue;
+                }
+
+                if (f.getValues().size() == 1)
+                {
+                    Object value = f.getValues().get(0);
+                    if (value instanceof Integer)
+                    {
+                        submitForm.setAnswer(f.getName(), (Integer) value);
+                    }
+                    else if (value instanceof Boolean)
+                    {
+                        submitForm.setAnswer(f.getName(), (Boolean) value);
+                    }
+                    else if (value instanceof CharSequence)
+                    {
+                        submitForm.setAnswer(f.getName(), (CharSequence) value);
+                    }
+                }
+                else
+                {
+                    submitForm.setAnswer(f.getName(), f.getValuesAsString());
+                }
+            }
+            smackMultiUserChat.sendConfigurationForm(submitForm);
         }
         catch (XMPPException
                 | SmackException.NoResponseException

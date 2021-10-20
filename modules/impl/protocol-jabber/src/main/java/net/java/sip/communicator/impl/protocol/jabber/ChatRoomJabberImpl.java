@@ -30,7 +30,7 @@ import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.XMPPException.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smack.packet.XMPPError.*;
+import org.jivesoftware.smack.packet.StanzaError.*;
 import org.jivesoftware.smack.packet.id.*;
 import org.jivesoftware.smackx.delay.packet.*;
 import org.jivesoftware.smackx.disco.*;
@@ -40,8 +40,7 @@ import org.jivesoftware.smackx.muc.MultiUserChatException.*;
 import org.jivesoftware.smackx.muc.filter.*;
 import org.jivesoftware.smackx.muc.packet.*;
 import org.jivesoftware.smackx.nick.packet.Nick;
-import org.jivesoftware.smackx.xdata.*;
-import org.jivesoftware.smackx.xdata.packet.*;
+import org.jivesoftware.smackx.xdata.form.*;
 import org.jivesoftware.smackx.xevent.*;
 import org.jxmpp.jid.*;
 import org.jxmpp.jid.impl.*;
@@ -51,7 +50,7 @@ import org.jxmpp.stringprep.*;
 import java.beans.*;
 import java.util.*;
 
-import static org.jivesoftware.smack.packet.XMPPError.Condition.*;
+import static org.jivesoftware.smack.packet.StanzaError.Condition.*;
 
 /**
  * Implements chat rooms for jabber. The class encapsulates instances of the
@@ -244,17 +243,14 @@ public class ChatRoomJabberImpl
     {
         Jid lobbyJid = null;
 
-        /**
-         * This method is used to get a Jid that represents the lobby room that the user joins when trying
-         * to join a meeting with lobby enabled. The custom <lobbyroom></lobbyroom> field is added to the error
-         * in case the user is not yet a member of the meeting that was joined initially.
-         */
-
+        // This method is used to get a Jid that represents the lobby room that the user joins when trying
+        // to join a meeting with lobby enabled. The custom <lobbyroom></lobbyroom> field is added to the error
+        // in case the user is not yet a member of the meeting that was joined initially.
         try
         {
             if (packet != null)
             {
-                ExtensionElement lobbyExtension = packet.getExtension("lobbyroom", "jabber:client");
+                ExtensionElement lobbyExtension = packet.getExtensionElement("lobbyroom", "jabber:client");
 
                 if (lobbyExtension instanceof StandardExtensionElement)
                 {
@@ -726,7 +722,7 @@ public class ChatRoomJabberImpl
         {
             String errorMessage;
 
-            if(ex.getXMPPError() == null)
+            if(ex.getStanzaError() == null)
             {
                 errorMessage
                     = "Failed to join room "
@@ -741,7 +737,7 @@ public class ChatRoomJabberImpl
                     OperationFailedException.GENERAL_ERROR,
                     ex);
             }
-            else if(ex.getXMPPError().getCondition() == not_authorized)
+            else if(ex.getStanzaError().getCondition() == not_authorized)
             {
                 errorMessage
                     = "Failed to join chat room "
@@ -757,7 +753,7 @@ public class ChatRoomJabberImpl
                     OperationFailedException.AUTHENTICATION_FAILED,
                     ex);
             }
-            else if(ex.getXMPPError().getCondition() == registration_required)
+            else if(ex.getStanzaError().getCondition() == registration_required)
             {
                 errorMessage
                     = "Failed to join chat room "
@@ -775,28 +771,21 @@ public class ChatRoomJabberImpl
                     logger.error(errorMessage);
                 }
 
-
                 OperationFailedException operationFailedException = new OperationFailedException(
                     errorMessage,
                     OperationFailedException.REGISTRATION_REQUIRED,
                     ex);
 
-                DataObject dataObject = operationFailedException.getDataObject();
-
-                if (dataObject != null)
+                Jid lobbyJid = getLobbyJidFromPacket(ex.getStanza());
+                if (lobbyJid != null)
                 {
-                    Stanza stanzaError = ex.getXMPPError().getStanza();
-
-                    Jid lobbyJid = getLobbyJidFromPacket(stanzaError);
-
-                    if (lobbyJid != null)
-                    {
-                        dataObject.setData("lobbyroomjid", lobbyJid);
-                    }
-                    else
-                    {
-                        logger.warn("No lobby Jid! But registration required!");
-                    }
+                    operationFailedException
+                        .getDataObject()
+                        .setData("lobbyroomjid", lobbyJid);
+                }
+                else
+                {
+                    logger.warn("No lobby Jid! But registration required!");
                 }
 
                 throw operationFailedException;
@@ -1835,7 +1824,7 @@ public class ChatRoomJabberImpl
         {
             // If a moderator or a user with an affiliation of "owner" or "admin"
             // was intended to be kicked.
-            if (e.getXMPPError().getCondition() == not_allowed)
+            if (e.getStanzaError().getCondition() == not_allowed)
             {
                 throw new OperationFailedException(
                     "Kicking an admin user or a chat room owner is a forbidden operation.",
@@ -1888,7 +1877,7 @@ public class ChatRoomJabberImpl
 
             // If a moderator or a user with an affiliation of "owner" or "admin"
             // was intended to be kicked.
-            if (e.getXMPPError().getCondition() == not_allowed) //not allowed
+            if (e.getStanzaError().getCondition() == not_allowed) //not allowed
             {
                 throw new OperationFailedException(
                     "Kicking an admin user or a chat room owner is a forbidden "
@@ -1897,7 +1886,7 @@ public class ChatRoomJabberImpl
             }
             // If a participant that intended to kick another participant does
             // not have kicking privileges.
-            else if (e.getXMPPError().getCondition() == forbidden) //forbidden
+            else if (e.getStanzaError().getCondition() == forbidden) //forbidden
             {
                 throw new OperationFailedException(
                     "The user that intended to kick another participant does" +
@@ -2369,7 +2358,9 @@ public class ChatRoomJabberImpl
         // room.
         lastPresenceSent.removeExtension(MUCInitialPresence.ELEMENT, MUCInitialPresence.NAMESPACE);
 
-        lastPresenceSent.setStanzaId(StanzaIdUtil.newStanzaId());
+        lastPresenceSent = lastPresenceSent
+            .asBuilder(StandardStanzaIdSource.DEFAULT.getNewStanzaId())
+            .build();
 
         provider.getConnection().sendStanza(lastPresenceSent);
     }
@@ -2526,7 +2517,7 @@ public class ChatRoomJabberImpl
                 if (logger.isInfoEnabled())
                     logger.info("Message error received from " + msgFrom);
 
-                XMPPError error = msg.getError();
+                StanzaError error = msg.getError();
                 Condition errorCode = error.getCondition();
                 int errorResultCode
                     = ChatRoomMessageDeliveryFailedEvent.UNKNOWN_ERROR;
@@ -2912,7 +2903,7 @@ public class ChatRoomJabberImpl
         }
         catch (XMPPErrorException e)
         {
-            if(e.getXMPPError().getCondition() == forbidden)
+            if(e.getStanzaError().getCondition() == forbidden)
                 throw new OperationFailedException(
                     "Failed to obtain smack multi user chat config form."
                     + "User doesn't have enough privileges to see the form.",
@@ -3335,7 +3326,8 @@ public class ChatRoomJabberImpl
                     try
                     {
                         multiUserChat.sendConfigurationForm(
-                            new Form(DataForm.Type.submit));
+                            multiUserChat.getConfigurationForm().getFillableForm()
+                        );
                     }
                     catch (XMPPErrorException
                             | InterruptedException
@@ -3410,7 +3402,7 @@ public class ChatRoomJabberImpl
                 : members.get(participantName);
 
             ExtensionElement ext
-                = presence.getExtension(
+                = presence.getExtensionElement(
                     ConferenceDescriptionExtension.ELEMENT_NAME,
                     ConferenceDescriptionExtension.NAMESPACE);
             if (presence.isAvailable() && ext != null)
@@ -3431,8 +3423,12 @@ public class ChatRoomJabberImpl
                     cd.addTransport(t.getNamespace());
                 }
 
-                if (!processConferenceDescription(cd, participantName))
+                if (!processConferenceDescription(cd, participantName == null
+                    ? null
+                    : participantName.toString()))
+                {
                     return;
+                }
 
                 if (member != null)
                 {

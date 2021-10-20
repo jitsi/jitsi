@@ -19,6 +19,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.io.*;
 
+import java.util.*;
 import org.jitsi.xmpp.extensions.thumbnail.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -49,8 +50,6 @@ public class OutgoingFileTransferJabberImpl
     private final Contact receiver;
 
     private final File file;
-
-    private Thumbnail thumbnailElement;
 
     /**
      * The jabber outgoing file transfer.
@@ -86,8 +85,7 @@ public class OutgoingFileTransferJabberImpl
 
         // Create the identifier of this file transfer that is used from the
         // history and the user interface to track this transfer.
-        this.id = String.valueOf(System.currentTimeMillis())
-            + String.valueOf(hashCode());
+        this.id = UUID.randomUUID().toString();
 
         // Add this outgoing transfer as a packet interceptor in
         // order to manage thumbnails.
@@ -111,7 +109,8 @@ public class OutgoingFileTransferJabberImpl
             }
             catch (XmppStringprepException e)
             {
-                e.printStackTrace();
+                logger.error("Failed to parse receiver address " + receiver
+                    + " into a Jid");
             }
         }
     }
@@ -185,7 +184,7 @@ public class OutgoingFileTransferJabberImpl
 
         BoBManager bobManager = BoBManager.getInstanceFor(
             protocolProvider.getConnection());
-        for (BoBHash hash : bobInfo.getHashes())
+        for (ContentId hash : bobInfo.getHashes())
         {
             bobManager.removeBoB(hash);
         }
@@ -217,13 +216,14 @@ public class OutgoingFileTransferJabberImpl
                 thumbnailedFile.getThumbnailData());
             BoBManager bobManager = BoBManager.getInstanceFor(protocolProvider.getConnection());
             bobInfo = bobManager.addBoB(bobData);
-            thumbnailElement = new Thumbnail(
+            Thumbnail thumbnailElement = new Thumbnail(
                 thumbnailedFile.getThumbnailData(),
                 thumbnailedFile.getThumbnailMimeType(),
                 thumbnailedFile.getThumbnailWidth(),
                 thumbnailedFile.getThumbnailHeight());
 
-            ThumbnailFile fileElement = new ThumbnailFile(file, thumbnailElement);
+            ThumbnailFile fileElement = new ThumbnailFile(file,
+                thumbnailElement);
 
             fileTransferPacket.setFile(fileElement);
 

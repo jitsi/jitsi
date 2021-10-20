@@ -28,6 +28,7 @@ import org.jitsi.xmpp.extensions.jitsimeet.*;
 import org.jitsi.xmpp.extensions.thumbnail.*;
 import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smackx.nick.packet.Nick;
+import org.jivesoftware.smackx.nick.provider.*;
 import org.jivesoftware.smackx.si.packet.*;
 
 /**
@@ -91,9 +92,9 @@ public class ProviderManagerExt
             new ConferenceDescriptionExtensionProvider());
 
         ProviderManager.addExtensionProvider(
-            Nick.ELEMENT_NAME,
+            Nick.QNAME.getLocalPart(),
             Nick.NAMESPACE,
-            new Nick.Provider());
+            new NickProvider());
 
         ProviderManager.addExtensionProvider(
             Email.ELEMENT_NAME,

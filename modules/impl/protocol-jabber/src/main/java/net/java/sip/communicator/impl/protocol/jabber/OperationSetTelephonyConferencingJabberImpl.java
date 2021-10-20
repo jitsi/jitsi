@@ -437,7 +437,7 @@ public class OperationSetTelephonyConferencingJabberImpl
             return;
         }
 
-        XMPPError error = coinIQ.getError();
+        StanzaError error = coinIQ.getError();
         if(error != null)
         {
             errorMessage = error.getConditionText();

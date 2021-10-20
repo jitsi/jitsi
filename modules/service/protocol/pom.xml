@@ -31,8 +31,8 @@
       <artifactId>commons-lang3</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.igniterealtime.smack</groupId>
-      <artifactId>smack-core</artifactId>
+      <groupId>org.jxmpp</groupId>
+      <artifactId>jxmpp-jid</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.servicemix.bundles</groupId>

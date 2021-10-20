@@ -37,10 +37,6 @@
       <artifactId>libjitsi</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.igniterealtime.smack</groupId>
-      <artifactId>smack-core</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.servicemix.bundles</groupId>
       <artifactId>org.apache.servicemix.bundles.xpp3</artifactId>
     </dependency>

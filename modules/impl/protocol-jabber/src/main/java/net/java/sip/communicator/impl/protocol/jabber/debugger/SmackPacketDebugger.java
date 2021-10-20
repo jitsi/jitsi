@@ -17,6 +17,7 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.debugger;
 
+import java.nio.charset.*;
 import net.java.sip.communicator.impl.protocol.jabber.*;
 
 import org.jitsi.service.packetlogging.*;
@@ -51,7 +52,7 @@ public class SmackPacketDebugger
     /**
      * Instance for the packet logging service.
      */
-    private PacketLoggingService packetLogging = null;
+    private final PacketLoggingService packetLogging;
 
     public final Inbound inbound = new Inbound();
     public final Outbound outbound = new Outbound();
@@ -128,11 +129,11 @@ public class SmackPacketDebugger
                     if(packet instanceof Message)
                     {
                         packetBytes = cloneAnonyMessage(packet)
-                            .toXML().toString().getBytes("UTF-8");
+                            .toXML().toString().getBytes(StandardCharsets.UTF_8);
                     }
                     else
                     {
-                        packetBytes = packet.toXML().toString().getBytes("UTF-8");
+                        packetBytes = packet.toXML().toString().getBytes(StandardCharsets.UTF_8);
                     }
 
                     packetLogging.logPacket(
@@ -147,7 +148,7 @@ public class SmackPacketDebugger
                         );
                 }
             }
-            catch(Throwable t)
+            catch(Exception t)
             {
                 t.printStackTrace();
             }
@@ -156,8 +157,6 @@ public class SmackPacketDebugger
 
     /**
      * Clones if messages and process subject and bodies.
-     * @param packet
-     * @return
      */
     private Message cloneAnonyMessage(Stanza packet)
     {
@@ -169,43 +168,39 @@ public class SmackPacketDebugger
             return oldMsg;
         }
 
-        Message newMsg = new Message();
+        MessageBuilder builder = MessageBuilder
+            .buildMessageFrom(oldMsg, oldMsg.getStanzaId());
 
-        newMsg.setStanzaId(packet.getStanzaId());
-        newMsg.setTo(packet.getTo());
-        newMsg.setFrom(packet.getFrom());
+        builder.to(packet.getTo());
+        builder.from(packet.getFrom());
 
         // we don't modify them, just use existing
         for(ExtensionElement pex : packet.getExtensions())
-            newMsg.addExtension(pex);
+            builder.addExtension(pex);
 
-        newMsg.setError(XMPPError.getBuilder(packet.getError()));
+        builder.setError(packet.getError());
 
-        newMsg.setType(oldMsg.getType());
-        newMsg.setThread(oldMsg.getThread());
-        newMsg.setLanguage(oldMsg.getLanguage());
+        builder.ofType(oldMsg.getType());
+        builder.setThread(oldMsg.getThread());
+        builder.setLanguage(oldMsg.getLanguage());
 
         for(Message.Subject sub : oldMsg.getSubjects())
         {
             if(sub.getSubject() != null)
-                newMsg.addSubject(sub.getLanguage(),
+                builder.addSubject(sub.getLanguage(),
                     new String(new char[sub.getSubject().length()])
                             .replace('\0', '.'));
-            else
-                newMsg.addSubject(sub.getLanguage(), sub.getSubject());
         }
 
         for(Message.Body b : oldMsg.getBodies())
         {
             if(b.getMessage() != null)
-                newMsg.addBody(b.getLanguage(),
+                builder.addBody(b.getLanguage(),
                     new String(new char[b.getMessage().length()])
                             .replace('\0', '.'));
-            else
-                newMsg.addSubject(b.getLanguage(), b.getMessage());
         }
 
-        return newMsg;
+        return builder.build();
     }
 
     public class Inbound implements StanzaListener
@@ -249,11 +244,11 @@ public class SmackPacketDebugger
                     if(packet instanceof Message)
                     {
                         packetBytes = cloneAnonyMessage(packet)
-                            .toXML().toString().getBytes("UTF-8");
+                            .toXML().toString().getBytes(StandardCharsets.UTF_8);
                     }
                     else
                     {
-                        packetBytes = packet.toXML().toString().getBytes("UTF-8");
+                        packetBytes = packet.toXML().toString().getBytes(StandardCharsets.UTF_8);
                     }
 
                     packetLogging.logPacket(
@@ -268,7 +263,7 @@ public class SmackPacketDebugger
                     );
                 }
             }
-            catch(Throwable t)
+            catch(Exception t)
             {
                 t.printStackTrace();
             }

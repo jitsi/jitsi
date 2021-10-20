@@ -103,6 +103,11 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>jitsi-wrap</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.igniterealtime.smack</groupId>
       <artifactId>smack-core</artifactId>
     </dependency>
@@ -112,7 +117,7 @@
     </dependency>
     <dependency>
       <groupId>org.igniterealtime.smack</groupId>
-      <artifactId>smack-java7</artifactId>
+      <artifactId>smack-java8</artifactId>
     </dependency>
     <dependency>
       <groupId>org.igniterealtime.smack</groupId>
@@ -145,6 +150,10 @@
     <dependency>
       <groupId>org.igniterealtime.smack</groupId>
       <artifactId>smack-legacy</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.igniterealtime.smack</groupId>
+      <artifactId>smack-xmlparser-stax</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jitsi</groupId>

@@ -894,7 +894,7 @@ public class OperationSetBasicTelephonyJabberImpl
                  * so it is for sure an error (peer does not support Jingle or
                  * does not belong to our roster)
                  */
-                XMPPError error = packet.getError();
+                StanzaError error = packet.getError();
 
                 if (error != null)
                 {
@@ -1254,7 +1254,7 @@ public class OperationSetBasicTelephonyJabberImpl
         CallPeerJabberImpl callPeer
             = activeCallsRepository.findCallPeer(jingleIQ.getSID());
 
-        XMPPError error = jingleIQ.getError();
+        StanzaError error = jingleIQ.getError();
         // FIXME get from i18n
         String message = "Remote party returned an error!";
         if(error != null)

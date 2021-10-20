@@ -182,7 +182,7 @@ public class IncomingFileTransferRequestJabberImpl
 
             fileTransferOpSet.fireFileTransferCreated(event);
 
-            jabberTransfer.recieveFile(file);
+            jabberTransfer.receiveFile(file);
 
             new OperationSetFileTransferJabberImpl
                 .FileTransferProgressThread(
@@ -247,7 +247,7 @@ public class IncomingFileTransferRequestJabberImpl
      * request event.
      * @param cid the thumbnail content-ID
      */
-    public void fetchThumbnailAndNotify(final BoBHash cid)
+    public void fetchThumbnailAndNotify(final ContentId cid)
     {
         final BoBManager bobManager = BoBManager.getInstanceFor(
             jabberProvider.getConnection());

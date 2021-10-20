@@ -84,7 +84,7 @@ public class ServiceUtils
                         serviceClass,
                         null);
         }
-        catch (InvalidSyntaxException ex)
+        catch (InvalidSyntaxException | IllegalStateException ex)
         {
             serviceReferences = null;
         }

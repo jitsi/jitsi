@@ -20,7 +20,6 @@ package net.java.sip.communicator.service.protocol;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
-import org.jxmpp.jid.parts.*;
 
 /**
  * An abstract class with a default implementation of some of the methods of
@@ -40,12 +39,12 @@ public abstract class AbstractChatRoom
                 = new LinkedList<ChatRoomConferencePublishedListener>();
 
     /**
-     * The list of all <tt>ConferenceDescription</tt> that were announced and 
+     * The list of all <tt>ConferenceDescription</tt> that were announced and
      * are not yet processed.
      */
-    protected final Map<Resourcepart, ConferenceDescription> cachedConferenceDescriptions
+    protected final Map<String, ConferenceDescription> cachedConferenceDescriptions
         = new HashMap<>();
-    
+
     /**
      * {@inheritDoc}
      */
@@ -80,11 +79,11 @@ public abstract class AbstractChatRoom
             = new HashMap<>();
         synchronized (cachedConferenceDescriptions)
         {
-            for (Map.Entry<Resourcepart, ConferenceDescription> entry
+            for (Map.Entry<String, ConferenceDescription> entry
                 : cachedConferenceDescriptions.entrySet())
             {
                 tmpCachedConferenceDescriptions.put(
-                    entry.getKey().toString(),
+                    entry.getKey(),
                     entry.getValue());
             }
         }
@@ -115,7 +114,7 @@ public abstract class AbstractChatRoom
             int eventType)
     {
         ChatRoomConferencePublishedEvent evt
-                = new ChatRoomConferencePublishedEvent(eventType, this, member, 
+                = new ChatRoomConferencePublishedEvent(eventType, this, member,
                     cd);
 
         List<ChatRoomConferencePublishedListener> listeners;
@@ -128,18 +127,18 @@ public abstract class AbstractChatRoom
         for (ChatRoomConferencePublishedListener listener : listeners)
             listener.conferencePublished(evt);
     }
-    
+
     /**
-     * Processes the <tt>ConferenceDescription</tt> instance and adds/removes 
+     * Processes the <tt>ConferenceDescription</tt> instance and adds/removes
      * it to the list of conferences.
-     * 
+     *
      * @param cd the <tt>ConferenceDescription</tt> instance to process.
-     * @param participantName the name of the participant that sent the 
+     * @param participantName the name of the participant that sent the
      * <tt>ConferenceDescription</tt>.
      * @return <tt>true</tt> on success and <tt>false</tt> if fail.
      */
-    protected boolean processConferenceDescription(ConferenceDescription cd, 
-        Resourcepart participantName)
+    protected boolean processConferenceDescription(ConferenceDescription cd,
+        String participantName)
     {
         if(cd.isAvailable())
         {
@@ -151,18 +150,18 @@ public abstract class AbstractChatRoom
         {
             ConferenceDescription cachedDescription
                 = cachedConferenceDescriptions.get(participantName);
-            
+
             if(cachedDescription == null
                 || !cd.compareConferenceDescription(cachedDescription))
                 return false;
-            
+
             cachedConferenceDescriptions.remove(participantName);
         }
-        
+
         return true;
-        
+
     }
-    
+
     /**
      * Clears the list with the chat room conferences.
      */

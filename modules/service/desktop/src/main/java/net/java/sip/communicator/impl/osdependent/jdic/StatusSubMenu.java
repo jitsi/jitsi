@@ -304,10 +304,10 @@ public class StatusSubMenu
                     bundleContext,
                     ProtocolProviderService.class);
         List<ProtocolProviderService> protocolProviders
-            = new ArrayList<ProtocolProviderService>();
+            = new ArrayList<>();
 
         // in case we found any
-        if ((ppsRefs != null) && !ppsRefs.isEmpty())
+        if (!ppsRefs.isEmpty())
         {
             for (ServiceReference<ProtocolProviderService> ppsRef : ppsRefs)
                 protocolProviders.add(bundleContext.getService(ppsRef));
@@ -318,8 +318,6 @@ public class StatusSubMenu
     /**
      * Fired when an account has changed its status. We update the icon
      * in the menu.
-     *
-     * @param evt
      */
     public void providerStatusChanged(ProviderPresenceStatusChangeEvent evt)
     {

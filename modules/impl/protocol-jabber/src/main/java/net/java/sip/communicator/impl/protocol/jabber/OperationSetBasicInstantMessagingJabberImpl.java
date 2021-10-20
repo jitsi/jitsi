@@ -44,7 +44,7 @@ import org.jxmpp.jid.*;
 import org.jxmpp.jid.impl.*;
 import org.jxmpp.stringprep.*;
 
-import static org.jivesoftware.smack.packet.XMPPError.Condition.*;
+import static org.jivesoftware.smack.packet.StanzaError.Condition.*;
 
 /**
  * A straightforward implementation of the basic instant messaging operation
@@ -304,7 +304,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * activity (i.e. neither outgoing nor incoming messags) for more than
      * JID_INACTIVITY_TIMEOUT. Note that this method is not synchronous and that
      * it is only meant for use by the {@link #getThreadIDForAddress(BareJid)} and
-     * {@link #putJidForAddress(FullJid, String)}
+     * {@link #putJidForAddress(Jid, String)}
      */
     private void purgeOldJids()
     {
@@ -411,8 +411,10 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
         assertConnected();
 
-        org.jivesoftware.smack.packet.Message msg =
-            new org.jivesoftware.smack.packet.Message();
+        MessageBuilder builder = jabberProvider
+            .getConnection()
+            .getStanzaFactory()
+            .buildMessageStanza();
 
         Jid toJID = null;
         if (toResource != null)
@@ -431,12 +433,14 @@ public class OperationSetBasicInstantMessagingJabberImpl
             toJID = ((ContactJabberImpl) to).getAddressAsJid();
         }
 
-        msg.setStanzaId(message.getMessageUID());
-        msg.setTo(toJID);
+        //TODO stanza-id is generated automatically. is this ok or is required
+        // somewhere else to have it as the Jitsi-internal message id?
+        //msg.setStanzaId(message.getMessageUID());
+        builder.to(toJID);
 
         for (ExtensionElement ext : extensions)
         {
-            msg.addExtension(ext);
+            builder.addExtension(ext);
         }
 
         if (logger.isTraceEnabled())
@@ -458,7 +462,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
             if (message.getContentType().equals(HTML_MIME_TYPE))
             {
-                msg.setBody(Html2Text.extractText(content));
+                builder.setBody(Html2Text.extractText(content));
 
                 // Check if the other user supports XHTML messages
                 // make sure we use our discovery manager as it caches calls
@@ -466,34 +470,34 @@ public class OperationSetBasicInstantMessagingJabberImpl
                     .isFeatureListSupported(toJID, HTML_NAMESPACE))
                 {
                     // Add the XHTML text to the message
-                    XHTMLManager.addBody(msg, new XHTMLText(null, "en")
+                    XHTMLManager.addBody(builder, new XHTMLText(null, "en")
                         .append(content).appendCloseBodyTag());
                 }
             }
             else
             {
                 // this is plain text so keep it as it is.
-                msg.setBody(content);
+                builder.setBody(content);
             }
 
             // msg.addExtension(new Version());
 
             if (event.isMessageEncrypted() && isCarbonEnabled)
             {
-                CarbonExtension.Private.addTo(msg);
+                CarbonExtension.Private.addTo(builder);
             }
-
-            MessageEventManager.addNotificationsRequests(msg, true, false,
-                false, true);
 
             String threadID = getThreadIDForAddress(toJID.asBareJid());
             if (threadID == null)
                 threadID = nextThreadID();
 
-            msg.setThread(threadID);
-            msg.setType(org.jivesoftware.smack.packet.Message.Type.chat);
-            msg.setFrom(jabberProvider.getConnection().getUser());
+            builder.setThread(threadID)
+                .ofType(org.jivesoftware.smack.packet.Message.Type.chat)
+                .from(jabberProvider.getConnection().getUser());
 
+            org.jivesoftware.smack.packet.Message msg = builder.build();
+            MessageEventManager.addNotificationsRequests(msg, true, false,
+                false, true);
             try
             {
                 jabberProvider.getConnection().sendStanza(msg);
@@ -765,7 +769,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
         }
 
         Object multiChatExtension =
-            msg.getExtension("x", "http://jabber.org/protocol/muc#user");
+            msg.getExtensionElement("x", "http://jabber.org/protocol/muc#user");
 
         // its not for us
         if(multiChatExtension != null)
@@ -861,7 +865,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
             // room which was deleted or offline on the server
             if(isPrivateMessaging && sourceContact == null)
             {
-                XMPPError error = msg.getError();
+                StanzaError error = msg.getError();
                 int errorResultCode
                     = ChatRoomMessageDeliveryFailedEvent.UNKNOWN_ERROR;
 

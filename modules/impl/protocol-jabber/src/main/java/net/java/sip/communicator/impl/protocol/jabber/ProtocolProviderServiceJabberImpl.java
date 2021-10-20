@@ -1191,7 +1191,8 @@ public class ProtocolProviderServiceJabberImpl
                 ? required
                 : ifpossible);
 
-        TLSUtils.setTLSOnly(confConn);
+        confConn.setEnabledSSLProtocols(
+            new String[] { TLSUtils.PROTO_TLSV1_2 });
 
         if(connection != null)
         {
@@ -1235,16 +1236,11 @@ public class ProtocolProviderServiceJabberImpl
                     logger.debug(buff.toString());
                 }
 
-                confConn.setCustomSSLContext(sslContext);
-                confConn.setHostnameVerifier(new HostnameVerifier()
-                {
-                    @Override
-                    public boolean verify(String hostname, SSLSession session)
-                    {
-                        // this is safe because our ssl context already
-                        // verified the hostname!
-                        return true;
-                    }
+                confConn.setSslContextFactory(() -> sslContext);
+                confConn.setHostnameVerifier((hostname, session) -> {
+                    // this is safe because our ssl context already
+                    // verified the hostname!
+                    return true;
                 });
             }
             else if (loginStrategy.isTlsRequired())
@@ -1722,7 +1718,7 @@ public class ProtocolProviderServiceJabberImpl
                 new OperationSetMultiUserChatJabberImpl(this));
 
             addSupportedOperationSet(
-                OperationSetJitsiMeetTools.class,
+                OperationSetJitsiMeetToolsJabber.class,
                 new OperationSetJitsiMeetToolsJabberImpl(this));
 
             if(isServerStoredInfoEnabled)
@@ -2364,41 +2360,6 @@ public class ProtocolProviderServiceJabberImpl
             disconnectAndCleanConnection();
         }
 
-        /**
-         * Implements <tt>reconnectingIn</tt> from <tt>ConnectionListener</tt>
-         *
-         * @param i delay in seconds for reconnection.
-         */
-        @Override
-        public void reconnectingIn(int i)
-        {
-            if (logger.isInfoEnabled())
-                logger.info("reconnectingIn " + i);
-        }
-
-        /**
-         * Implements <tt>reconnectingIn</tt> from <tt>ConnectionListener</tt>
-         */
-        @Override
-        public void reconnectionSuccessful()
-        {
-            if (logger.isInfoEnabled())
-                logger.info("reconnectionSuccessful");
-        }
-
-        /**
-         * Implements <tt>reconnectionFailed</tt> from
-         * <tt>ConnectionListener</tt>.
-         *
-         * @param exception description of the failure
-         */
-        @Override
-        public void reconnectionFailed(Exception exception)
-        {
-            if (logger.isInfoEnabled())
-                logger.info("reconnectionFailed ", exception);
-        }
-
         @Override
         public void connected(XMPPConnection xmppConnection)
         {
@@ -2941,7 +2902,7 @@ public class ProtocolProviderServiceJabberImpl
         if (connection != null)
         {
             ScServiceDiscoveryManager discoveryManager = getDiscoveryManager();
-            Jid serviceName = connection.getServiceName();
+            Jid serviceName = connection.getXMPPServiceDomain();
             DiscoverItems discoverItems = null;
 
             try

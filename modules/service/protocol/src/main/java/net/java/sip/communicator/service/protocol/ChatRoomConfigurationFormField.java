@@ -166,19 +166,12 @@ public interface ChatRoomConfigurationFormField
      * @return an Iterator for the default values or answered values of the
      * field
      */
-    public Iterator<?> getValues();
+    public List<?> getInitialValues();
 
     /**
      * Adds the given value to the values of this field.
      *
      * @param value the value to add
      */
-    public void addValue(Object value);
-
-    /**
-     * Sets the list of values for this field.
-     *
-     * @param newValues the values of this field
-     */
-    public void setValues(Object[] newValues);
+    void addValue(Object value);
 }

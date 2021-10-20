@@ -176,7 +176,7 @@ public class JabberAccountCreationForm
 //        {
 //            logger.error(exc);
 //            if (exc instanceof XMPPErrorException
-//                && ((XMPPErrorException)exc).getXMPPError().getCondition() == forbidden)
+//                && ((XMPPErrorException)exc).getStanzaError().getCondition() == forbidden)
 //            {
 //                showErrorMessage(Resources.getString(
 //                        "plugin.jabberaccregwizz.USER_EXISTS_ERROR"));

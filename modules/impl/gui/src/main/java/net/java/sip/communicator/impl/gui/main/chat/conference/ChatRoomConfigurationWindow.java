@@ -143,43 +143,38 @@ public class ChatRoomConfigurationWindow
      */
     protected void loadConfigurationForm()
     {
-        Iterator<ChatRoomConfigurationFormField> configurationSet
-            = configForm.getConfigurationSet();
 
-        while(configurationSet.hasNext())
+        for (ChatRoomConfigurationFormField formField : configForm.getConfigurationSet())
         {
-            ChatRoomConfigurationFormField formField
-                = configurationSet.next();
-
-            Iterator<?> values = formField.getValues();
+            Iterator<?> values = formField.getInitialValues().iterator();
             Iterator<String> options = formField.getOptions();
 
             JComponent field;
             JLabel label = new JLabel("", JLabel.RIGHT);
 
-            if(formField.getLabel() != null)
+            if (formField.getLabel() != null)
                 label.setText(formField.getLabel() + ": ");
 
             String fieldType = formField.getType();
 
-            if(fieldType.equals(ChatRoomConfigurationFormField.TYPE_BOOLEAN))
+            if (fieldType.equals(ChatRoomConfigurationFormField.TYPE_BOOLEAN))
             {
                 // Create a check box when the field is of type boolean.
                 field = new SIPCommCheckBox(formField.getLabel());
                 label.setText("");
 
-                if(values.hasNext())
+                if (values.hasNext())
                 {
-                    ((JCheckBox)field)
-                        .setSelected((Boolean)values.next());
+                    ((JCheckBox) field)
+                        .setSelected((Boolean) values.next());
                 }
             }
-            else if(fieldType.equals(
+            else if (fieldType.equals(
                 ChatRoomConfigurationFormField.TYPE_TEXT_FIXED))
             {
                 field = new JLabel();
 
-                if(values.hasNext())
+                if (values.hasNext())
                 {
                     String value = values.next().toString();
 
@@ -188,7 +183,7 @@ public class ChatRoomConfigurationWindow
                     field.setForeground(Color.GRAY);
                 }
             }
-            else if(fieldType.equals(
+            else if (fieldType.equals(
                 ChatRoomConfigurationFormField.TYPE_LIST_MULTI))
             {
                 field = new TransparentPanel(new GridLayout(0, 1));
@@ -198,7 +193,7 @@ public class ChatRoomConfigurationWindow
                 Hashtable<Object, JCheckBox> optionCheckBoxes
                     = new Hashtable<Object, JCheckBox>();
 
-                while(options.hasNext())
+                while (options.hasNext())
                 {
                     Object option = options.next();
                     JCheckBox checkBox = new SIPCommCheckBox(option.toString());
@@ -207,89 +202,89 @@ public class ChatRoomConfigurationWindow
                     optionCheckBoxes.put(option, checkBox);
                 }
 
-                while(values.hasNext())
+                while (values.hasNext())
                 {
                     Object value = values.next();
 
                     (optionCheckBoxes.get(value)).setSelected(true);
                 }
             }
-            else if(fieldType.equals(
+            else if (fieldType.equals(
                 ChatRoomConfigurationFormField.TYPE_LIST_SINGLE))
             {
                 field = new JComboBox();
 
-                while(options.hasNext())
+                while (options.hasNext())
                 {
                     ((JComboBox) field).addItem(options.next());
                 }
 
-                if(values.hasNext())
+                if (values.hasNext())
                 {
-                    ((JComboBox)field).setSelectedItem(values.next());
+                    ((JComboBox) field).setSelectedItem(values.next());
                 }
             }
-            else if(fieldType.equals(
+            else if (fieldType.equals(
                 ChatRoomConfigurationFormField.TYPE_TEXT_MULTI))
             {
                 field = new JEditorPane();
 
-                if(values.hasNext())
+                if (values.hasNext())
                 {
                     String value = values.next().toString();
 
                     ((JEditorPane) field).setText(value);
                 }
             }
-            else if(fieldType.equals(
+            else if (fieldType.equals(
                 ChatRoomConfigurationFormField.TYPE_TEXT_SINGLE)
-                    || fieldType.equals(
-                            ChatRoomConfigurationFormField.TYPE_ID_SINGLE))
+                || fieldType.equals(
+                ChatRoomConfigurationFormField.TYPE_ID_SINGLE))
             {
                 field = new JTextField();
 
-                if(values.hasNext())
+                if (values.hasNext())
                 {
                     String value = values.next().toString();
 
                     ((JTextField) field).setText(value);
                 }
             }
-            else if(fieldType.equals(
+            else if (fieldType.equals(
                 ChatRoomConfigurationFormField.TYPE_TEXT_PRIVATE))
             {
                 field = new JPasswordField();
 
-                if(values.hasNext())
+                if (values.hasNext())
                 {
                     String value = values.next().toString();
 
                     ((JPasswordField) field).setText(value);
                 }
             }
-            else if(fieldType.equals(
+            else if (fieldType.equals(
                 ChatRoomConfigurationFormField.TYPE_ID_MULTI))
             {
                 StringBuffer buff = new StringBuffer();
 
-                while(values.hasNext())
+                while (values.hasNext())
                 {
                     String value = values.next().toString();
                     buff.append(value);
 
-                    if(values.hasNext())
+                    if (values.hasNext())
                         buff.append(System.getProperty("line.separator"));
                 }
                 field = new JTextArea(buff.toString());
             }
             else
             {
-                if(label.getText() == null)
+                if (label.getText() == null)
                     continue;
 
                 field = new JTextField();
 
-                if(values.hasNext())
+                if (values.hasNext())
                 {
                     String value = values.next().toString();
 
@@ -300,16 +295,16 @@ public class ChatRoomConfigurationWindow
             // If the field is not fixed (i.e. could be changed) we would like
             // to save it in a list in order to use it later when user saves
             // the configuration data.
-            if(!fieldType.equals(
+            if (!fieldType.equals(
                 ChatRoomConfigurationFormField.TYPE_TEXT_FIXED))
             {
                 uiFieldsTable.put(formField.getName(), field);
             }
 
-            JPanel fieldPanel = new TransparentPanel(new GridLayout(1,2));
+            JPanel fieldPanel = new TransparentPanel(new GridLayout(1, 2));
             fieldPanel.setOpaque(false);
 
-            if(!(field instanceof JLabel))
+            if (!(field instanceof JLabel))
                 fieldPanel.setBorder(
                     BorderFactory.createEmptyBorder(0, 0, 8, 0));
             else
@@ -333,15 +328,10 @@ public class ChatRoomConfigurationWindow
     {
         int labelWidth = 0;
 
-        Iterator<ChatRoomConfigurationFormField> configurationSet
-            = configForm.getConfigurationSet();
-
-        while(configurationSet.hasNext())
+        for (ChatRoomConfigurationFormField formField
+            : configForm.getConfigurationSet())
         {
-            ChatRoomConfigurationFormField formField
-                = configurationSet.next();
-
-            if(formField.getLabel() == null)
+            if (formField.getLabel() == null)
                 continue;
 
             JLabel label = new JLabel(formField.getLabel());
@@ -349,7 +339,7 @@ public class ChatRoomConfigurationWindow
             int newLabelWidth = SwingUtilities.computeStringWidth(
                 label.getFontMetrics(label.getFont()), formField.getLabel());
 
-            if(newLabelWidth > labelWidth)
+            if (newLabelWidth > labelWidth)
                 labelWidth = newLabelWidth;
         }
 
@@ -368,90 +358,81 @@ public class ChatRoomConfigurationWindow
 
         if(button.equals(saveButton))
         {
-            Iterator<ChatRoomConfigurationFormField> configurationSet
-                = configForm.getConfigurationSet();
-
-            while(configurationSet.hasNext())
+            for (ChatRoomConfigurationFormField formField :
+                configForm.getConfigurationSet())
             {
-                ChatRoomConfigurationFormField formField
-                    = configurationSet.next();
-
                 // If the field is of type fixed the user could not change it,
                 // so we skip it.
-                if(formField.getType().equals(
+                if (formField.getType().equals(
                     ChatRoomConfigurationFormField.TYPE_TEXT_FIXED))
+                {
                     continue;
+                }
 
-                JComponent c
-                    = uiFieldsTable.get(formField.getName());
-
+                JComponent c = uiFieldsTable.get(formField.getName());
                 if (c instanceof JTextComponent)
                 {
-                    String newValue = ((JTextComponent)c).getText();
+                    String newValue = ((JTextComponent) c).getText();
 
-                    if(formField.getType().equals(
+                    if (formField.getType().equals(
                         ChatRoomConfigurationFormField.TYPE_ID_MULTI))
                     {
                         // extract values
                         StringTokenizer idTokens = new StringTokenizer(
                             newValue, System.getProperty("line.separator"));
-                        while(idTokens.hasMoreTokens())
+                        while (idTokens.hasMoreTokens())
                         {
                             formField.addValue(idTokens.nextToken());
                         }
                     }
                     else
+                    {
                         formField.addValue(newValue);
+                    }
                 }
                 else if (c instanceof AbstractButton)
                 {
-                    boolean isSelected = ((AbstractButton)c).isSelected();
-
+                    boolean isSelected = ((AbstractButton) c).isSelected();
                     formField.addValue(isSelected);
                 }
                 else if (c instanceof JComboBox)
                 {
-                    Object selectedObject = ((JComboBox)c).getSelectedItem();
-
+                    Object selectedObject = ((JComboBox) c).getSelectedItem();
                     formField.addValue(selectedObject);
                 }
                 else if (c instanceof JPanel)
                 {
                     Component[] components = c.getComponents();
-
-                    for(Component comp : components)
+                    for (Component comp : components)
                     {
-                        if(!(comp instanceof JCheckBox))
+                        if (!(comp instanceof JCheckBox))
+                        {
                             continue;
+                        }
 
                         JCheckBox checkBox = (JCheckBox) comp;
-
                         formField.addValue(checkBox.getText());
                     }
                 }
             }
 
-            new Thread()
+            new Thread(() ->
             {
-                @Override
-                public void run()
+                try
                 {
-                    try
-                    {
-                        configForm.submit();
-                    }
-                    catch (Exception e)
-                    {
-                        new ErrorDialog(
-                            ChatRoomConfigurationWindow.this,
-                            GuiActivator.getResources().getI18NString(
-                            "service.gui.ERROR"),
-                            GuiActivator.getResources().getI18NString(
-                            "service.gui.CHAT_ROOM_CONFIGURATION_SUBMIT_FAILED")
-                            , e).showDialog();
-                    }
+                    configForm.submit();
                 }
-            }.start();
+                catch (Exception e1)
+                {
+                    new ErrorDialog(
+                        ChatRoomConfigurationWindow.this,
+                        GuiActivator.getResources().getI18NString(
+                        "service.gui.ERROR"),
+                        GuiActivator.getResources().getI18NString(
+                        "service.gui.CHAT_ROOM_CONFIGURATION_SUBMIT_FAILED")
+                        , e1).showDialog();
+                }
+            }).start();
         }
 
         this.dispose();
