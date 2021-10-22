@@ -17,7 +17,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: ${{ matrix.java }}
-          distribution: adopt
+          distribution: temurin
           check-latest: true
 
       - name: Cache Maven dependencies

@@ -136,7 +136,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: ${{ env.INSTALLER_JAVA_VERSION }}
-          distribution: adopt
+          distribution: temurin
 
       - name: Cache Maven dependencies
         uses: actions/cache@v2
@@ -175,7 +175,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: ${{ env.INSTALLER_JAVA_VERSION }}
-          distribution: adopt
+          distribution: temurin
 
       - name: Cache Maven dependencies
         uses: actions/cache@v2
@@ -358,7 +358,7 @@ jobs:
         with:
           java-version: ${{ env.INSTALLER_JAVA_VERSION }}
           architecture: x64
-          distribution: adopt
+          distribution: temurin
 
       - name: Build installer
         env:
@@ -388,7 +388,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: ${{ env.INSTALLER_JAVA_VERSION }}
-          distribution: adopt
+          distribution: temurin
 
       - name: Cache Maven dependencies
         uses: actions/cache@v2
