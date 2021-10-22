@@ -20,11 +20,6 @@
       <artifactId>hsluv</artifactId>
       <version>0.2</version>
     </dependency>
-    <dependency>
-      <groupId>org.minidns</groupId>
-      <artifactId>minidns-core</artifactId>
-      <version>1.0.0</version>
-    </dependency>
   </dependencies>
 
   <build>
@@ -37,7 +32,6 @@
             <Export-Package>*</Export-Package>
             <Embed-Transitive>true</Embed-Transitive>
             <Embed-Dependency>
-              minidns-core;scope=compile|runtime,
               hsluv;scope=compile|runtime
             </Embed-Dependency>
           </instructions>

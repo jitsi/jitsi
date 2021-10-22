@@ -678,8 +678,8 @@ public class ProtocolProviderServiceJabberImpl
             if(!loginStrategy.loginPreparationSuccessful())
                 return;
 
-            DomainBareJid serviceName = JidCreate.from(
-                getAccountID().getUserID()).asDomainBareJid();
+            DomainBareJid serviceName = JidCreate.domainBareFrom(
+                getAccountID().getUserID());
 
             loadResource();
             loadProxy();
