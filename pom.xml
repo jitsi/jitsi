@@ -27,7 +27,8 @@
     <bouncycastleVersion>1.69</bouncycastleVersion>
     <jnaVersion>5.9.0</jnaVersion>
     <smackVersion>4.4.4</smackVersion>
-    <jxmppVersion>0.6.3</jxmppVersion>
+    <jxmppVersion>1.0.3</jxmppVersion>
+    <minidnsVersion>1.0.2</minidnsVersion>
     <slf4jVersion>1.7.32</slf4jVersion>
     <kotlin.version>1.5.20</kotlin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -210,6 +211,12 @@
         <groupId>org.igniterealtime.jbosh</groupId>
         <artifactId>jbosh</artifactId>
         <version>0.9.2</version>
+      </dependency>
+      <dependency>
+        <!-- pin minidns to avoid requiring maven-metadata.xml in the local repo -->
+        <groupId>org.minidns</groupId>
+        <artifactId>minidns-core</artifactId>
+        <version>${minidnsVersion}</version>
       </dependency>
       <dependency><groupId>org.igniterealtime.smack</groupId><artifactId>smack-tcp</artifactId><version>${smackVersion}</version></dependency>
       <dependency><groupId>org.igniterealtime.smack</groupId><artifactId>smack-debug</artifactId><version>${smackVersion}</version></dependency>
