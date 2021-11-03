@@ -26,7 +26,7 @@
     <versionName>Jitsi Desktop</versionName>
     <bouncycastleVersion>1.69</bouncycastleVersion>
     <jnaVersion>5.9.0</jnaVersion>
-    <smackVersion>4.4.4-SNAPSHOT</smackVersion>
+    <smackVersion>4.4.4</smackVersion>
     <jxmppVersion>0.6.3</jxmppVersion>
     <slf4jVersion>1.7.32</slf4jVersion>
     <kotlin.version>1.5.20</kotlin.version>
