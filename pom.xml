@@ -246,7 +246,7 @@
       <dependency>
         <groupId>org.jitsi</groupId>
         <artifactId>libjitsi</artifactId>
-        <version>1.0-desktop-SNAPSHOT</version>
+        <version>1.1-0-g19f651af</version>
       </dependency>
       <dependency>
         <groupId>org.apache.felix</groupId>
