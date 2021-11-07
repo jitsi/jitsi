@@ -225,7 +225,7 @@
       <dependency><groupId>org.igniterealtime.smack</groupId><artifactId>smack-legacy</artifactId><version>${smackVersion}</version></dependency>
       <dependency><groupId>org.igniterealtime.smack</groupId><artifactId>smack-xmlparser-stax</artifactId><version>${smackVersion}</version></dependency>
       <dependency><groupId>org.igniterealtime.smack</groupId><artifactId>smack-sasl-javax</artifactId><version>${smackVersion}</version></dependency>
-      <dependency><groupId>org.jitsi</groupId><artifactId>jnsapi</artifactId><version>0.0.3-jitsi-smack4.2-3</version></dependency>
+      <dependency><groupId>org.jitsi</groupId><artifactId>jnsapi</artifactId><version>0.0.3-jitsi-smack4.4-1-SNAPSHOT</version></dependency>
       <dependency><groupId>org.jitsi</groupId><artifactId>jmyspell-core</artifactId><version>1.0-jitsi-1</version></dependency>
       <dependency>
         <groupId>com.googlecode.json-simple</groupId>
@@ -251,7 +251,7 @@
       <dependency>
         <groupId>org.apache.felix</groupId>
         <artifactId>org.apache.felix.main</artifactId>
-        <version>7.0.0</version>
+        <version>7.0.1</version>
         <exclusions>
           <exclusion>
             <groupId>org.apache.felix</groupId>

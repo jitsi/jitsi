@@ -27,6 +27,7 @@ import org.apache.felix.framework.util.*;
 import org.apache.felix.main.*;
 import org.osgi.framework.*;
 import org.osgi.framework.launch.*;
+import org.osgi.framework.startlevel.*;
 import org.slf4j.*;
 import org.slf4j.bridge.*;
 
@@ -221,6 +222,15 @@ public class SIPCommunicator implements BundleActivator
                 {
                     throw new RuntimeException(e);
                 }
+            });
+
+        Arrays.stream(framework.getBundleContext().getBundles())
+            .filter(b -> b.getSymbolicName() != null && b.getSymbolicName()
+                .equalsIgnoreCase("smack-xmlparser-stax"))
+            .findFirst()
+            .ifPresent(b -> {
+                BundleStartLevel bsl = b.adapt(BundleStartLevel.class);
+                bsl.setStartLevel(2);
             });
 
         // Start the framework.
