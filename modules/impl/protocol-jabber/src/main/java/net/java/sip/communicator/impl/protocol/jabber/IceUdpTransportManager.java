@@ -779,7 +779,7 @@ public class IceUdpTransportManager
      */
     private CandidatePacketExtension createCandidate(Candidate<?> candidate)
     {
-        CandidatePacketExtension packet = new CandidatePacketExtension();
+        CandidatePacketExtension packet = new IceCandidatePacketExtension();
 
         packet.setFoundation(candidate.getFoundation());
 

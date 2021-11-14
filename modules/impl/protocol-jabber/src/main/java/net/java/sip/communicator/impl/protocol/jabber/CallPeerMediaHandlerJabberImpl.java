@@ -1755,7 +1755,7 @@ public class CallPeerMediaHandlerJabberImpl
 
             boolean rtcpmux = false;
             if (!transport.getChildExtensionsOfType(
-                    RtcpmuxPacketExtension.class).isEmpty())
+                    IceRtcpmuxPacketExtension.class).isEmpty())
             {
                 rtcpmux = true;
                 getTransportManager().setRtcpmux(true);

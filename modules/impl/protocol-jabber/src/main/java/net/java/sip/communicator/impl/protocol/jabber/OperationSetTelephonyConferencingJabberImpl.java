@@ -82,7 +82,7 @@ public class OperationSetTelephonyConferencingJabberImpl
     /**
      * Field indicates whether COIN notification are disabled or not.
      */
-    private boolean isCoinDisabled = false;
+    private final boolean isCoinDisabled;
 
     /**
      * Initializes a new <tt>OperationSetTelephonyConferencingJabberImpl</tt>
@@ -161,19 +161,20 @@ public class OperationSetTelephonyConferencingJabberImpl
 
             logger.info("Scheduling to send a COIN to " + callPeerJabber);
             callPeerJabber.setConfInfoScheduled(true);
-            new Thread(new Runnable(){
-                @Override
-                public void run()
+            new Thread(() ->
+            {
+                try
                 {
-                    try
-                    {
-                        Thread.sleep(1 + COIN_MIN_INTERVAL - timeSinceLastCoin);
-                    }
-                    catch (InterruptedException ie) {}
-
-                    OperationSetTelephonyConferencingJabberImpl.this
-                            .notify(callPeerJabber);
+                    Thread.sleep(1 + COIN_MIN_INTERVAL - timeSinceLastCoin);
                 }
+                catch (InterruptedException ie)
+                {
+                    // ignore
+                    Thread.currentThread().interrupt();
+                }
+
+                OperationSetTelephonyConferencingJabberImpl.this
+                        .notify(callPeerJabber);
             }).start();
 
             return;
@@ -370,12 +371,9 @@ public class OperationSetTelephonyConferencingJabberImpl
      * @return an object which is to actually represent the specified
      * <tt>calleeAddressString</tt> during the invitation to a conference
      * <tt>Call</tt>
-     * @throws OperationFailedException if parsing the specified
-     * <tt>calleeAddressString</tt> fails
      */
     @Override
     protected String parseAddressString(String calleeAddressString)
-        throws OperationFailedException
     {
         return getBasicTelephony()
             .getFullCalleeURI(calleeAddressString)
@@ -406,8 +404,8 @@ public class OperationSetTelephonyConferencingJabberImpl
     }
 
     /**
-     * Tests whether or not the specified packet should be handled by this
-     * operation set. This method is called by smack prior to packet delivery
+     * Tests whether the specified packet should be handled by this
+     * operation set. This method is called by smack prior to packet delivery,
      * and it would only accept <tt>CoinIQ</tt>s.
      *
      * @param packet the packet to test.
@@ -430,7 +428,7 @@ public class OperationSetTelephonyConferencingJabberImpl
         throws NotConnectedException, InterruptedException
     {
         CoinIQ coinIQ = (CoinIQ) packet;
-        String errorMessage = null;
+        String errorMessage;
 
         if(coinIQ.getType() != IQ.Type.error)
         {
@@ -643,7 +641,7 @@ public class OperationSetTelephonyConferencingJabberImpl
     @Override
     public String getElement()
     {
-        return CoinIQ.ELEMENT_NAME;
+        return CoinIQ.ELEMENT;
     }
 
     @Override

@@ -92,7 +92,7 @@ public class OperationSetDesktopSharingServerJabberImpl
      * HID service that will regenerates keyboard and mouse events received in
      * Jabber messages.
      */
-    private HIDService hidService = null;
+    private final HIDService hidService;
 
     /**
      * List of callPeers for the desktop sharing session with remote control
@@ -240,7 +240,7 @@ public class OperationSetDesktopSharingServerJabberImpl
         if (logger.isInfoEnabled())
             logger.info("creating outgoing desktop sharing call...");
 
-        DiscoverInfo di = null;
+        DiscoverInfo di;
         try
         {
             // check if the remote client supports inputevt (remote control)
@@ -385,7 +385,6 @@ public class OperationSetDesktopSharingServerJabberImpl
      * @param packetListener the packet listener for InputEvtIQ of this
      * connection.  (OperationSetDesktopSharingServerJabberImpl or
      * OperationSetDesktopSharingClientJabberImpl).
-     * @param packetFilter the packet filter for InputEvtIQ of this connection.
      * @param connection The XMPP connection.
      */
     public static void registrationStateChanged(
@@ -444,7 +443,7 @@ public class OperationSetDesktopSharingServerJabberImpl
          */
         if (hidService != null)
         {
-            int keycode = 0;
+            int keycode;
 
             /* process immediately a "key-typed" event via press/release */
             if(event.getKeyChar() != 0 && event.getID() == KeyEvent.KEY_TYPED)
@@ -491,10 +490,10 @@ public class OperationSetDesktopSharingServerJabberImpl
             switch(event.getID())
             {
             case MouseEvent.MOUSE_PRESSED:
-                hidService.mousePress(event.getModifiers());
+                hidService.mousePress(event.getModifiersEx());
                 break;
             case MouseEvent.MOUSE_RELEASED:
-                hidService.mouseRelease(event.getModifiers());
+                hidService.mouseRelease(event.getModifiersEx());
                 break;
             case MouseEvent.MOUSE_MOVED:
                 int originX = origin != null ? origin.x : 0;
@@ -702,7 +701,7 @@ public class OperationSetDesktopSharingServerJabberImpl
     @Override
     public String getElement()
     {
-        return InputEvtIQ.ELEMENT_NAME;
+        return InputEvtIQ.ELEMENT;
     }
 
     @Override

@@ -2044,7 +2044,7 @@ public class OperationSetPersistentPresenceJabberImpl
             // element name "x" and the namespace "vcard-temp:x:update".
             new AndFilter(new StanzaTypeFilter(Presence.class),
                 new StanzaExtensionFilter(
-                    VCardTempXUpdatePresenceExtension.ELEMENT_NAME,
+                    VCardTempXUpdatePresenceExtension.ELEMENT,
                     VCardTempXUpdatePresenceExtension.NAMESPACE)
                 )
             );
@@ -2077,7 +2077,7 @@ public class OperationSetPersistentPresenceJabberImpl
         // Get the packet extension which contains the photo tag.
         StandardExtensionElement defaultPacketExtension =
             packet.getExtension(
-                    VCardTempXUpdatePresenceExtension.ELEMENT_NAME,
+                    VCardTempXUpdatePresenceExtension.ELEMENT,
                     VCardTempXUpdatePresenceExtension.NAMESPACE);
         if(defaultPacketExtension == null)
         {

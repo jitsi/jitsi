@@ -39,27 +39,4 @@ public abstract class AbstractResourcePack
             resources.put(key, rb.getString(key));
         }
     }
-
-    /**
-     * Finds all plugin color resources, matching the {@code
-     * {prefix}-*.properties} pattern and adds them to this resource pack.
-     *
-     * @param resources the {@link Map} to which found resource keys are added
-     * @param prefix    the pack name for which to search, e.g. {@code sounds}
-     */
-    protected final void initPluginResources(Map<String, String> resources,
-        String prefix)
-    {
-        List<String> pluginProperties = DefaultResourcePackActivator
-            .findResourcePaths("resources/" + prefix,
-                prefix + "-*.properties");
-
-        for (String rbName : pluginProperties)
-        {
-            ResourceBundle rb = ResourceBundle.getBundle(
-                rbName.substring(0, rbName.indexOf(".properties")));
-
-            initResources(rb, resources);
-        }
-    }
 }

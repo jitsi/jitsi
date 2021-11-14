@@ -56,7 +56,7 @@ public class OperationSetVideoBridgeImpl
             ProtocolProviderServiceJabberImpl protocolProvider)
     {
         super(
-            ColibriConferenceIQ.ELEMENT_NAME,
+            ColibriConferenceIQ.ELEMENT,
             ColibriConferenceIQ.NAMESPACE,
             IQ.Type.set,
             Mode.async);

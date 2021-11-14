@@ -381,9 +381,7 @@ public class CallPeerJabberImpl
             if (reasonOtherExtension != null)
             {
                 ReasonPacketExtension reason
-                    = responseIQ.getExtension(
-                            ReasonPacketExtension.ELEMENT_NAME,
-                            ReasonPacketExtension.NAMESPACE);
+                    = responseIQ.getExtension(ReasonPacketExtension.class);
 
                 if (reason != null)
                 {
@@ -883,8 +881,7 @@ public class CallPeerJabberImpl
 
             for(ExtensionElement ext : sessionInitIQ.getExtensions())
             {
-                if(ext.getElementName().equals(
-                        CoinPacketExtension.ELEMENT_NAME))
+                if(ext.getElementName().equals(CoinPacketExtension.ELEMENT))
                 {
                     coin = (CoinPacketExtension)ext;
                     break;
@@ -1895,7 +1892,7 @@ public class CallPeerJabberImpl
     {
         for (ConferenceMember member : getConferenceMembers())
         {
-            if (member.getAddress().equals(address))
+            if (address.equals(member.getAddress()))
             {
                 return (AbstractConferenceMember)member;
             }

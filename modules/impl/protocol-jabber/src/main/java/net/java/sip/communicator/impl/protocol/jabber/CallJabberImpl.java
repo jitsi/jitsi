@@ -956,10 +956,7 @@ public class CallJabberImpl
         try
         {
             TransferPacketExtension transfer
-                = (TransferPacketExtension)
-                    jingleIQ.getExtension(
-                            TransferPacketExtension.ELEMENT_NAME,
-                            TransferPacketExtension.NAMESPACE);
+                = jingleIQ.getExtension(TransferPacketExtension.class);
 
             if (transfer != null)
             {
@@ -1007,9 +1004,7 @@ public class CallJabberImpl
         }
 
         CoinPacketExtension coin
-            = jingleIQ.getExtension(
-                    CoinPacketExtension.ELEMENT_NAME,
-                    CoinPacketExtension.NAMESPACE);
+            = jingleIQ.getExtension(CoinPacketExtension.class);
 
         if (coin != null)
         {

@@ -98,7 +98,7 @@ public class RawUdpTransportManager
 
         // create and add candidates that correspond to the stream connector
         // RTP
-        CandidatePacketExtension rtpCand = new CandidatePacketExtension();
+        CandidatePacketExtension rtpCand = new UdpCandidatePacketExtension();
 
         rtpCand.setComponent(CandidatePacketExtension.RTP_COMPONENT_ID);
         rtpCand.setGeneration(generation);
@@ -113,7 +113,7 @@ public class RawUdpTransportManager
         ourTransport.addCandidate(rtpCand);
 
         // RTCP
-        CandidatePacketExtension rtcpCand = new CandidatePacketExtension();
+        CandidatePacketExtension rtcpCand = new UdpCandidatePacketExtension();
 
         rtcpCand.setComponent(CandidatePacketExtension.RTCP_COMPONENT_ID);
         rtcpCand.setGeneration(generation);

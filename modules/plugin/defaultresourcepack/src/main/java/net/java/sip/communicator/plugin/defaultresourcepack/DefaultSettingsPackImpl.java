@@ -40,9 +40,8 @@ public class DefaultSettingsPackImpl
     {
         ResourceBundle rb = ResourceBundle.getBundle(DEFAULT_RESOURCE_PATH);
         this.initResources(rb, resources);
-        this.initPluginResources(resources, "settings");
     }
-    
+
     /**
      * Returns a <tt>Map</tt>, containing all [key, value] pairs for this
      * resource pack.

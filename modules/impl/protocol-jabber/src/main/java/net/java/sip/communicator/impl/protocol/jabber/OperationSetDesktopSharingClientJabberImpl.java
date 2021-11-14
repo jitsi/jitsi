@@ -235,7 +235,7 @@ public class OperationSetDesktopSharingClientJabberImpl
     @Override
     public String getElement()
     {
-        return InputEvtIQ.ELEMENT_NAME;
+        return InputEvtIQ.ELEMENT;
     }
 
     @Override

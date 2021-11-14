@@ -36,12 +36,12 @@ public class OperationSetExtendedAuthorizationsJabberImpl
      * A reference to the persistent presence operation set that we use
      * to match incoming messages to <tt>Contact</tt>s and vice versa.
      */
-    private OperationSetPersistentPresenceJabberImpl opSetPersPresence = null;
+    private final OperationSetPersistentPresenceJabberImpl opSetPersPresence;
 
     /**
      * The parent provider.
      */
-    private ProtocolProviderServiceJabberImpl parentProvider;
+    private final ProtocolProviderServiceJabberImpl parentProvider;
 
     /**
      * Creates OperationSetExtendedAuthorizations.
@@ -75,8 +75,10 @@ public class OperationSetExtendedAuthorizationsJabberImpl
                 "The specified contact is not an jabber contact." +
                     contact);
 
-        Presence responsePacket = new Presence(Presence.Type.subscribed);
-        responsePacket.setTo(((ContactJabberImpl) contact).getAddressAsJid());
+        Presence responsePacket = MessageBuilder.buildPresence()
+            .ofType(Presence.Type.subscribed)
+            .to(((ContactJabberImpl) contact).getAddressAsJid())
+            .build();
         try
         {
             parentProvider.getConnection().sendStanza(responsePacket);
@@ -114,8 +116,10 @@ public class OperationSetExtendedAuthorizationsJabberImpl
                 "The specified contact is not an jabber contact." +
                     contact);
 
-        Presence responsePacket = new Presence(Presence.Type.subscribe);
-        responsePacket.setTo(((ContactJabberImpl) contact).getAddressAsJid());
+        Presence responsePacket = MessageBuilder.buildPresence()
+            .ofType(Presence.Type.subscribe)
+            .to(((ContactJabberImpl) contact).getAddressAsJid())
+            .build();
         try
         {
             parentProvider.getConnection().sendStanza(responsePacket);

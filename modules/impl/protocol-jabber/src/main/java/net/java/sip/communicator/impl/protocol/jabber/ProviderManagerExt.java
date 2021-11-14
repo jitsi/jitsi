@@ -18,6 +18,7 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import org.jitsi.xmpp.extensions.*;
+import org.jitsi.xmpp.extensions.coin.*;
 import org.jitsi.xmpp.extensions.colibri.*;
 import org.jitsi.xmpp.extensions.condesc.*;
 import org.jitsi.xmpp.extensions.inputevt.*;
@@ -46,12 +47,12 @@ public class ProviderManagerExt
     public static void load()
     {
         //register our jingle provider
-        ProviderManager.addIQProvider( JingleIQ.ELEMENT_NAME,
+        ProviderManager.addIQProvider(JingleIQ.ELEMENT,
             JingleIQ.NAMESPACE,
             new JingleIQProvider());
 
         // register our input event provider
-        ProviderManager.addIQProvider(InputEvtIQ.ELEMENT_NAME,
+        ProviderManager.addIQProvider(InputEvtIQ.ELEMENT,
             InputEvtIQ.NAMESPACE,
             new InputEvtIQProvider());
 
@@ -63,31 +64,45 @@ public class ProviderManagerExt
             new ThumbnailStreamInitiationProvider());
 
         // register our coin provider
-        // FIXME
-//            ProviderManager.addIQProvider(CoinIQ.ELEMENT_NAME,
-//                                          CoinIQ.NAMESPACE,
-//                                          new CoinIQProvider());
-//            supportedFeatures.add(URN_XMPP_JINGLE_COIN);
+        ProviderManager.addIQProvider(
+            CoinIQ.ELEMENT,
+            CoinIQ.NAMESPACE,
+            new CoinIQProvider());
 
         // register our JingleInfo provider
-        ProviderManager.addIQProvider(JingleInfoQueryIQ.ELEMENT_NAME,
+        ProviderManager.addIQProvider(JingleInfoQueryIQ.ELEMENT,
             JingleInfoQueryIQ.NAMESPACE,
             new JingleInfoQueryIQProvider());
 
         // Jitsi Videobridge IQProvider and ExtensionElementProvider
         ProviderManager.addIQProvider(
-            ColibriConferenceIQ.ELEMENT_NAME,
+            ColibriConferenceIQ.ELEMENT,
             ColibriConferenceIQ.NAMESPACE,
-            new ColibriIQProvider());
+            new ColibriConferenceIqProvider());
 
         ProviderManager.addIQProvider(
-            JibriIq.ELEMENT_NAME,
+            GracefulShutdownIQ.ELEMENT,
+            GracefulShutdownIQ.NAMESPACE,
+            new GracefulShutdownIqProvider());
+
+        ProviderManager.addIQProvider(
+            ForcefulShutdownIQ.ELEMENT,
+            ForcefulShutdownIQ.NAMESPACE,
+            new ForcefulShutdownIqProvider());
+
+        ProviderManager.addIQProvider(
+            ColibriConferenceIQ.ELEMENT,
+            ColibriConferenceIQ.NAMESPACE,
+            new ColibriConferenceIqProvider());
+
+        ProviderManager.addIQProvider(
+            JibriIq.ELEMENT,
             JibriIq.NAMESPACE,
             new JibriIqProvider()
         );
 
         ProviderManager.addExtensionProvider(
-            ConferenceDescriptionExtension.ELEMENT_NAME,
+            ConferenceDescriptionExtension.ELEMENT,
             ConferenceDescriptionExtension.NAMESPACE,
             new ConferenceDescriptionExtensionProvider());
 
@@ -97,52 +112,52 @@ public class ProviderManagerExt
             new NickProvider());
 
         ProviderManager.addExtensionProvider(
-            Email.ELEMENT_NAME,
+            Email.ELEMENT,
             Email.NAMESPACE,
             new Email.Provider());
 
         ProviderManager.addExtensionProvider(
-            AvatarUrl.ELEMENT_NAME,
+            AvatarUrl.ELEMENT,
             AvatarUrl.NAMESPACE,
             new AvatarUrl.Provider());
 
         ProviderManager.addExtensionProvider(
-            StatsId.ELEMENT_NAME,
+            StatsId.ELEMENT,
             StatsId.NAMESPACE,
             new StatsId.Provider());
 
         ProviderManager.addExtensionProvider(
-            IdentityPacketExtension.ELEMENT_NAME,
-            IdentityPacketExtension.NAME_SPACE,
+            IdentityPacketExtension.ELEMENT,
+            IdentityPacketExtension.NAMESPACE,
             new IdentityPacketExtension.Provider()
         );
 
         ProviderManager.addExtensionProvider(
-            AvatarIdPacketExtension.ELEMENT_NAME,
-            AvatarIdPacketExtension.NAME_SPACE,
+            AvatarIdPacketExtension.ELEMENT,
+            AvatarIdPacketExtension.NAMESPACE,
             new DefaultPacketExtensionProvider<>(
                 AvatarIdPacketExtension.class));
 
         ProviderManager.addExtensionProvider(
-            JsonMessageExtension.ELEMENT_NAME,
+            JsonMessageExtension.ELEMENT,
             JsonMessageExtension.NAMESPACE,
             new DefaultPacketExtensionProvider<>(
                 JsonMessageExtension.class));
 
         ProviderManager.addExtensionProvider(
-            TranslationLanguageExtension.ELEMENT_NAME,
+            TranslationLanguageExtension.ELEMENT,
             TranslationLanguageExtension.NAMESPACE,
             new DefaultPacketExtensionProvider<>(
                 TranslationLanguageExtension.class));
 
         ProviderManager.addExtensionProvider(
-            TranscriptionLanguageExtension.ELEMENT_NAME,
+            TranscriptionLanguageExtension.ELEMENT,
             TranscriptionLanguageExtension.NAMESPACE,
             new DefaultPacketExtensionProvider<>(
                 TranscriptionLanguageExtension.class));
 
         ProviderManager.addExtensionProvider(
-            TranscriptionStatusExtension.ELEMENT_NAME,
+            TranscriptionStatusExtension.ELEMENT,
             TranscriptionStatusExtension.NAMESPACE,
             new DefaultPacketExtensionProvider<>(
                 TranscriptionStatusExtension.class
@@ -150,7 +165,7 @@ public class ProviderManagerExt
         );
 
         ProviderManager.addExtensionProvider(
-            TranscriptionRequestExtension.ELEMENT_NAME,
+            TranscriptionRequestExtension.ELEMENT,
             TranscriptionRequestExtension.NAMESPACE,
             new DefaultPacketExtensionProvider<>(
                 TranscriptionRequestExtension.class

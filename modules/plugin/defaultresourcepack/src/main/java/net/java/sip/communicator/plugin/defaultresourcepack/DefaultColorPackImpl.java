@@ -39,7 +39,6 @@ public class DefaultColorPackImpl
     {
         ResourceBundle rb = ResourceBundle.getBundle(DEFAULT_RESOURCE_PATH);
         initResources(rb, resources);
-        initPluginResources(resources, "colors");
     }
 
     /**

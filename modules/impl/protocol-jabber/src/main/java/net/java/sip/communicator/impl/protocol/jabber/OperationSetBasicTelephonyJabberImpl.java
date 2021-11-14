@@ -76,7 +76,7 @@ public class OperationSetBasicTelephonyJabberImpl
     /**
      * Contains references for all currently active (non ended) calls.
      */
-    private ActiveCallsRepositoryJabberImpl activeCallsRepository
+    private final ActiveCallsRepositoryJabberImpl activeCallsRepository
             = new ActiveCallsRepositoryJabberImpl(this);
 
     /** Jingle IQ set stanza processor */
@@ -115,7 +115,7 @@ public class OperationSetBasicTelephonyJabberImpl
         if (registrationState == RegistrationState.REGISTERING)
         {
             ProviderManager.addIQProvider(
-                    JingleIQ.ELEMENT_NAME,
+                    JingleIQ.ELEMENT,
                     JingleIQ.NAMESPACE,
                     new JingleIQProvider());
 
@@ -215,7 +215,7 @@ public class OperationSetBasicTelephonyJabberImpl
 
         String remoteUri = cd.getUri();
         if (remoteUri.startsWith("xmpp:"))
-            remoteUri = remoteUri.substring(5, remoteUri.length());
+            remoteUri = remoteUri.substring(5);
 
         Jid remoteJid;
         try
@@ -238,10 +238,6 @@ public class OperationSetBasicTelephonyJabberImpl
         {
             sessionInitiateExtensions.add(new CallIdExtension(callid));
         }
-
-        //String password = cd.getPassword();
-        //if (password != null)
-        //   extensions.add(new PasswordPacketExtension(password));
 
         call.initiateSession(
                 remoteJid,
@@ -369,7 +365,7 @@ public class OperationSetBasicTelephonyJabberImpl
         {
             String phoneSuffix
                 = accountID.getAccountPropertyString("OVERRIDE_PHONE_SUFFIX");
-            String serviceName = null;
+            String serviceName;
 
             if ((phoneSuffix == null) || (phoneSuffix.length() == 0))
             {
@@ -967,30 +963,9 @@ public class OperationSetBasicTelephonyJabberImpl
                 processJingleIQError((JingleIQ) iq);
             }
         }
-        catch(Throwable t)
+        catch(Exception t)
         {
-            if (logger.isInfoEnabled())
-            {
-                String packetClass;
-
-                if (iq instanceof JingleIQ)
-                    packetClass = "Jingle";
-                else
-                    packetClass = packet.getClass().getSimpleName();
-
-                logger.info(
-                        "Error while handling incoming " + packetClass
-                            + " packet: ",
-                        t);
-            }
-
-            /*
-             * The Javadoc on ThreadDeath says: If ThreadDeath is caught by
-             * a method, it is important that it be rethrown so that the
-             * thread actually dies.
-             */
-            if (t instanceof ThreadDeath)
-                throw (ThreadDeath) t;
+            logger.info("Error while handling incoming Jingle packet", t);
         }
     }
 
@@ -998,10 +973,7 @@ public class OperationSetBasicTelephonyJabberImpl
     {
         protected JingleIqSetRequestHandler()
         {
-            super(JingleIQ.ELEMENT_NAME,
-                JingleIQ.NAMESPACE,
-                Type.set,
-                Mode.sync);
+            super(JingleIQ.ELEMENT, JingleIQ.NAMESPACE, Type.set, Mode.sync);
         }
 
         @Override
@@ -1040,10 +1012,8 @@ public class OperationSetBasicTelephonyJabberImpl
 
         if(action == JingleAction.SESSION_INITIATE)
         {
-            StandardExtensionElement startMutedExt
-                = jingleIQ.getExtension(
-                        StartMutedPacketExtension.ELEMENT_NAME,
-                        StartMutedPacketExtension.NAMESPACE);
+            StartMutedPacketExtension startMutedExt
+                = jingleIQ.getExtension(StartMutedPacketExtension.class);
 
             if (startMutedExt != null)
             {
@@ -1057,11 +1027,8 @@ public class OperationSetBasicTelephonyJabberImpl
                 if (operationSetJitsiMeetTools != null)
                 {
                     boolean[] startMutedFlags = {
-                        Boolean.parseBoolean(startMutedExt.getAttributeValue(
-                            StartMutedPacketExtension.AUDIO_ATTRIBUTE_NAME)),
-
-                        Boolean.parseBoolean(startMutedExt.getAttributeValue(
-                            StartMutedPacketExtension.VIDEO_ATTRIBUTE_NAME))
+                        startMutedExt.getAudioMuted(),
+                        startMutedExt.getVideoMuted(),
                     };
 
                     operationSetJitsiMeetTools
@@ -1075,13 +1042,9 @@ public class OperationSetBasicTelephonyJabberImpl
             }
 
             TransferPacketExtension transfer
-                = jingleIQ.getExtension(
-                        TransferPacketExtension.ELEMENT_NAME,
-                        TransferPacketExtension.NAMESPACE);
+                = jingleIQ.getExtension(TransferPacketExtension.class);
             CallIdExtension callidExt
-                = jingleIQ.getExtension(
-                        CallIdExtension.ELEMENT_NAME,
-                        CallIdExtension.NAMESPACE);
+                = jingleIQ.getExtension(CallIdExtension.class);
             CallJabberImpl call = null;
 
             if (transfer != null)
@@ -1129,22 +1092,12 @@ public class OperationSetBasicTelephonyJabberImpl
 
             final CallJabberImpl finalCall = call;
 
-            new Thread()
-            {
-                @Override
-                public void run()
-                {
-                    finalCall.processSessionInitiate(jingleIQ);
-                }
-            }.start();
-
-            return;
+            new Thread(() -> finalCall.processSessionInitiate(jingleIQ)).start();
         }
         else if (callPeer == null)
         {
             if (logger.isDebugEnabled())
                 logger.debug("Received a stray trying response.");
-            return;
         }
 
         //the rest of these cases deal with existing peers
@@ -1167,16 +1120,11 @@ public class OperationSetBasicTelephonyJabberImpl
             }
             else
             {
-                ExtensionElement packetExtension
-                    = jingleIQ.getExtension(
-                            TransferPacketExtension.ELEMENT_NAME,
-                            TransferPacketExtension.NAMESPACE);
+                TransferPacketExtension transfer
+                    = jingleIQ.getExtension(TransferPacketExtension.class);
 
-                if (packetExtension instanceof TransferPacketExtension)
+                if (transfer != null)
                 {
-                    TransferPacketExtension transfer
-                        = (TransferPacketExtension) packetExtension;
-
                     if (transfer.getFrom() == null)
                         transfer.setFrom(jingleIQ.getFrom());
 
@@ -1192,16 +1140,11 @@ public class OperationSetBasicTelephonyJabberImpl
                     }
                 }
 
-                packetExtension
-                    = jingleIQ.getExtension(
-                        CoinPacketExtension.ELEMENT_NAME,
-                        CoinPacketExtension.NAMESPACE);
+                CoinPacketExtension coinExt
+                    = jingleIQ.getExtension(CoinPacketExtension.class);
 
-                if (packetExtension instanceof CoinPacketExtension)
+                if (coinExt != null)
                 {
-                    CoinPacketExtension coinExt
-                        = (CoinPacketExtension)packetExtension;
-
                     callPeer.setConferenceFocus(
                             Boolean.parseBoolean(
                                     coinExt.getAttributeAsString(

@@ -114,8 +114,6 @@ public class DefaultLanguagePackImpl
 
         this.initResources(resourceBundle, resources);
 
-        this.initPluginResources(resources, locale);
-
         // keep it just in case of...
         localeInBuffer = locale;
         lastResourcesAsked = resources;
@@ -147,29 +145,6 @@ public class DefaultLanguagePackImpl
         }
 
         return Collections.emptySet();
-    }
-
-    /**
-     * Finds all plugin color resources, matching the "images-*.properties"
-     * pattern and adds them to this resource pack.
-     */
-    private void initPluginResources(Map<String, String> resources,
-        Locale locale)
-    {
-        List<String> pluginProperties = DefaultResourcePackActivator
-            .findResourcePaths("resources/languages",
-                "strings-*.properties");
-
-        for (String rbName : pluginProperties)
-        {
-            if (rbName.indexOf('_') == -1)
-            {
-                ResourceBundle rb = ResourceBundle.getBundle(
-                    rbName.substring(0, rbName.indexOf(".properties")), locale);
-
-                initResources(rb, resources);
-            }
-        }
     }
 
     /**
