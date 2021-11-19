@@ -133,7 +133,7 @@
       <dependency>
         <groupId>org.jitsi</groupId>
         <artifactId>ice4j</artifactId>
-        <version>3.0-36-g9dc08bd</version>
+        <version>3.0-46-g64a7ca8</version>
         <exclusions>
           <exclusion>
             <groupId>org.jetbrains.kotlin</groupId>

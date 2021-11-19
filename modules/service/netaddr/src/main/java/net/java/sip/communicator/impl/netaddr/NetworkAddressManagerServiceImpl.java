@@ -693,14 +693,12 @@ public class NetworkAddressManagerServiceImpl
         IceMediaStream stream = agent.createMediaStream(streamName);
 
         agent.createComponent(
-            stream, Transport.UDP,
-            portBase, portBase, portBase + 100);
+            stream, portBase, portBase, portBase + 100);
 
         if(numComponents > 1)
         {
             agent.createComponent(
-                stream, Transport.UDP,
-                portBase + 1, portBase + 1, portBase + 101);
+                stream, portBase + 1, portBase + 1, portBase + 101);
         }
 
         return stream;
