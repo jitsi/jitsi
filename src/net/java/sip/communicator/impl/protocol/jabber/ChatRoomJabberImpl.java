@@ -255,7 +255,13 @@ public class ChatRoomJabberImpl
         {
             if (packet != null)
             {
-                ExtensionElement lobbyExtension = packet.getExtension("lobbyroom", "jabber:client");
+                ExtensionElement lobbyExtension = packet.getError().getExtension("lobbyroom", "jabber:client");
+
+                // let's fallback to old code if this is missing, TODO: drop this at some point
+                if (lobbyExtension == null)
+                {
+                    lobbyExtension = packet.getExtension("lobbyroom", "jabber:client");
+                }
 
                 if (lobbyExtension instanceof StandardExtensionElement)
                 {
