@@ -953,7 +953,7 @@
         bundle-credentialsstorage,bundle-credentialsstorage-slick,
         bundle-plugin-nimbuzzavatar,bundle-custom-avatar,
         bundle-replacement,bundle-youtube,bundle-dailymotion,bundle-smiley,
-        bundle-vimeo,bundle-vbox7,bundle-metacafe,bundle-flickr,bundle-hulu,
+        bundle-vimeo,bundle-vbox7,bundle-metacafe,bundle-hulu,
         bundle-twitpic,bundle-directimage,bundle-bliptv,bundle-viddler,
         bundle-plugin-chatconfig,bundle-certificate,bundle-packetlogging,
         bundle-plugin-loggingutils,
@@ -2322,15 +2322,6 @@ javax.swing.event, javax.swing.border"/>
              manifest="${src}/net/java/sip/communicator/impl/replacement/metacafe/metacafe.source.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/replacement/metacafe"
                     prefix="net/java/sip/communicator/impl/replacement/metacafe"/>
-        </jar>
-    </target>
-
-    <!-- BUNDLE-FLICKR -->
-    <target name="bundle-flickr">
-        <jar compress="false" destfile="${bundles.dest}/replacement-flickr.jar"
-             manifest="${src}/net/java/sip/communicator/impl/replacement/flickr/flickr.source.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/impl/replacement/flickr"
-                    prefix="net/java/sip/communicator/impl/replacement/flickr"/>
         </jar>
     </target>
 
