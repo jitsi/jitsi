@@ -1031,7 +1031,8 @@ public class ChatRoomJabberImpl
         {
             // if we are already disconnected
             // leave maybe called from gui when closing chat window
-            if(connection != null && connection.isConnected())
+            // skip leave if not joined, this is in case of an error, but we call leave to clear listeners and such
+            if(connection != null && connection.isConnected() && multiUserChat.isJoined())
                 multiUserChat.leave();
         }
         catch(Throwable e)
