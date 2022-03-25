@@ -747,7 +747,7 @@ public abstract class ProtocolProviderFactory
 
             try
             {
-                protocolProvider.unregister();
+                protocolProvider.unregister(true);
             }
             catch (OperationFailedException ex)
             {
