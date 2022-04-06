@@ -897,19 +897,13 @@ public class UIServiceImpl
             {
                 try
                 {
-                    String kdeFullSession = System.getenv("KDE_FULL_SESSION");
-
-                    if ((kdeFullSession != null)
-                            && (kdeFullSession.length() != 0))
+                    for (LookAndFeelInfo lafi
+                            : UIManager.getInstalledLookAndFeels())
                     {
-                        for (LookAndFeelInfo lafi
-                                : UIManager.getInstalledLookAndFeels())
+                        if (gtkLookAndFeel.equals(lafi.getClassName()))
                         {
-                            if (gtkLookAndFeel.equals(lafi.getClassName()))
-                            {
-                                laf = gtkLookAndFeel;
-                                break;
-                            }
+                            laf = gtkLookAndFeel;
+                            break;
                         }
                     }
                 }
