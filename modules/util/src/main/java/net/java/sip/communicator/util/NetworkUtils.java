@@ -17,15 +17,14 @@
  */
 package net.java.sip.communicator.util;
 
+import java.lang.*;
 import java.net.*;
 import java.text.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.dns.*;
-
-import net.java.sip.communicator.util.SRVRecord;
-
 import org.xbill.DNS.*;
+import org.xbill.DNS.Record;
 
 /**
  * Utility methods and fields to use when working with network addresses.
@@ -91,7 +90,7 @@ public class NetworkUtils
     /**
      * The random port number generator that we use in getRandomPortNumer()
      */
-    private static Random portNumberGenerator = new Random();
+    private static final Random portNumberGenerator = new Random();
 
     /**
      * The name of the boolean property that defines whether all domain names
@@ -215,7 +214,7 @@ public class NetworkUtils
         if (Character.digit(address.charAt(0), 16) != -1
                         || (address.charAt(0) == ':'))
         {
-            byte[] addr = null;
+            byte[] addr;
 
             // see if it is IPv4 address
             addr = strToIPv4(address);
@@ -231,11 +230,8 @@ public class NetworkUtils
                 return false;
             }
             // if an IPv4 or IPv6 address is found
-            if (addr != null)
-            {
-                // is an IP address
-                return true;
-            }
+            // is an IP address
+            return addr != null;
         }
         // no matches found
         return false;
@@ -540,7 +536,7 @@ public class NetworkUtils
             boolean useDNSCache)
         throws ParseException, DnssecException
     {
-        Record[] records = null;
+        Record[] records;
         try
         {
             Lookup lookup = createLookup(domain, Type.SRV);
@@ -567,7 +563,7 @@ public class NetworkUtils
         }
 
         //String[][] pvhn = new String[records.length][4];
-        SRVRecord srvRecords[] = new SRVRecord[records.length];
+        SRVRecord[] srvRecords = new SRVRecord[records.length];
 
         for (int i = 0; i < records.length; i++)
         {
@@ -582,10 +578,10 @@ public class NetworkUtils
         if (logger.isTraceEnabled())
         {
             logger.trace("DNS SRV query for domain " + domain + " returned:");
-            for (int i = 0; i < srvRecords.length; i++)
+            for (SRVRecord srvRecord : srvRecords)
             {
                 if (logger.isTraceEnabled())
-                    logger.trace("Found SRV record: {}", srvRecords[i]);
+                    logger.trace("Found SRV record: {}", srvRecord);
             }
         }
         return srvRecords;
@@ -692,7 +688,7 @@ public class NetworkUtils
     public static String[][] getNAPTRRecords(String domain)
         throws ParseException, DnssecException
     {
-        Record[] records = null;
+        Record[] records;
         try
         {
             Lookup lookup = createLookup(domain, Type.NAPTR);
@@ -716,10 +712,10 @@ public class NetworkUtils
         }
 
         List<String[]> recVals = new ArrayList<>(records.length);
-        for (int i = 0; i < records.length; i++)
+        for (Record record : records)
         {
             String[] recVal = new String[4];
-            NAPTRRecord r = (NAPTRRecord)records[i];
+            NAPTRRecord r = (NAPTRRecord) record;
 
             // todo - check here for broken records as missing transport
             recVal[0] = "" + r.getOrder();
@@ -735,7 +731,7 @@ public class NetworkUtils
             if (replacement.endsWith("."))
             {
                 recVal[2] =
-                        replacement.substring(0, replacement.length() - 1);
+                    replacement.substring(0, replacement.length() - 1);
             }
             else
             {
@@ -746,35 +742,29 @@ public class NetworkUtils
         }
 
         // sort the SRV RRs by RR value (lower is preferred)
-        Collections.sort(recVals, new Comparator<String[]>()
-        {
-            // Sorts NAPTR records by ORDER (low number first), PREFERENCE (low
-            // number first) and PROTOCOL (0-TLS, 1-TCP, 2-UDP).
-            public int compare(String array1[], String array2[])
+        // Sorts NAPTR records by ORDER (low number first), PREFERENCE (low
+        // number first) and PROTOCOL (0-TLS, 1-TCP, 2-UDP).
+        recVals.sort((array1, array2) -> {
+            // First tries to define the priority with the NAPTR order.
+            int order
+                = Integer.parseInt(array1[0]) - Integer.parseInt(array2[0]);
+            if (order != 0)
             {
-                // First tries to define the priority with the NAPTR order.
-                int order
-                    = Integer.parseInt(array1[0]) - Integer.parseInt(array2[0]);
-                if(order != 0)
-                {
-                    return order;
-                }
-
-                // Second tries to define the priority with the NAPTR
-                // preference.
-                int preference
-                    = Integer.parseInt(array1[3]) - Integer.parseInt(array2[3]);
-                if(preference != 0)
-                {
-                    return preference;
-                }
-
-                // Finally defines the priority with the NAPTR protocol.
-                int protocol
-                    = getProtocolPriority(array1[1])
-                        - getProtocolPriority(array2[1]);
-                return protocol;
+                return order;
             }
+
+            // Second tries to define the priority with the NAPTR
+            // preference.
+            int preference
+                = Integer.parseInt(array1[3]) - Integer.parseInt(array2[3]);
+            if (preference != 0)
+            {
+                return preference;
+            }
+
+            // Finally defines the priority with the NAPTR protocol.
+            return getProtocolPriority(array1[1])
+                - getProtocolPriority(array2[1]);
         });
 
         String[][] arrayResult = new String[recVals.size()][4];
@@ -869,7 +859,7 @@ public class NetworkUtils
 
         if (NetworkUtils.isValidIPAddress(hostAddress))
         {
-            byte[] addr = null;
+            byte[] addr;
 
             // attempt parse as IPv4 address
             addr = strToIPv4(hostAddress);
@@ -901,7 +891,7 @@ public class NetworkUtils
     public static InetSocketAddress[] getAandAAAARecords(String domain, int port)
         throws ParseException, DnssecException
     {
-        byte[] address = null;
+        byte[] address;
         if((address = strToIPv4(domain)) != null
             || (address = strToIPv6(domain)) != null)
         {
@@ -922,7 +912,7 @@ public class NetworkUtils
             }
         }
 
-        List<InetSocketAddress> addresses = new LinkedList<InetSocketAddress>();
+        List<InetSocketAddress> addresses = new LinkedList<>();
         boolean v6lookup = Boolean.getBoolean("java.net.preferIPv6Addresses");
 
         for(int i = 0; i < 2; i++)
@@ -937,7 +927,7 @@ public class NetworkUtils
                 logger.error("Failed to parse domain <" + domain + ">", tpe);
                 throw new ParseException(tpe.getMessage(), 0);
             }
-            Record[] records = null;
+            Record[] records;
             try
             {
                 records = lookup.run();
@@ -1061,7 +1051,6 @@ public class NetworkUtils
      * @return an array of InetSocketAddress containing records returned by the
      * DNS server - address and port .
      * @throws ParseException if <tt>domain</tt> is not a valid domain name.
-     * @throws DnssecException
      */
     public static InetSocketAddress getAAAARecord(String domain, int port)
         throws ParseException, DnssecException
@@ -1197,7 +1186,7 @@ public class NetworkUtils
         if (isMappedIPv4Addr(addr))
         {
             byte[] newAddr = new byte[IN4_ADDR_SIZE];
-            System.arraycopy(addr, 12, newAddr, 0, IN6_ADDR_SIZE);
+            System.arraycopy(addr, 12, newAddr, 0, IN4_ADDR_SIZE);
             return newAddr;
         }
 
@@ -1221,18 +1210,13 @@ public class NetworkUtils
             return false;
         }
 
-        if ((address[0] == 0x00) && (address[1] == 0x00)
+        return (address[0] == 0x00) && (address[1] == 0x00)
             && (address[2] == 0x00) && (address[3] == 0x00)
             && (address[4] == 0x00) && (address[5] == 0x00)
             && (address[6] == 0x00) && (address[7] == 0x00)
             && (address[8] == 0x00) && (address[9] == 0x00)
-            && (address[10] == (byte)0xff)
-            && (address[11] == (byte)0xff))
-        {
-            return true;
-        }
-
-        return false;
+            && (address[10] == (byte) 0xff)
+            && (address[11] == (byte) 0xff);
     }
 
     /**
@@ -1306,13 +1290,8 @@ public class NetworkUtils
     private static void sortSrvRecord(SRVRecord[] srvRecords)
     {
         // Sort the SRV RRs by priority (lower is preferred).
-        Arrays.sort(srvRecords, new Comparator<SRVRecord>()
-        {
-            public int compare(SRVRecord obj1, SRVRecord obj2)
-            {
-                return (obj1.getPriority() - obj2.getPriority());
-            }
-        });
+        Arrays.sort(srvRecords,
+            Comparator.comparingInt(SRVRecord::getPriority));
 
         // Sort the SRV RRs by weight (larger weight has a proportionately
         // higher probability of being selected).
