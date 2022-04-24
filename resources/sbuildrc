@@ -1,0 +1,9 @@
+$verbose = 1;
+$batch_mode = 1;
+$build_dir = $ENV{'BUILD_DIR'};
+$run_lintian = 0;
+$apt_update = 0;
+$apt_distupgrade = 0;
+
+# don't remove this, Perl needs it:
+1;

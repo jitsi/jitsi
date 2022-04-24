@@ -104,13 +104,13 @@ startScripts {
 
 def createJreTasks(String os) {
     def arch = project.property('application.target')
-    // weird adoptopenjdk arch notation
-    def adoptArch = arch == 'x86' ? 'x32' : arch
+    // adoptium arch notation
+    def adoptArch = arch == 'arm64' ? 'aarch64' : arch
     def getTask = tasks.create("get${os}Jre", Download) {
         def jreVersion = project.property('application.jre.version')
         onlyIfModified true
         overwrite true
-        src "https://api.adoptopenjdk.net/v3/binary/version/${jreVersion}/${os}/${adoptArch}/jre/hotspot/normal/adoptopenjdk?project=jdk"
+        src "https://api.adoptium.net/v3/binary/version/${jreVersion}/${os}/${adoptArch}/jre/hotspot/normal/eclipse?project=jdk"
         dest file("${project.buildDir}/jre-${jreVersion}-${os}-${arch}.${os == 'windows' ? 'zip' : 'tar.gz'}")
     }
 

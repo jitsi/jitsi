@@ -1,6 +1,17 @@
 name: Java Version Builds
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+      - new-build
+  #pull_request:
+  #  branches:
+  #    - master
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   java:
@@ -8,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java: [ 8, 11 ]
+        java: [ 11, 17 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -19,15 +30,8 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: temurin
           check-latest: true
-
-      - name: Cache Maven dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+          cache: maven
 
       - name: Build Java source with Maven
         run: |
-          mvn -B verify -DperformRelease=true  -DskipTests
+          mvn -B verify -DperformRelease=true -DskipTests

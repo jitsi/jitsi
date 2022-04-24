@@ -1,0 +1,3 @@
+none /var/lib/schroot/session        tmpfs uid=root,gid=root,mode=0755 0 0
+none /var/lib/schroot/union/overlay  tmpfs uid=root,gid=root,mode=0755 0 0
+none /var/lib/sbuild/build           tmpfs uid=sbuild,gid=sbuild,mode=2770 0 0
