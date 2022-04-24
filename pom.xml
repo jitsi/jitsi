@@ -26,7 +26,7 @@
     <versionName>Jitsi Desktop</versionName>
     <bouncycastleVersion>1.69</bouncycastleVersion>
     <jnaVersion>5.9.0</jnaVersion>
-    <smackVersion>4.4.4</smackVersion>
+    <smackVersion>4.4.5</smackVersion>
     <jxmppVersion>1.0.3</jxmppVersion>
     <minidnsVersion>1.0.2</minidnsVersion>
     <slf4jVersion>1.7.32</slf4jVersion>
@@ -152,7 +152,7 @@
           </exclusion>
         </exclusions>
       </dependency>
-      <dependency><groupId>org.jitsi</groupId><artifactId>jitsi-xmpp-extensions</artifactId><version>1.0-33-g9f660fa</version></dependency>
+      <dependency><groupId>org.jitsi</groupId><artifactId>jitsi-xmpp-extensions</artifactId><version>1.0-36-gc8f4179</version></dependency>
       <dependency>
         <groupId>org.jitsi</groupId>
         <artifactId>jitsi-lgpl-dependencies</artifactId>
