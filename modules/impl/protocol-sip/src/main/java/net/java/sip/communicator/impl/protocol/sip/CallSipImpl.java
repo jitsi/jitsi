@@ -25,6 +25,7 @@ import javax.sip.*;
 import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
+import javax.sip.message.Message;
 
 import gov.nist.javax.sip.header.*;
 import gov.nist.javax.sip.stack.*;
@@ -733,18 +734,18 @@ public class CallSipImpl
     }
 
     /**
-     * Extracts all headers from the request and return them in a map.
-     * @param req the request from which to extract headers
-     * @return a map containing all request header values, mapped to names.
+     * Extracts all headers from the request or response and return them in a map.
+     * @param msg the sip message from which to extract headers
+     * @return a map containing all header values, mapped to name.
      */
-    private static Map<String, String> extractRequestHeaders(Request req)
+    static Map<String, String> extractRequestHeaders(Message msg)
     {
         Map<String, String> headers = new HashMap<>();
-        for (Iterator<String> headerNameIter = req.getHeaderNames();
+        for (Iterator<String> headerNameIter = msg.getHeaderNames();
              headerNameIter.hasNext();)
         {
             String name = headerNameIter.next();
-            SIPHeader header = (SIPHeader)req.getHeader(name);
+            SIPHeader header = (SIPHeader)msg.getHeader(name);
             if (header != null)
                 headers.put(name, header.getValue());
         }

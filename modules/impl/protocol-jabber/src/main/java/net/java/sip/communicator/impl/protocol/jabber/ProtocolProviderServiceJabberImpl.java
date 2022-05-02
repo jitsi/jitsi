@@ -988,7 +988,7 @@ public class ProtocolProviderServiceJabberImpl
             | InterruptedException
             | SmackException ex)
         {
-            logger.error("Failed to connect to XMPP service", ex);
+            logger.error("Failed to connect to XMPP service for:" + this, ex);
 
             // server disconnect us after such an error, do cleanup
             // as we maybe will try again

@@ -246,7 +246,14 @@ public class ChatRoomJabberImpl
         {
             if (packet != null)
             {
-                ExtensionElement lobbyExtension = packet.getExtensionElement("lobbyroom", "jabber:client");
+                ExtensionElement lobbyExtension = packet.getError().getExtension(
+                    "lobbyroom", "http://jitsi.org/jitmeet");
+
+                // let's fallback to old code if this is missing, TODO: drop this at some point
+                if (lobbyExtension == null)
+                {
+                    lobbyExtension = packet.getExtensionElement("lobbyroom", "jabber:client");
+                }
 
                 if (lobbyExtension instanceof StandardExtensionElement)
                 {
@@ -998,7 +1005,8 @@ public class ChatRoomJabberImpl
         {
             // if we are already disconnected
             // leave maybe called from gui when closing chat window
-            if(connection != null && connection.isConnected())
+            // skip leave if not joined, this is in case of an error, but we call leave to clear listeners and such
+            if(connection != null && connection.isConnected() && multiUserChat.isJoined())
                 multiUserChat.leave();
         }
         catch(Throwable e)

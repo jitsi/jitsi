@@ -794,6 +794,12 @@ public class CallPeerSipImpl
     public void processInviteOK(ClientTransaction clientTransaction,
                                  Response         ok)
     {
+        if (this.getCall() != null)
+        {
+            CallSipImpl.extractRequestHeaders(ok).entrySet()
+                .forEach(entry -> this.getCall().setData(entry.getKey(), entry.getValue()));
+        }
+
         try
         {
             // Send the ACK. Do it now since we already got all the info we need

@@ -56,7 +56,6 @@ public class ReplacementActivator
         registerService(context, new Bliptv());
         registerService(context, new Dailymotion());
         registerService(context, new DirectImage(configService));
-        registerService(context, new Flickr());
         registerService(context, new Hulu());
         registerService(context, new Metacafe());
         registerService(context, new Twitpic());

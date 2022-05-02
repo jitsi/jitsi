@@ -521,8 +521,10 @@ public class ReconnectPluginActivator
     static void traceCurrentPPState()
     {
         logger.trace("connectedInterfaces: " + connectedInterfaces);
-        logger.trace("reconnectEnabledProviders: "
-            + reconnectEnabledProviders.keySet());
+        synchronized(reconnectEnabledProviders)
+        {
+            logger.trace("reconnectEnabledProviders: " + reconnectEnabledProviders.keySet());
+        }
         logger.trace("----");
     }
 
