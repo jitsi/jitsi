@@ -133,7 +133,7 @@
       <dependency>
         <groupId>org.jitsi</groupId>
         <artifactId>ice4j</artifactId>
-        <version>3.0-46-g64a7ca8</version>
+        <version>3.0-57-gdec3a87</version>
         <exclusions>
           <exclusion>
             <groupId>org.jetbrains.kotlin</groupId>
@@ -144,7 +144,7 @@
       <dependency>
         <groupId>org.jitsi</groupId>
         <artifactId>jitsi-utils</artifactId>
-        <version>1.0-107-g566f8f8</version>
+        <version>1.0-114-g43815ed</version>
         <exclusions>
           <exclusion>
             <groupId>org.jetbrains.kotlin</groupId>
@@ -152,11 +152,21 @@
           </exclusion>
         </exclusions>
       </dependency>
-      <dependency><groupId>org.jitsi</groupId><artifactId>jitsi-xmpp-extensions</artifactId><version>1.0-36-gc8f4179</version></dependency>
+      <dependency>
+        <groupId>org.jitsi</groupId>
+        <artifactId>jitsi-xmpp-extensions</artifactId>
+        <version>1.0-47-gc7154e0</version>
+          <exclusions>
+            <exclusion>
+              <groupId>org.jetbrains.kotlin</groupId>
+              <artifactId>*</artifactId>
+            </exclusion>
+          </exclusions>
+      </dependency>
       <dependency>
         <groupId>org.jitsi</groupId>
         <artifactId>jitsi-lgpl-dependencies</artifactId>
-        <version>1.2-13-gf6771c4</version>
+        <version>1.2-17-gde83568</version>
         <scope>runtime</scope>
         <classifier>${jitsi-deps-arch}</classifier>
       </dependency>
@@ -256,7 +266,7 @@
       <dependency>
         <groupId>org.jitsi</groupId>
         <artifactId>libjitsi</artifactId>
-        <version>1.1-0-g19f651af</version>
+        <version>1.1-7-gbd220eef</version>
       </dependency>
       <dependency>
         <groupId>org.apache.felix</groupId>
@@ -532,14 +542,27 @@
       </properties>
     </profile>
     <profile>
-      <id>mac</id>
+      <id>mac-x86_64</id>
       <activation>
         <os>
           <family>mac</family>
+           <arch>x86_64</arch>
         </os>
       </activation>
       <properties>
-        <jitsi-deps-arch>darwin</jitsi-deps-arch>
+        <jitsi-deps-arch>darwin-x86-64</jitsi-deps-arch>
+      </properties>
+    </profile>
+    <profile>
+      <id>mac-aarch64</id>
+      <activation>
+        <os>
+          <family>mac</family>
+          <arch>aarch64</arch>
+        </os>
+      </activation>
+      <properties>
+        <jitsi-deps-arch>darwin-aarch64</jitsi-deps-arch>
       </properties>
     </profile>
   </profiles>

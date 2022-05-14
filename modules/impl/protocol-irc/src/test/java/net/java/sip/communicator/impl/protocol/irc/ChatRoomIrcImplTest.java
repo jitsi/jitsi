@@ -19,7 +19,6 @@ package net.java.sip.communicator.impl.protocol.irc;
 
 import static org.junit.Assert.*;
 
-import com.google.common.collect.*;
 import java.io.*;
 import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -51,7 +50,7 @@ public class ChatRoomIrcImplTest
         EasyMock.expect(this.connectionMock.getChannelManager())
             .andReturn(this.channelMock);
         EasyMock.expect(this.channelMock.getChannelTypes()).andReturn(
-            Collections.unmodifiableSet(Sets.newHashSet('#', '&')));
+            Collections.unmodifiableSet(new HashSet<>(Arrays.asList('#', '&'))));
     }
 
     @Test
@@ -332,7 +331,7 @@ public class ChatRoomIrcImplTest
         EasyMock.expect(this.connectionMock.getChannelManager())
             .andReturn(this.channelMock);
         EasyMock.expect(this.channelMock.getChannelTypes()).andReturn(
-            Collections.unmodifiableSet(Sets.newHashSet('#', '$')));
+            Collections.unmodifiableSet(new HashSet<>(Arrays.asList('#', '&'))));
         EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock,
             this.channelMock,
             providerMock2);
@@ -352,7 +351,7 @@ public class ChatRoomIrcImplTest
         EasyMock.expect(this.connectionMock.getChannelManager())
             .andReturn(this.channelMock);
         EasyMock.expect(this.channelMock.getChannelTypes()).andReturn(
-            Collections.unmodifiableSet(Sets.newHashSet('#', '$')));
+            Collections.unmodifiableSet(new HashSet<>(Arrays.asList('#', '&'))));
         EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock,
             this.channelMock);
         ChatRoomIrcImpl room =
@@ -371,7 +370,7 @@ public class ChatRoomIrcImplTest
         EasyMock.expect(this.connectionMock.getChannelManager())
             .andReturn(this.channelMock);
         EasyMock.expect(this.channelMock.getChannelTypes()).andReturn(
-            Collections.unmodifiableSet(Sets.newHashSet('#', '$')));
+            Collections.unmodifiableSet(new HashSet<>(Arrays.asList('#', '&'))));
         EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock,
             this.channelMock);
         ChatRoomIrcImpl room =
@@ -516,7 +515,7 @@ public class ChatRoomIrcImplTest
         EasyMock.expect(specialConnectionMock.getChannelManager())
             .andReturn(specialChannelMock);
         EasyMock.expect(specialChannelMock.getChannelTypes()).andReturn(
-            Sets.newHashSet('&'));
+            new HashSet<>(Arrays.asList('&')));
         EasyMock.replay(specialProviderMock, specialStackMock,
             specialConnectionMock, specialChannelMock);
         ChatRoomIrcImpl alternative =
