@@ -28,10 +28,6 @@
     </dependency>
     <dependency>
       <groupId>org.jitsi</groupId>
-      <artifactId>dnssecjava</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jitsi</groupId>
       <artifactId>libjitsi</artifactId>
       <exclusions>
         <exclusion>

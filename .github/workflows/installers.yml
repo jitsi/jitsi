@@ -68,7 +68,6 @@ jobs:
         dist:
           - { vendor: ubuntu, dist: bionic }
           - { vendor: ubuntu, dist: focal }
-          - { vendor: ubuntu, dist: impish }
           - { vendor: ubuntu, dist: jammy }
           - { vendor: debian, dist: buster }
           - { vendor: debian, dist: bullseye }
@@ -343,5 +342,4 @@ jobs:
     with:
       release_type: unstable
       tag: r${{ needs.version.outputs.jitsi_version_short }}
-    secrets:
-      APT_DESKTOP_REPO_UPLOAD: ${{ secrets.APT_DESKTOP_REPO_UPLOAD }}
+    secrets: inherit

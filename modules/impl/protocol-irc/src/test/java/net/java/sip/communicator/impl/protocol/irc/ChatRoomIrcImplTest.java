@@ -50,7 +50,7 @@ public class ChatRoomIrcImplTest
         EasyMock.expect(this.connectionMock.getChannelManager())
             .andReturn(this.channelMock);
         EasyMock.expect(this.channelMock.getChannelTypes()).andReturn(
-            Collections.unmodifiableSet(new HashSet<>(Arrays.asList('#', '&'))));
+            Set.of('#', '&'));
     }
 
     @Test
@@ -331,7 +331,7 @@ public class ChatRoomIrcImplTest
         EasyMock.expect(this.connectionMock.getChannelManager())
             .andReturn(this.channelMock);
         EasyMock.expect(this.channelMock.getChannelTypes()).andReturn(
-            Collections.unmodifiableSet(new HashSet<>(Arrays.asList('#', '&'))));
+            Set.of('#', '&'));
         EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock,
             this.channelMock,
             providerMock2);
@@ -351,7 +351,7 @@ public class ChatRoomIrcImplTest
         EasyMock.expect(this.connectionMock.getChannelManager())
             .andReturn(this.channelMock);
         EasyMock.expect(this.channelMock.getChannelTypes()).andReturn(
-            Collections.unmodifiableSet(new HashSet<>(Arrays.asList('#', '&'))));
+            Set.of('#', '&'));
         EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock,
             this.channelMock);
         ChatRoomIrcImpl room =
@@ -370,7 +370,7 @@ public class ChatRoomIrcImplTest
         EasyMock.expect(this.connectionMock.getChannelManager())
             .andReturn(this.channelMock);
         EasyMock.expect(this.channelMock.getChannelTypes()).andReturn(
-            Collections.unmodifiableSet(new HashSet<>(Arrays.asList('#', '&'))));
+            Set.of('#', '&'));
         EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock,
             this.channelMock);
         ChatRoomIrcImpl room =
@@ -515,7 +515,7 @@ public class ChatRoomIrcImplTest
         EasyMock.expect(specialConnectionMock.getChannelManager())
             .andReturn(specialChannelMock);
         EasyMock.expect(specialChannelMock.getChannelTypes()).andReturn(
-            new HashSet<>(Arrays.asList('&')));
+            Set.of('&'));
         EasyMock.replay(specialProviderMock, specialStackMock,
             specialConnectionMock, specialChannelMock);
         ChatRoomIrcImpl alternative =

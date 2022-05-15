@@ -19,8 +19,8 @@ package net.java.sip.communicator.impl.dns;
 
 import java.io.*;
 
-import org.jitsi.dnssec.validator.*;
 import org.xbill.DNS.*;
+import org.xbill.DNS.dnssec.*;
 
 /**
  * DNS Message that adds DNSSEC validation information.
@@ -30,8 +30,8 @@ import org.xbill.DNS.*;
 public class SecureMessage
     extends Message
 {
-    private boolean secure;
-    private boolean bogus;
+    private final boolean secure;
+    private final boolean bogus;
     private String bogusReason;
 
     /**
@@ -39,7 +39,6 @@ public class SecureMessage
      * dnssecjava resolve.
      *
      * @param msg The answer of the dnssecjava resolver.
-     * @throws IOException
      */
     public SecureMessage(Message msg) throws IOException
     {
@@ -50,7 +49,7 @@ public class SecureMessage
             if (set.getName().equals(Name.root) && set.getType() == Type.TXT
                     && set.getDClass() == ValidatingResolver.VALIDATION_REASON_QCLASS)
             {
-                bogusReason = ((TXTRecord)set.first()).getStrings().get(0).toString();
+                bogusReason = ((TXTRecord)set.first()).getStrings().get(0);
             }
         }
     }
@@ -87,7 +86,7 @@ public class SecureMessage
 
     /**
      * Converts the Message to a String. The fields secure, bogus and whyBogus
-     * are append as a comment.
+     * are appended as a comment.
      */
     @Override
     public String toString()

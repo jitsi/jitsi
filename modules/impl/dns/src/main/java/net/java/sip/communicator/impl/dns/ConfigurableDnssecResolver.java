@@ -21,6 +21,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.*;
+import java.nio.charset.*;
+import java.time.*;
 import java.util.*;
 import java.util.List;
 
@@ -31,10 +33,10 @@ import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jitsi.dnssec.validator.ValidatingResolver;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.xbill.DNS.*;
+import org.xbill.DNS.dnssec.*;
 
 /**
  * Resolver that wraps a DNSSEC capable resolver and handles validation
@@ -43,7 +45,6 @@ import org.xbill.DNS.*;
  * @author Ingo Bauersachs
  */
 public class ConfigurableDnssecResolver
-    extends ValidatingResolver
     implements CustomResolver
 {
     private final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ConfigurableDnssecResolver.class);
@@ -63,13 +64,13 @@ public class ConfigurableDnssecResolver
 
     final static String EVENT_TYPE = "DNSSEC_NOTIFICATION";
 
-    private ConfigurationService config;
-    private ResourceManagementService R
+    private final ConfigurationService config;
+    private final ResourceManagementService R
         = DnsUtilActivator.getResources();
-    private Map<String, Date> lastNotifications
-        = new HashMap<String, Date>();
+    private final Map<String, Date> lastNotifications = new HashMap<>();
 
-    private ExtendedResolver headResolver;
+    private final ValidatingResolver resolver;
+    private final ExtendedResolver headResolver;
 
     /**
      * Creates a new instance of this class. Tries to use the system's
@@ -79,7 +80,8 @@ public class ConfigurableDnssecResolver
         ConfigurationService configService,
         ExtendedResolver headResolver)
     {
-        super(headResolver);
+        this.headResolver = headResolver;
+        this.resolver = new ValidatingResolver(headResolver);
         this.config = configService;
 
         List<String> propNames
@@ -96,14 +98,13 @@ public class ConfigurableDnssecResolver
 
         try
         {
-            super.init(config);
+            resolver.init(config);
         }
         catch (IOException e)
         {
             logger.error("Extended dnssec properties contained an error", e);
         }
 
-        this.headResolver = headResolver;
         reset();
         Lookup.setDefaultResolver(this);
 
@@ -112,6 +113,42 @@ public class ConfigurableDnssecResolver
                 ConfigurableDnssecResolver.EVENT_TYPE,
                 NotificationAction.ACTION_POPUP_MESSAGE,
                 null, null);
+    }
+
+    @Override
+    public void setPort(int port)
+    {
+        resolver.setPort(port);
+    }
+
+    @Override
+    public void setTCP(boolean flag)
+    {
+        resolver.setTCP(flag);
+    }
+
+    @Override
+    public void setIgnoreTruncation(boolean flag)
+    {
+        resolver.setIgnoreTruncation(flag);
+    }
+
+    @Override
+    public void setEDNS(int version, int payloadSize, int flags, List<EDNSOption> options)
+    {
+        resolver.setEDNS(version, payloadSize, flags, options);
+    }
+
+    @Override
+    public void setTSIGKey(TSIG key)
+    {
+        resolver.setTSIGKey(key);
+    }
+
+    @Override
+    public void setTimeout(Duration timeout)
+    {
+        resolver.setTimeout(timeout);
     }
 
     /**
@@ -135,10 +172,10 @@ public class ConfigurableDnssecResolver
         //c)  0   |  0   ||  ok  |   nok    |      ok      |    ok    |   ask
         //---------------------------------------------------------------------
 
-        SecureMessage msg = new SecureMessage(super.send(query));
+        SecureMessage msg = new SecureMessage(resolver.send(query));
         String fqdn = msg.getQuestion().getName().toString();
         String type = Type.string(msg.getQuestion().getType());
-        String propName = createPropNameUnsigned(fqdn, type);
+        String propName = createPropNameUnsigned(fqdn);
         SecureResolveMode defaultAction = Enum.valueOf(SecureResolveMode.class,
             config.getString(
                 PNAME_DNSSEC_VALIDATION_MODE,
@@ -389,7 +426,7 @@ public class ConfigurableDnssecResolver
               );
     }
 
-    private String createPropNameUnsigned(String fqdn, String type)
+    private String createPropNameUnsigned(String fqdn)
     {
         return PNAME_BASE_DNSSEC_PIN + "." + fqdn.replace(".", "__");
     }
@@ -457,15 +494,14 @@ public class ConfigurableDnssecResolver
 
         try
         {
-            super.loadTrustAnchors(new ByteArrayInputStream(
-                sb.toString().getBytes("ASCII")));
+            resolver.loadTrustAnchors(new ByteArrayInputStream(
+                sb.toString().getBytes(StandardCharsets.US_ASCII)));
         }
         catch (IOException e)
         {
             logger.error("Could not load the trust anchors", e);
         }
 
-        if(logger.isTraceEnabled())
-            logger.trace("Loaded trust anchors " + sb.toString());
+        logger.trace("Loaded trust anchors {}", sb);
     }
 }
