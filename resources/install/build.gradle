@@ -1,0 +1,213 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath 'net.jsign:jsign-gradle-plugin:3.1'
+    }
+}
+
+plugins {
+    id 'application'
+    id 'de.undercouch.download' version '4.1.1'
+    id 'nebula.ospackage' version '8.5.6'
+    id 'signing'
+}
+
+apply plugin: 'net.jsign'
+
+ext {
+    projectRootDir = file("${projectDir}/../../")
+    libDir = file("${projectRootDir}/lib")
+    nativeSrcDir = file("${projectRootDir}/native")
+    nativeLibDir = file("${libDir}/native")
+    bundlesDir = file("${projectRootDir}/target/bundles")
+
+    if (project.version == '0.0') {
+        def pom = new XmlSlurper(false, true).parse("${projectRootDir}/pom.xml")
+        project.version = pom.properties.revision.text()
+    }
+
+    def mavenMatcher = project.version =~ /^(?<MAJOR>\d+)\.(?<MINOR>\d+)(\.(?<REVISION>\d+))?(\.(?<BUILD>\d+))?(-(?<SUFFIX>\S+))?$/
+    def gitVersion
+    if (!project.hasProperty('gitVersion')) {
+        gitVersion = 'git describe --match Jitsi-[0-9.]* --long --dirty --always'.execute([], projectDir).text.trim()
+    } else {
+        gitVersion = project.property('gitVersion')
+    }
+
+    println "Parsing versions: ${project.version} / ${gitVersion}"
+    def gitMatcher = gitVersion =~ /^((?<TAG>Jitsi-[0-9.]+)-(?<NCOMMITS>\d+)-)?(?<REV>\S+)$/
+    if (!mavenMatcher.matches() || !gitMatcher.matches()) {
+        throw new GradleException("Unknown project version format: ${project.version} / ${gitVersion}")
+    }
+
+    versionMajor = mavenMatcher.group('MAJOR').toString()
+    versionMinor = mavenMatcher.group('MINOR').toString()
+    versionRevision = gitMatcher.group('NCOMMITS').toString()
+    versionBuild = '0'.toString()
+    versionSuffix = (mavenMatcher.group('SUFFIX') ?: '').toString()
+    versionHash = gitMatcher.group('REV').toString()
+
+    versionShort = "${ext.versionMajor}.${ext.versionMinor}.${ext.versionRevision}".toString()
+    versionFull = "${ext.versionShort}${ext.versionSuffix ? '-' + ext.versionSuffix : ''}+${ext.versionHash}".toString()
+}
+
+signing {
+    String signingKey = findProperty("signingKey")
+    String signingPassword = findProperty("signingPassword")
+    required signingKey != null
+    useInMemoryPgpKeys signingKey?.replace("\\n", "\n"), signingPassword
+}
+
+application {
+    mainClass = 'net.java.sip.communicator.launcher.SIPCommunicator'
+    executableDir = ''
+}
+
+def getLauncherClasspath() {
+    def cpFile = file("${projectRootDir}/target/launcher-classpath")
+    if (cpFile != null && cpFile.exists()) {
+        cpFile.text.split(System.getProperty("path.separator")).collect { "lib/${file(it).name}" } + [
+                "lib/jitsi-launcher-${project.version}.jar",
+                'config/',
+        ]
+    } else {
+        []
+    }
+}
+
+startScripts {
+    applicationName = project.name
+    defaultJvmOpts = [
+            '-splash:splash.gif',
+            '-Djava.library.path=_JITSI_APP_HOME_native',
+            '-Djna.library.path=_JITSI_APP_HOME_native',
+            '-Dfelix.config.properties=file:config/felix.properties',
+            '-Dlogback.configurationFile=config/logback.xml',
+    ]
+    classpath = files(getLauncherClasspath())
+    doLast {
+        unixScript.text = unixScript.text
+                .replace('_JITSI_APP_HOME_', '$APP_HOME/')
+                .replace('lib/config', 'config')
+        windowsScript.text = windowsScript.text
+                .replace('_JITSI_APP_HOME_', '%APP_HOME%\\')
+                .replace('lib\\config', 'config')
+        file("${outputDir}/config").mkdirs()
+        file("${outputDir}/config/classpath").text = getLauncherClasspath().join('\n') + '\n'
+    }
+}
+
+def createJreTasks(String os) {
+    def arch = project.property('application.target')
+    // adoptium arch notation
+    def adoptArch = arch == 'arm64' ? 'aarch64' : arch
+    def getTask = tasks.create("get${os}Jre", Download) {
+        def jreVersion = project.property('application.jre.version')
+        onlyIfModified true
+        overwrite true
+        src "https://api.adoptium.net/v3/binary/version/${jreVersion}/${os}/${adoptArch}/jre/hotspot/normal/eclipse?project=jdk"
+        dest file("${project.buildDir}/jre-${jreVersion}-${os}-${arch}.${os == 'windows' ? 'zip' : 'tar.gz'}")
+    }
+
+    def hashProperty = "application.jre.${os}.${arch}-hash"
+    if (project.hasProperty(hashProperty)) {
+        def verifyTask = tasks.create("verify${os}Jre", Verify) {
+            src getTask.dest
+            algorithm 'SHA-256'
+            checksum project.property("application.jre.${os}.${arch}-hash")
+        }
+        verifyTask.dependsOn += getTask
+        tasks.find { it.name.equalsIgnoreCase("install${os}Dist") }.dependsOn += verifyTask
+    }
+    getTask
+}
+
+def nativeCopySpec(String os) {
+    copySpec {
+        into('native') {
+            from "${nativeLibDir}/${os}-${project.property('application.target')}"
+        }
+    }
+}
+
+distributions {
+    main {
+        contents {
+            into('lib') {
+                from(bundlesDir)
+            }
+            exclude '*.pom'
+        }
+    }
+
+    linux {
+        contents {
+            with distributions.main.contents
+            with nativeCopySpec('linux')
+            exclude '*.bat'
+            exclude '*orange*'
+            exclude '*sparkle*'
+            exclude '*mac_widgets*'
+        }
+    }
+
+    mac {
+        contents {
+            into('Jitsi.app/Contents/Resources/Java') {
+                with distributions.main.contents
+                with nativeCopySpec('mac')
+                exclude '*.bat'
+                exclude '*dbus*'
+                exclude '*galago*'
+            }
+
+            into('Jitsi.app/Contents/PlugIns') {
+                def getJreTask = createJreTasks('mac')
+                from tarTree(getJreTask.dest)
+                exclude '**/man'
+            }
+
+            // TODO: working? might only be possible once the dmg is mounted
+            rename {
+                if (it.startsWith('dmg-')) {
+                    it.replace('dmg-', '')
+                }
+            }
+        }
+    }
+
+    windows {
+        contents {
+            with distributions.main.contents
+            with nativeCopySpec('windows')
+            exclude '*dbus*'
+            exclude '*orange*'
+            exclude '*sparkle*'
+            exclude '*mac_widgets*'
+            exclude '*galago*'
+
+            into('jre') {
+                def getJreTask = createJreTasks('windows')
+                from zipTree(getJreTask.dest)
+                eachFile {
+                    // replace first folder in archive (e.g. jdk-version-something)
+                    // with generic name. 'into' above isn't really considered
+                    path = 'jre/' + (path - ~/^(.+?\/){2}/)
+                }
+                exclude {
+                    it.file.name.endsWith('.exe') && it.file.name != 'java.exe'
+                }
+                includeEmptyDirs = false
+            }
+        }
+    }
+}
+
+apply from: 'debian/build.gradle'
+apply from: 'windows/build.gradle'
+apply from: 'mac/build.gradle'

@@ -1,0 +1,232 @@
+<?xml version="1.0" ?>
+<Include xmlns="http://schemas.microsoft.com/wix/2006/wi">
+<!--
+  Jitsi, the OpenSource Java VoIP and Instant Messaging client.
+
+  Copyright @ 2015 Atlassian Pty Ltd
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<Fragment>
+<ComponentGroup Id="ComponentGroup_RegistryEntries">
+  <Component
+      Id="Component_UrlCapabilities"
+      Directory="TARGETDIR"
+      Guid="5798BE9D-AEA5-4DA8-992E-EEAD03D7E4CB"
+      Win64="no">
+    <RegistryKey Key="Software\Jitsi\Capabilities" Root="HKLM">
+      <RegistryValue Name="ApplicationDescription" Type="string" Value="Jitsi, the Open Source VoIP and Instant Messaging client." />
+    </RegistryKey>
+    <RegistryKey Key="Software\RegisteredApplications" Root="HKLM">
+      <RegistryValue Name="Jitsi" Type="string" Value="Software\Jitsi\Capabilities" />
+    </RegistryKey>
+    <RegistryKey Key="Software\Jitsi\Capabilities\UrlAssociations" Root="HKLM">
+      <RegistryValue Name="callto" Type="string" Value="Jitsi.Url" />
+      <RegistryValue Name="sip" Type="string" Value="Jitsi.Url" />
+      <RegistryValue Name="tel" Type="string" Value="Jitsi.Url" />
+      <RegistryValue Name="xmpp" Type="string" Value="Jitsi.Url" />
+    </RegistryKey>
+    <RegistryKey Key="Software\Classes\Jitsi.Url" Root="HKLM">
+      <RegistryValue
+          Key="shell\open\command"
+          KeyPath="yes"
+          Type="string"
+          Value='"[INSTALLDIR]$(var.LAUNCHER_NAME).exe" "%1"' />
+    </RegistryKey>
+  </Component>
+
+  <Component
+      Id="Component_SipRegistryEntries"
+      Directory="TARGETDIR"
+      Guid="CF88EDC2-7D07-4269-946C-B8FF917887ED">
+    <Condition><![CDATA[CREATE_SIP_REGISTRY_ENTRIES = 1]]></Condition>
+    <RegistryKey Key="sip" Root="HKCR">
+      <RegistryValue Type="string" Value="URL: SIP Protocol handler" />
+      <RegistryValue Name="URL Protocol" Type="string" Value="" />
+      <RegistryValue
+          Key="DefaultIcon"
+          Type="string"
+          Value="[INSTALLDIR]sc-logo.ico" />
+      <RegistryValue
+          Key="shell\open\command"
+          KeyPath="yes"
+          Type="string"
+          Value='"[INSTALLDIR]$(var.LAUNCHER_NAME).exe" %1' />
+    </RegistryKey>
+  </Component>
+  <Component
+      Id="Component_XmppRegistryEntries"
+      Directory="TARGETDIR"
+      Guid="3C9C09AE-1F57-11DE-B96D-6B8D56D89593">
+    <Condition><![CDATA[CREATE_XMPP_REGISTRY_ENTRIES = 1]]></Condition>
+    <RegistryKey Key="xmpp" Root="HKCR">
+      <RegistryValue Type="string" Value="URL: XMPP Protocol handler" />
+      <RegistryValue Name="URL Protocol" Type="string" Value="" />
+      <RegistryValue
+          Key="DefaultIcon"
+          Type="string"
+          Value="[INSTALLDIR]sc-logo.ico" />
+      <RegistryValue
+          Key="shell\open\command"
+          KeyPath="yes"
+          Type="string"
+          Value='"[INSTALLDIR]$(var.LAUNCHER_NAME).exe" %1' />
+    </RegistryKey>
+  </Component>
+
+  <Component
+      Id="Component_StartupRegistryEntries"
+      Directory="TARGETDIR"
+      Guid="64F3D56F-62D3-420D-B5A3-C448EB169708">
+    <Condition><![CDATA[HAS_STARTUP_REGISTRY]]></Condition>
+    <RegistryKey
+        Key="Software\Microsoft\Windows\CurrentVersion\Run"
+        Root="HKCU">
+      <RegistryValue
+          KeyPath="yes"
+          Name="$(var.PRODUCT)"
+          Type="string"
+          Value="[INSTALLDIR]$(var.LAUNCHER_NAME).exe" />
+    </RegistryKey>
+  </Component>
+
+  <Component
+      Id="Component_MsOfficeCommRegistryEntries_X86"
+      Directory="TARGETDIR"
+      Guid="9a590be3-d2c6-48e6-8d6a-a8ca71ad0aac"
+      Win64="no">
+    <Condition><![CDATA[CREATE_MSOFFICECOMM_REGISTRY_ENTRIES = 1]]></Condition>
+    <RegistryKey
+        Key="SOFTWARE\Microsoft\Office\Outlook\Call Integration"
+        Root="HKLM">
+      <RegistryValue
+          KeyPath="yes"
+          Name="IMApplication"
+          Type="string"
+          Value="$(var.LAUNCHER_NAME).exe" />
+    </RegistryKey>
+  	<RegistryKey
+        Key="SOFTWARE\IM Providers\$(var.PRODUCT)"
+        Root="HKLM">
+      <RegistryValue
+          Name="FriendlyName"
+          Type="string"
+          Value="$(var.PRODUCT)" />
+      <RegistryValue
+          Name="GUID"
+          Type="string"
+          Value="{8885370D-B33E-44B7-875D-28E403CF9270}" />
+      <RegistryValue
+          Name="ProcessName"
+          Type="string"
+          Value="$(var.LAUNCHER_NAME).exe" />
+    </RegistryKey>
+  </Component>
+  
+	<Component
+      Id="Component_SetDefaultIMProvider"
+      Directory="TARGETDIR"
+      Guid="abb6afe7-8787-4325-841e-a9181a09fcc9">
+    <Condition><![CDATA[SET_DEFAULT_IM_APP = 1]]></Condition>
+    <RegistryKey
+        Key="Software\IM Providers"
+        Root="HKCU">
+      <RegistryValue
+          KeyPath="yes"
+          Name="DefaultIMApp"
+          Type="string"
+          Value="$(var.PRODUCT)" />
+    </RegistryKey>
+  </Component>
+  
+  <Component
+      Id="Component_UnsetDefaultIMProvider"
+      Directory="TARGETDIR"
+      Guid="47b4b7a0-d668-4bb0-9da1-7103e4c668d0">
+    <Condition><![CDATA[(IS_DEFAULT_IM_APP = "$(var.PRODUCT)") AND ((SET_DEFAULT_IM_APP = 0) OR NOT (SET_DEFAULT_IM_APP))]]></Condition>
+    <RegistryKey
+        Key="Software\IM Providers"
+        Root="HKCU">
+      <RegistryValue
+          KeyPath="yes"
+          Name="DefaultIMApp"
+          Type="string"
+          Value="Communicator" />
+    </RegistryKey>
+  </Component>
+  
+<?if $(var.Platform) = x64 ?>
+  <Component
+      Id="Component_UrlCapabilities64"
+      Directory="TARGETDIR"
+      Guid="3de76b6b-90b9-403d-82ac-51d841ea95af"
+      Win64="yes">
+    <RegistryKey Key="Software\Jitsi\Capabilities" Root="HKLM">
+      <RegistryValue Name="ApplicationDescription" Type="string" Value="Jitsi, the Open Source VoIP and Instant Messaging client." />
+    </RegistryKey>
+    <RegistryKey Key="Software\RegisteredApplications" Root="HKLM">
+      <RegistryValue Name="Jitsi" Type="string" Value="Software\Jitsi\Capabilities" />
+    </RegistryKey>
+    <RegistryKey Key="Software\Jitsi\Capabilities\UrlAssociations" Root="HKLM">
+      <RegistryValue Name="callto" Type="string" Value="Jitsi.Url" />
+      <RegistryValue Name="sip" Type="string" Value="Jitsi.Url" />
+      <RegistryValue Name="tel" Type="string" Value="Jitsi.Url" />
+      <RegistryValue Name="xmpp" Type="string" Value="Jitsi.Url" />
+    </RegistryKey>
+    <RegistryKey Key="Software\Classes\Jitsi.Url" Root="HKLM">
+      <RegistryValue
+          Key="shell\open\command"
+          KeyPath="yes"
+          Type="string"
+          Value='"[INSTALLDIR]$(var.LAUNCHER_NAME).exe" "%1"' />
+    </RegistryKey>
+  </Component>
+
+  <Component
+      Id="Component_MsOfficeCommRegistryEntries_X64"
+      Directory="TARGETDIR"
+      Guid="ce3c9a0f-1876-470e-823c-a29d7b7fcb26"
+      Win64="yes">
+    <Condition><![CDATA[CREATE_MSOFFICECOMM_REGISTRY_ENTRIES = 1]]></Condition>
+    <RegistryKey
+        Key="SOFTWARE\Microsoft\Office\Outlook\Call Integration"
+        Root="HKLM">
+      <RegistryValue
+          KeyPath="yes"
+          Name="IMApplication"
+          Type="string"
+          Value="$(var.LAUNCHER_NAME).exe" />
+    </RegistryKey>
+    <RegistryKey
+        Key="SOFTWARE\IM Providers\$(var.PRODUCT)"
+        Root="HKLM">
+        <RegistryValue
+          Name="FriendlyName"
+          Type="string"
+          Value="$(var.PRODUCT)" />
+      <RegistryValue
+          Name="GUID"
+          Type="string"
+          Value="{8885370D-B33E-44B7-875D-28E403CF9270}" />
+      <RegistryValue
+          Name="ProcessName"
+          Type="string"
+          Value="$(var.LAUNCHER_NAME).exe" />
+    </RegistryKey>
+  </Component>
+<?endif ?>
+
+</ComponentGroup>
+</Fragment>
+</Include>

@@ -1,0 +1,296 @@
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <!--
+    Jitsi, the OpenSource Java VoIP and Instant Messaging client.
+  
+    Copyright @ 2015 Atlassian Pty Ltd
+  
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+  
+        http://www.apache.org/licenses/LICENSE-2.0
+  
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+  -->
+
+  <!--
+    The variable Win64 which is of YesNoType may be used anywhere now.
+  -->
+  <?if $(var.Platform) = x64 ?>
+  <?define Win64 = yes ?>
+  <?define ProgramFilesFolder = ProgramFiles64Folder ?>
+  <?else ?>
+  <?define Win64 = no ?>
+  <?define ProgramFilesFolder = ProgramFilesFolder ?>
+  <?endif ?>
+
+  <Product
+    Id="*"
+    Language="1033"
+    Codepage='$(var.codepage)'
+    Manufacturer="$(var.MANUFACTURER)"
+    Name="$(var.PRODUCT)"
+    UpgradeCode="$(var.UPGRADE_CODE)"
+    Version="$(var.VERSION)">
+
+    <!-- in Language we list all languages we support for localize -->
+    <Package
+      Compressed="yes"
+      InstallerVersion="200"
+      InstallScope="perMachine"
+      Languages="1033,1036"
+      Manufacturer="$(var.MANUFACTURER)"
+      Platform="$(var.Platform)"
+      SummaryCodepage='$(var.codepage)'/>
+
+    <Upgrade Id="$(var.UPGRADE_CODE)">
+      <UpgradeVersion
+        IncludeMaximum="yes"
+        IncludeMinimum="yes"
+        Language="1033,1036"
+        Maximum="$(var.VERSION)"
+        Minimum="0.0.0.0"
+        Property="UPGRADEFOUND"/>
+    </Upgrade>
+
+    <UIRef Id="UI_Custom_InstallDir"/>
+    <UIRef Id="UI_Custom_ProgressDlg"/>
+    <UIRef Id="UI_Custom_MaintenanceWelcomeDlg"/>
+    <UIRef Id="UI_Custom_ResumeDlg"/>
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="$(var.ProgramFilesFolder)">
+        <Directory Id="INSTALLDIR" Name="$(var.PRODUCT)">
+        </Directory>
+      </Directory>
+
+      <Directory Id="DesktopFolder" Name="Desktop">
+        <Component Id="Component_DesktopShortcut"
+          Guid="49BF78B5-155F-43F2-BCEC-3CABC0D9531E">
+          <Condition><![CDATA[CREATE_DESKTOP_SHORTCUT = 1]]></Condition>
+          <Shortcut
+            Id="Shortcut_Desktop"
+            Icon="Icon.ico"
+            Name="$(var.PRODUCT)"
+            Target="[INSTALLDIR]$(var.LAUNCHER_NAME).exe"
+            WorkingDirectory="INSTALLDIR"/>
+          <RegistryValue
+            Key="Software\Microsoft\$(var.PRODUCT)"
+            KeyPath="yes"
+            Name="DesktopShortcut"
+            Root="HKCU"
+            Type="integer"
+            Value="1"/>
+        </Component>
+      </Directory>
+      <Directory Id="ProgramMenuFolder" Name="Programs">
+        <Component Id="Component_StartMenuShortcut"
+          Guid="6B8CDA4E-16C9-4AF4-B338-CBA4775ADD0D">
+          <Condition><![CDATA[CREATE_START_MENU_SHORTCUT = 1]]></Condition>
+          <Shortcut
+            Id="Shortcut_StartMenu"
+            Icon="Icon.ico"
+            Name="$(var.PRODUCT)"
+            Target="[INSTALLDIR]$(var.LAUNCHER_NAME).exe"
+            WorkingDirectory="INSTALLDIR"/>
+          <RegistryValue
+            Key="Software\Microsoft\$(var.PRODUCT)"
+            KeyPath="yes"
+            Name="StartMenuShortcut"
+            Root="HKCU"
+            Type="integer"
+            Value="1"/>
+        </Component>
+      </Directory>
+    </Directory>
+
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLDIR">
+      <ComponentGroupRef Id="ComponentGroup_HeatExe"/>
+    </ComponentGroup>
+
+    <Feature Id="Universe" Level="1" Title="$(var.PRODUCT)">
+      <ComponentGroupRef Id="ProductComponents"/>
+      <ComponentRef Id="Component_DesktopShortcut"/>
+      <ComponentRef Id="Component_StartMenuShortcut"/>
+
+      <ComponentGroupRef Id="ComponentGroup_RegistryEntries"/>
+      <ComponentGroupRef Id="ComponentGroup_DefaultOverrides"/>
+    </Feature>
+
+    <!--
+      If the Media is uncompressed, the (binary) patches on the resulting MSI will
+      be smaller in comparison to the case of compressed Media. Of course, if the
+      Media is uncompressed, the resulting MSI will be larger. In order to solve the
+      latter problem, we will compress the resulting MSI upon embedding it into the
+      setup bootstrapper.
+    -->
+    <Media Id="1" Cabinet="Data1.cab" CompressionLevel="$(var.COMPRESS_LEVEL)"
+      EmbedCab="yes"/>
+
+
+    <CustomAction
+      Id="LaunchApplication"
+      BinaryKey="WixCA"
+      DllEntry="WixShellExec"
+      Impersonate="yes"/>
+    <CustomAction
+      Id="SetCREATE_DESKTOP_SHORTCUT"
+      Property="CREATE_DESKTOP_SHORTCUT"
+      Value="1"/>
+    <CustomAction
+      Id="SetCREATE_START_MENU_SHORTCUT"
+      Property="CREATE_START_MENU_SHORTCUT"
+      Value="1"/>
+    <CustomAction
+      Id="SetCREATE_STARTUP_REGISTRY"
+      Property="CREATE_STARTUP_REGISTRY"
+      Value="1"/>
+    <CustomAction
+      Id="SetCREATE_DISABLE_UPDATES_CHECK"
+      Property="CREATE_DISABLE_UPDATES_CHECK"
+      Value="1"/>
+    <CustomAction
+      Id="UnsetCREATE_DISABLE_UPDATES_CHECK"
+      Property="CREATE_DISABLE_UPDATES_CHECK"
+      Value="0"/>
+    <CustomAction
+      Id="SetINSTALLDIR"
+      Property="INSTALLDIR"
+      Value="[SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR]"/>
+    <CustomAction
+      Id="SetIS_AUTOUPDATE"
+      Property="IS_AUTOUPDATE"
+      Value="1"/>
+    <CustomAction
+      Id="UnsetCREATE_DESKTOP_SHORTCUT"
+      Property="CREATE_DESKTOP_SHORTCUT"
+      Value="0"/>
+    <CustomAction
+      Id="UnsetCREATE_START_MENU_SHORTCUT"
+      Property="CREATE_START_MENU_SHORTCUT"
+      Value="0"/>
+    <CustomAction
+      Id="UnsetCREATE_STARTUP_REGISTRY"
+      Property="CREATE_STARTUP_REGISTRY"
+      Value="0"/>
+    <CustomAction
+      BinaryKey="CleanSweepExe"
+      ExeCommand=""
+      Id="CleanSweep"
+      Impersonate="yes"
+      Return="ignore"/>
+
+    <InstallExecuteSequence>
+      <RemoveExistingProducts Before="InstallInitialize"/>
+
+      <Custom Action="SetIS_AUTOUPDATE" After="AppSearch">
+        <![CDATA[NOT Installed AND SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR <> ""]]>
+      </Custom>
+      <Custom Action="SetINSTALLDIR" After="SetIS_AUTOUPDATE">
+        <![CDATA[IS_AUTOUPDATE = 1]]>
+      </Custom>
+      <Custom Action="SetCREATE_DESKTOP_SHORTCUT" After="SetINSTALLDIR">
+        <![CDATA[(IS_AUTOUPDATE = 1) AND HAS_DESKTOP_SHORTCUT]]>
+      </Custom>
+      <Custom Action="UnsetCREATE_DESKTOP_SHORTCUT" After="SetINSTALLDIR">
+        <![CDATA[(IS_AUTOUPDATE = 1) AND NOT HAS_DESKTOP_SHORTCUT AND NOT (HAS_DESKTOP_SHORTCUT = "#1")]]>
+      </Custom>
+      <Custom Action="SetCREATE_START_MENU_SHORTCUT" After="SetINSTALLDIR">
+        <![CDATA[(IS_AUTOUPDATE = 1) AND HAS_START_MENU_SHORTCUT]]>
+      </Custom>
+      <Custom Action="UnsetCREATE_START_MENU_SHORTCUT" After="SetINSTALLDIR">
+        <![CDATA[(IS_AUTOUPDATE = 1) AND NOT HAS_START_MENU_SHORTCUT AND NOT (HAS_START_MENU_SHORTCUT = "#1")]]>
+      </Custom>
+      <Custom Action="SetCREATE_STARTUP_REGISTRY" After="SetINSTALLDIR">
+        <![CDATA[HAS_STARTUP_REGISTRY]]>
+      </Custom>
+      <Custom Action="UnsetCREATE_STARTUP_REGISTRY" After="SetINSTALLDIR">
+        <![CDATA[NOT HAS_STARTUP_REGISTRY AND NOT (HAS_STARTUP_REGISTRY = "#1")]]>
+      </Custom>
+      <Custom Action="SetCREATE_DISABLE_UPDATES_CHECK" After="SetINSTALLDIR">
+        <![CDATA[HAS_DISABLE_UPDATES_CHECK_REGISTRY AND HAS_DISABLE_UPDATES_CHECK_REGISTRY = "#1"]]>
+      </Custom>
+      <Custom Action="UnsetCREATE_DISABLE_UPDATES_CHECK" After="SetINSTALLDIR">
+        <![CDATA[NOT HAS_DISABLE_UPDATES_CHECK_REGISTRY]]>
+      </Custom>
+    </InstallExecuteSequence>
+
+    <Property Id="HAS_DESKTOP_SHORTCUT">
+      <RegistrySearch
+        Id="RegistrySearch_HasDesktopShortcut"
+        Key="Software\Microsoft\$(var.PRODUCT)"
+        Name="DesktopShortcut"
+        Root="HKCU"
+        Type="raw"/>
+    </Property>
+    <Property Id="HAS_START_MENU_SHORTCUT">
+      <RegistrySearch
+        Id="RegistrySearch_HasStartMenuShortcut"
+        Key="Software\Microsoft\$(var.PRODUCT)"
+        Name="StartMenuShortcut"
+        Root="HKCU"
+        Type="raw"/>
+    </Property>
+    <Property Id="HAS_STARTUP_REGISTRY">
+      <RegistrySearch
+        Id="RegistrySearch_HasStartupRegistry"
+        Key="Software\Microsoft\Windows\CurrentVersion\Run"
+        Name="$(var.PRODUCT)"
+        Root="HKCU"
+        Type="raw"/>
+    </Property>
+    <Property Id="HAS_DISABLE_UPDATES_CHECK_REGISTRY" Value="#0">
+      <RegistrySearch
+        Id="RegistrySearch_HasDisableUpdatesCheckRegistry"
+        Key="Software\Microsoft\$(var.PRODUCT)"
+        Name="DisableUpdatesCheck"
+        Root="HKCU"
+        Type="raw"/>
+    </Property>
+    <Property Id="IS_DEFAULT_IM_APP">
+      <RegistrySearch
+        Id="RegistrySearch_IsDefaultIMApp"
+        Key="Software\IM Providers"
+        Name="DefaultIMApp"
+        Root="HKCU"
+        Type="raw"/>
+    </Property>
+
+    <Property Id="SET_DEFAULT_IM_APP" Value="1"/>
+    <Property Id="ARPHELPLINK" Value="$(var.APP_WEB)"/>
+    <Property Id="ARPPRODUCTICON" Value="Icon.ico"/>
+    <Property Id="CLEAN_SWEEP" Secure="yes"/>
+    <Property Id="CREATE_MSOFFICECOMM_REGISTRY_ENTRIES" Value="1"/>
+    <Property Id="CREATE_SIP_REGISTRY_ENTRIES" Value="1"/>
+    <Property Id="CREATE_XMPP_REGISTRY_ENTRIES" Value="1"/>
+    <Property Id="IS_AUTOUPDATE" Value="0" Hidden="yes"/>
+    <Property Id="WixShellExecTarget" Value="[#$(var.LAUNCHER_NAME).exe]"/>
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1"/>
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT"
+      Value="!(loc.ExitDialogOptionaCheckBoxText)"/>
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR"/>
+    <Property Id="CREATE_DESKTOP_SHORTCUT" Value="1"/>
+    <Property Id="CREATE_START_MENU_SHORTCUT" Value="1"/>
+
+
+    <WixVariable Id="WixUIBannerBmp" Value="wix-banner.jpg"/>
+    <WixVariable Id="WixUIDialogBmp" Value="wix-dialog.jpg"/>
+    <WixVariable Id='WixUILicenseRtf' Value="License.rtf"/>
+
+    <Icon Id="Icon.ico" SourceFile="sc-logo.ico"/>
+
+    <Binary Id="CleanSweepExe" SourceFile="cleansweep.exe"/>
+
+    <!-- Includes any default translated Error or ProgressText elements -->
+    <UIRef Id="WixUI_ErrorProgressText"/>
+
+  </Product>
+
+  <?include SCRegistrySpec.wxi ?>
+  <?include DefaultOverridesProps.wxi ?>
+
+</Wix>

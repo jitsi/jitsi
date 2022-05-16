@@ -1,6 +1,0 @@
-Bundle-Name: Custom Avatar Service
-Bundle-Description: A bundle that offers custom avatar retrieving.
-Bundle-Vendor: jitsi.org
-Bundle-Version: 0.0.1
-Bundle-SymbolicName: net.java.sip.communicator.service.customavatar
-Export-Package: net.java.sip.communicator.service.customavatar

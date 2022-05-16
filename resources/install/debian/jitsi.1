@@ -1,0 +1,75 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.TH JITSI 1 2021-04-11 "" "Jitsi Desktop Manual"
+.SH NAME
+Jitsi \- the VoIP and Instant Messaging client
+
+.SH SYNOPSIS
+.B jitsi
+.RI [ options ] " " [ uri-to-call ]
+
+.SH DESCRIPTION
+.B Jitsi
+is an audio/video Internet phone and instant messenger
+that supports some of the most popular instant messaging and telephony
+protocols such as SIP, Jabber/XMPP, IRC and others.
+.P
+.RI "An optional " uri-to-call " expression can be specified to start a call from the command-line. If Jitsi is already running then the call is handled by the running application, except when it is explicitly told to allow multiple instance launch."
+
+.SH OPTIONS
+.TP
+\fB\-c \fIDIR\fR\fR, \fB\-\-config=\fIDIR\fR\fR
+Use \fIDIR\fR for configuration files.
+
+.TP
+\fB\-d\fR, \fB\-\-debug\fR
+Print debugging messages to stdout.
+
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print a help message containing usage instructions and descriptions of all options currently supported.
+
+.TP
+\fB\-m\fR, \fB\-\-multiple\fR
+Allow multiple instance launch.
+
+.TP
+\fB\-6\fR, \fB\-\-ipv6\fR
+Force use of IPv6 addresses where possible.
+
+.TP
+\fB\-4\fR, \fB\-\-ipv4\fR
+Force non-support for IPv6 and use of IPv4 only.
+
+.TP
+\fB\-v\fR, \fB\-\-version\fR
+Display the current version and exit.
+
+.TP
+\fB\-\-splash=no\fR
+Do not show the splash screen during startup.
+
+.TP
+\fB\-\-notray\fR
+Disable the system tray icon.
+
+.SH BUGS
+.mso www.tmac
+Please report bugs at
+.URL https://github.com/jitsi/jitsi/issues GitHub
+
+.SH AUTHORS
+Martin Andre <martin.andre@gmail.com>, Ingo Bauersachs <ingo@jitsi.org>

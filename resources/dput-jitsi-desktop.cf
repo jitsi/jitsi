@@ -1,0 +1,15 @@
+[jitsi-desktop]
+fqdn=nexus.ingo.ch
+login=apt
+method=sftp
+incoming=/mnt/jitsi-desktop-stable/mini-dinstall/incoming
+allow_unsigned_uploads=1
+run_lintian=0
+
+[jitsi-desktop-unstable]
+fqdn=nexus.ingo.ch
+login=apt
+method=sftp
+incoming=/mnt/jitsi-desktop-unstable/mini-dinstall/incoming
+allow_unsigned_uploads=1
+run_lintian=0

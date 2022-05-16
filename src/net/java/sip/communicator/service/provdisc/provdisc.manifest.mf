@@ -1,7 +1,0 @@
-Bundle-Name: Provisioning Discovery Service
-Bundle-Description: Provisioning Discovery Service.
-Bundle-Vendor: jitsi.org
-Bundle-Version: 0.0.1
-Bundle-SymbolicName: net.java.sip.communicator.service.provdisc
-Export-Package: net.java.sip.communicator.service.provdisc,
- net.java.sip.communicator.service.provdisc.event

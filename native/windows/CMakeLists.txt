@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.0)
+project(windows)
+
+add_subdirectory(3rdparty/libbs)
+add_subdirectory(3rdparty/libbzip2)
+add_subdirectory(shared)
+if (DEFINED OCSDK_DIR)
+    add_subdirectory(msofficecomm)
+else ()
+    message(WARNING "OCSDK_DIR not set, skipping Office integration library")
+endif ()
+
+add_subdirectory(cleansweep)
+#add_subdirectory(setup)
+add_subdirectory(run)

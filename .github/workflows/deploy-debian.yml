@@ -1,0 +1,54 @@
+name: Deploy Debian packages
+
+on:
+  workflow_call:
+    inputs:
+      release_type:
+        description: "The environment to deploy to"
+        type: string
+        required: true
+      tag:
+        description: "Release name to deploy"
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: "The environment to deploy to"
+        type: environment
+        required: true
+      tag:
+        description: "Release name to deploy"
+        type: string
+        required: true
+
+jobs:
+  deploy:
+    name: to ${{ github.event.inputs.release_type || inputs.release_type }}
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.release_type || inputs.release_type }}
+    concurrency: ${{ github.event.inputs.release_type || inputs.release_type }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: robinraju/release-downloader@4bdb8ee081c9ee08a35320794dd461312ac9e4ad
+        with:
+          repository: "${{ github.repository }}"
+          tag: "${{ github.event.inputs.tag || inputs.tag }}"
+          fileName: "debian-releases.tar"
+          tarBall: false
+          zipBall: false
+
+      - name: Unpack all debs
+        run: |
+          tar -xvf debian-releases.tar
+
+      - name: Push packages to repo
+        run: |
+          sudo apt-get -y install dput-ng python3-paramiko --no-install-recommends
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          ssh-keyscan nexus.ingo.ch >> ~/.ssh/known_hosts
+          echo "${{ secrets.APT_DESKTOP_REPO_UPLOAD }}" > ~/.ssh/id_rsa
+          dput -c resources/dput-jitsi-desktop.cf jitsi-desktop-${{ inputs.release_type }} target/{debian-*,ubuntu-*}/*.changes

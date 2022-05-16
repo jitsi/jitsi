@@ -1,9 +1,0 @@
-Bundle-Name: Contactlist Service Interfaces 
-Bundle-Description: Contactlist Service.
-Bundle-Vendor: jitsi.org
-Bundle-Version: 0.0.1
-Bundle-SymbolicName: net.java.sip.communicator.service.contactlist
-Import-Package: org.osgi.framework,
- net.java.sip.communicator.service.protocol
-Export-Package: net.java.sip.communicator.service.contactlist,
- net.java.sip.communicator.service.contactlist.event

@@ -1,0 +1,54 @@
+/*
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Copyright @ 2015 Atlassian Pty Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include <config.h>
+#include <windows.h>
+
+#ifndef RT_MANIFEST
+#define RT_MANIFEST 24
+#endif /* #ifndef RT_MANIFEST */
+1 RT_MANIFEST "win_shared/asInvoker.exe.manifest"
+
+SCLogoIcon ICON "sc-logo.ico"
+
+1 VERSIONINFO
+    FILEVERSION PRODUCTBUILDVERSION_COMMA
+    FILETYPE VFT_APP
+    PRODUCTVERSION PRODUCTBUILDVERSION_COMMA
+    FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+    FILEFLAGS PRODUCT_FILEFLAGS
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904E4"
+        BEGIN
+            VALUE "CompanyName", COMPANYNAME
+            VALUE "FileDescription", PRODUCTNAME " Setup Clean Sweep"
+            VALUE "FileVersion", PRODUCTBUILDVERSION
+            VALUE "InternalName", "cleansweep"
+            VALUE "LegalCopyright", PRODUCTCOPYRIGHT
+            VALUE "OriginalFilename", "cleansweep.exe"
+            VALUE "ProductName", PRODUCTNAME
+            VALUE "ProductVersion", PRODUCT_INFO_VERSION
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0409, 1252
+    END
+END

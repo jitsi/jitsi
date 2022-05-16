@@ -1,5 +1,0 @@
-bcprov-upgrade-1.48
-removes-gdata-deps
-encoding.patch
-bouncycastle-1.51.patch
-irc-api.patch

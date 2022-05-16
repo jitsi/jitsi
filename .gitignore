@@ -1,6 +1,6 @@
 classes/
 .DS_Store
-.idea
+Thumbs.db
 *.iws
 jitsi.iml
 jitsi.ipr
@@ -12,9 +12,23 @@ sc-bundles/
 sip-communicator.utest.bin
 *.swp
 target/
+out/
+build/
+debian/local-maven-repo/
+debian/maven-repo/
+lib/native/
 test-reports/
-web-start/WebStartBuild.properties
+felix-cache/
+.gradle/
+.settings/
+.classpath
+.project
 
 # Never actually store Google API client token. A template is already committed
 # and the token should always be generated on-the-fly.
-/src/net/java/sip/communicator/impl/googlecontacts/GoogleAPIClientToken.java
+**/GoogleAPIClientToken.java
+
+.idea/
+!.idea/codeStyles/
+!.idea/eclipse-formatter.xml
+!.idea/vcs.xml

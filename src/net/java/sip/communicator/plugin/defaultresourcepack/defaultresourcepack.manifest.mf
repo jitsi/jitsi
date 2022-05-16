@@ -1,9 +1,0 @@
-Bundle-Activator: net.java.sip.communicator.plugin.defaultresourcepack.DefaultResourcePackActivator
-Bundle-Name: Default Resource Pack
-Bundle-Description: The plugin offering default images and languages.
-Bundle-Vendor: jitsi.org
-Bundle-Version: 0.0.1
-Bundle-SymbolicName: net.java.sip.communicator.plugin.defaultresourcepack
-Import-Package: org.osgi.framework,
- net.java.sip.communicator.util,
- org.jitsi.service.resources, net.java.sip.communicator.service.resources

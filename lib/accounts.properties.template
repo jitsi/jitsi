@@ -1,52 +1,12 @@
 # This is a template for the account.properties file. The account.properties
 # file contains a list of protocol account initialization properties, such as
-# SIP server addresses and usernames, ICQ uin-s and passwords, AIM screennames
-# and etc. The account.properties file MUST NOT be committed to CVS or shared
+# SIP server addresses and usernames, etc.
+# The account.properties file MUST NOT be committed to CVS or shared
 # among developers since that could lead to multiple login problems and cause
 # testing to fail. You could create the file yourself using this template and
 # setting all fields as indicated.
 #
 # @author Emil Ivov
-
-
-# An ICQ UIN (number) for the ICQ implementation that is going to be tested.
-# !!!EXTREMELY IMPORTANT!!! The contact list of this account will be COMPLETELY
-# and IRREVERSIBLY ERASED
-accounts.icq.TESTED_IMPL_ACCOUNT_ID=
-
-# The Password for the UIN specifined in accounts.icq.TESTED_IMPL_ACCOUNT_ID.
-accounts.icq.TESTED_IMPL_PWD=
-
-# An ICQ UIN (number) for the ICQ SLICK itself, so that it would be able to
-# sign on icq and also communicated with the tested implementation.
-accounts.icq.TESTING_IMPL_ACCOUNT_ID=
-
-# The Password for the UIN specifined in accounts.icq.TESTING_IMPL_ACCOUNT_ID.
-accounts.icq.TESTING_IMPL_PWD=
-
-# An ICQ UIN (number) for the ICQ SLICK itself, so that it would be able to
-# sign on icq and also communicated with the tested implementation.
-accounts.icq.TESTING_IMPL2_ACCOUNT_ID=
-
-# The Password for the UIN specifined in accounts.icq.TESTING_IMPL2_ACCOUNT_ID.
-accounts.icq.TESTING_IMPL2_PWD=
-
-# The following describes the contact list that we will store on the AIM server
-# for the tested account implementation. The value of the CONTACT_LIST property
-# must be a space separated string containing elements each of which is in the
-# format: GroupName.UIN
-
-
-# VERY IMPORTANT!!! All other users in this contact list will be removed and
-# the contacts and contact groups enumerated beneath will be added instead
-accounts.icq.CONTACT_LIST=
-
-# list of icq accounts to notify during testing (optional)
-# accounts.reporting.ICQ_REPORT_LIST=
-
-# if for some reasone you want not to run online icq tests (e.g. because they
-# take an awful lot to complete). set this property to true (optional)
-# accounts.icq.DISABLE_ONLINE_TESTING
 
 #
 # SIP PROPERTIES
@@ -186,7 +146,7 @@ accounts.jabber.account3.SERVER_PORT=
 # the contacts and contact groups enumerated beneath will be added instead
 accounts.jabber.CONTACT_LIST=
 
-# list of icq accounts to notify during testing (optional)
+# list of jabber accounts to notify during testing (optional)
 accounts.reporting.JABBER_REPORT_LIST=
 
 # GIBBERISH Account 1

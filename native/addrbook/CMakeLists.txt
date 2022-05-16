@@ -1,0 +1,12 @@
+project(addrbook CXX)
+
+if (WIN32)
+    if (MAPI_HEADERS_DIR)
+        add_subdirectory(msoutlook)
+        add_subdirectory(msoutlook/com)
+    else ()
+        message(WARNING "MAPI_HEADERS_DIR not set, skipping Outlook Addressbook plugin")
+    endif ()
+elseif (APPLE)
+    add_subdirectory(macosx)
+endif ()
