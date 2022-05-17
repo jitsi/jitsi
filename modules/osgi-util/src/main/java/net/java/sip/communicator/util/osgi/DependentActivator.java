@@ -125,17 +125,20 @@ public abstract class DependentActivator
 
         if (logger.isTraceEnabled() && !openTrackers.isEmpty())
         {
-            logger.trace("Open service requests:\n\t{}",
-                openTrackers.entrySet().stream()
-                .map(e -> e.getKey().getClass().getSimpleName()
-                    + " is waiting for "
-                    + e.getValue().size()
-                    + " services:\n\t\t"
-                    + e.getValue().stream()
-                    .map(Class::getSimpleName)
-                    .collect(Collectors.joining(",\n\t\t")))
-                .collect(Collectors.joining("\n\t"))
-            );
+            synchronized(openTrackers)
+            {
+                logger.trace("Open service requests:\n\t{}",
+                    openTrackers.entrySet().stream()
+                        .map(e -> e.getKey().getClass().getSimpleName()
+                            + " is waiting for "
+                            + e.getValue().size()
+                            + " services:\n\t\t"
+                            + e.getValue().stream()
+                            .map(Class::getSimpleName)
+                            .collect(Collectors.joining(",\n\t\t")))
+                        .collect(Collectors.joining("\n\t"))
+                );
+            }
         }
 
         return service;
