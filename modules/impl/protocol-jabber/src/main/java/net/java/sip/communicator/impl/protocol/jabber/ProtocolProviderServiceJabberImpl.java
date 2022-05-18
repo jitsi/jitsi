@@ -56,6 +56,7 @@ import org.jxmpp.jid.*;
 import org.jxmpp.jid.impl.*;
 import org.jxmpp.jid.parts.*;
 import org.jxmpp.stringprep.XmppStringprepException;
+import org.minidns.dnsname.*;
 import org.xmlpull.v1.*;
 import org.xmpp.jnodes.smack.*;
 
@@ -1162,7 +1163,7 @@ public class ProtocolProviderServiceJabberImpl
                     .setUseHttps(useHttps)
                     .setFile(file)
                     .setPort(port)
-                    .setHost(boshURI.getHost())
+                    .setHost(DnsName.from(boshURI.getHost()))
                     .setProxyInfo(proxy);
             }
             catch (URISyntaxException e)
