@@ -1022,7 +1022,7 @@ public class OperationSetBasicTelephonyJabberImpl
 
                 OperationSetJitsiMeetToolsJabberImpl operationSetJitsiMeetTools
                     = (OperationSetJitsiMeetToolsJabberImpl)protocolProvider
-                        .getOperationSet(OperationSetJitsiMeetTools.class);
+                        .getOperationSet(OperationSetJitsiMeetToolsJabber.class);
 
                 if (operationSetJitsiMeetTools != null)
                 {
