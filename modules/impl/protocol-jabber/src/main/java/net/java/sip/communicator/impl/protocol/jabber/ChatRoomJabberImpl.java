@@ -32,6 +32,7 @@ import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.packet.StanzaError.*;
 import org.jivesoftware.smack.packet.id.*;
+import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smackx.delay.packet.*;
 import org.jivesoftware.smackx.disco.*;
 import org.jivesoftware.smackx.disco.packet.*;
@@ -165,6 +166,16 @@ public class ChatRoomJabberImpl
         = new InvitationRejectionListeners();
 
     /**
+     * Listens for the last presence that was sent and stores it.
+     */
+    private final LastPresenceListener lastPresenceListener = new LastPresenceListener();
+
+    /**
+     * Intercepts presences to set custom extensions.
+     */
+    private final Consumer<PresenceBuilder> presenceInterceptor;
+
+    /**
      * The conference which we have announced in the room in our last sent
      * <tt>Presence</tt> update.
      */
@@ -223,9 +234,23 @@ public class ChatRoomJabberImpl
         multiUserChat.addMessageListener(new SmackMessageListener());
         multiUserChat.addParticipantStatusListener(new MemberListener());
         multiUserChat.addUserStatusListener(new UserListener());
-        multiUserChat.addPresenceInterceptor(new PresenceInterceptor());
 
-        this.provider.getConnection().addAsyncStanzaListener(
+        XMPPConnection connection = this.provider.getConnection();
+
+        // stores the last sent presence
+        connection.addStanzaSendingListener(
+            lastPresenceListener,
+            new AndFilter(ToMatchesFilter.create(multiUserChat.getRoom()), StanzaTypeFilter.PRESENCE));
+
+        presenceInterceptor = this::presenceIntercept;
+
+        // intercepts the presence to add custom extensions
+        connection.addPresenceInterceptor(
+            presenceInterceptor,
+            p -> p.getTo() != null && multiUserChat.getRoom().equals(p.getTo().asEntityBareJidIfPossible())
+        );
+
+        connection.addAsyncStanzaListener(
             invitationRejectionListeners,
             new StanzaTypeFilter(org.jivesoftware.smack.packet.Message.class));
     }
@@ -1034,7 +1059,9 @@ public class ChatRoomJabberImpl
         // connection can be null if we are leaving cause connection failed
         if(connection != null)
         {
+            connection.removeStanzaSendingListener(lastPresenceListener);
             connection.removeAsyncStanzaListener(invitationRejectionListeners);
+            connection.removePresenceInterceptor(presenceInterceptor);
             if(presenceListener != null)
             {
                 connection.removeAsyncStanzaListener(presenceListener);
@@ -3511,44 +3538,43 @@ public class ChatRoomJabberImpl
     }
 
     /**
-     * The <tt>PacketInterceptor</tt> we use to make sure that our outgoing
-     * <tt>Presence</tt> packets contain the correct
-     * <tt>ConferenceAnnouncementPacketExtension</tt>.
+     * We use thi to make sure that our outgoing <tt>Presence</tt> packets contain the correct
+     * <tt>ConferenceAnnouncementPacketExtension</tt> and custom extensions.
      */
-    private class PresenceInterceptor
-            implements PresenceListener
+    private void presenceIntercept(PresenceBuilder presenceBuilder)
     {
-        /**
-         * {@inheritDoc}
-         *
-         * Adds <tt>this.publishedConferenceExt</tt> as the only
-         * <tt>ConferenceAnnouncementPacketExtension</tt> of <tt>packet</tt>.
-         */
-        @Override
-        public void processPresence(Presence packet)
+        if (publishedConferenceExt != null)
         {
-            setPacketExtension(
-                packet,
-                publishedConferenceExt,
+            presenceBuilder.overrideExtension(publishedConferenceExt);
+        }
+        else
+        {
+            presenceBuilder.removeExtension(
+                ConferenceDescriptionExtension.ELEMENT,
                 ConferenceDescriptionExtension.NAMESPACE);
+        }
 
-            for(ExtensionElement ext : presencePacketExtensions)
-            {
-                try
-                {
-                    setPacketExtension(packet, ext, ext.getNamespace());
-                }
-                catch(Throwable t)
-                {
-                    logger.error(
-                        "Error setting extension to outgoing presence", t);
-                }
-            }
-
-            lastPresenceSent = packet;
+        for(ExtensionElement ext : presencePacketExtensions)
+        {
+            presenceBuilder.overrideExtension(ext);
         }
     }
 
+    /**
+     * Stores the last sent presence.
+     */
+    private class LastPresenceListener
+        implements StanzaListener
+    {
+        @Override
+        public void processStanza(Stanza packet)
+            throws NotConnectedException,
+                   InterruptedException,
+                   NotLoggedInException
+        {
+            lastPresenceSent = (Presence)packet;
+        }
+    }
 
     /**
      * Updates the presence status of private messaging contact.
