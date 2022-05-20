@@ -181,7 +181,12 @@ public class SmackPacketDebugger
         builder.setError(packet.getError());
 
         builder.ofType(oldMsg.getType());
-        builder.setThread(oldMsg.getThread());
+
+        if (oldMsg.getThread() != null)
+        {
+            builder.setThread(oldMsg.getThread());
+        }
+
         builder.setLanguage(oldMsg.getLanguage());
 
         for(Message.Subject sub : oldMsg.getSubjects())
