@@ -168,41 +168,24 @@ public class SmackPacketDebugger
             return oldMsg;
         }
 
-        MessageBuilder builder = MessageBuilder
-            .buildMessageFrom(oldMsg, oldMsg.getStanzaId());
+        MessageBuilder builder = MessageBuilder.buildMessageFrom(oldMsg, oldMsg.getStanzaId());
 
-        builder.to(packet.getTo());
-        builder.from(packet.getFrom());
-
-        // we don't modify them, just use existing
-        for(ExtensionElement pex : packet.getExtensions())
-            builder.addExtension(pex);
-
-        builder.setError(packet.getError());
-
-        builder.ofType(oldMsg.getType());
-
-        if (oldMsg.getThread() != null)
-        {
-            builder.setThread(oldMsg.getThread());
-        }
-
-        builder.setLanguage(oldMsg.getLanguage());
-
+        builder.removeExtension(Message.Subject.ELEMENT, Message.Subject.NAMESPACE);
         for(Message.Subject sub : oldMsg.getSubjects())
         {
             if(sub.getSubject() != null)
-                builder.addSubject(sub.getLanguage(),
-                    new String(new char[sub.getSubject().length()])
-                            .replace('\0', '.'));
+                builder.addSubject(
+                    sub.getLanguage(),
+                    new String(new char[sub.getSubject().length()]).replace('\0', '.'));
         }
 
+        builder.removeExtension(Message.Body.ELEMENT, Message.Body.NAMESPACE);
         for(Message.Body b : oldMsg.getBodies())
         {
             if(b.getMessage() != null)
-                builder.addBody(b.getLanguage(),
-                    new String(new char[b.getMessage().length()])
-                            .replace('\0', '.'));
+            {
+                builder.addBody(b.getLanguage(), new String(new char[b.getMessage().length()]).replace('\0', '.'));
+            }
         }
 
         return builder.build();
