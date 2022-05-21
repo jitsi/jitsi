@@ -6,10 +6,6 @@ Files: *
 Copyright: 2021, 8x8 Inc.
 License: Apache-2.0
 
-Files: debian/local-maven-repo
-Copyright: various
-License: various
-
 License: Apache-2.0
   On Debian GNU/Linux system you can find the complete text of the
   Apache-2.0 license in '/usr/share/common-licenses/Apache-2.0'.

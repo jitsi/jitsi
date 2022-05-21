@@ -28,7 +28,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
                            ${OCSDK_DIR}
                            ${JNI_INCLUDE_DIRS}
                            ${CMAKE_BINARY_DIR}/include/
-                           ${CMAKE_CURRENT_LIST_DIR}/../../../modules/plugin/msofficecomm/target/native/javah
+                           ${CMAKE_CURRENT_LIST_DIR}/../../../target/native/javah
                            ${CMAKE_CURRENT_SOURCE_DIR}/../../../resources/install/windows
                            )
 

@@ -4,7 +4,7 @@ set -x
 cd "$(realpath "$(dirname "$0")/../")"
 VERSION=$1
 DIST=$2
-SINCE=$(git describe --match "v[0-9\.]*" --abbrev=0)
+SINCE=$(git describe --match "Jitsi-[0-9\.]*" --abbrev=0)
 if debian-distro-info --all | grep -Fqxi "${DIST}"; then
     DIST_VERSION=$(debian-distro-info --series="${DIST}" -r)
 elif ubuntu-distro-info --all | grep -Fqxi "${DIST}"; then
@@ -31,11 +31,10 @@ gbp dch \
   --force-distribution \
   --spawn-editor=never \
   --new-version="${FULL_VERSION}"
-dpkg-source -I.git -I.target -b .
+dpkg-source -b .
 
 # Manually create the changes file instead of using sbuild --source-only-changes
 # as sbuild would include _amd64.buildinfo in the source.changes. This confuses
 # mini-dinstall because the buildinfo file is also referenced in _amd64.changes,
 # so either of the two files fail to install.
 dpkg-genchanges -S > ../jitsi_"${FULL_VERSION}"_source.changes
-cat ../jitsi_"${FULL_VERSION}"_source.changes

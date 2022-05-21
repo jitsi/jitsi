@@ -34,7 +34,6 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <lombok.version>1.18.24</lombok.version>
     <jitsiGeneralGroupId>org.jitsi</jitsiGeneralGroupId>
-    <rootdir>${project.basedir}</rootdir>
     <!-- keep this empty default for Linux builds -->
     <jitsi-deps-arch></jitsi-deps-arch>
   </properties>
@@ -265,7 +264,7 @@
       <dependency>
         <groupId>org.jitsi</groupId>
         <artifactId>libjitsi</artifactId>
-        <version>1.1-15-g2ed64310</version>
+        <version>1.1-16-g6a8b9363</version>
       </dependency>
       <dependency>
         <groupId>org.apache.felix</groupId>
@@ -411,6 +410,19 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>set-project-root-dir</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>rootlocation</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.10.1</version>
@@ -418,6 +430,8 @@
           <release>11</release>
           <compilerArgs>
             <arg>-Xlint:all,-serial</arg>
+            <arg>-h</arg>
+            <arg>${rootlocation}/target/native/javah/</arg>
           </compilerArgs>
           <annotationProcessorPaths>
             <path>
@@ -454,35 +468,16 @@
                   <overWrite>true</overWrite>
                 </artifactItem>
               </artifactItems>
-              <outputDirectory>${maven.multiModuleProjectDirectory}/target/bundles</outputDirectory>
+              <outputDirectory>${rootlocation}/target/bundles</outputDirectory>
               <includeScope>runtime</includeScope>
             </configuration>
           </execution>
-          <execution>
-            <id>copy-repo</id>
-            <goals>
-              <goal>copy-dependencies</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${maven.multiModuleProjectDirectory}/target/repo</outputDirectory>
-              <useRepositoryLayout>true</useRepositoryLayout>
-              <excludeGroupIds>${project.groupId}</excludeGroupIds>
-              <excludeArtifactIds>jitsi-lgpl-dependencies</excludeArtifactIds>
-            </configuration>
-          </execution>
         </executions>
-        <dependencies>
-          <dependency>
-            <groupId>org.apache.maven.wagon</groupId>
-            <artifactId>wagon-ssh</artifactId>
-            <version>3.4.3</version>
-          </dependency>
-        </dependencies>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.3.0</version>
+        <version>3.4.0</version>
         <configuration>
           <doclint>-missing</doclint>
           <source>8</source>

@@ -11,7 +11,7 @@ ARCH=$2
 PROJECT_DIR="$(cd "$(dirname "$0")"; pwd -P)/../"
 
 case $ARCH in
-    "x86-64"|"x86_64")
+    "x86-64"|"x86_64"|"x64")
         INSTALL_PREFIX_ARCH=x86-64
         OSX_ARCH=x86_64
         ;;

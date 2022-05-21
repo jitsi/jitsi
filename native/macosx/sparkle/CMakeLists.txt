@@ -11,7 +11,7 @@ add_library(${PROJECT_NAME} SHARED
 
 target_include_directories(${PROJECT_NAME} PUBLIC
                            ${JNI_INCLUDE_DIRS}
-                           ${CMAKE_CURRENT_LIST_DIR}/../../../modules/impl/sparkle/target/native/javah
+                           ${CMAKE_CURRENT_LIST_DIR}/../../../target/native/javah
                            ${SPARKLE_INCLUDE_DIR}
                            )
 

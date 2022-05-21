@@ -4,39 +4,57 @@ include /usr/share/dpkg/architecture.mk
 include /usr/share/dpkg/pkg-info.mk
 
 export JAVA_HOME=/usr/lib/jvm/default-java
-#export DH_VERBOSE=1
+export DH_VERBOSE=1
 
 DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+M2_REPO ?= /var/cache/m2-sbuild
+LIBJITSI_VER := $(shell debian/libjitsi-ver.sh)
 
 %:
 	dh $@
 
-override_dh_auto_configure:
-	dh_auto_configure -Smaven
-	rsync -a debian/local-maven-repo/ debian/maven-repo
+%-arch:
+	dh "$@" -Scmake
+
+override_dh_gencontrol:
+	dh_gencontrol -- -Vlibjitsi=$(LIBJITSI_VER)
+
+override_dh_auto_configure-indep:
+	# do nothing
+
+override_dh_auto_configure-arch:
+	mkdir -p target/native
+	cp -r debian/javah target/native/
 	dh_auto_configure -Scmake --sourcedirectory=native -- \
+		-DCMAKE_INSTALL_LIBDIR="lib/$(DEB_HOST_MULTIARCH)/jni" \
 		-DCMAKE_LIBRARY_ARCHITECTURE="$(DEB_HOST_MULTIARCH)" \
 		-DSKIP_CUSTOM_INSTALL_DESTINATION=ON
 
-override_dh_auto_build:
-	dh_auto_build -Smaven
+override_dh_auto_build-indep:
+	mvn -B -Dmaven.repo.local=$(M2_REPO) package -DskipTests
 	sed -E 's/\:/\n/g' target/launcher-classpath | awk -F "/" '{print "lib/"$$NF}' > target/classpath
 	echo lib/`find target/bundles -type f -iname "jitsi-launcher-*.jar*" -printf "%f"` >> target/classpath
-	dh_auto_build -Scmake
+
+override_dh_auto_build-arch:
+	dh_auto_build -plibjitsi-jni -Scmake
 
 override_dh_auto_test:
 	# do nothing, the tests don't work
 
-override_dh_install:
-	# do nothing, indep and arch will take care of it
+override_dh_dwz:
+	# do nothing, fails on non-amd64
 
 override_dh_auto_install-indep:
 	dh_install -pjitsi -Xorange -Xsparkle -Xmac_widgets -X.pom -Xjitsi-lgpl-dependencies
 
 override_dh_auto_install-arch:
 	dh_auto_install -plibjitsi-jni -Scmake
-	dh_install -plibjitsi-jni usr/lib/$(DEB_HOST_MULTIARCH)/*.so usr/lib/jni/
 
-override_dh_auto_clean:
-	dh_auto_clean -Smaven
+override_dh_install-arch:
+	dh_install -plibjitsi-jni --autodest usr/lib/${DEB_HOST_MULTIARCH}/jni/*.so
+
+override_dh_auto_clean-indep:
+	find . -type d -name target | xargs rm -rf
+
+override_dh_auto_clean-arch:
 	dh_auto_clean -Scmake

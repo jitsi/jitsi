@@ -4,10 +4,9 @@ on:
   push:
     branches:
       - master
-      - new-build
-  #pull_request:
-  #  branches:
-  #    - master
+  pull_request:
+    branches:
+      - master
 
 env:
   # Java version to use in the Jitsi Desktop jars
@@ -46,7 +45,7 @@ jobs:
       # don't use the setup-java cache option as this only caches what is
       # necessary for the version, not the other jobs
       - name: Cache local Maven repository
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-version-${{ hashFiles('**/pom.xml') }}
@@ -57,11 +56,37 @@ jobs:
         id: parse
         run: resources/version.sh
 
+  javah:
+    name: Compile Java for native headers
+    runs-on: ubuntu-latest
+    needs:
+      - version
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ env.INSTALLER_JAVA_VERSION }}
+          distribution: temurin
+          cache: maven
+
+      - name: Compile
+        run: mvn -B compile
+
+      - name: Upload JNI headers
+        uses: actions/upload-artifact@v3
+        with:
+          name: javah
+          path: target/native
+
   deb:
     name: ${{ matrix.dist.vendor }} ${{ matrix.dist.dist }} ${{ matrix.arch }}
     runs-on: ubuntu-latest
     needs:
       - version
+      - javah
     strategy:
       fail-fast: false
       matrix:
@@ -95,6 +120,12 @@ jobs:
           #for gbp dch
           fetch-depth: 0
 
+      - name: Get JNI headers
+        uses: actions/download-artifact@v3
+        with:
+          name: javah
+          path: target/native
+
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
@@ -103,7 +134,9 @@ jobs:
           cache: maven
 
       - name: Install tools
-        run: resources/deb-prepare.sh
+        run: |
+          resources/deb-prepare.sh
+          sudo ln -s ~/.m2/repository /var/cache/m2-sbuild
 
       - name: Import GPG key
         env:
@@ -124,7 +157,12 @@ jobs:
             "${{ matrix.dist.dist }}" \
             "${{ matrix.arch }}"
 
-      - name: Upload packages as artifact
+      - name: make build files readable for Windows and archivable for GitHub Actions
+        if: ${{ always() }}
+        run: rename 's|:|-|g' target/debian/${{ matrix.dist.dist }}/*.build
+
+      - name: Upload packages and/or build logs as artifact
+        if: ${{ always() }}
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.dist.vendor }}-${{ matrix.dist.dist }}-${{ matrix.arch }}
@@ -154,7 +192,7 @@ jobs:
         id: install_java
         uses: actions/setup-java@v3
         with:
-          distribution: zulu
+          distribution: temurin
           java-version: ${{ env.INSTALLER_JAVA_VERSION }}
           architecture: ${{ matrix.arch.actions }}
           cache: maven
@@ -164,7 +202,7 @@ jobs:
         run: mvn -B -DskipTests -Drevision=${{ needs.version.outputs.jitsi_version_full }} package
 
       - name: Cache Gradle dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.gradle/caches
@@ -189,7 +227,7 @@ jobs:
             -DMAPI_HEADERS_DIR=%GITHUB_WORKSPACE%\build\private-sdk\outlook2010mapi
           cmake --build cmake-build-${{ matrix.arch.actions }} --config Release --target install
 
-      - name: Build Outlook COM Server natives for oppsite arch (${{ matrix.arch.cmake_opposite_arch }})
+      - name: Build Outlook COM Server natives for opposite arch (${{ matrix.arch.cmake_opposite_arch }})
         env:
           JAVA_HOME: ${{ steps.install_java.outputs.path }}
         shell: cmd
@@ -242,18 +280,26 @@ jobs:
 
   mac:
     runs-on: macos-latest
-    needs: version
+    needs:
+      - version
+      - javah
     strategy:
       fail-fast: false
       matrix:
         arch:
-          - x86_64
-          - arm64
+          - x64
+          #- aarch64 }
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set up Java
+      - name: Get JNI headers
+        uses: actions/download-artifact@v3
+        with:
+          name: javah
+          path: target/native
+
+      - name: Set up Java (${{ matrix.arch }})
         id: install_java
         uses: actions/setup-java@v3
         with:
@@ -264,18 +310,18 @@ jobs:
       - name: Build natives
         run: resources/mac-cmake.sh ${{ steps.install_java.outputs.path }} ${{ matrix.arch }}
 
-      - name: Set up Java
+      - name: Set up Java (Host)
         uses: actions/setup-java@v3
         with:
           java-version: ${{ env.INSTALLER_JAVA_VERSION }}
           distribution: temurin
           cache: maven
 
-      - name: Build Java
+      - name: Package Java
         run: mvn -B -DskipTests -Drevision=${{ needs.version.outputs.jitsi_version_full }} package
 
       - name: Cache Gradle dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.gradle/caches
@@ -299,7 +345,7 @@ jobs:
           path: resources/install/build/install/jitsi.dmg
 
   release:
-    if: github.ref == 'refs/heads/new-build'
+    #if: github.ref == 'refs/heads/master'
     needs:
       - version
       - deb
@@ -315,14 +361,14 @@ jobs:
         with:
           path: target
 
-      - name: Pack all debs to avoid Github filename mangling
+      - name: Pack all debs to avoid GitHub filename mangling
         run: |
           tar -cvf debian-releases.tar target/{debian-*,ubuntu-*}/*
 
       - name: Create release
         uses: ncipollo/release-action@40bb172bd05f266cf9ba4ff965cb61e9ee5f6d01
         with:
-          artifacts: "target/*.msi,target/*.dmg,debian-releases.tar"
+          artifacts: "target/**/*.msi,target/**/jitsi-*-win-*.zip,target/**/*.dmg,debian-releases.tar"
           allowUpdates: true
           prerelease: true
           draft: true
@@ -333,13 +379,13 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           artifactErrorsFailBuild: true
 
-  deploy:
-    name: Deploy Debian packages
-    needs:
-      - version
-      - release
-    uses: ./.github/workflows/deploy-debian.yml
-    with:
-      release_type: unstable
-      tag: r${{ needs.version.outputs.jitsi_version_short }}
-    secrets: inherit
+  #deploy:
+  #  name: Deploy Debian packages
+  #  needs:
+  #    - version
+  #    - release
+  #  uses: ./.github/workflows/deploy-debian.yml
+  #  with:
+  #    release_type: unstable
+  #    tag: r${{ needs.version.outputs.jitsi_version_short }}
+  #  secrets: inherit

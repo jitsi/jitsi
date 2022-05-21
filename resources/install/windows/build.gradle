@@ -154,6 +154,6 @@ task signMsi(group: 'installer-wix', dependsOn: wixLight) {
 task windowsZip(type: Zip, group: 'installer-wix', dependsOn: signWixTarget) {
     archivesBaseName = "jitsi"
     archiveVersion = versionShort
-    archiveClassifier = arch
+    archiveClassifier = "win-${arch}"
     from wixTargetDir
 }

@@ -4,10 +4,9 @@ on:
   push:
     branches:
       - master
-      - new-build
-  #pull_request:
-  #  branches:
-  #    - master
+  pull_request:
+    branches:
+      - master
 
 concurrency:
   group: ${{ github.ref }}
