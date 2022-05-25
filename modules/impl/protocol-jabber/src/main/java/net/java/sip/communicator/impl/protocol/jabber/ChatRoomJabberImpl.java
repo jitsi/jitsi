@@ -42,7 +42,6 @@ import org.jivesoftware.smackx.muc.filter.*;
 import org.jivesoftware.smackx.muc.packet.*;
 import org.jivesoftware.smackx.nick.packet.Nick;
 import org.jivesoftware.smackx.xdata.form.*;
-import org.jivesoftware.smackx.xevent.*;
 import org.jivesoftware.smackx.xevent.packet.MessageEvent;
 import org.jxmpp.jid.*;
 import org.jxmpp.jid.impl.*;
@@ -75,7 +74,7 @@ public class ChatRoomJabberImpl
     /**
      * The multi user chat smack object that we encapsulate in this room.
      */
-    private MultiUserChat multiUserChat;
+    private final MultiUserChat multiUserChat;
 
     /**
      * Listeners that will be notified of changes in member status in the
@@ -173,7 +172,7 @@ public class ChatRoomJabberImpl
     /**
      * Intercepts presences to set custom extensions.
      */
-    private final Consumer<PresenceBuilder> presenceInterceptor;
+    private final Consumer<PresenceBuilder> presenceInterceptor = this::presenceIntercept;
 
     /**
      * The conference which we have announced in the room in our last sent
@@ -209,7 +208,31 @@ public class ChatRoomJabberImpl
     /**
      * The Presence listener instance.
      */
-    private ChatRoomPresenceListener presenceListener = null;
+    private final ChatRoomPresenceListener presenceListener = new ChatRoomPresenceListener();
+
+    /**
+     * A listener that is fired anytime a MUC room changes its subject.
+     */
+    private final SmackSubjectUpdatedListener smackSubjectUpdatedListener = new SmackSubjectUpdatedListener();
+
+    /**
+     * A listener that listens for packets of type Message and fires an event
+     * to notifier interesting parties that a message was received.
+     */
+    private final SmackMessageListener smackMessageListener = new SmackMessageListener();
+
+    /**
+     * Instances of this class should be registered as
+     * <tt>ParticipantStatusListener</tt> in smack and translates events .
+     */
+    private final MemberListener memberListener = new MemberListener();
+
+    /**
+     * A listener that is fired anytime your participant's status in a room
+     * is changed, such as the user being kicked, banned, or granted admin
+     * permissions.
+     */
+    private final UserListener userListener = new UserListener();
 
     /**
      * Creates an instance of a chat room that has been.
@@ -228,31 +251,6 @@ public class ChatRoomJabberImpl
             .getOperationSet(OperationSetMultiUserChat.class);
 
         this.oldSubject = multiUserChat.getSubject();
-
-        multiUserChat.addSubjectUpdatedListener(
-            new SmackSubjectUpdatedListener());
-        multiUserChat.addMessageListener(new SmackMessageListener());
-        multiUserChat.addParticipantStatusListener(new MemberListener());
-        multiUserChat.addUserStatusListener(new UserListener());
-
-        XMPPConnection connection = this.provider.getConnection();
-
-        // stores the last sent presence
-        connection.addStanzaSendingListener(
-            lastPresenceListener,
-            new AndFilter(ToMatchesFilter.create(multiUserChat.getRoom()), StanzaTypeFilter.PRESENCE));
-
-        presenceInterceptor = this::presenceIntercept;
-
-        // intercepts the presence to add custom extensions
-        connection.addPresenceInterceptor(
-            presenceInterceptor,
-            p -> p.getTo() != null && multiUserChat.getRoom().equals(p.getTo().asEntityBareJidIfPossible())
-        );
-
-        connection.addAsyncStanzaListener(
-            invitationRejectionListeners,
-            new StanzaTypeFilter(org.jivesoftware.smack.packet.Message.class));
     }
 
     /**
@@ -713,12 +711,30 @@ public class ChatRoomJabberImpl
             }
             else
             {
-                presenceListener = new ChatRoomPresenceListener(this);
-                this.provider.getConnection().addAsyncStanzaListener(
+                multiUserChat.addSubjectUpdatedListener(smackSubjectUpdatedListener);
+                multiUserChat.addMessageListener(smackMessageListener);
+                multiUserChat.addParticipantStatusListener(memberListener);
+                multiUserChat.addUserStatusListener(userListener);
+
+                XMPPConnection connection = this.provider.getConnection();
+
+                // stores the last sent presence
+                connection.addStanzaSendingListener(
+                    lastPresenceListener,
+                    new AndFilter(ToMatchesFilter.create(multiUserChat.getRoom()), StanzaTypeFilter.PRESENCE));
+
+                // intercepts the presence to add custom extensions
+                connection.addPresenceInterceptor(
+                    presenceInterceptor,
+                    ToMatchesFilter.create(multiUserChat.getRoom()).asPredicate(Presence.class)
+                );
+
+                connection.addAsyncStanzaListener(invitationRejectionListeners, StanzaTypeFilter.MESSAGE);
+
+                connection.addAsyncStanzaListener(
                     presenceListener,
-                    new AndFilter(
-                        FromMatchesFilter.create(multiUserChat.getRoom()),
-                        new StanzaTypeFilter(Presence.class)));
+                    new AndFilter(FromMatchesFilter.create(multiUserChat.getRoom()), StanzaTypeFilter.PRESENCE));
+
                 if(password == null)
                     multiUserChat.join(this.nickname);
                 else
@@ -917,9 +933,9 @@ public class ChatRoomJabberImpl
 
             for (ChatRoomMemberJabberImpl member : this.members.values())
             {
-                if (participantName.equals(member.getName())
-                    || participant.equals(member.getContactAddress())
-                    || participantName.equals(member.getContactAddress()))
+                if (participantName.toString().equals(member.getName())
+                    || participant.toString().equals(member.getContactAddress())
+                    || participantName.toString().equals(member.getContactAddress()))
                     return member;
             }
         }
@@ -1028,6 +1044,11 @@ public class ChatRoomJabberImpl
         XMPPConnection connection = this.provider.getConnection();
         try
         {
+            multiUserChat.removeSubjectUpdatedListener(smackSubjectUpdatedListener);
+            multiUserChat.removeMessageListener(smackMessageListener);
+            multiUserChat.removeParticipantStatusListener(memberListener);
+            multiUserChat.removeUserStatusListener(userListener);
+
             // if we are already disconnected
             // leave maybe called from gui when closing chat window
             // skip leave if not joined, this is in case of an error, but we call leave to clear listeners and such
@@ -1062,11 +1083,7 @@ public class ChatRoomJabberImpl
             connection.removeStanzaSendingListener(lastPresenceListener);
             connection.removeAsyncStanzaListener(invitationRejectionListeners);
             connection.removePresenceInterceptor(presenceInterceptor);
-            if(presenceListener != null)
-            {
-                connection.removeAsyncStanzaListener(presenceListener);
-                presenceListener = null;
-            }
+            connection.removeAsyncStanzaListener(presenceListener);
         }
 
         opSetMuc.fireLocalUserPresenceEvent(
@@ -2591,14 +2608,15 @@ public class ChatRoomJabberImpl
             if(subject != null && !subject.equals(oldSubject))
             {
                 if (logger.isDebugEnabled())
+                {
                     logger.debug("Subject updated to " + subject);
+                }
 
-                ChatRoomPropertyChangeEvent evt
-                    = new ChatRoomPropertyChangeEvent(
-                        ChatRoomJabberImpl.this,
-                        ChatRoomPropertyChangeEvent.CHAT_ROOM_SUBJECT,
-                        oldSubject,
-                        subject);
+                ChatRoomPropertyChangeEvent evt = new ChatRoomPropertyChangeEvent(
+                    ChatRoomJabberImpl.this,
+                    ChatRoomPropertyChangeEvent.CHAT_ROOM_SUBJECT,
+                    oldSubject,
+                    subject);
 
                 firePropertyChangeEvent(evt);
             }
@@ -3274,19 +3292,11 @@ public class ChatRoomJabberImpl
         implements StanzaListener
     {
         /**
-         * Chat room associated with the listener.
-         */
-        private ChatRoom chatRoom;
-
-        /**
          * Creates an instance of a listener of presence packets.
-         *
-         * @param chatRoom the chat room associated with the listener
          */
-        public ChatRoomPresenceListener(ChatRoom chatRoom)
+        public ChatRoomPresenceListener()
         {
             super();
-            this.chatRoom = chatRoom;
         }
 
         /**
@@ -3345,8 +3355,7 @@ public class ChatRoomJabberImpl
                         logger.error("Failed to send config form.", e);
                     }
 
-                    opSetMuc.addSmackInvitationRejectionListener(multiUserChat,
-                        chatRoom);
+                    opSetMuc.addSmackInvitationRejectionListener(multiUserChat, ChatRoomJabberImpl.this);
 
                     if(affiliation == MUCAffiliation.owner)
                     {
@@ -3538,7 +3547,7 @@ public class ChatRoomJabberImpl
     }
 
     /**
-     * We use thi to make sure that our outgoing <tt>Presence</tt> packets contain the correct
+     * We use this to make sure that our outgoing <tt>Presence</tt> packets contain the correct
      * <tt>ConferenceAnnouncementPacketExtension</tt> and custom extensions.
      */
     private void presenceIntercept(PresenceBuilder presenceBuilder)
