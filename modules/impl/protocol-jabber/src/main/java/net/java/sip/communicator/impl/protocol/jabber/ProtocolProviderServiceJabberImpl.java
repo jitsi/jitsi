@@ -61,6 +61,7 @@ import org.xmlpull.v1.*;
 import org.xmpp.jnodes.smack.*;
 
 import static org.jivesoftware.smack.ConnectionConfiguration.SecurityMode.*;
+import static net.java.sip.communicator.service.certificate.CertificateService.*;
 
 /**
  * An implementation of the protocol provider service over the Jabber protocol
@@ -1204,56 +1205,62 @@ public class ProtocolProviderServiceJabberImpl
             disconnectAndCleanConnection();
         }
 
-        try
+        // check and default configurations for property
+        // if missing default is null - false
+        String defaultAlwaysTrustMode = JabberActivator.getResources().getSettingsString(PNAME_ALWAYS_TRUST);
+
+        if(JabberActivator.getConfigurationService().getBoolean(PNAME_ALWAYS_TRUST,
+            Boolean.parseBoolean(defaultAlwaysTrustMode)))
         {
-            CertificateService cvs = getCertificateVerificationService();
-            if(cvs != null)
+            // install all trust manager
+            confConn.setCustomX509TrustManager(new TrustAllX509TrustManager());
+        }
+        else
+        {
+            try
             {
-                SSLContext sslContext = loginStrategy.createSslContext(cvs,
+                CertificateService cvs = getCertificateVerificationService();
+                if (cvs != null)
+                {
+                    SSLContext sslContext = loginStrategy.createSslContext(cvs,
                         getTrustManager(cvs, serviceName.toString()));
 
-                // log SSL/TLS algorithms and protocols
-                if (logger.isDebugEnabled())
-                {
-                    final StringBuilder buff = new StringBuilder();
-                    buff.append("Available TLS protocols and algorithms:\n");
-                    buff.append("Default protocols: ");
-                    buff.append(Arrays.toString(
-                        sslContext.getDefaultSSLParameters().getProtocols()));
-                    buff.append("\n");
-                    buff.append("Supported protocols: ");
-                    buff.append(Arrays.toString(
-                        sslContext.getSupportedSSLParameters().getProtocols()));
-                    buff.append("\n");
-                    buff.append("Default cipher suites: ");
-                    buff.append(Arrays.toString(
-                            sslContext.getDefaultSSLParameters()
-                            .getCipherSuites()));
-                    buff.append("\n");
-                    buff.append("Supported cipher suites: ");
-                    buff.append(Arrays.toString(
-                            sslContext.getSupportedSSLParameters()
-                            .getCipherSuites()));
-                    logger.debug(buff.toString());
-                }
+                    // log SSL/TLS algorithms and protocols
+                    if (logger.isDebugEnabled())
+                    {
+                        final StringBuilder buff = new StringBuilder();
+                        buff.append("Available TLS protocols and algorithms:\n");
+                        buff.append("Default protocols: ");
+                        buff.append(Arrays.toString(sslContext.getDefaultSSLParameters().getProtocols()));
+                        buff.append("\n");
+                        buff.append("Supported protocols: ");
+                        buff.append(Arrays.toString(sslContext.getSupportedSSLParameters().getProtocols()));
+                        buff.append("\n");
+                        buff.append("Default cipher suites: ");
+                        buff.append(Arrays.toString(sslContext.getDefaultSSLParameters().getCipherSuites()));
+                        buff.append("\n");
+                        buff.append("Supported cipher suites: ");
+                        buff.append(Arrays.toString(sslContext.getSupportedSSLParameters().getCipherSuites()));
+                        logger.debug(buff.toString());
+                    }
 
-                confConn.setSslContextFactory(() -> sslContext);
-                confConn.setHostnameVerifier((hostname, session) -> {
-                    // this is safe because our ssl context already
-                    // verified the hostname!
-                    return true;
-                });
+                    confConn.setSslContextFactory(() -> sslContext);
+                }
+                else if (loginStrategy.isTlsRequired())
+                    throw new JitsiXmppException("Certificate verification service is unavailable and TLS is required");
             }
-            else if (loginStrategy.isTlsRequired())
-                throw new JitsiXmppException(
-                    "Certificate verification service is "
-                    + "unavailable and TLS is required");
+            catch(GeneralSecurityException e)
+            {
+                logger.error("Error creating custom trust manager", e);
+                throw new JitsiXmppException("Error creating custom trust manager", e);
+            }
         }
-        catch(GeneralSecurityException e)
-        {
-            logger.error("Error creating custom trust manager", e);
-            throw new JitsiXmppException("Error creating custom trust manager", e);
-        }
+
+        confConn.setHostnameVerifier((hostname, session) -> {
+            // this is safe because our ssl context already
+            // verified the hostname!
+            return true;
+        });
 
         if (isBosh)
         {
@@ -2996,5 +3003,26 @@ public class ProtocolProviderServiceJabberImpl
         final Socket socket = getSocket();
 
         return (socket instanceof SSLSocket) ? (SSLSocket) socket : null;
+    }
+
+    /**
+     * Trust all hosts manager, used when {@link CertificateService}.PNAME_ALWAYS_TRUST is enabled.
+     */
+    public static class TrustAllX509TrustManager
+        implements X509TrustManager
+    {
+        @Override
+        public void checkClientTrusted(X509Certificate[] c, String s)
+        {}
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] c, String s)
+        {}
+
+        @Override
+        public X509Certificate[] getAcceptedIssuers()
+        {
+            return new X509Certificate[0];
+        }
     }
 }
