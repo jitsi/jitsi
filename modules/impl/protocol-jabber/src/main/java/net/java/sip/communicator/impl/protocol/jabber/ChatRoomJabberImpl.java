@@ -566,7 +566,7 @@ public class ChatRoomJabberImpl
      */
     public String getUserNickname()
     {
-        return multiUserChat.getNickname().toString();
+        return multiUserChat.getNickname() == null ? null : multiUserChat.getNickname().toString();
     }
 
     /**
