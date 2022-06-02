@@ -115,6 +115,11 @@ public class RegistrationStateChangeEvent extends PropertyChangeEvent
     public static final int REASON_SERVER_RETURNED_ERRONEOUS_INPUT = 10;
 
     /**
+     * Indicates that connection to the specified server timed out.
+     */
+    public static final int REASON_TIMEOUT = 11;
+
+    /**
      * The reason code returned by the server in order to explain the state
      * transition.
      */

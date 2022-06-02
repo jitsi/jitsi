@@ -395,6 +395,11 @@ public class ProtocolProviderServiceJabberImpl
     private boolean isKeepAliveEnabled = false;
 
     /**
+     * The ping listener if enabled that will trigger reconnection.
+     */
+    private PingFailedListenerImpl pingFailedListener = null;
+
+    /**
      * An <tt>OperationSet</tt> that allows access to connection information used
      * by the protocol provider.
      */
@@ -1294,8 +1299,14 @@ public class ProtocolProviderServiceJabberImpl
                         ProtocolProviderFactory.KEEP_ALIVE_INTERVAL, -1);
         if (this.isKeepAliveEnabled && keepAliveInterval > 0)
         {
-            PingManager.getInstanceFor(connection)
-                .setPingInterval(keepAliveInterval);
+            PingManager pm = PingManager.getInstanceFor(connection);
+            pm.setPingInterval(keepAliveInterval);
+
+            if (pingFailedListener == null)
+            {
+                pingFailedListener = new PingFailedListenerImpl();
+            }
+            pm.registerPingFailedListener(pingFailedListener);
         }
 
         connection.connect();
@@ -1478,6 +1489,12 @@ public class ProtocolProviderServiceJabberImpl
                 connection.disconnect(unavailablePresence);
             } catch (Exception e)
             {}
+
+            if (pingFailedListener != null)
+            {
+                PingManager.getInstanceFor(connection).unregisterPingFailedListener(pingFailedListener);
+                pingFailedListener = null;
+            }
 
             if (debugger != null)
             {
@@ -3023,6 +3040,34 @@ public class ProtocolProviderServiceJabberImpl
         public X509Certificate[] getAcceptedIssuers()
         {
             return new X509Certificate[0];
+        }
+    }
+
+    /**
+     * Detects ping failures and if the connection is still connected and authenticated we will fire connection failed.
+     */
+    private class PingFailedListenerImpl
+        implements PingFailedListener
+    {
+        @Override
+        public void pingFailed()
+        {
+            logger.warn("Ping failed, the XMPP connection needs to reconnect.");
+
+            XMPPConnection xmppConnection = getConnection();
+
+            if (xmppConnection.isConnected() && xmppConnection.isAuthenticated())
+            {
+                logger.warn("XMPP connection still connected, will trigger a disconnect.");
+                // XMPP connection is connected and authenticated.
+                // This is a weird situation that we have seen in the past when using VPN.
+                // Everything stays like this forever as the socket remains open on the OS level
+                // and it is never dropped. We will trigger reconnect just in case.
+                fireRegistrationStateChanged(getRegistrationState(),
+                    RegistrationState.CONNECTION_FAILED,
+                    RegistrationStateChangeEvent.REASON_TIMEOUT,
+                    "Ping failed");
+            }
         }
     }
 }
