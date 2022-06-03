@@ -3366,6 +3366,11 @@ public class ChatRoomJabberImpl
                         setLocalUserRole(ChatRoomMemberRole.MODERATOR, true);
                     }
                 }
+                else if (mucUser.getStatus().contains(MUCUser.Status.KICKED_307))
+                {
+                    // if this is a kick skip processing, we will be notified by multiUserChat
+                    return;
+                }
                 else
                 {
                     // this is the presence for our member initial role and
