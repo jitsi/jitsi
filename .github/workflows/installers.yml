@@ -160,7 +160,7 @@ jobs:
           sudo mkdir -p /var/lib/schroot/tarballs/
           sudo mkdir -p /etc/schroot/chroot.d/
           sudo mv target/chroot/tarballs/* /var/lib/schroot/tarballs/
-          sudo mv target/chroot/chroot.d/* /etc/schroot/
+          sudo mv target/chroot/chroot.d/* /etc/schroot/chroot.d/
           sudo chown -R root:root /var/lib/schroot/tarballs/
           sudo chown -R root:root /etc/schroot/chroot.d/
 
