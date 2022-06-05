@@ -138,12 +138,12 @@ task wixLight(type: Exec, group: 'installer-wix', dependsOn: wixCandle) {
             '-ext', 'WixUtilExtension',
             '-cultures:en-us',
             '-loc', "${projectDir}/windows/wix/en-us.wxl",
-            '-out', "${wixRootDir}/jitsi-${versionShort}-${arch}.msi",
+            '-out', "${wixRootDir}/jitsi-${versionShort}-win-${arch}.msi",
             "${wixTempDir}/*.wixobj"
 }
 
 task signMsi(group: 'installer-wix', dependsOn: wixLight) {
-    inputs.files("${wixRootDir}/jitsi-${versionShort}-${arch}.msi")
+    inputs.files("${wixRootDir}/jitsi-${versionShort}-win-${arch}.msi")
     doLast {
         if (project.hasProperty('application.win.certfile')) {
             signFile inputs.files.singleFile

@@ -145,6 +145,25 @@ jobs:
           cat <(echo -e "${{ secrets.GPG_KEY }}") | gpg --batch --import
           gpg --list-secret-keys --keyid-format LONG
 
+      - name: Cache sbuild chroot stanza
+        uses: actions/cache@v3
+        id: chroot_cache
+        with:
+          path: target/chroot
+          key: chroot-${{ matrix.dist.dist }}-${{ matrix.arch }}-${{ hashFiles('target/chroot/**') }}
+          restore-keys: |
+            chroot-${{ matrix.dist.dist }}-${{ matrix.arch }}-
+
+      - name: Move chroot from cache
+        if: steps.chroot_cache.outputs.cache-hit
+        run: |
+          sudo mkdir -p /var/lib/schroot/tarballs/
+          sudo mkdir -p /etc/schroot/chroot.d/
+          sudo mv target/chroot/tarballs/* /var/lib/schroot/tarballs/
+          sudo mv target/chroot/chroot.d/* /etc/schroot/
+          sudo chown -R root:root /var/lib/schroot/tarballs/
+          sudo chown -R root:root /etc/schroot/chroot.d/
+
       - name: Build deb package
         # the user executing sbuild needs to be in the group sbuild, a relogin is not possible here
         # bionic doesn't have /bin and /usr/bin merged, thus /bin/bash
@@ -167,6 +186,13 @@ jobs:
         with:
           name: ${{ matrix.dist.vendor }}-${{ matrix.dist.dist }}-${{ matrix.arch }}
           path: target/debian/${{ matrix.dist.dist }}/*
+
+      - name: Archive chroot for cache
+        run: |
+          mkdir -p target/chroot
+          sudo mv /var/lib/schroot/tarballs/ target/chroot
+          sudo mv /etc/schroot/chroot.d/ target/chroot
+          sudo chown -R runner:runner target/chroot
 
   wix:
     name: Windows ${{ matrix.arch.actions }}
@@ -288,7 +314,7 @@ jobs:
       matrix:
         arch:
           - x64
-          #- aarch64 }
+          #- aarch64
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -342,7 +368,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: jitsi-mac-${{ matrix.arch }}
-          path: resources/install/build/install/jitsi.dmg
+          path: resources/install/build/install/*.dmg
 
   release:
     #if: github.ref == 'refs/heads/master'
@@ -381,6 +407,7 @@ jobs:
 
   #deploy:
   #  name: Deploy Debian packages
+  #  if: github.ref == 'refs/heads/master'
   #  needs:
   #    - version
   #    - release

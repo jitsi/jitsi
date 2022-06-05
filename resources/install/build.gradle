@@ -97,6 +97,7 @@ startScripts {
         windowsScript.text = windowsScript.text
                 .replace('_JITSI_APP_HOME_', '%APP_HOME%\\')
                 .replace('lib\\config', 'config')
+                .replace('set JAVA_EXE=java.exe', 'set JAVA_EXE=jre\\bin\\java.exe')
         file("${outputDir}/config").mkdirs()
         file("${outputDir}/config/classpath").text = getLauncherClasspath().join('\n') + '\n'
     }

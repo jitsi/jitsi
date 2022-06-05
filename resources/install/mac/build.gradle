@@ -1,5 +1,7 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
+def arch = project.property('application.target')
+
 task copyInfoPlist(group: 'installer-mac') {
     doLast {
         // cannot be a copy task itself (the classpath must be evaluated on exec, not config)
@@ -40,5 +42,5 @@ task createDmg(type: Exec, group: 'installer-mac', dependsOn: [
     // TODO: sign
     workingDir installMacDist.destinationDir.parent
     commandLine "${projectDir}/mac/build-dmg.sh"
-    args installMacDist.destinationDir.name
+    args installMacDist.destinationDir.name, versionShort, arch
 }

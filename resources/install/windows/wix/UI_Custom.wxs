@@ -3,10 +3,10 @@
   <Fragment>
     <UI Id="UI_Custom_InstallDir">
       <UIRef Id="WixUI_CInstallDir" />
-    
+
       <TextStyle Id="GreyText" Blue="127" FaceName="Ms Shell Dlg" Green="127" Red="127" Size="8" />
       <TextStyle Id="WhiteText" Blue="240" FaceName="Ms Shell Dlg" Green="240" Red="240" Size="9"/>
-    
+
                 <!-- Modified ExitDialog -->
                 <Dialog Id="CExitDialog" Width="370" Height="270" Title="!(loc.ExitDialog_Title)">
                     <Control Id="Finish" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Cancel="yes" Text="!(loc.WixUIFinish)" />
@@ -16,17 +16,14 @@
                     <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
                     <Control Id="Description" Type="Text" X="135" Y="70" Width="220" Height="40" Transparent="yes" NoPrefix="yes" Text="!(loc.ExitDialogDescription)" />
                     <Control Id="Title" Type="Text" X="135" Y="20" Width="220" Height="60" Transparent="yes" NoPrefix="yes" Text="!(loc.ExitDialogTitle)" />
-                    <Control Id="OptionalText" Type="Text" X="135" Y="110" Width="220" Height="80" Transparent="yes" NoPrefix="yes" Hidden="yes" Text="[WIXUI_EXITDIALOGOPTIONALTEXT]">
-                        <Condition Action="show">WIXUI_EXITDIALOGOPTIONALTEXT AND NOT Installed</Condition>
-                    </Control>
-                    <Control Id="OptionalCheckBoxText" Type="Text" X="150" Y="190" Width="205" Height="40" Hidden="yes" Transparent="yes" NoPrefix="yes" Text="[WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT]">
-                        <Condition Action="show">WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT AND NOT Installed</Condition>
+                    <Control Id="OptionalCheckBoxText" Type="Text" X="150" Y="190" Width="205" Height="40" Hidden="yes" Transparent="yes" NoPrefix="yes" Text="!(loc.ExitDialogOptionalCheckBoxText)">
+                        <Condition Action="show">NOT Installed</Condition>
                     </Control>
                     <Control Id="OptionalCheckBox" Type="CheckBox" X="135" Y="190" Width="10" Height="10" Hidden="yes" Property="WIXUI_EXITDIALOGOPTIONALCHECKBOX" CheckBoxValue="1">
-                        <Condition Action="show">WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT AND NOT Installed</Condition>
+                        <Condition Action="show">NOT Installed</Condition>
                     </Control>
                 </Dialog>
-    
+
                 <!-- Modified WelcomeDlg -->
                 <Dialog Id="CWelcomeDlg" Width="370" Height="270" Title="!(loc.WelcomeDlg_Title)">
                     <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="!(loc.WixUINext)" />
@@ -39,60 +36,60 @@
                     <Control Id="Description" Type="Text" X="135" Y="80" Width="220" Height="60" Transparent="yes" NoPrefix="yes" Text="!(loc.WelcomeDlgDescription)" />
                     <Control Id="Title" Type="Text" X="135" Y="20" Width="220" Height="60" Transparent="yes" NoPrefix="yes" Text="!(loc.WelcomeDlgTitle)" />
                 </Dialog>
-    
+
                 <Dialog Id="ShortcutsAndRegistryDlg" Width="370" Height="270" Title="!(loc.ShortcutsAndRegistryDlg_Title)">
-    
+
                     <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no" Text="!(loc.ShortcutsAndRegistryDlgBannerBitmap)" />
                     <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="!(loc.ShortcutsAndRegistryDlgTitle)" />
                     <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Transparent="yes" NoPrefix="yes" Text="!(loc.ShortcutsAndRegistryDlgDescription)" />
                     <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
-    
+
                     <Control Id="ShortcutGroup" Type="GroupBox" X="20" Y="50" Width="330" Height="50" Text="!(loc.ShortcutsAndRegistryDlg_CreateShortcuts)" />
                     <Control Id="StartMenuShortcutCheckBox" Type="CheckBox" X="25" Y="65" Width="320" Height="15" Property="CREATE_START_MENU_SHORTCUT" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_CreateStartMenu)" />
                     <Control Id="DesktopShortcutCheckBox" Type="CheckBox" X="25" Y="80" Width="320" Height="15" Property="CREATE_DESKTOP_SHORTCUT" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_CreateDesktop)" />
-    
+
                     <Control Id="VeriousGroup" Type="GroupBox" X="20" Y="105" Width="330" Height="75" Text="!(loc.ShortcutsAndRegistryDlg_VariousSettings)" />
                     <Control Id="StartupShortcutCheckBox" Type="CheckBox" X="25" Y="120" Width="320" Height="15" Property="HAS_STARTUP_REGISTRY" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_CreateAutoStart)" />
                     <Control Id="DisableUpdatesCheckCheckBox" Type="CheckBox" X="25" Y="135" Width="320" Height="15" Property="CREATE_DISABLE_UPDATES_CHECK" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_DisableUpdates)" />
                     <Control Id="DefaultIMApplicationCheckBox" Type="CheckBox" X="25" Y="150" Width="320" Height="25" Property="SET_DEFAULT_IM_APP" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_DefaultIMApp)" />
-    
+
                     <Control Id="RegistryGroup" Type="GroupBox" X="20" Y="185" Width="330" Height="45" Text="!(loc.ShortcutsAndRegistryDlg_AssociateProtocols)" />
                     <Control Id="SipRegistryEntriesCheckBox" Type="CheckBox" X="25" Y="200" Width="320" Height="15" Property="CREATE_SIP_REGISTRY_ENTRIES" CheckBoxValue="1" Text="&amp;SIP" />
                     <Control Id="XmppRegistryEntriesCheckBox" Type="CheckBox" X="25" Y="215" Width="320" Height="15" Property="CREATE_XMPP_REGISTRY_ENTRIES" CheckBoxValue="1" Text="&amp;XMPP" />
-    
+
                     <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
-    
+
                     <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="!(loc.WixUINext)" />
                     <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
                     <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
                         <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
                     </Control>
                 </Dialog>
-    
+
                 <Dialog Id="CleanSweepDlg" Width="370" Height="270" Title="!(loc.CleanSweepDlg_Title)">
                     <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="!(loc.WixUINext)" />
                     <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
                     <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
                       <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
                     </Control>
-    
+
                     <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Transparent="yes" NoPrefix="yes" Text="!(loc.CleanSweepDlgDescription)" />
                     <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="!(loc.CleanSweepDlgTitle)" />
                     <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no" Text="!(loc.CleanSweepDlgBannerBitmap)" />
                     <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
                     <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
-    
+
                     <Control Id="CleanSweepCheckBox" Type="CheckBox" X="20" Y="60" Width="330" Height="15" Property="CLEAN_SWEEP" CheckBoxValue="1" Text="&amp;Remove personal $(var.PRODUCT) data and preferences" />
                 </Dialog>
-    
-      <Publish 
+
+      <Publish
           Control="Finish"
           Dialog="CExitDialog"
           Event="DoAction"
           Value="LaunchApplication">
         <![CDATA[WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND NOT Installed]]>
       </Publish>
-    
+
       <InstallUISequence>
         <Show Dialog="CExitDialog" OnExit="success">
           NOT (IS_AUTOUPDATE = 1)
@@ -100,21 +97,21 @@
         <Show Dialog="CWelcomeDlg" Before="CProgressDlg">
           NOT Installed AND NOT (IS_AUTOUPDATE = 1)
         </Show>
-    
+
         <Show Dialog="CProgressDlg" Before="ExecuteAction">
           NOT (IS_AUTOUPDATE = 1)
         </Show>
         <Show Dialog="CAutoupdateProgressDlg" Before="ExecuteAction">
           IS_AUTOUPDATE = 1
         </Show>
-    
+
         <Custom Action="LaunchApplication" After="ExecuteAction">
             IS_AUTOUPDATE = 1
         </Custom>
         <Custom Action="CleanSweep" After="ExecuteAction">
             <![CDATA[NOT (IS_AUTOUPDATE = 1) AND (CLEAN_SWEEP = 1)]]>
         </Custom>
-    
+
         <Custom Action="SetIS_AUTOUPDATE" After="AppSearch">
           <![CDATA[NOT Installed AND SIP_COMMUNICATOR_AUTOUPDATE_INSTALLDIR <> ""]]>
         </Custom>
@@ -146,7 +143,7 @@
           <![CDATA[NOT HAS_DISABLE_UPDATES_CHECK_REGISTRY]]>
         </Custom>
       </InstallUISequence>
-    
+
       <AdminUISequence>
         <Show Dialog="CExitDialog" OnExit="success">
           NOT (IS_AUTOUPDATE = 1)
@@ -295,7 +292,7 @@
             <DialogRef Id="CAutoupdateProgressDlg" />
             <DialogRef Id="CResumeDlg" />
             <DialogRef Id="UserExit" />
-            
+
             <Publish Dialog="BrowseDlg" Control="OK" Event="DoAction" Value="WixUIValidatePath" Order="3">1</Publish>
             <Publish Dialog="BrowseDlg" Control="OK" Event="SpawnDialog" Value="InvalidDirDlg" Order="4"><![CDATA[WIXUI_INSTALLDIR_VALID<>"1"]]></Publish>
 
