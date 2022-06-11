@@ -368,7 +368,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: jitsi-mac-${{ matrix.arch }}
-          path: resources/install/build/install/*.dmg
+          path: resources/install/build/install/jitsi-*-mac-*.dmg
 
   release:
     #if: github.ref == 'refs/heads/master'

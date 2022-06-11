@@ -20,3 +20,7 @@ target_link_libraries(${PROJECT_NAME}
                       "-framework Foundation"
                       ${SPARKLE_LIBRARY}
                       )
+
+install(TARGETS ${PROJECT_NAME}
+        RUNTIME DESTINATION "."
+        LIBRARY DESTINATION ".")

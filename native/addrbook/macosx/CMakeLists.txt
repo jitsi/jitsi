@@ -18,3 +18,7 @@ target_link_libraries(${PROJECT_NAME}
         "-framework AddressBook"
         "-framework Foundation"
         )
+
+install(TARGETS ${PROJECT_NAME}
+        RUNTIME DESTINATION "."
+        LIBRARY DESTINATION ".")
