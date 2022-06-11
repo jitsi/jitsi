@@ -265,7 +265,7 @@ boolean MsOutlookAddrBookServer::foreachMailUserCallback(
  *
  * @return S_OK if eveything works fine. Any error value otherwise.
  */
-HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_GetProps( 
+HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_GetProps(
         BSTR entryId,
         int nbPropIds,
         SAFEARRAY * propIds,
@@ -310,7 +310,7 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_GetProps(
 
                 if(HR_SUCCEEDED(hr))
                 {
-                    long totalLength = 0;
+                    unsigned long totalLength = 0;
                     for(int j = 0; j < nbPropIds; ++j)
                     {
                         totalLength += localPropsLength[j];
@@ -381,7 +381,7 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_GetProps(
  *
  * @return S_OK if the contact was correctly created. E_FAIL otherwise.
  */
-HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::createContact( 
+HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::createContact(
         BSTR *id)
 {
     LPSTR nativeId = MsOutlookAddrBookContactQuery_createContact();
@@ -403,7 +403,7 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::createContact(
  *
  * @return S_OK if the contact was correctly deleted. E_FAIL otherwise.
  */
-HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::deleteContact( 
+HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::deleteContact(
         BSTR id)
 {
     HRESULT hr = E_FAIL;
@@ -427,7 +427,7 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::deleteContact(
  *
  * @return S_OK if the contact was correctly deleted. E_FAIL otherwise.
  */
-HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_DeleteProp( 
+HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_DeleteProp(
         long propId,
         BSTR entryId)
 {
@@ -455,7 +455,7 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_DeleteProp(
  *
  * @return S_OK if the contact was correctly deleted. E_FAIL otherwise.
  */
-HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_SetPropString( 
+HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_SetPropString(
         long propId,
         BSTR value,
         BSTR entryId)

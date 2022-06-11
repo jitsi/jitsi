@@ -441,19 +441,20 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
 /**
  * Starts the COM server.
  *
- * @return S_OK if eveything was fine. E_FAIL otherwise.
+ * @return S_OK if everything was fine. E_FAIL otherwise.
  */
 HRESULT MsOutlookAddrBookContactSourceService_MAPIInitializeCOMServer(void)
 {
     HRESULT hr = E_FAIL;
 
     MAPISession_lock();
-    MsOutlookUtils_log(_T("Init com server."));
+    MsOutlookUtils_log(_T("Init com server"));
 
     IMsOutlookAddrBookServer * ComClient_iServer = NULL;
     if((hr = CoInitializeEx(NULL, COINIT_MULTITHREADED)) == S_OK
                 || hr == S_FALSE)
     {
+        MsOutlookUtils_log(_T("CoInitializeEx"));
         if((hr = CoCreateInstance(
                 CLSID_MsOutlookAddrBookServer,
                 NULL,
@@ -606,15 +607,14 @@ HRESULT MsOutlookAddrBookContactSourceService_startComServer(void)
         startupInfo.dwFlags = STARTF_USESHOWWINDOW;
         startupInfo.wShowWindow = SW_HIDE;
         LPCTSTR loggerPath = MsOutlookUtils_getLoggerPath();
-        int loggerPathLenght = 0;
         LPTSTR comServerWithLogger;
         LPTSTR appNameWithLogger;
-        LPTSTR loggerPathEscaped = NULL;
-        if(loggerPath != NULL)
+        LPTSTR loggerPathEscaped = nullptr;
+        if(loggerPath != nullptr)
         {
             int loggerLevel = MsOutlookUtils_getLoggerLevel();
             LPTSTR loggerPathEscaped = (LPTSTR) malloc(_tcslen(loggerPath) *
-                    sizeof(char) * 2);
+                    sizeof(TCHAR) * 2);
             int i = 0;
             while(*loggerPath != '\0')
             {
@@ -628,13 +628,13 @@ HRESULT MsOutlookAddrBookContactSourceService_startComServer(void)
                 loggerPath++;
             }
             *(loggerPathEscaped + i) = '\0';
-            loggerPathLenght = _tcslen(loggerPathEscaped);
+            auto loggerPathLength = _tcslen(loggerPathEscaped);
             comServerWithLogger
                 = (LPTSTR) malloc(
-                        (FILENAME_MAX + loggerPathLenght) * sizeof(char));
+                    (FILENAME_MAX + loggerPathLength) * sizeof(TCHAR));
             appNameWithLogger
                 = (LPTSTR) malloc(
-                        (FILENAME_MAX + loggerPathLenght) * sizeof(char));
+                    (FILENAME_MAX + loggerPathLength) * sizeof(TCHAR));
             _stprintf(comServerWithLogger, _T("%s \"%s\" %d"), comServer,
                     loggerPathEscaped, loggerLevel);
             _stprintf(appNameWithLogger, _T("%s \"%s\" %d"), applicationName

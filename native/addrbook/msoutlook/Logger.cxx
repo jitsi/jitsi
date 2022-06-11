@@ -39,10 +39,8 @@ Logger::Logger(LPCTSTR pLogFile, LPCTSTR pLogPath, int pLogLevel)
         {
             logFile = new TCHAR[(_tcslen(pLogPath) + _tcslen(pLogFile) + 1)];
             _stprintf(logFile, _T("%s%s"), pLogPath, pLogFile);
-            if (_tfopen_s(&file, logFile, _T("w")) == 0)
-            {
-                canWriteInFile = file != nullptr;
-            }
+            file = _tfsopen(logFile, _T("w"), _SH_DENYNO);
+            canWriteInFile = file != nullptr;
         }
     }
 
@@ -53,13 +51,13 @@ Logger::Logger(LPCTSTR pLogFile, LPCTSTR pLogPath, int pLogLevel)
             delete[] logPath;
             logPath = nullptr;
         }
-    
+
         if (logFile)
         {
             delete[] logFile;
             logFile = nullptr;
         }
-    
+
         file = nullptr;
     }
 }

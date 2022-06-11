@@ -65,7 +65,7 @@
       <key>MainClass</key>
       <string>net.java.sip.communicator.launcher.SIPCommunicator</string>
       <key>JVMVersion</key>
-      <string>1.8+</string>
+      <string>11+</string>
       <key>ClassPath</key>
       <array>
         @CLASSPATH_STRINGS@
@@ -83,9 +83,9 @@
         <key>logback.configurationFile</key>
         <string>config/logback.xml</string>
         <key>java.library.path</key>
-        <string>$JAVAROOT/native:${system.DYLD_LIBRARY_PATH}</string>
+        <string>$JAVAROOT/native:${system.DYLD_LIBRARY_PATH}:/Users/Shared/Library/Application Support/Jitsi/native</string>
         <key>jna.library.path</key>
-        <string>$JAVAROOT/native:${system.DYLD_LIBRARY_PATH}</string>
+        <string>$JAVAROOT/native:${system.DYLD_LIBRARY_PATH}:/Users/Shared/Library/Application Support/Jitsi/native</string>
         <key>apple.laf.useScreenMenuBar</key>
         <string>true</string>
       </dict>

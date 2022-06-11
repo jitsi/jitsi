@@ -20,6 +20,7 @@ package net.java.sip.communicator.impl.neomedia.codec.video.h264;
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.browserlauncher.*;
+import org.apache.commons.lang3.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
@@ -58,12 +59,14 @@ public class OpenH264Retriever
      * These are the download links as said in:
      * https://github.com/cisco/openh264/blob/master/RELEASES
      */
-    private static final String OPENH264_CURRENT_VERSION_URL_MAC
-        = "http://ciscobinary.openh264.org/libopenh264-2.1.1-osx64.6.dylib.bz2";
+    private static final String OPENH264_CURRENT_VERSION_URL_MAC_64
+        = "http://ciscobinary.openh264.org/libopenh264-2.3.0-osx-x64.6.dylib.bz2";
+    private static final String OPENH264_CURRENT_VERSION_URL_MAC_ARM
+        = "http://ciscobinary.openh264.org/libopenh264-2.3.0-osx-arm64.6.dylib.bz2";
     private static final String OPENH264_CURRENT_VERSION_URL_WINDOWS_32
-        = "http://ciscobinary.openh264.org/openh264-2.1.1-win32.dll.bz2";
+        = "http://ciscobinary.openh264.org/openh264-2.3.0-win32.dll.bz2";
     private static final String OPENH264_CURRENT_VERSION_URL_WINDOWS_64
-        = "http://ciscobinary.openh264.org/openh264-2.1.1-win64.dll.bz2";
+        = "http://ciscobinary.openh264.org/openh264-2.3.0-win64.dll.bz2";
 
     /**
      * These are windows and mac os x locations where the binaries
@@ -95,7 +98,6 @@ public class OpenH264Retriever
 
     /**
      * Returns the configuration panel to be shown to the user.
-     * @return
      */
     public static Container getConfigPanel()
     {
@@ -344,40 +346,33 @@ public class OpenH264Retriever
      */
     private static void downloadInNewThread()
     {
-        new Thread()
-        {
-            @Override
-            public void run()
+        new Thread(() -> {
+            try
             {
-                try
+                String url = chooseOpenH264URL();
+
+                if (url == null)
                 {
-                    String url = chooseOpenH264URL();
-
-                    if (url == null)
-                    {
-                        logger.error("Unsupported OS!");
-                        return;
-                    }
-
-                    File f = FileUtils.download(
-                        url, "libopenh264", ".bz2");
-                    if (f != null)
-                    {
-                        install(f);
-                    }
-                    else
-                    {
-                        logger.error("Error downloading "
-                            + "openh264 binary!");
-                    }
+                    logger.error("Unsupported OS!");
+                    return;
                 }
-                catch (IOException e1)
+
+                File f = FileUtils.download(
+                    url, "libopenh264", ".bz2");
+                if (f != null)
                 {
-                    logger.error("Error downloading "
-                        + "openh264 binary!", e1);
+                    install(f);
+                }
+                else
+                {
+                    logger.error("Error downloading openh264 binary!");
                 }
             }
-        }.start();
+            catch (IOException e1)
+            {
+                logger.error("Error downloading openh264 binary!", e1);
+            }
+        }).start();
     }
 
     /**
@@ -408,7 +403,7 @@ public class OpenH264Retriever
             return;
         }
 
-        // create parent folders if do not exists
+        // create parent folders if they do not exist
         if (!destFile.getParentFile().exists())
         {
             destFile.getParentFile().mkdirs();
@@ -432,7 +427,7 @@ public class OpenH264Retriever
         }
         catch (IOException e)
         {
-            logger.error("Fail to install openh264 file", e);
+            logger.error("Failed to install OpenH264 file", e);
         }
     }
 
@@ -441,17 +436,24 @@ public class OpenH264Retriever
      */
     private static void removeFile()
     {
-        if (OSUtils.IS_WINDOWS)
+        if (SystemUtils.IS_OS_WINDOWS)
         {
             new File(
                 OPENH264_INSTALL_DIR_WINDOWS.replace(
                     "%ALLUSERSPROFILE%",
                     System.getenv("ALLUSERSPROFILE")),
-                "openh264.dll").delete();
+                "libopenh264.dll").delete();
         }
-        else if (OSUtils.IS_MAC)
+        else if (SystemUtils.IS_OS_MAC)
         {
-            new File(OPENH264_INSTALL_DIR_MAC, "libopenh264.4.dylib").delete();
+            var installDir = new File(OPENH264_INSTALL_DIR_MAC);
+            if (installDir.exists() && installDir.isDirectory())
+            {
+                for (var f : installDir.listFiles((dir, name) -> name.startsWith("libopenh264")))
+                {
+                    f.delete();
+                }
+            }
         }
     }
 
@@ -461,15 +463,19 @@ public class OpenH264Retriever
      */
     private static String chooseOpenH264URL()
     {
-        if (OSUtils.IS_MAC)
+        if (SystemUtils.IS_OS_MAC && "aarch64".equals(SystemUtils.OS_ARCH))
         {
-            return OPENH264_CURRENT_VERSION_URL_MAC;
+            return OPENH264_CURRENT_VERSION_URL_MAC_ARM;
         }
-        else if (OSUtils.IS_WINDOWS32)
+        else if (SystemUtils.IS_OS_MAC)
+        {
+            return OPENH264_CURRENT_VERSION_URL_MAC_ARM;
+        }
+        else if (SystemUtils.IS_OS_WINDOWS && "x86".equals(SystemUtils.OS_ARCH))
         {
             return OPENH264_CURRENT_VERSION_URL_WINDOWS_32;
         }
-        else if (OSUtils.IS_WINDOWS64)
+        else if (SystemUtils.IS_OS_WINDOWS && "amd64".equals(SystemUtils.OS_ARCH))
         {
             return OPENH264_CURRENT_VERSION_URL_WINDOWS_64;
         }

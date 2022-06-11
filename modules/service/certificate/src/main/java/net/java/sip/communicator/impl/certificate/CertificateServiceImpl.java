@@ -57,26 +57,14 @@ public class CertificateServiceImpl
     // ------------------------------------------------------------------------
     // static data
     // ------------------------------------------------------------------------
-    private final List<KeyStoreType> supportedTypes =
-        new LinkedList<KeyStoreType>()
-        {
-            /**
-             * Serial version UID.
-             */
-            private static final long serialVersionUID = 0L;
-
-            {
-                if(!OSUtils.IS_WINDOWS64)
-                {
-                    add(new KeyStoreType("PKCS11", new String[]
-                    { ".dll", ".so" }, false));
-                }
-                add(new KeyStoreType("PKCS12", new String[]
-                { ".p12", ".pfx" }, true));
-                add(new KeyStoreType(KeyStore.getDefaultType(), new String[]
-                { ".ks", ".jks" }, true));
-            }
-        };
+    private final List<KeyStoreType> supportedTypes = List.of(
+        new KeyStoreType("PKCS11", new String[]
+            { ".dll", ".so" }, false),
+        new KeyStoreType("PKCS12", new String[]
+            { ".p12", ".pfx" }, true),
+        new KeyStoreType(KeyStore.getDefaultType(), new String[]
+            { ".ks", ".jks" }, true)
+    );
 
     // ------------------------------------------------------------------------
     // services

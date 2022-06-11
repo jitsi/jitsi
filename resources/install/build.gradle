@@ -84,8 +84,10 @@ startScripts {
     applicationName = project.name
     defaultJvmOpts = [
             '-splash:splash.gif',
-            '-Djava.library.path=_JITSI_APP_HOME_native',
-            '-Djna.library.path=_JITSI_APP_HOME_native',
+            '--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED',
+            '--add-opens=java.base/java.lang=ALL-UNNAMED',
+            '-Djava.library.path=_JITSI_APP_HOME_native;%ALLUSERSPROFILE%\\Jitsi\\native',
+            '-Djna.library.path=_JITSI_APP_HOME_native;%ALLUSERSPROFILE%\\Jitsi\\native',
             '-Dfelix.config.properties=file:config/felix.properties',
             '-Dlogback.configurationFile=config/logback.xml',
     ]
