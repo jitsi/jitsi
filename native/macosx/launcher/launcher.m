@@ -90,8 +90,8 @@ JLI_Launch_t getJLILaunch(NSString *parentPath)
     void *libJLI = NULL;
 
     NSDictionary *paths = @{
-        @"Contents/Home/lib/libjli.dylib"     : @"Contents/Home/lib/libsplashscreen.dylib"
-        @"Contents/Home/jre/lib/libjli.dylib" : @"Contents/Home/jre/lib/libsplashscreen.dylib",
+        @"Contents/Home/lib/libjli.dylib"     : @"Contents/Home/lib/libsplashscreen.dylib",
+        @"Contents/Home/jre/lib/libjli.dylib" : @"Contents/Home/jre/lib/libsplashscreen.dylib"
     };
 
     for (NSString *path in paths)
