@@ -30,7 +30,7 @@ import com.sun.jna.*;
 interface AppIndicator1 extends Library
 {
     AppIndicator1 INSTANCE =
-        Native.load("appindicator", AppIndicator1.class);
+        Native.load("libayatana-appindicator", AppIndicator1.class);
 
     String APP_INDICATOR_SIGNAL_NEW_ICON            = "new-icon";
     String APP_INDICATOR_SIGNAL_NEW_ATTENTION_ICON  = "new-attention-icon";
@@ -143,7 +143,7 @@ interface AppIndicator1 extends Library
         public Pointer priv;
 
         @Override
-        protected List getFieldOrder()
+        protected List<String> getFieldOrder()
         {
             return Arrays.asList("parent", "priv");
         }

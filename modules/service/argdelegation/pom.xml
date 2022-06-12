@@ -23,10 +23,6 @@
       <artifactId>commons-lang3</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.massisframework</groupId>
-      <artifactId>orange-extensions</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.jitsi</groupId>
       <artifactId>libjitsi</artifactId>
       <exclusions>

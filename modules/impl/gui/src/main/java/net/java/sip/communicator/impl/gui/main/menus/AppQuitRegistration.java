@@ -17,24 +17,24 @@
  */
 package net.java.sip.communicator.impl.gui.main.menus;
 
-import com.apple.eawt.*;
+import java.awt.*;
+import java.awt.Desktop.*;
 
 /**
  * @author Lubomir Marinov
  */
-public final class MacOSXQuitRegistration
+public final class AppQuitRegistration
 {
-    public static boolean run(final Object userData)
+    public static boolean run(FileMenu fileMenu)
     {
-        Application application = Application.getApplication();
-        if (application != null)
+        if (Desktop.isDesktopSupported())
         {
-            application.setQuitHandler(new QuitHandler()
+            var desktop = Desktop.getDesktop();
+            if (desktop != null && desktop.isSupported(Action.APP_QUIT_HANDLER))
             {
-                public void handleQuitRequestWith(AppEvent.QuitEvent quitEvent,
-                                              final QuitResponse quitResponse)
+                desktop.setQuitHandler((e, response) ->
                 {
-                    ((FileMenu) userData).closeActionPerformed();
+                    fileMenu.closeActionPerformed();
 
                     /*
                      * Tell Mac OS X that it shouldn't terminate the
@@ -50,33 +50,34 @@ public final class MacOSXQuitRegistration
                      * end too quickly. 15sec is the time our shutdown timer
                      * waits before force the shutdown.
                      */
-
-                    synchronized(this)
+                    synchronized(AppQuitRegistration.class)
                     {
                         try
                         {
-                            wait(15000);
-                        }catch (InterruptedException ex){}
+                            AppQuitRegistration.class.wait(15000);
+                        }
+                        catch (InterruptedException ex)
+                        {
+                            Thread.currentThread().interrupt();
+                        }
                     }
 
-                    /**
+                    /*
                      * Free the event dispatch thread before performing the
-                     * quit (System.exit), shutdown timer may also has started
+                     * quit (System.exit), shutdown timer may also have started
                      * the quit and is waiting to free the threads which
                      * we may be blocking.
                      */
-                    new Thread(new Runnable()
-                    {
-                        public void run()
-                        {
-                            quitResponse.performQuit();
-                        }
-                    }).start();
-                }
-            });
+                    var t = new Thread(response::performQuit);
+                    t.setName("Quit handler continuation thread");
+                    t.setDaemon(true);
+                    t.start();
+                });
 
-            return true;
+                return true;
+            }
         }
+
         return false;
     }
 }

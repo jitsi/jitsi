@@ -32,16 +32,6 @@ import net.java.sip.communicator.service.gui.*;
 public class AboutWindowPluginComponent
     extends AbstractPluginComponent
 {
-
-    /**
-     * Invokes the default action associated with Help > About regardless of the
-     * specifics of its visual representation.
-     */
-    public static void actionPerformed()
-    {
-        AboutWindow.showAboutWindow();
-    }
-
     private JMenuItem aboutMenuItem;
 
     /**
@@ -67,13 +57,7 @@ public class AboutWindowPluginComponent
                             .getI18nMnemonic(
                                 "plugin.branding.ABOUT_MENU_ENTRY"));
 
-            aboutMenuItem.addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    AboutWindowPluginComponent.actionPerformed();
-                }
-            });
+            aboutMenuItem.addActionListener(e -> AboutWindow.showAboutWindow());
         }
         return aboutMenuItem;
     }

@@ -17,11 +17,12 @@
  */
 package net.java.sip.communicator.impl.browserlauncher;
 
+import java.awt.*;
+import java.awt.Desktop.*;
+import java.net.*;
 import net.java.sip.communicator.service.browserlauncher.*;
 import org.apache.commons.lang3.SystemUtils;
 import org.jitsi.service.configuration.*;
-
-import com.apple.eio.*;
 
 /**
  * Implements a <tt>BrowserLauncherService</tt> which opens a specified URL in
@@ -66,15 +67,20 @@ public class BrowserLauncherImpl
      * URL or there was an error during the instruction of the found associated
      * browser to open the specified URL
      */
-    @SuppressWarnings("deprecation")
     private void launchBrowser(String url)
         throws Exception
     {
-        if (SystemUtils.IS_OS_MAC)
+        if (Desktop.isDesktopSupported())
         {
-            FileManager.openURL(url);
+            var desktop = Desktop.getDesktop();
+            if (desktop != null && desktop.isSupported(Action.BROWSE))
+            {
+                Desktop.getDesktop().browse(new URI(url));
+                return;
+            }
         }
-        else if (SystemUtils.IS_OS_WINDOWS)
+
+        if (SystemUtils.IS_OS_WINDOWS)
         {
             Runtime
                 .getRuntime()

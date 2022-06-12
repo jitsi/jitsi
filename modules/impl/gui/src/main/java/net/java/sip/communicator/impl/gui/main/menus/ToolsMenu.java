@@ -339,18 +339,18 @@ public class ToolsMenu
         // We only add the options button if the property SHOW_OPTIONS_WINDOW
         // specifies so or if it's not set.
         ConfigurationService cfg = GuiActivator.getConfigurationService();
-        Boolean showOptionsProp
+        var showOptionsProp
             = cfg.getBoolean(
                     ConfigurationFrame.SHOW_OPTIONS_WINDOW_PROPERTY,
                     true);
 
-        if (showOptionsProp.booleanValue())
+        if (showOptionsProp)
         {
             UIService uiService = GuiActivator.getUIService();
 
             if ((uiService == null)
                     || !uiService.useMacOSXScreenMenuBar()
-                    || !registerConfigMenuItemMacOSX())
+                    || !AppPreferencesRegistration.run(this))
             {
                 registerConfigMenuItemNonMacOSX();
             }
@@ -358,11 +358,11 @@ public class ToolsMenu
 
         ResourceManagementService r = GuiActivator.getResources();
 
-        Boolean showConferenceMenuItemProp
+        var showConferenceMenuItemProp
             = cfg.getBoolean(CONFERENCE_CALL_DISABLED_PROP,
                             false);
 
-        if(!showConferenceMenuItemProp.booleanValue())
+        if(!showConferenceMenuItemProp)
         {
             conferenceMenuItem
                 = new JMenuItem(
@@ -425,7 +425,7 @@ public class ToolsMenu
      * Keeps track of the indices of <tt>JSeparator</tt>s
      * that are places within this <tt>Container</tt>
      */
-    private List<Integer> separatorIndices = new LinkedList<Integer>();
+    private final List<Integer> separatorIndices = new LinkedList<>();
 
     /**
      * When a new separator is added to this <tt>Container</tt> its position
@@ -490,16 +490,6 @@ public class ToolsMenu
          * latter will still live in the contribution store.
          */
         removeAll();
-    }
-
-    /**
-     * Registers the preferences item in the MacOS X menu.
-     * @return <tt>true</tt> if the operation succeeds, otherwise - returns
-     * <tt>false</tt>
-     */
-    private boolean registerConfigMenuItemMacOSX()
-    {
-        return FileMenu.registerMenuItemMacOSX("Preferences", this);
     }
 
     /**

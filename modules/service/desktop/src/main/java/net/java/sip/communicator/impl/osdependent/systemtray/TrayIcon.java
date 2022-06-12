@@ -24,19 +24,19 @@ import javax.swing.*;
 /**
  * Interface for all platform specific TrayIcon implementations. See
  * {@link java.awt.TrayIcon} for a description of the methods.
- * 
+ *
  * @author Lubomir Marinov
  */
 public interface TrayIcon
 {
-    public void setDefaultAction(Object menuItem);
+    void setDefaultAction(Object menuItem);
 
-    public void addBalloonActionListener(ActionListener listener);
+    void addBalloonActionListener(ActionListener listener);
 
-    public void displayMessage(String caption, String text,
+    void displayMessage(String caption, String text,
                                java.awt.TrayIcon.MessageType messageType);
 
-    public void setIcon(ImageIcon icon) throws NullPointerException;
+    void setIcon(ImageIcon icon) throws NullPointerException;
 
-    public void setIconAutoSize(boolean autoSize);
+    void setIconAutoSize(boolean autoSize);
 }

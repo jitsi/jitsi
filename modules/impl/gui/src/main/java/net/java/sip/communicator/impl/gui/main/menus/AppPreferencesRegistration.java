@@ -15,34 +15,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.java.sip.communicator.plugin.branding;
+package net.java.sip.communicator.impl.gui.main.menus;
 
-import com.apple.eawt.*;
+import java.awt.*;
+import java.awt.Desktop.*;
 
 /**
  * @author Lubomir Marinov
  */
-public final class MacOSXAboutRegistration
+public final class AppPreferencesRegistration
 {
-    /**
-     * Show the about dialog on Mac OS X.
-     *
-     * @return true if the Mac OS X application is not null
-     */
-    public static boolean run()
+    public static boolean run(ToolsMenu toolsMenu)
     {
-        Application application = Application.getApplication();
-        if (application != null)
+        if (Desktop.isDesktopSupported())
         {
-            application.setAboutHandler(new AboutHandler()
+            var desktop = Desktop.getDesktop();
+            if (desktop != null && desktop.isSupported(Action.APP_PREFERENCES))
             {
-                public void handleAbout(AppEvent.AboutEvent aboutEvent)
+                desktop.setPreferencesHandler(e ->
                 {
-                    AboutWindowPluginComponent.actionPerformed();
-                }
-            });
-            return true;
+                    toolsMenu.configActionPerformed();
+                });
+                return true;
+            }
         }
+
         return false;
     }
 }

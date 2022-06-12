@@ -19,7 +19,6 @@ package net.java.sip.communicator.impl.gui.main.menus;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.lang.reflect.*;
 
 import javax.swing.*;
 
@@ -296,65 +295,10 @@ public class FileMenu
     {
         UIService uiService = GuiActivator.getUIService();
         if ((uiService == null) || !uiService.useMacOSXScreenMenuBar()
-            || !registerCloseMenuItemMacOSX())
+            || !AppQuitRegistration.run(this))
         {
             registerCloseMenuItemNonMacOSX(addSeparator);
         }
-    }
-
-    /**
-     * Registers the close menu item for the MacOSX platform.
-     * @return <tt>true</tt> if the operation succeeded, <tt>false</tt> -
-     * otherwise
-     */
-    private boolean registerCloseMenuItemMacOSX()
-    {
-        return registerMenuItemMacOSX("Quit", this);
-    }
-
-    /**
-     * Registers the close menu item for the MacOSX platform.
-     * @param menuItemText the name of the item
-     * @param userData the user data
-     * @return <tt>true</tt> if the operation succeeded, <tt>false</tt> -
-     * otherwise
-     */
-    static boolean registerMenuItemMacOSX(String menuItemText, Object userData)
-    {
-        Exception exception = null;
-        try
-        {
-            Class<?> clazz = Class.forName(
-                "net.java.sip.communicator.impl.gui.main.menus.MacOSX"
-                + menuItemText + "Registration");
-            Method method = clazz.getMethod("run", new Class[]
-            { Object.class });
-            Object result = method.invoke(null, new Object[]
-            { userData });
-
-            if (result instanceof Boolean)
-                return (Boolean) result;
-        }
-        catch (ClassNotFoundException ex)
-        {
-            exception = ex;
-        }
-        catch (IllegalAccessException ex)
-        {
-            exception = ex;
-        }
-        catch (InvocationTargetException ex)
-        {
-            exception = ex;
-        }
-        catch (NoSuchMethodException ex)
-        {
-            exception = ex;
-        }
-        if (exception != null)
-            logger.error("Failed to register Mac OS X-specific " + menuItemText
-                + " handling.", exception);
-        return false;
     }
 
     /**

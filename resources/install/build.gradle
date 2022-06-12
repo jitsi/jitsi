@@ -86,8 +86,8 @@ startScripts {
             '-splash:splash.gif',
             '--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED',
             '--add-opens=java.base/java.lang=ALL-UNNAMED',
-            '-Djava.library.path=_JITSI_APP_HOME_native;%ALLUSERSPROFILE%\\Jitsi\\native',
-            '-Djna.library.path=_JITSI_APP_HOME_native;%ALLUSERSPROFILE%\\Jitsi\\native',
+            '-Djava.library.path=_JITSI_APP_HOME_native;_JITSI_ALLUSERSPROFILE\\Jitsi\\native',
+            '-Djna.library.path=_JITSI_APP_HOME_native;_JITSI_ALLUSERSPROFILE\\Jitsi\\native',
             '-Dfelix.config.properties=file:config/felix.properties',
             '-Dlogback.configurationFile=config/logback.xml',
     ]
@@ -95,9 +95,11 @@ startScripts {
     doLast {
         unixScript.text = unixScript.text
                 .replace('_JITSI_APP_HOME_', '$APP_HOME/')
+                .replace(';_JITSI_ALLUSERSPROFILE\\Jitsi\\native', '')
                 .replace('lib/config', 'config')
         windowsScript.text = windowsScript.text
                 .replace('_JITSI_APP_HOME_', '%APP_HOME%\\')
+                .replace('_JITSI_ALLUSERSPROFILE', '%ALLUSERSPROFILE%')
                 .replace('lib\\config', 'config')
                 .replace('set JAVA_EXE=java.exe', 'set JAVA_EXE=jre\\bin\\java.exe')
         file("${outputDir}/config").mkdirs()

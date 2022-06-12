@@ -17,14 +17,13 @@
  */
 package net.java.sip.communicator.impl.argdelegation;
 
+import java.awt.*;
+import java.awt.Desktop.*;
 import net.java.sip.communicator.launchutils.*;
 import net.java.sip.communicator.service.gui.*;
 
 import net.java.sip.communicator.util.osgi.*;
-import org.apache.commons.lang3.SystemUtils;
 import org.osgi.framework.*;
-
-import com.apple.eawt.*;
 
 /**
  * Activates the <tt>ArgDelegationService</tt> and registers a URI delegation
@@ -66,15 +65,14 @@ public class ArgDelegationActivator
         //register our instance of delegation peer.
         LaunchArgHandler.getInstance().setDelegationPeer(delegationPeer);
 
-        if(SystemUtils.IS_OS_MAC)
+        if (Desktop.isDesktopSupported())
         {
-            Application application = Application.getApplication();
-
-            if(application != null)
+            var desktop = Desktop.getDesktop();
+            if (desktop != null && desktop.isSupported(Action.APP_OPEN_URI))
             {
                 try
                 {
-                    application.setOpenURIHandler(evt ->
+                    desktop.setOpenURIHandler(evt ->
                         delegationPeer.handleUri(evt.getURI().toString()));
                 }
                 catch (Exception ex)
