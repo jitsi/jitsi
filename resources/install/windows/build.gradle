@@ -4,7 +4,21 @@ def wixHome = System.env.WIX != null
 def wixRootDir = "${buildDir}/install/wix"
 def wixTempDir = "${wixRootDir}/tmp"
 def wixTargetDir = "${wixRootDir}/target"
-def arch = project.property('application.target')
+def arch
+switch (project.property('application.target')) {
+    case ["x86", "i386"]:
+        arch = 'x86'
+        break
+    case ["x64", "x86-64", "x86_64", "amd64"]:
+        arch = 'x64'
+        break
+    case ["arm64", "aarch64"]:
+        arch = 'arm64'
+        break
+    default:
+        arch = project.property('application.target')
+        break
+}
 
 task copyLauncher(type: Copy, group: 'installer-wix') {
     from nativeSrcDir

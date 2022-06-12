@@ -107,22 +107,53 @@ startScripts {
 
 def createJreTasks(String os) {
     def arch = project.property('application.target')
-    // adoptium arch notation
-    def adoptArch = arch == 'arm64' ? 'aarch64' : arch
+    // adoptium OS and arch notation
+    def adoptArch
+    def adoptOs
+    switch (arch) {
+        case ["x86", "i386"]:
+            adoptArch = 'x86'
+            break
+        case ["x64", "x86-64", "x86_64", "amd64"]:
+            adoptArch = 'x64'
+            break
+        case ["arm64", "aarch64"]:
+            adoptArch = 'aarch64'
+            break
+        case ["ppc64el", "ppc64le"]:
+            adoptArch = 'ppc64el'
+            break
+        default:
+            adoptArch = arch
+            break
+    }
+
+    switch (os) {
+        case ["windows", "win", "win32"]:
+            adoptOs = "windows"
+            break
+        case ["mac", "darwin", "osx", "macos", "macosx"]:
+            adoptOs = "mac"
+            break
+        default:
+            adoptOs = os
+            break
+    }
+
     def getTask = tasks.create("get${os}Jre", Download) {
         def jreVersion = project.property('application.jre.version')
         onlyIfModified true
         overwrite true
-        src "https://api.adoptium.net/v3/binary/version/${jreVersion}/${os}/${adoptArch}/jre/hotspot/normal/eclipse?project=jdk"
-        dest file("${project.buildDir}/jre-${jreVersion}-${os}-${arch}.${os == 'windows' ? 'zip' : 'tar.gz'}")
+        src "https://api.adoptium.net/v3/binary/version/${jreVersion}/${adoptOs}/${adoptArch}/jre/hotspot/normal/eclipse?project=jdk"
+        dest file("${project.buildDir}/jre-${jreVersion}-${os}-${arch}.${adoptOs == 'windows' ? 'zip' : 'tar.gz'}")
     }
 
-    def hashProperty = "application.jre.${os}.${arch}-hash"
+    def hashProperty = "application.jre.${adoptOs}.${adoptArch}-hash"
     if (project.hasProperty(hashProperty)) {
         def verifyTask = tasks.create("verify${os}Jre", Verify) {
             src getTask.dest
             algorithm 'SHA-256'
-            checksum project.property("application.jre.${os}.${arch}-hash")
+            checksum project.property("application.jre.${adoptOs}.${adoptArch}-hash")
         }
         verifyTask.dependsOn += getTask
         tasks.find { it.name.equalsIgnoreCase("install${os}Dist") }.dependsOn += verifyTask
@@ -145,17 +176,6 @@ distributions {
                 from(bundlesDir)
             }
             exclude '*.pom'
-        }
-    }
-
-    linux {
-        contents {
-            with distributions.main.contents
-            with nativeCopySpec('linux')
-            exclude '*.bat'
-            exclude '*orange*'
-            exclude '*sparkle*'
-            exclude '*mac_widgets*'
         }
     }
 
@@ -187,7 +207,7 @@ distributions {
     windows {
         contents {
             with distributions.main.contents
-            with nativeCopySpec('windows')
+            with nativeCopySpec('win32')
             exclude '*dbus*'
             exclude '*orange*'
             exclude '*sparkle*'
@@ -211,6 +231,5 @@ distributions {
     }
 }
 
-apply from: 'debian/build.gradle'
 apply from: 'windows/build.gradle'
 apply from: 'mac/build.gradle'

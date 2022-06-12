@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 set -e
 set -x
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <VERSION> <DIST>"
+    echo "  VERSION: Source package version, e.g. 2.14.123-gcaffee"
+    echo "  DIST: Debian/Ubuntu distribution name (e.g. focal or bullseye)"
+    exit 1
+fi;
+
 cd "$(realpath "$(dirname "$0")/../")"
 VERSION=$1
 DIST=$2

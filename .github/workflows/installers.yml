@@ -266,8 +266,8 @@ jobs:
             -DMAPI_HEADERS_DIR=%GITHUB_WORKSPACE%\build\private-sdk\outlook2010mapi
           cmake --build cmake-build-${{ matrix.arch.cmake_opposite_arch }} --config Release --target install.jmsoutlookaddrbookcomserver
           cd %GITHUB_WORKSPACE%
-          copy lib\native\windows-x64\jmsoutlookaddrbookcomserver64.exe lib\native\windows-x86\jmsoutlookaddrbookcomserver64.exe
-          copy lib\native\windows-x86\jmsoutlookaddrbookcomserver32.exe lib\native\windows-x64\jmsoutlookaddrbookcomserver32.exe
+          copy lib\native\win32-x86-64\jmsoutlookaddrbookcomserver64.exe lib\native\win32-x86\jmsoutlookaddrbookcomserver64.exe
+          copy lib\native\win32-x86\jmsoutlookaddrbookcomserver32.exe lib\native\win32-x86-64\jmsoutlookaddrbookcomserver32.exe
 
       - name: Upload CMake logs on failure
         if: ${{ failure() }}
@@ -294,7 +294,7 @@ jobs:
         shell: bash
         run: |
           cd $GITHUB_WORKSPACE/resources/install
-          ./gradlew --no-daemon --stacktrace windowsZip signMsi -Papplication.target=${{ matrix.arch.actions }} -Pversion=${{ needs.version.outputs.jitsi_version_full }} -PgitVersion=${{ needs.version.outputs.jitsi_version_git }}
+          ./gradlew --no-daemon --stacktrace windowsZip signMsi -Papplication.target=${{ matrix.arch.java }} -Pversion=${{ needs.version.outputs.jitsi_version_full }} -PgitVersion=${{ needs.version.outputs.jitsi_version_git }}
 
       - name: Upload msi
         uses: actions/upload-artifact@v3
