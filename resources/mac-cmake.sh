@@ -24,7 +24,6 @@ esac
 cmake -B "$PROJECT_DIR/native/cmake-build" \
     -S "$PROJECT_DIR/native" \
     -DJAVA_HOME="$JAVA_HOME" \
-    -DINSTALL_PREFIX_ARCH=$INSTALL_PREFIX_ARCH \
-    -DCMAKE_INSTALL_PREFIX="lib/mac-$INSTALL_PREFIX_ARCH" \
+    -DCMAKE_INSTALL_PREFIX="lib/darwin-$INSTALL_PREFIX_ARCH" \
     -DCMAKE_OSX_ARCHITECTURES="$OSX_ARCH"
-cmake --build cmake-build --config Release --target install --parallel
+cmake --build native/cmake-build --config Release --target install --parallel

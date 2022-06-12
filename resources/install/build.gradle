@@ -163,7 +163,7 @@ distributions {
         contents {
             into('Jitsi.app/Contents/Resources/Java') {
                 with distributions.main.contents
-                with nativeCopySpec('mac')
+                with nativeCopySpec('darwin')
                 exclude '*.bat'
                 exclude '*dbus*'
                 exclude '*galago*'
