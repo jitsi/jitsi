@@ -60,6 +60,10 @@
     <string>sc_logo_128x128.icns</string>
     <key>CFBundleIdentifier</key>
     <string>org.jitsi</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Jitsi requires access to the microphone for calls.</string>
+    <key>NSCameraUsageDescription</key>
+    <string>Jitsi requires access to the camera for video calls.</string>
     <key>Javax</key>
     <dict>
       <key>MainClass</key>
@@ -83,9 +87,9 @@
         <key>logback.configurationFile</key>
         <string>config/logback.xml</string>
         <key>java.library.path</key>
-        <string>$JAVAROOT/native:${system.DYLD_LIBRARY_PATH}:/Users/Shared/Library/Application Support/Jitsi/native</string>
+        <string>$JAVAROOT/native:/Users/Shared/Library/Application Support/Jitsi/native</string>
         <key>jna.library.path</key>
-        <string>$JAVAROOT/native:${system.DYLD_LIBRARY_PATH}:/Users/Shared/Library/Application Support/Jitsi/native</string>
+        <string>$JAVAROOT/native:/Users/Shared/Library/Application Support/Jitsi/native</string>
         <key>apple.laf.useScreenMenuBar</key>
         <string>true</string>
       </dict>

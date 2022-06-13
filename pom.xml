@@ -263,7 +263,7 @@
       <dependency>
         <groupId>org.jitsi</groupId>
         <artifactId>libjitsi</artifactId>
-        <version>1.1-21-gde8f41c4</version>
+        <version>1.1-22-g5c9346c5</version>
       </dependency>
       <dependency>
         <groupId>org.apache.felix</groupId>

@@ -60,9 +60,9 @@ public class OpenH264Retriever
      * https://github.com/cisco/openh264/blob/master/RELEASES
      */
     private static final String OPENH264_CURRENT_VERSION_URL_MAC_64
-        = "http://ciscobinary.openh264.org/libopenh264-2.3.0-osx-x64.6.dylib.bz2";
+        = "http://ciscobinary.openh264.org/libopenh264-2.2.0-osx-x64.6.dylib.bz2";
     private static final String OPENH264_CURRENT_VERSION_URL_MAC_ARM
-        = "http://ciscobinary.openh264.org/libopenh264-2.3.0-osx-arm64.6.dylib.bz2";
+        = "http://ciscobinary.openh264.org/libopenh264-2.2.0-osx-arm64.6.dylib.bz2";
     private static final String OPENH264_CURRENT_VERSION_URL_WINDOWS_32
         = "http://ciscobinary.openh264.org/openh264-2.3.0-win32.dll.bz2";
     private static final String OPENH264_CURRENT_VERSION_URL_WINDOWS_64
@@ -357,6 +357,7 @@ public class OpenH264Retriever
                     return;
                 }
 
+                logger.info("Downloading OpenH264 codec from {}", url);
                 File f = FileUtils.download(
                     url, "libopenh264", ".bz2");
                 if (f != null)
@@ -463,19 +464,19 @@ public class OpenH264Retriever
      */
     private static String chooseOpenH264URL()
     {
-        if (SystemUtils.IS_OS_MAC && "aarch64".equals(SystemUtils.OS_ARCH))
+        if (SystemUtils.IS_OS_MAC && "aarch64".equalsIgnoreCase(SystemUtils.OS_ARCH))
         {
             return OPENH264_CURRENT_VERSION_URL_MAC_ARM;
         }
         else if (SystemUtils.IS_OS_MAC)
         {
-            return OPENH264_CURRENT_VERSION_URL_MAC_ARM;
+            return OPENH264_CURRENT_VERSION_URL_MAC_64;
         }
-        else if (SystemUtils.IS_OS_WINDOWS && "x86".equals(SystemUtils.OS_ARCH))
+        else if (SystemUtils.IS_OS_WINDOWS && "x86".equalsIgnoreCase(SystemUtils.OS_ARCH))
         {
             return OPENH264_CURRENT_VERSION_URL_WINDOWS_32;
         }
-        else if (SystemUtils.IS_OS_WINDOWS && "amd64".equals(SystemUtils.OS_ARCH))
+        else if (SystemUtils.IS_OS_WINDOWS && "amd64".equalsIgnoreCase(SystemUtils.OS_ARCH))
         {
             return OPENH264_CURRENT_VERSION_URL_WINDOWS_64;
         }

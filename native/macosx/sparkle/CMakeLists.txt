@@ -21,6 +21,12 @@ target_link_libraries(${PROJECT_NAME}
                       ${SPARKLE_LIBRARY}
                       )
 
+add_custom_command(TARGET ${PROJECT_NAME}
+                   POST_BUILD COMMAND
+                   ${CMAKE_INSTALL_NAME_TOOL} -change "@loader_path/../Frameworks/Sparkle.framework/Versions/A/Sparkle" "@executable_path/../Frameworks/Sparkle.framework/Versions/A/Sparkle"
+                   $<TARGET_FILE:${PROJECT_NAME}>
+                   )
+
 install(TARGETS ${PROJECT_NAME}
         RUNTIME DESTINATION "."
         LIBRARY DESTINATION ".")
