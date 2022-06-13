@@ -30,7 +30,9 @@ SBUILD_ARGS=(\
 # -debootstrap-include=default-jdk because: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=994152
 if [[ "${ARCH}" != "amd64" ]]; then
   SBUILD_ARGS+=(--host="${ARCH}")
-  mk-sbuild "${DIST}" --target "${ARCH}" --skip-security --debootstrap-include=default-jdk --type=file || true
+  if [ ! -f /var/lib/schroot/tarballs/"${DIST}"-amd64-"${ARCH}".tgz ]; then
+    mk-sbuild "${DIST}" --target "${ARCH}" --skip-security --debootstrap-include=default-jdk --type=file || true
+  fi
   sudo sbuild-update -ud "${DIST}"-amd64-"${ARCH}"
   if debian-distro-info --all | grep -Fqxi "${DIST}"; then
     SBUILD_ARGS+=(--extra-repository='deb http://ftp.debian.org/debian/ '"${DIST}"'-backports main')
@@ -51,7 +53,10 @@ else
     export DEBOOTSTRAP_MIRROR=${DEBOOTSTRAP_MIRROR:-$UBUNTUTOOLS_UBUNTU_MIRROR}
     SBUILD_ARGS+=(--extra-repository='deb [arch=amd64] '"$SBUILD_BACKPORTS_MIRROR"' '"${DIST}"'-backports main universe')
   fi
-  mk-sbuild "${DIST}" --skip-security --debootstrap-include=default-jdk --type=file || true
+
+  if [ ! -f /var/lib/schroot/tarballs/"${DIST}"-amd64.tgz ]; then
+    mk-sbuild "${DIST}" --skip-security --debootstrap-include=default-jdk --type=file || true
+  fi
   sudo sbuild-update -ud "${DIST}"-amd64
 fi
 

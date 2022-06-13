@@ -21,9 +21,9 @@ case $ARCH in
         ;;
 esac
 
-cmake -B "$PROJECT_DIR/native/cmake-build" \
+cmake -B "$PROJECT_DIR/target/cmake-build" \
     -S "$PROJECT_DIR/native" \
     -DJAVA_HOME="$JAVA_HOME" \
-    -DCMAKE_INSTALL_PREFIX="lib/darwin-$INSTALL_PREFIX_ARCH" \
+    -DCMAKE_INSTALL_PREFIX="lib/native/darwin-$INSTALL_PREFIX_ARCH" \
     -DCMAKE_OSX_ARCHITECTURES="$OSX_ARCH"
-cmake --build native/cmake-build --config Release --target install --parallel
+cmake --build target/cmake-build --config Release --target install --parallel
