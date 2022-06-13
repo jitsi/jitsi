@@ -483,7 +483,7 @@
         <version>3.4.0</version>
         <configuration>
           <doclint>-missing</doclint>
-          <source>8</source>
+          <source>11</source>
         </configuration>
       </plugin>
       <plugin>
