@@ -164,7 +164,7 @@
       <dependency>
         <groupId>org.jitsi</groupId>
         <artifactId>jitsi-lgpl-dependencies</artifactId>
-        <version>1.2-21-gc4508d5</version>
+        <version>1.2-22-gb6050e7</version>
         <scope>runtime</scope>
         <classifier>${jitsi-deps-arch}</classifier>
       </dependency>
