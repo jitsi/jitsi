@@ -683,7 +683,10 @@ public class ProtocolProviderServiceJabberImpl
             JabberLoginStrategy loginStrategy = createLoginStrategy();
             userCredentials = loginStrategy.prepareLogin(authority, reasonCode);
             if(!loginStrategy.loginPreparationSuccessful())
+            {
+                logger.warn("Unsuccessful login, skipping.");
                 return;
+            }
 
             DomainBareJid serviceName = JidCreate.domainBareFrom(
                 getAccountID().getUserID());
