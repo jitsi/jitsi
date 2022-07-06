@@ -60,7 +60,7 @@ public class OperationSetJitsiMeetToolsJabberImpl
     @Override
     public void addSupportedFeature(String featureName)
     {
-        parentProvider.getDiscoveryManager().addFeature(featureName);
+        parentProvider.addSupportedFeature(featureName);
     }
 
     /**

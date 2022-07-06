@@ -288,7 +288,7 @@ public class ProtocolProviderServiceJabberImpl
      * We can find features corresponding to op set in the xep(s) related
      * to implemented functionality.
      */
-    private final List<String> supportedFeatures = new ArrayList<String>();
+    private final List<String> supportedFeatures = new ArrayList<>();
 
     /**
      * The <tt>ServiceDiscoveryManager</tt> is responsible for advertising
@@ -1459,6 +1459,19 @@ public class ProtocolProviderServiceJabberImpl
          */
         if (opsetContactCapabilities != null)
             opsetContactCapabilities.setDiscoveryManager(discoveryManager);
+    }
+
+    /**
+     * Adds a supported feature to the list and if available to the discovery manager.
+     * @param featureName the new feature to add.
+     */
+    void addSupportedFeature(String featureName)
+    {
+        supportedFeatures.add(featureName);
+        if (discoveryManager != null)
+        {
+            getDiscoveryManager().addFeature(featureName);
+        }
     }
 
     /**
