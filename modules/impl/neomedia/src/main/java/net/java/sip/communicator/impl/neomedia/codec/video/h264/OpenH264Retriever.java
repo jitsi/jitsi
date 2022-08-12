@@ -465,11 +465,7 @@ public class OpenH264Retriever
         {
             return OPENH264_CURRENT_VERSION_URL_MAC;
         }
-        else if (OSUtils.IS_WINDOWS32)
-        {
-            return OPENH264_CURRENT_VERSION_URL_WINDOWS_32;
-        }
-        else if (OSUtils.IS_WINDOWS64)
+        else if (OSUtils.IS_WINDOWS)
         {
             return OPENH264_CURRENT_VERSION_URL_WINDOWS_64;
         }

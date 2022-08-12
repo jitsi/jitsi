@@ -66,7 +66,7 @@ public class CertificateServiceImpl
             private static final long serialVersionUID = 0L;
 
             {
-                if(!OSUtils.IS_WINDOWS64)
+                if(!OSUtils.IS_WINDOWS)
                 {
                     add(new KeyStoreType("PKCS11", new String[]
                     { ".dll", ".so" }, false));

@@ -249,21 +249,12 @@ public class UpdateServiceImpl
                      */
                     if (downloadLink != null)
                     {
-                        if (OSUtils.IS_LINUX32)
-                        {
-                            downloadLink
-                                = downloadLink.replace("amd64", "i386");
-                        }
-                        else if (OSUtils.IS_LINUX64)
+                        if (OSUtils.IS_LINUX)
                         {
                             downloadLink
                                 = downloadLink.replace("i386", "amd64");
                         }
-                        else if (OSUtils.IS_WINDOWS32)
-                        {
-                            downloadLink = downloadLink.replace("x64", "x86");
-                        }
-                        else if (OSUtils.IS_WINDOWS64)
+                        else if (OSUtils.IS_WINDOWS)
                         {
                             downloadLink = downloadLink.replace("x86", "x64");
                         }
