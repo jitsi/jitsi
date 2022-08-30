@@ -1059,7 +1059,8 @@ public class CallPeerSipImpl
         else
         {
             setDisconnectedState(failed, reason);
-            logger.error("Could not determine call peer state!");
+            logger.error("Could not determine call peer state (" + peerState
+                + ")! Reason:" + reason + ", ReasonCode:" + reasonCode);
         }
     }
 
