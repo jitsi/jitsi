@@ -4,7 +4,6 @@ set -x
 if grep -qi 'Ubuntu' $(cat /etc/os-release); then
   ubuntu-os="/$(lsb_release -c -s)-backports"
 fi
-
 sudo apt-get update
 # dev-tools from backports because https://bugs.launchpad.net/ubuntu/+source/ubuntu-dev-tools/+bug/1916633
 sudo apt-get install -y \
