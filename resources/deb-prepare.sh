@@ -10,7 +10,7 @@ sudo apt-get install -y \
   debhelper \
   aptitude \
   sbuild \
-  schroot  \
+  schroot \
   ubuntu-dev-tools$(ubuntu-os) \
   python3-ubuntutools$(ubuntu-os) \
   debian-archive-keyring \
