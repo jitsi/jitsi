@@ -20,7 +20,7 @@ elif ubuntu-distro-info --all | grep -Fqxi "${DIST}"; then
     DIST_VERSION="${DIST_VERSION%%\ *}"
 fi
 
-FULL_VERSION="${VERSION}-${DIST_VERSION}~${DIST}"
+FULL_VERSION="${VERSION}~${DIST}"
 
 rm -rf debian/javah
 cp -r target/native/javah debian/ || (echo "Need pre-compiled javah files, run 'mvn compile' first" && exit 1)
