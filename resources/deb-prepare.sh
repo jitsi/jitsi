@@ -2,7 +2,7 @@
 set -e
 set -x
 if grep -qi 'Ubuntu' $(cat /etc/os-release); then
-  ubuntu-os="/$(lsb_release -c -s)-backports"
+  ubuntu-backports="/$(lsb_release -c -s)-backports"
 fi
 sudo apt-get update
 # dev-tools from backports because https://bugs.launchpad.net/ubuntu/+source/ubuntu-dev-tools/+bug/1916633
@@ -11,8 +11,8 @@ sudo apt-get install -y \
   aptitude \
   sbuild \
   schroot \
-  ubuntu-dev-tools$(ubuntu-os) \
-  python3-ubuntutools$(ubuntu-os) \
+  ubuntu-dev-tools$(ubuntu-backports) \
+  python3-ubuntutools$(ubuntu-backports) \
   debian-archive-keyring \
   git-buildpackage \
   rename \
