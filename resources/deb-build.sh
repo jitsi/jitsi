@@ -4,7 +4,7 @@ set -x
 VERSION=$1
 DIST=$2
 ARCH=$3
-GPG_ID=S4
+GPG_ID=$4
 PROJECT_DIR="$(realpath "$(dirname "$0")/../")"
 cd "${PROJECT_DIR}" || exit
 # export for sbuildrc sourcing
