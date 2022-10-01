@@ -4,6 +4,7 @@ set -x
 VERSION=$1
 DIST=$2
 ARCH=$3
+GPG_ID=S4
 PROJECT_DIR="$(realpath "$(dirname "$0")/../")"
 cd "${PROJECT_DIR}" || exit
 # export for sbuildrc sourcing
@@ -71,7 +72,7 @@ else
   cp "${PROJECT_DIR}"/../jitsi_* "$BUILD_DIR"
 fi
 
-debsign -S -edev+maven@jitsi.org "${BUILD_DIR}"/*.changes --re-sign -p"${PROJECT_DIR}"/resources/gpg-wrap.sh
+debsign -S -e"$(GPG_ID)" "${BUILD_DIR}"/*.changes --re-sign -p"${PROJECT_DIR}"/resources/gpg-wrap.sh
 
 #make build files readable for Windows and archivable for GitHub Actions
 rename 's|:|-|g' "$BUILD_DIR"/*.build
