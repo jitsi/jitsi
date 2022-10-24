@@ -49,6 +49,7 @@ import org.jxmpp.jid.parts.*;
 import org.jxmpp.stringprep.*;
 
 import java.beans.*;
+import java.lang.reflect.*;
 import java.util.*;
 
 import static org.jivesoftware.smack.packet.StanzaError.Condition.*;
@@ -1051,14 +1052,45 @@ public class ChatRoomJabberImpl
 
             // if we are already disconnected
             // leave maybe called from gui when closing chat window
-            // skip leave if not joined, this is in case of an error, but we call leave to clear listeners and such
-            if(connection != null && connection.isConnected() && multiUserChat.isJoined())
-                multiUserChat.leave();
+            if(connection != null && connection.isConnected())
+            {
+                // skip leave if not joined, this is in case of an error, but we call leave to clear listeners and such
+                if (multiUserChat.isJoined())
+                {
+                    multiUserChat.leave();
+                }
+                else
+                {
+                    // We have detected cases where participant is joined the room, but multiUserChat.myRoomJid which
+                    // is internal state of not joined to the room and so no leave room presence is sent
+                    // this is a hack to always send it if enabled, worst-case a presence error is returned
+                    AccountID accountID = this.provider.getAccountID();
+                    if (accountID.getAccountPropertyBoolean(
+                        "net.java.sip.communicator.impl.protocol.jabber.FORCE_PRESENCE_ON_LEAVE", true))
+                    {
+                        logger.warn("Force sending presence unavailable to "
+                            + multiUserChat.getRoom() + " for " + this.nickname);
+                        try
+                        {
+                            Presence leavePresence = connection.getStanzaFactory().buildPresenceStanza()
+                                .ofType(Presence.Type.unavailable)
+                                .to(JidCreate.fullFrom(multiUserChat.getRoom(), this.nickname))
+                                .build();
+                            connection.sendAsync(leavePresence, new StanzaIdFilter(leavePresence));
+                        }
+                        catch(Exception e1)
+                        {}
+                        // let's cleanup ...
+                        Method cleanupMethod = MultiUserChat.class.getDeclaredMethod("userHasLeft");
+                        cleanupMethod.setAccessible(true);
+                        cleanupMethod.invoke(multiUserChat);
+                    }
+                }
+            }
         }
         catch(Throwable e)
         {
-            logger.warn("Error occured while leaving, maybe just " +
-                "disconnected before leaving", e);
+            logger.warn("Error occurred while leaving, maybe just disconnected before leaving", e);
         }
 
         // FIXME Do we have to do the following when we leave the room?
