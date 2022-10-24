@@ -75,7 +75,7 @@ public class SipRegistrarlessConnection
      * @throws OperationFailedException never thrown
      */
     @Override
-    void register()
+    public void register()
         throws OperationFailedException
     {
         setRegistrationState(RegistrationState.REGISTERED,

@@ -145,6 +145,13 @@ public class ProtocolProviderServiceSipImpl
                     + "USE_SESSION_LEVEL_DIRECTION_IN_SDP";
 
     /**
+     * The name of the property which, if enabled, will cause detection ot TLS socket close and sending a new
+     * register request.
+     */
+    public static final String FORCE_REGISTER_ON_TLS_CLOSE
+        = "net.java.sip.communicator.impl.protocol.sip.FORCE_REGISTER_ON_TLS_CLOSE";
+
+    /**
      * Default number of times that our requests can be forwarded.
      */
     private static final int  MAX_FORWARDS = 70;
