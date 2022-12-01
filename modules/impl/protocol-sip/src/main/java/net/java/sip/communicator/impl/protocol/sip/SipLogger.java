@@ -132,7 +132,8 @@ public class SipLogger
                 return;
             }
 
-            if (message.indexOf("Closing TLS socket") != -1)
+            if (message.indexOf("Closing TLS socket") != -1
+                    || message.indexOf("Socket output is already shutdown") != -1)
             {
                 // let's find sip provider that uses TLS and fire connection failed
                 // to force it reconnect
