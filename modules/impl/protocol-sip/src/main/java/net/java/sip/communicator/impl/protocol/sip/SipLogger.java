@@ -126,43 +126,43 @@ public class SipLogger
         if (logger.isDebugEnabled())
         {
             logger.debug("Debug output from the JAIN-SIP stack: " + message);
+        }
 
-            if (!isRegisterOnTLSCloseEnabled())
+        if (!isRegisterOnTLSCloseEnabled())
+        {
+            return;
+        }
+
+        if (message.contains("Closing TLS socket")
+            || message.contains("Socket output is already shutdown"))
+        {
+            // let's find sip provider that uses TLS and fire connection failed
+            // to force it reconnect
+            BundleContext ctx = SipActivator.getBundleContext();
+            Collection<ServiceReference<ProtocolProviderService>> refs
+                = ServiceUtils.getServiceReferences(ctx, ProtocolProviderService.class);
+
+            for (ServiceReference<ProtocolProviderService> ref : refs)
             {
-                return;
-            }
+                ProtocolProviderService pps = ctx.getService(ref);
 
-            if (message.indexOf("Closing TLS socket") != -1
-                    || message.indexOf("Socket output is already shutdown") != -1)
-            {
-                // let's find sip provider that uses TLS and fire connection failed
-                // to force it reconnect
-                BundleContext ctx = SipActivator.getBundleContext();
-                Collection<ServiceReference<ProtocolProviderService>> refs
-                    = ServiceUtils.getServiceReferences(ctx, ProtocolProviderService.class);
-
-                for (ServiceReference<ProtocolProviderService> ref : refs)
-                {
-                    ProtocolProviderService pps = ctx.getService(ref);
-
-                    if (ProtocolNames.SIP.equals(pps.getProtocolName())
+                if (ProtocolNames.SIP.equals(pps.getProtocolName())
                     && pps instanceof ProtocolProviderServiceSipImpl
                     && pps.getAccountID().getAccountPropertyString(ProtocolProviderFactory.PREFERRED_TRANSPORT)
-                        .equals("TLS"))
+                    .equals("TLS"))
+                {
+                    logger.info("TLS socket close - re-registering:" + pps);
+                    new Thread(() ->
                     {
-                        logger.info("TLS socket close - re-registering:" + pps);
-                        new Thread(() ->
+                        try
                         {
-                            try
-                            {
-                                ((ProtocolProviderServiceSipImpl)pps).getRegistrarConnection().register();
-                            }
-                            catch(OperationFailedException e)
-                            {
-                                logger.error("Error registering on TLS socket closed:", e);
-                            }
-                        }, "TLS socket close runnable").start();
-                    }
+                            ((ProtocolProviderServiceSipImpl)pps).getRegistrarConnection().register();
+                        }
+                        catch(OperationFailedException e)
+                        {
+                            logger.error("Error registering on TLS socket closed:", e);
+                        }
+                    }, "TLS socket close runnable").start();
                 }
             }
         }
@@ -209,14 +209,19 @@ public class SipLogger
      */
     public boolean isLoggingEnabled(int logLevel)
     {
-        // always enable trace messages so we can receive packets
+        // always enable trace messages, so we can receive packets
         // and log them to packet logging service
         if (logLevel == TRACE_DEBUG)
-            return logger.isDebugEnabled();
-        if (logLevel == TRACE_MESSAGES)         // same as TRACE_INFO
+        {
+            // the TLS socket detection needs to examine debug messages
+            return isRegisterOnTLSCloseEnabled() || logger.isDebugEnabled();
+        } else if (logLevel == TRACE_MESSAGES)         // same as TRACE_INFO
+        {
             return true;
-        if (logLevel == TRACE_NONE)
+        } else if (logLevel == TRACE_NONE)
+        {
             return false;
+        }
 
         return true;
     }
@@ -505,7 +510,7 @@ public class SipLogger
      */
     public void logException(Exception exception)
     {
-        logger.warn("the following exception occured in JAIN-SIP: "
+        logger.warn("the following exception occurred in JAIN-SIP: "
                         + exception, exception);
     }
 
@@ -530,7 +535,7 @@ public class SipLogger
     }
 
     /**
-     * Logs the specified trace with a debuf level.
+     * Logs the specified trace with a debug level.
      *
      * @param message the trace to log.
      */
