@@ -28,6 +28,7 @@ import java.util.*;
 import javax.sip.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.packetlogging.*;
 import org.osgi.framework.*;
@@ -156,7 +157,13 @@ public class SipLogger
                     {
                         try
                         {
-                            ((ProtocolProviderServiceSipImpl)pps).getRegistrarConnection().register();
+                            ((ProtocolProviderServiceSipImpl)pps).fireRegistrationStateChanged(
+                                pps.getRegistrationState(),
+                                RegistrationState.CONNECTION_FAILED,
+                                RegistrationStateChangeEvent.REASON_NOT_SPECIFIED,
+                                message);
+
+                            pps.register(SipActivator.getUIService().getDefaultSecurityAuthority(pps));
                         }
                         catch(OperationFailedException e)
                         {
