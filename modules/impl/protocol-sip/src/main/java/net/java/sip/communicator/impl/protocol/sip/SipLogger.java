@@ -157,8 +157,7 @@ public class SipLogger
                     {
                         try
                         {
-                            ((ProtocolProviderServiceSipImpl)pps).fireRegistrationStateChanged(
-                                pps.getRegistrationState(),
+                            ((ProtocolProviderServiceSipImpl)pps).getRegistrarConnection().setRegistrationState(
                                 RegistrationState.CONNECTION_FAILED,
                                 RegistrationStateChangeEvent.REASON_NOT_SPECIFIED,
                                 message);
