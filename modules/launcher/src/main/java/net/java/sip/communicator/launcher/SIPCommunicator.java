@@ -17,17 +17,20 @@
  */
 package net.java.sip.communicator.launcher;
 
+import static org.reflections.scanners.Scanners.SubTypes;
+
 import java.io.*;
 
+import java.lang.reflect.*;
 import java.util.*;
 import net.java.sip.communicator.launchutils.*;
-import org.apache.aries.spifly.dynamic.*;
-import org.apache.felix.framework.*;
-import org.apache.felix.framework.util.*;
-import org.apache.felix.main.*;
+import org.jitsi.impl.osgi.framework.launch.*;
+import org.jitsi.osgi.framework.*;
 import org.osgi.framework.*;
 import org.osgi.framework.launch.*;
 import org.osgi.framework.startlevel.*;
+import org.reflections.*;
+import org.reflections.util.*;
 import org.slf4j.*;
 import org.slf4j.bridge.*;
 
@@ -39,7 +42,7 @@ import org.slf4j.bridge.*;
  * @author Emil Ivov
  * @author Sebastien Vincent
  */
-public class SIPCommunicator implements BundleActivator
+public class SIPCommunicator
 {
     private static org.slf4j.Logger logger;
 
@@ -101,19 +104,36 @@ public class SIPCommunicator implements BundleActivator
     {
         init();
         handleArguments(args);
-        startFelix();
+        var fw = startCustomOsgi();
+        fw.waitForStop(0);
     }
 
-    @Override
-    public void start(BundleContext context)
+    private static Framework startCustomOsgi() throws BundleException
     {
-        init();
-        new SplashScreenUpdater(context.getBundles().length, context);
-    }
+        var options = new HashMap<String, String>();
+        options.put(Constants.FRAMEWORK_BEGINNING_STARTLEVEL, "3");
+        Framework fw = new FrameworkImpl(options, SIPCommunicator.class.getClassLoader());
+        fw.init();
+        var bundleContext = fw.getBundleContext();
+        var reflections = new Reflections(new ConfigurationBuilder().forPackages("org.jitsi", "net.java.sip"));
+        for (Class<?> activator : reflections.get(SubTypes.of(BundleActivator.class).asClass()))
+        {
+            if ((activator.getModifiers() & Modifier.ABSTRACT) == Modifier.ABSTRACT)
+            {
+                continue;
+            }
 
-    @Override
-    public void stop(BundleContext context)
-    {
+            var url = activator.getProtectionDomain().getCodeSource().getLocation().toString();
+            var bundle = bundleContext.installBundle(url);
+            var startLevel = bundle.adapt(BundleStartLevel.class);
+            startLevel.setStartLevel(2);
+            var bundleActivator = bundle.adapt(BundleActivatorHolder.class);
+            bundleActivator.addBundleActivator((Class<? extends BundleActivator>) activator);
+        }
+
+        new SplashScreenUpdater(bundleContext.getBundles().length, bundleContext);
+        fw.start();
+        return fw;
     }
 
     private static void init()
@@ -173,79 +193,10 @@ public class SIPCommunicator implements BundleActivator
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private static void startFelix() throws BundleException, InterruptedException
-    {
-        logger.info("Initializing OSGi properties");
-        Main.loadSystemProperties();
-        @SuppressWarnings("rawtypes")
-        Map configProps = Main.loadConfigProperties();
-        Main.copySystemProperties(configProps);
-        configProps.put(FelixConstants.LOG_LOGGER_PROP, new FelixLogger());
-        configProps.put(FelixConstants.SYSTEMBUNDLE_ACTIVATORS_PROP,
-            Collections.singletonList(new DynamicWeavingActivator()));
-
-        // Create an instance of the framework.
-        logger.info("Creating OSGi framework");
-        Framework framework = new Felix(configProps);
-
-        // Initialize the framework, but don't start it yet.
-        logger.info("Initializing OSGi framework");
-        framework.init();
-
-        // Explicitly load the splashscreen bundle
-        String autoDeployDir = (String) configProps.getOrDefault(
-            AutoProcessor.AUTO_DEPLOY_DIR_PROPERTY, "");
-        int bundleCount = new File(autoDeployDir)
-            .listFiles(f -> f.getName().endsWith(".jar"))
-            .length;
-        new SplashScreenUpdater(bundleCount, framework.getBundleContext());
-
-        // Use the system bundle context to process the auto-deploy
-        // and auto-install/auto-start properties.
-        logger.info("Auto processing bundles");
-        AutoProcessor.process(configProps, framework.getBundleContext());
-
-        // Prevent starting the launcher as a bundle
-        // The launcher is a bundle so that launching/debugging in IntelliJ is
-        // easier via an OSGi launch configuration.
-        Arrays.stream(framework.getBundleContext().getBundles())
-            .filter(b -> b.getSymbolicName() != null && b.getSymbolicName()
-                .equalsIgnoreCase("org.jitsi.launcher"))
-            .findFirst()
-            .ifPresent(b -> {
-                try
-                {
-                    b.uninstall();
-                }
-                catch (BundleException e)
-                {
-                    throw new RuntimeException(e);
-                }
-            });
-
-        Arrays.stream(framework.getBundleContext().getBundles())
-            .filter(b -> b.getSymbolicName() != null && b.getSymbolicName()
-                .equalsIgnoreCase("smack-xmlparser-stax"))
-            .findFirst()
-            .ifPresent(b -> {
-                BundleStartLevel bsl = b.adapt(BundleStartLevel.class);
-                bsl.setStartLevel(2);
-            });
-
-        // Start the framework.
-        logger.info("Starting OSGi framework");
-        framework.start();
-        // Wait for framework to stop to exit the VM.
-        framework.waitForStop(0);
-        System.exit(0);
-    }
-
     /**
      * Sets the system properties net.java.sip.communicator.SC_HOME_DIR_LOCATION
      * and net.java.sip.communicator.SC_HOME_DIR_NAME (if they aren't already
      * set) in accord with the OS conventions specified by the name of the OS.
-     *
      * Please leave the access modifier as package (default) to allow launch-
      * wrappers to call it.
      *

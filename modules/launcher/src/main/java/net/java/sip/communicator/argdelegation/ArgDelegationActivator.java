@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.java.sip.communicator.impl.argdelegation;
+package net.java.sip.communicator.argdelegation;
 
 import java.awt.*;
 import java.awt.Desktop.*;

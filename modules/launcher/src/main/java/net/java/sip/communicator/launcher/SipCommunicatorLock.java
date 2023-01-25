@@ -18,7 +18,6 @@
 package net.java.sip.communicator.launcher;
 
 import java.io.*;
-import java.lang.reflect.*;
 import java.net.*;
 import java.util.*;
 
@@ -29,7 +28,6 @@ import net.java.sip.communicator.launchutils.*;
  * This class is used to prevent from running multiple instances of Jitsi. The
  * class binds a socket somewhere on the localhost domain and records its socket
  * address in the Jitsi configuration directory.
- *
  * All following instances of Jitsi (and hence this class) will look for this
  * record in the configuration directory and try to connect to the original
  * instance through the socket address in there.
@@ -103,7 +101,7 @@ public class SipCommunicatorLock extends Thread
      * The number of milliseconds that we should wait for a remote SC instance
      * to come back to us.
      */
-    private long LOCK_COMMUNICATION_DELAY = 1000;
+    private final long LOCK_COMMUNICATION_DELAY = 1000;
 
     /**
      * The socket that we use for cross instance lock and communication.
@@ -119,13 +117,6 @@ public class SipCommunicatorLock extends Thread
      * Time between retires reading lock file in milliseconds.
      */
     private static final long LOCK_FILE_READ_WAIT = 500;
-
-    /**
-     * An address that is reported not local on macosx and is assigned as
-     * default on loopback interface.
-     */
-    private static final String WEIRD_MACOSX_LOOPBACK_ADDRESS
-        = "fe80:0:0:0:0:0:0:1";
 
     /**
      * Tries to lock the configuration directory. If lock-ing is not possible
@@ -184,26 +175,10 @@ public class SipCommunicatorLock extends Thread
      */
     private int lock(File lockFile)
     {
-        InetAddress lockAddress = getRandomBindAddress();
-
-        if (lockAddress == null)
-        {
-            return LOCK_ERROR;
-        }
-
-        // create a new socket
         // seven time retry binding to port
         int retries = 7;
-        int port = getRandomPortNumber();
-        InetSocketAddress serverSocketAddress;
-
-        while(startLockServer(
-            serverSocketAddress = new InetSocketAddress(lockAddress, port))
-                != SUCCESS
-            && retries > 0)
+        while(startLockServer() != SUCCESS && retries > 0)
         {
-            // port possibly taken, change it
-            port = getRandomPortNumber();
             retries--;
         }
 
@@ -221,8 +196,7 @@ public class SipCommunicatorLock extends Thread
         lockFile.deleteOnExit();
         DeleteOnHaltHook.add(lockFile.getAbsolutePath());
 
-        writeLockFile(lockFile, serverSocketAddress);
-
+        writeLockFile(lockFile, (InetSocketAddress) instanceServerSocket.getLocalSocketAddress());
         return SUCCESS;
     }
 
@@ -234,7 +208,7 @@ public class SipCommunicatorLock extends Thread
      * @return the <tt>ERROR</tt> code if something goes wrong and
      * <tt>SUCCESS</tt> otherwise.
      */
-    private int startLockServer(InetSocketAddress localAddress)
+    private int startLockServer()
     {
         try
         {
@@ -251,8 +225,7 @@ public class SipCommunicatorLock extends Thread
 
         try
         {
-            instanceServerSocket.bind(localAddress, 16);// Why 16? 'cos I say
-            // so.
+            instanceServerSocket.bind(new InetSocketAddress(InetAddress.getLoopbackAddress(), 0));
         }
         catch (IOException exc)
         {
@@ -261,81 +234,9 @@ public class SipCommunicatorLock extends Thread
         }
 
         LockServer lockServ = new LockServer(instanceServerSocket);
-
         lockServ.start();
 
         return SUCCESS;
-    }
-
-    /**
-     * Returns a randomly chosen socket address using a loopback interface (or
-     * another one in case the loopback is not available) that we should bind
-     * on.
-     *
-     * @return an InetAddress (most probably a loopback) that we can use to bind
-     * our semaphore socket on.
-     */
-    private InetAddress getRandomBindAddress()
-    {
-        NetworkInterface loopback;
-        try
-        {
-            // find a loopback interface
-            Enumeration<NetworkInterface> interfaces;
-            try
-            {
-                interfaces = NetworkInterface.getNetworkInterfaces();
-            }
-            catch (SocketException exc)
-            {
-                // I don't quite understand why this would happen ...
-                logger.error(
-                      "Failed to obtain a list of the local interfaces.",
-                      exc);
-                return null;
-            }
-
-            loopback = null;
-            while (interfaces.hasMoreElements())
-            {
-                NetworkInterface iface = interfaces.nextElement();
-
-                if (isLoopbackInterface(iface))
-                {
-                    loopback = iface;
-                    break;
-                }
-            }
-
-            // if we didn't find a loopback (unlikely but possible)
-            // return the first available interface on this machine
-            if (loopback == null)
-            {
-                loopback = NetworkInterface.getNetworkInterfaces()
-                                .nextElement();
-            }
-        }
-        catch (SocketException exc)
-        {
-            // I don't quite understand what could possibly cause this ...
-            logger.error("Could not find the loopback interface", exc);
-            return null;
-        }
-
-        // get the first address on the loopback.
-        InetAddress addr = loopback.getInetAddresses().nextElement();
-
-        return addr;
-    }
-
-    /**
-     * Returns a random port number that we can use to bind a socket on.
-     *
-     * @return a random port number that we can use to bind a socket on.
-     */
-    private int getRandomPortNumber()
-    {
-        return (int) (Math.random() * 64509) + 1025;
     }
 
     /**
@@ -361,7 +262,10 @@ public class SipCommunicatorLock extends Thread
                 {
                     Thread.sleep(LOCK_FILE_READ_WAIT);
                 }
-                catch(InterruptedException e){}
+                catch (InterruptedException e)
+                {
+                    Thread.currentThread().interrupt();
+                }
             }
 
             retries--;
@@ -427,22 +331,16 @@ public class SipCommunicatorLock extends Thread
             return null;
         }
 
-        InetSocketAddress lockSocketAddress = new InetSocketAddress(
-                        lockAddress, port);
-
-        return lockSocketAddress;
+        return new InetSocketAddress(lockAddress, port);
     }
 
     /**
-     * Records our <tt>lockAddress</tt> into <tt>lockFile</tt> using the
-     * standard properties format.
+     * Records our <tt>lockAddress</tt> into <tt>lockFile</tt> using the standard properties format.
      *
-     * @param lockFile the file that we should store the address in.
+     * @param lockFile    the file that we should store the address in.
      * @param lockAddress the address that we have to record.
-     * @return <tt>SUCCESS</tt> upon success and <tt>ERROR</tt> if we fail to
-     * store the file.
      */
-    private int writeLockFile(File lockFile, InetSocketAddress lockAddress)
+    private void writeLockFile(File lockFile, InetSocketAddress lockAddress)
     {
         Properties lockProperties = new Properties();
 
@@ -460,17 +358,10 @@ public class SipCommunicatorLock extends Thread
                     "Jitsi lock file. This file will be automatically removed"
                         + " when execution of Jitsi terminates.");
         }
-        catch (FileNotFoundException e)
-        {
-            e.printStackTrace();
-        }
         catch (IOException e)
         {
-            logger.error("Failed to create lock file.", e);
-            return LOCK_ERROR;
+            logger.error("Failed to create lock file", e);
         }
-
-        return SUCCESS;
     }
 
     /**
@@ -523,12 +414,12 @@ public class SipCommunicatorLock extends Thread
         {
             NetworkInterface iface = ifaces.nextElement();
 
-            Enumeration<InetAddress> addreses = iface.getInetAddresses();
+            Enumeration<InetAddress> addresses = iface.getInetAddresses();
 
             // loop iface addresses
-            while (addreses.hasMoreElements())
+            while (addresses.hasMoreElements())
             {
-                InetAddress addr = addreses.nextElement();
+                InetAddress addr = addresses.nextElement();
 
                 if (addr.getHostAddress().equals(addressStr))
                     return addr;
@@ -561,9 +452,9 @@ public class SipCommunicatorLock extends Thread
 
             printStream.print(ARG_COUNT + "=" + args.length + CRLF);
 
-            for (int i = 0; i < args.length; i++)
+            for (String arg : args)
             {
-                printStream.print(ARGUMENT + "=" + args[i] + CRLF);
+                printStream.print(ARGUMENT + "=" + arg + CRLF);
             }
 
             lockClient.waitForReply(LOCK_COMMUNICATION_DELAY);
@@ -701,8 +592,6 @@ public class SipCommunicatorLock extends Thread
      */
     private static class LockServer extends Thread
     {
-        private boolean keepAccepting = true;
-
         /**
          * The socket that we use for cross instance lock and communication.
          */
@@ -728,10 +617,9 @@ public class SipCommunicatorLock extends Thread
         {
             try
             {
-                while (keepAccepting)
+                while (true)
                 {
                     Socket instanceSocket = lockSocket.accept();
-
                     new LockServerConnectionProcessor(instanceSocket).start();
                 }
             }
@@ -790,21 +678,16 @@ public class SipCommunicatorLock extends Thread
 
             ArrayList<String> argsList = new ArrayList<String>();
 
-            if (logger.isDebugEnabled())
-                logger.debug("Handling incoming connection");
-
+            logger.debug("Handling incoming connection");
             int argCount = 1024;
             try
             {
-                BufferedReader lineReader =
-                    new BufferedReader(new InputStreamReader(is));
+                var lineReader = new BufferedReader(new InputStreamReader(is));
 
                 while (true)
                 {
                     String line = lineReader.readLine();
-
-                    if (logger.isDebugEnabled())
-                        logger.debug(line);
+                    logger.debug(line);
 
                     if (line.startsWith(ARG_COUNT))
                     {
@@ -816,10 +699,7 @@ public class SipCommunicatorLock extends Thread
                         String arg = line.substring((ARGUMENT + "=").length());
                         argsList.add(arg);
                     }
-                    else
-                    {
-                        // ignore unknown headers.
-                    }
+                    // ignore unknown headers.
 
                     if (argCount <= argsList.size())
                         break;
@@ -846,44 +726,5 @@ public class SipCommunicatorLock extends Thread
                 printer.print(ERROR_ARG + "=" + exc.getMessage());
             }
         }
-    }
-
-    /**
-     * Determines whether or not the <tt>iface</tt> interface is a loopback
-     * interface. We use this method as a replacement to the
-     * <tt>NetworkInterface.isLoopback()</tt> method that only comes with Java
-     * 1.6.
-     *
-     * @param iface the inteface that we'd like to determine as loopback or not.
-     * @return true if <tt>iface</tt> contains at least one loopback address and
-     * <tt>false</tt> otherwise.
-     */
-    private boolean isLoopbackInterface(NetworkInterface iface)
-    {
-        try
-        {
-            Method method = iface.getClass().getMethod("isLoopback");
-
-            return ((Boolean)method.invoke(iface, new Object[]{}))
-                        .booleanValue();
-        }
-        catch(Throwable t)
-        {
-            //apparently we are not running in a JVM that supports the
-            //is Loopback method. we'll try another approach.
-        }
-
-        Enumeration<InetAddress> addresses = iface.getInetAddresses();
-
-        if(addresses.hasMoreElements())
-        {
-            InetAddress address = addresses.nextElement();
-            if(address.isLoopbackAddress()
-                    || address.getHostAddress().startsWith(
-                            WEIRD_MACOSX_LOOPBACK_ADDRESS))
-                return true;
-        }
-
-        return false;
     }
 }

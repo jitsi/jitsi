@@ -30,7 +30,6 @@
     <module>provdisc-dhcp</module>
     <module>provdisc-mdns</module>
     <module>replacement</module>
-    <module>shutdowntimeout</module>
     <module>sparkle</module>
     <module>swingnotification</module>
     <module>version</module>

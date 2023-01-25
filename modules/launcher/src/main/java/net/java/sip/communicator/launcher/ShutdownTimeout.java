@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.java.sip.communicator.impl.shutdowntimeout;
+package net.java.sip.communicator.launcher;
 
 import net.java.sip.communicator.launchutils.*;
 import org.osgi.framework.*;

@@ -164,8 +164,8 @@
       <dependency>
         <groupId>org.jitsi</groupId>
         <artifactId>jitsi-lgpl-dependencies</artifactId>
-        <version>1.2-22-gb6050e7</version>
-        <scope>runtime</scope>
+        <version>1.2-SNAPSHOT</version>
+<!--        <scope>runtime</scope>-->
         <classifier>${jitsi-deps-arch}</classifier>
       </dependency>
       <dependency><groupId>org.jmdns</groupId><artifactId>jmdns</artifactId><version>3.5.7</version></dependency>
@@ -183,7 +183,7 @@
         <groupId>org.osgi</groupId>
         <artifactId>osgi.core</artifactId>
         <version>8.0.0</version>
-        <scope>provided</scope>
+<!--        <scope>provided</scope>-->
       </dependency>
       <dependency><groupId>org.osgi</groupId><artifactId>org.osgi.service.cm</artifactId><version>1.6.0</version></dependency>
       <dependency>
@@ -263,18 +263,17 @@
       <dependency>
         <groupId>org.jitsi</groupId>
         <artifactId>libjitsi</artifactId>
-        <version>1.1-22-g5c9346c5</version>
+        <version>1.1-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>org.apache.felix.main</artifactId>
-        <version>7.0.5</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.framework</artifactId>
-          </exclusion>
-        </exclusions>
+        <groupId>org.jitsi</groupId>
+        <artifactId>jitsi-android-osgi</artifactId>
+        <version>2.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.reflections</groupId>
+        <artifactId>reflections</artifactId>
+        <version>0.10.2</version>
       </dependency>
       <dependency>
         <groupId>com.github.hypfvieh</groupId>
@@ -316,17 +315,11 @@
     <module>modules/impl</module>
     <module>modules/plugin</module>
     <module>modules/launcher</module>
-    <module>modules/wrap</module>
   </modules>
 
   <build>
     <pluginManagement>
       <plugins>
-        <plugin>
-          <groupId>org.apache.felix</groupId>
-          <artifactId>maven-bundle-plugin</artifactId>
-          <version>5.1.6</version>
-        </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
@@ -389,28 +382,6 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <extensions>true</extensions>
-        <configuration>
-          <niceManifest>true</niceManifest>
-          <instructions>
-            <Bundle-License>
-              Apache-2.0;link="https://github.com/jitsi/jitsi/raw/master/LICENSE"
-            </Bundle-License>
-            <_noclassforname>true</_noclassforname>
-            <_nodefaultversion>true</_nodefaultversion>
-            <_removeheaders>Bnd-*, Tool, Require-Capability, Include-Resource
-            </_removeheaders>
-            <Include-Resources>{maven-resources}</Include-Resources>
-            <!--            <Include-Resource>-->
-            <!--              {maven-resources},-->
-            <!--              META-INF/LICENSE=LICENSE-->
-            <!--            </Include-Resource>-->
-          </instructions>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
