@@ -30,7 +30,7 @@ import com.sun.jna.*;
 interface AppIndicator1 extends Library
 {
     AppIndicator1 INSTANCE =
-        Native.load("libayatana-appindicator", AppIndicator1.class);
+        Native.load("ayatana-appindicator", AppIndicator1.class);
 
     String APP_INDICATOR_SIGNAL_NEW_ICON            = "new-icon";
     String APP_INDICATOR_SIGNAL_NEW_ATTENTION_ICON  = "new-attention-icon";
