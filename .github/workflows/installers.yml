@@ -174,7 +174,8 @@ jobs:
           resources/deb-build.sh \
             "${{ needs.version.outputs.jitsi_version_deb }}" \
             "${{ matrix.dist.dist }}" \
-            "${{ matrix.arch }}"
+            "${{ matrix.arch }}" \
+            "dev+maven@jitsi.org"
 
       - name: make build files readable for Windows and archivable for GitHub Actions
         if: ${{ always() }}

@@ -1,9 +1,19 @@
 #!/usr/bin/env bash
+if [ "$#" -ne 4 ]; then
+    echo "Usage: $0 <VERSION> <DIST> <ARCH> [GPG_ID]"
+    echo "  VERSION: Source package version, e.g. 2.14.123-gcaffee"
+    echo "  DIST: Debian/Ubuntu distribution name (e.g. focal or bullseye)"
+    echo "  ARCH: Architecture (e.g. amd64, aarch64)"
+    echo "  GPG_ID: id for package signing"
+    exit 1
+fi;
+
 set -e
 set -x
 VERSION=$1
 DIST=$2
 ARCH=$3
+GPG_ID=$4
 PROJECT_DIR="$(realpath "$(dirname "$0")/../")"
 cd "${PROJECT_DIR}" || exit
 # export for sbuildrc sourcing
@@ -71,7 +81,7 @@ else
   cp "${PROJECT_DIR}"/../jitsi_* "$BUILD_DIR"
 fi
 
-debsign -S -edev+maven@jitsi.org "${BUILD_DIR}"/*.changes --re-sign -p"${PROJECT_DIR}"/resources/gpg-wrap.sh
+debsign -S -e"${GPG_ID}" "${BUILD_DIR}"/*.changes --re-sign -p"${PROJECT_DIR}"/resources/gpg-wrap.sh
 
 #make build files readable for Windows and archivable for GitHub Actions
 rename 's|:|-|g' "$BUILD_DIR"/*.build
