@@ -41,7 +41,7 @@
 
 #include <win_shared/nls.h>
 
-#define JAVA_MAIN_CLASS "net.java.sip.communicator.launcher.SIPCommunicator"
+#define JAVA_MAIN_CLASS "net.java.sip.communicator.launcher.Jitsi"
 
 /**
  * The pipe through which the launcher is to communicate with the crash handler.

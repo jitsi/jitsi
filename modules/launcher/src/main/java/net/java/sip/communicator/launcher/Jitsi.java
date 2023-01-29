@@ -42,7 +42,7 @@ import org.slf4j.bridge.*;
  * @author Emil Ivov
  * @author Sebastien Vincent
  */
-public class SIPCommunicator
+public class Jitsi
 {
     private static org.slf4j.Logger logger;
 
@@ -112,7 +112,7 @@ public class SIPCommunicator
     {
         var options = new HashMap<String, String>();
         options.put(Constants.FRAMEWORK_BEGINNING_STARTLEVEL, "3");
-        Framework fw = new FrameworkImpl(options, SIPCommunicator.class.getClassLoader());
+        Framework fw = new FrameworkImpl(options, Jitsi.class.getClassLoader());
         fw.init();
         var bundleContext = fw.getBundleContext();
         var reflections = new Reflections(new ConfigurationBuilder().forPackages("org.jitsi", "net.java.sip"));
@@ -140,7 +140,7 @@ public class SIPCommunicator
     {
         setSystemProperties();
         setScHomeDir();
-        logger = LoggerFactory.getLogger(SIPCommunicator.class);
+        logger = LoggerFactory.getLogger(Jitsi.class);
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
         logger.info("home={}, cache={}, log={}, dir={}",
@@ -168,15 +168,15 @@ public class SIPCommunicator
         //for handling sip: uris after starting the application)
         if ( argHandlerRes != LaunchArgHandler.ACTION_CONTINUE_LOCK_DISABLED )
         {
-            switch (new SipCommunicatorLock().tryLock(args))
+            switch (new JitsiLock().tryLock(args))
             {
-            case SipCommunicatorLock.LOCK_ERROR:
+            case JitsiLock.LOCK_ERROR:
                 System.err.println("Failed to lock Jitsi's "
                     +"configuration directory.\n"
                     +"Try launching with the --multiple param.");
-                System.exit(SipCommunicatorLock.LOCK_ERROR);
+                System.exit(JitsiLock.LOCK_ERROR);
                 break;
-            case SipCommunicatorLock.ALREADY_STARTED:
+            case JitsiLock.ALREADY_STARTED:
                 System.out.println(
                     "Jitsi is already running and will "
                         +"handle your parameters (if any).\n"
@@ -184,9 +184,9 @@ public class SIPCommunicator
                         +"behaviour.");
 
                 //we exit with success because for the user that's what it is.
-                System.exit(SipCommunicatorLock.SUCCESS);
+                System.exit(JitsiLock.SUCCESS);
                 break;
-            case SipCommunicatorLock.SUCCESS:
+            case JitsiLock.SUCCESS:
                 //Successfully locked, continue as normal.
                 break;
             }

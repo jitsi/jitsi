@@ -31,6 +31,6 @@ COMMAND="$(command -v java) \
   -Dfelix.auto.deploy.dir=${SCDIR}/lib \
   -Dfelix.config.properties=file:${FELIX_CONFIG} \
   ${JITSI_EXTRA_ARGS} \
-  net.java.sip.communicator.launcher.SIPCommunicator"
+  net.java.sip.communicator.launcher.Jitsi"
 
 exec ${COMMAND} "$@"

@@ -60,7 +60,7 @@ After running `mvn package`, run something along this:
 java -cp `cat target/launcher-classpath`:lib/:modules/launcher/target/classes `
   -Djava.library.path=$(pwd)/lib/native/linux-x64 `
   -Dfelix.config.properties=file:./lib/felix-dev.properties `
-  net.java.sip.communicator.launcher.SIPCommunicator
+  net.java.sip.communicator.launcher.Jitsi
 ```
 
 To debug, use the standard Java debug arguments,

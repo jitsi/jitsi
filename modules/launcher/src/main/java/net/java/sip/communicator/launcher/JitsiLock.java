@@ -35,7 +35,8 @@ import net.java.sip.communicator.launchutils.*;
  * @author Emil Ivov
  */
 @Slf4j
-public class SipCommunicatorLock extends Thread
+public class JitsiLock
+    extends Thread
 {
     /**
      * Indicates that something went wrong. More information will probably be
@@ -375,9 +376,9 @@ public class SipCommunicatorLock extends Thread
     {
         String homeDirLocation =
             System
-                .getProperty(SIPCommunicator.PNAME_SC_CACHE_DIR_LOCATION);
+                .getProperty(Jitsi.PNAME_SC_CACHE_DIR_LOCATION);
         String homeDirName = System
-                        .getProperty(SIPCommunicator.PNAME_SC_HOME_DIR_NAME);
+                        .getProperty(Jitsi.PNAME_SC_HOME_DIR_NAME);
 
         return new File(new File(homeDirLocation, homeDirName), LOCK_FILE_NAME);
     }
