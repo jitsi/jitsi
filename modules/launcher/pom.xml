@@ -242,11 +242,6 @@
     </dependency>
     <dependency>
       <groupId>org.jitsi.desktop</groupId>
-      <artifactId>jitsi-galagonotification</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jitsi.desktop</groupId>
       <artifactId>jitsi-gui</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -277,11 +272,6 @@
     </dependency>
     <dependency>
       <groupId>org.jitsi.desktop</groupId>
-      <artifactId>jitsi-protocol-gibberish</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jitsi.desktop</groupId>
       <artifactId>jitsi-protocol-irc</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -308,11 +298,6 @@
     <dependency>
       <groupId>org.jitsi.desktop</groupId>
       <artifactId>jitsi-replacement</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jitsi.desktop</groupId>
-      <artifactId>jitsi-sparkle</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -399,17 +384,7 @@
     </dependency>
     <dependency>
       <groupId>org.jitsi.desktop</groupId>
-      <artifactId>jitsi-exampleplugin</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jitsi.desktop</groupId>
       <artifactId>jitsi-generalconfig</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jitsi.desktop</groupId>
-      <artifactId>jitsi-gibberishaccregwizz</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -532,10 +507,73 @@
       <artifactId>jitsi-usersearch</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.jitsi.desktop</groupId>
-      <artifactId>jitsi-windowscleanshutdown</artifactId>
-      <version>${project.version}</version>
-    </dependency>
   </dependencies>
+
+  <profiles>
+    <profile>
+      <id>windows</id>
+      <activation>
+        <os>
+          <family>windows</family>
+        </os>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>org.jitsi.desktop</groupId>
+          <artifactId>jitsi-windowscleanshutdown</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>unix</id>
+      <activation>
+        <os>
+          <family>unix</family>
+        </os>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>org.jitsi.desktop</groupId>
+          <artifactId>jitsi-galagonotification</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>mac</id>
+      <activation>
+        <os>
+          <family>mac</family>
+        </os>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>org.jitsi.desktop</groupId>
+          <artifactId>jitsi-sparkle</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>examples</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.jitsi.desktop</groupId>
+          <artifactId>jitsi-protocol-gibberish</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.jitsi.desktop</groupId>
+          <artifactId>jitsi-gibberishaccregwizz</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.jitsi.desktop</groupId>
+          <artifactId>jitsi-exampleplugin</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
 </project>
