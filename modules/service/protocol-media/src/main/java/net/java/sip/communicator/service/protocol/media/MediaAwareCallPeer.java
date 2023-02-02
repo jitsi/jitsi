@@ -644,15 +644,6 @@ public abstract class MediaAwareCallPeer
      */
     public final boolean isJitsiVideobridge()
     {
-        Call call = getCall();
-
-        if (call != null)
-        {
-            CallConference conference = call.getConference();
-
-            if (conference != null)
-                return conference.isJitsiVideobridge();
-        }
         return false;
     }
 

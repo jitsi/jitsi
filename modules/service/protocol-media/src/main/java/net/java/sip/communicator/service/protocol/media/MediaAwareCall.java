@@ -907,7 +907,7 @@ public abstract class MediaAwareCall<
     @Override
     protected CallConference createConference()
     {
-        return new MediaAwareCallConference(false, this.useTranslator);
+        return new MediaAwareCallConference(this.useTranslator);
     }
 
     /**

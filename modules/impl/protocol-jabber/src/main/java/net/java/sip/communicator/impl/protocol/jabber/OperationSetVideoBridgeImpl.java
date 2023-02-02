@@ -79,12 +79,7 @@ public class OperationSetVideoBridgeImpl
         throws OperationFailedException,
                OperationNotSupportedException
     {
-        return
-            protocolProvider
-                .getOperationSet(OperationSetTelephonyConferencing.class)
-                    .createConfCall(
-                            callees,
-                            new MediaAwareCallConference(true));
+        return null;
     }
 
     /**
@@ -128,72 +123,9 @@ public class OperationSetVideoBridgeImpl
         return ((jitsiVideobridge != null) && (jitsiVideobridge.length() > 0));
     }
 
-    /**
-     * Notifies this instance that a specific <tt>ColibriConferenceIQ</tt> has
-     * been received.
-     *
-     * @param conferenceIQ the <tt>ColibriConferenceIQ</tt> which has been
-     * received
-     */
-    private void processColibriConferenceIQ(ColibriConferenceIQ conferenceIQ)
-    {
-        /*
-         * The application is not a Jitsi Videobridge server, it is a client.
-         * Consequently, the specified ColibriConferenceIQ is sent to it in
-         * relation to the part of the application's functionality which makes
-         * requests to a Jitsi Videobridge server i.e. CallJabberImpl.
-         *
-         * Additionally, the method processColibriConferenceIQ is presently tasked
-         * with processing ColibriConferenceIQ requests only. They are SET IQs
-         * sent by the Jitsi Videobridge server to notify the application about
-         * updates in the states of (colibri) conferences organized by the
-         * application.
-         */
-        if (IQ.Type.set.equals(conferenceIQ.getType())
-                && conferenceIQ.getID() != null)
-        {
-            OperationSetBasicTelephony<?> basicTelephony
-                = protocolProvider.getOperationSet(
-                        OperationSetBasicTelephony.class);
-
-            if (basicTelephony != null)
-            {
-                Iterator<? extends Call> i = basicTelephony.getActiveCalls();
-
-                while (i.hasNext())
-                {
-                    Call call = i.next();
-
-                    if (call instanceof CallJabberImpl)
-                    {
-                        CallJabberImpl callJabberImpl = (CallJabberImpl) call;
-                        MediaAwareCallConference conference
-                            = callJabberImpl.getConference();
-
-                        if ((conference != null)
-                                && conference.isJitsiVideobridge())
-                        {
-                            /*
-                             * TODO We may want to disallow rogue CallJabberImpl
-                             * instances which may throw an exception to prevent
-                             * the conferenceIQ from reaching the CallJabberImpl
-                             * instance which it was meant for.
-                             */
-                            if (callJabberImpl.processColibriConferenceIQ(
-                                    conferenceIQ))
-                                break;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     @Override
     public IQ handleIQRequest(IQ iqRequest)
     {
-        ColibriConferenceIQ conferenceIQ = (ColibriConferenceIQ) iqRequest;
-        processColibriConferenceIQ(conferenceIQ);
         return IQ.createResultIQ(iqRequest);
     }
 

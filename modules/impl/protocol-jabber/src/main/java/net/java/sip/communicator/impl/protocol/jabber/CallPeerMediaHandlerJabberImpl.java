@@ -304,16 +304,11 @@ public class CallPeerMediaHandlerJabberImpl
             // DTLS-SRTP
             setDtlsEncryptionOnContent(mediaType, content, null);
 
-            // Neither SDES nor ZRTP is supported in telephony conferences
-            // utilizing the server-side technology Jitsi Videobridge yet.
-            if (!call.getConference().isJitsiVideobridge())
-            {
-                // SDES
-                setSDesEncryptionOnDescription(mediaType, description, null);
+            // SDES
+            setSDesEncryptionOnDescription(mediaType, description, null);
 
-                // ZRTP
-                setZrtpEncryptionOnDescription(mediaType, description, null);
-            }
+            // ZRTP
+            setZrtpEncryptionOnDescription(mediaType, description, null);
 
             return content;
         }
@@ -389,10 +384,7 @@ public class CallPeerMediaHandlerJabberImpl
         throws OperationFailedException
     {
         // Describe the media.
-        List<ContentPacketExtension> mediaDescs
-            = new ArrayList<ContentPacketExtension>();
-        boolean jitsiVideobridge
-            = getPeer().getCall().getConference().isJitsiVideobridge();
+        List<ContentPacketExtension> mediaDescs = new ArrayList<>();
 
         for (MediaType mediaType : MediaType.values())
         {
@@ -435,24 +427,16 @@ public class CallPeerMediaHandlerJabberImpl
 
                     // DTLS-SRTP
                     setDtlsEncryptionOnContent(mediaType, content, null);
-                    /*
-                     * Neither SDES nor ZRTP is supported in telephony
-                     * conferences utilizing the server-side technology Jitsi
-                     * Videobridge yet.
-                     */
-                    if (!jitsiVideobridge)
-                    {
-                        // SDES
-                        setSDesEncryptionOnDescription(
-                                mediaType,
-                                description,
-                                null);
-                        //ZRTP
-                        setZrtpEncryptionOnDescription(
-                                mediaType,
-                                description,
-                                null);
-                    }
+                    // SDES
+                    setSDesEncryptionOnDescription(
+                            mediaType,
+                            description,
+                            null);
+                    //ZRTP
+                    setZrtpEncryptionOnDescription(
+                            mediaType,
+                            description,
+                            null);
 
                     // we request a desktop sharing session so add the inputevt
                     // extension in the "video" content
@@ -1080,64 +1064,6 @@ public class CallPeerMediaHandlerJabberImpl
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * In the case of utilization of the Jitsi Videobridge server-side
-     * technology, returns the visual <tt>Component</tt>s which display RTP
-     * video streams reported by the server to be sent by the remote peer
-     * represented by this instance.
-     */
-    @Override
-    public List<Component> getVisualComponents()
-    {
-        /*
-         * TODO The super is currently unable to provide the complete set of
-         * remote SSRCs (i.e. in the case of no utilization of the Jitsi
-         * Videobridge server-side technology) so we have to explicitly check
-         * for Jitsi Videobridge instead of just relying on the implementation
-         * of the getRemoteSSRCs(MediaType) method to abstract away that detail.
-         */
-        CallJabberImpl call;
-        MediaAwareCallConference conference;
-
-        if (((call = getPeer().getCall()) != null)
-                && ((conference = call.getConference()) != null)
-                && conference.isJitsiVideobridge())
-        {
-            MediaStream stream = getStream(MediaType.VIDEO);
-
-            if (stream == null)
-                return Collections.emptyList();
-            else
-            {
-                int[] remoteSSRCs = getRemoteSSRCs(MediaType.VIDEO);
-
-                if (remoteSSRCs.length == 0)
-                    return Collections.emptyList();
-                else
-                {
-                    VideoMediaStream videoStream = (VideoMediaStream) stream;
-                    List<Component> visualComponents
-                        = new LinkedList<Component>();
-
-                    for(int remoteSSRC : remoteSSRCs)
-                    {
-                        Component visualComponent
-                                = videoStream.getVisualComponent(
-                                0xFFFFFFFFL & remoteSSRC);
-
-                        if (visualComponent != null)
-                            visualComponents.add(visualComponent);
-                    }
-                    return visualComponents;
-                }
-            }
-        }
-
-        return super.getVisualComponents();
-    }
-
-    /**
      * Gathers local candidate addresses.
      *
      * @param remote the media descriptions received from the remote peer if any
@@ -1531,15 +1457,8 @@ public class CallPeerMediaHandlerJabberImpl
         CallConference conference
             = (call == null) ? null : call.getConference();
 
-        /*
-         * Neither SDES nor ZRTP is supported in telephony conferences utilizing
-         * the server-side technology Jitsi Videobridge yet.
-         */
-        if ((conference == null) || !conference.isJitsiVideobridge())
-        {
-            addZrtpAdvertisedEncryptions(true, description, mediaType);
-            addSDesAdvertisedEncryptions(true, description, mediaType);
-        }
+        addZrtpAdvertisedEncryptions(true, description, mediaType);
+        addSDesAdvertisedEncryptions(true, description, mediaType);
         addDtlsAdvertisedEncryptions(true, content, mediaType, false);
 
         StreamConnector connector
@@ -2912,11 +2831,6 @@ public class CallPeerMediaHandlerJabberImpl
         CallPeer peer = getPeer();
         Call call = peer.getCall();
 
-        // ZRTP is not supported in telephony conferences utilizing the
-        // server-side technology Jitsi Videobridge yet.
-        if (call.getConference().isJitsiVideobridge())
-            return;
-
         // Conforming to XEP-0167 schema there is 0 or 1 ENCRYPTION element for
         // a given DESCRIPTION.
         EncryptionPacketExtension encryptionPacketExtension
@@ -2964,11 +2878,6 @@ public class CallPeerMediaHandlerJabberImpl
         MediaType mediaType)
     {
         CallPeer peer = getPeer();
-
-        // SDES is not supported in telephony conferences utilizing the
-        // server-side technology Jitsi Videobridge yet.
-        if (peer.getCall().getConference().isJitsiVideobridge())
-            return;
 
         // Conforming to XEP-0167 schema there is 0 or 1 ENCRYPTION element for
         // a given DESCRIPTION.
@@ -3107,11 +3016,6 @@ public class CallPeerMediaHandlerJabberImpl
         CallPeer peer = getPeer();
         Call call = peer.getCall();
 
-        // ZRTP is not supported in telephony conferences utilizing the
-        // server-side technology Jitsi Videobridge yet.
-        if (call.getConference().isJitsiVideobridge())
-            return false;
-
         boolean isRemoteZrtpCapable;
 
         if (remoteDescription == null)
@@ -3201,13 +3105,6 @@ public class CallPeerMediaHandlerJabberImpl
         RtpDescriptionPacketExtension remoteDescription)
     {
         CallPeer peer = getPeer();
-
-        /*
-         * SDES is not supported in telephony conferences utilizing the
-         * server-side technology Jitsi Videobridge yet.
-         */
-        if (peer.getCall().getConference().isJitsiVideobridge())
-            return false;
 
         AccountID accountID = peer.getProtocolProvider().getAccountID();
 

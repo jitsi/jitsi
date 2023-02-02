@@ -326,7 +326,7 @@ public abstract class TransportManagerJabberImpl
     {
         CallPeerJabberImpl peer = getCallPeer();
         CallJabberImpl call = peer.getCall();
-        boolean isJitsiVideobridge = call.getConference().isJitsiVideobridge();
+        boolean isJitsiVideobridge = false;
         List<ContentPacketExtension> cpes
             = (theirOffer == null) ? ourAnswer : theirOffer;
 
@@ -919,43 +919,7 @@ public abstract class TransportManagerJabberImpl
     TransportManagerJabberImpl
         findTransportManagerEstablishingConnectivityWithJitsiVideobridge()
     {
-        Call call = getCallPeer().getCall();
-        TransportManagerJabberImpl transportManager = null;
-
-        if (call != null)
-        {
-            CallConference conference = call.getConference();
-
-            if ((conference != null) && conference.isJitsiVideobridge())
-            {
-                for (Call aCall : conference.getCalls())
-                {
-                    Iterator<? extends CallPeer> callPeerIter
-                        = aCall.getCallPeers();
-
-                    while (callPeerIter.hasNext())
-                    {
-                        CallPeer aCallPeer = callPeerIter.next();
-
-                        if (aCallPeer instanceof CallPeerJabberImpl)
-                        {
-                            TransportManagerJabberImpl aTransportManager
-                                = ((CallPeerJabberImpl) aCallPeer)
-                                    .getMediaHandler()
-                                        .getTransportManager();
-
-                            if (aTransportManager
-                                    .isEstablishingConnectivityWithJitsiVideobridge)
-                            {
-                                transportManager = aTransportManager;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return transportManager;
+        return null;
     }
 
     /**
