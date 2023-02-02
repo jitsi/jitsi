@@ -856,24 +856,10 @@ public abstract class TransportManagerJabberImpl
     protected abstract ExtensionElement createTransport(String media)
         throws OperationFailedException;
 
-    protected ExtensionElement createTransportForStartCandidateHarvest(
-            String media)
+    protected ExtensionElement createTransportForStartCandidateHarvest(String media)
         throws OperationFailedException
     {
-        ExtensionElement pe = null;
-
-        if (getCallPeer().isJitsiVideobridge())
-        {
-            MediaType mediaType = MediaType.parseString(media);
-            ColibriConferenceIQ.Channel channel
-                = getColibriChannel(mediaType, false /* remote */);
-
-            if (channel != null)
-                pe = cloneTransportAndCandidates(channel.getTransport());
-        }
-        else
-            pe = createTransport(media);
-        return pe;
+        return createTransport(media);
     }
 
     /**
@@ -902,24 +888,6 @@ public abstract class TransportManagerJabberImpl
         throws OperationFailedException
     {
         return super.createStreamConnector(mediaType);
-    }
-
-    /**
-     * Finds a <tt>TransportManagerJabberImpl</tt> participating in a telephony
-     * conference utilizing the Jitsi Videobridge server-side technology that
-     * this instance is participating in which is establishing the connectivity
-     * with the Jitsi Videobridge server (as opposed to a <tt>CallPeer</tt>).
-     *
-     * @return a <tt>TransportManagerJabberImpl</tt> which is participating in
-     * a telephony conference utilizing the Jitsi Videobridge server-side
-     * technology that this instance is participating in which is establishing
-     * the connectivity with the Jitsi Videobridge server (as opposed to a
-     * <tt>CallPeer</tt>).
-     */
-    TransportManagerJabberImpl
-        findTransportManagerEstablishingConnectivityWithJitsiVideobridge()
-    {
-        return null;
     }
 
     /**
