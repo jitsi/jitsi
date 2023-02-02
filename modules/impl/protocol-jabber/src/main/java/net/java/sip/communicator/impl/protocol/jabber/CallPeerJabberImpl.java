@@ -1488,9 +1488,7 @@ public class CallPeerJabberImpl
         {
             /*
              * We need to dispose of the transport manager before the
-             * 'call' field is set to null, because if Jitsi Videobridge is in
-             * use, it (the call) is needed in order to expire the
-             * Videobridge channels.
+             * 'call' field is set to null
              */
             if (CallPeerState.DISCONNECTED.equals(newState)
                     || CallPeerState.FAILED.equals(newState))

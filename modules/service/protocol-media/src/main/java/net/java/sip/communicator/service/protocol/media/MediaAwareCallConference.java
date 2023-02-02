@@ -114,9 +114,7 @@ public class MediaAwareCallConference
     private boolean translator = false;
 
     /**
-     * Initializes a new <tt>MediaAwareCallConference</tt> instance which is to
-     * optionally utilize the Jitsi Videobridge server-side telephony
-     * conferencing technology.
+     * Initializes a new <tt>MediaAwareCallConference</tt> instance.
      */
     public MediaAwareCallConference(boolean translator)
     {

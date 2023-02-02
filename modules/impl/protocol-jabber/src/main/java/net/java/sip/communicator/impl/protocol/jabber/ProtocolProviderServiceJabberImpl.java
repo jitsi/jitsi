@@ -30,7 +30,6 @@ import javax.net.ssl.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.debugger.*;
 import net.java.sip.communicator.util.osgi.ServiceUtils;
-import org.jitsi.xmpp.extensions.colibri.*;
 import org.jitsi.xmpp.extensions.inputevt.*;
 import org.jitsi.xmpp.extensions.jingle.*;
 import net.java.sip.communicator.service.certificate.*;
@@ -2912,76 +2911,6 @@ public class ProtocolProviderServiceJabberImpl
                 }
             }
         }
-    }
-
-    /**
-     * Gets the entity ID of the first Jitsi Videobridge associated with
-     * {@link #connection} i.e. provided by the <tt>serviceName</tt> of
-     * <tt>connection</tt>.
-     *
-     * @return the entity ID of the first Jitsi Videobridge associated with
-     * <tt>connection</tt>
-     */
-    public Jid getJitsiVideobridge()
-    {
-        XMPPConnection connection = getConnection();
-
-        if (connection != null)
-        {
-            ScServiceDiscoveryManager discoveryManager = getDiscoveryManager();
-            Jid serviceName = connection.getXMPPServiceDomain();
-            DiscoverItems discoverItems = null;
-
-            try
-            {
-                discoverItems = discoveryManager.discoverItems(serviceName);
-            }
-            catch (XMPPException
-                | InterruptedException
-                | NoResponseException
-                | NotConnectedException xmppe)
-            {
-                if (logger.isDebugEnabled())
-                {
-                    logger.debug(
-                            "Failed to discover the items associated with"
-                                + " Jabber entity: " + serviceName,
-                            xmppe);
-                }
-            }
-
-            if (discoverItems != null)
-            {
-                for (DiscoverItems.Item discoverItem : discoverItems.getItems())
-                {
-                    Jid entityID = discoverItem.getEntityID();
-                    DiscoverInfo discoverInfo = null;
-
-                    try
-                    {
-                        discoverInfo = discoveryManager.discoverInfo(entityID);
-                    }
-                    catch (XMPPException
-                        | InterruptedException
-                        | NoResponseException
-                        | NotConnectedException xmppe)
-                    {
-                        logger.warn(
-                                "Failed to discover information about Jabber"
-                                    + " entity: " + entityID,
-                                xmppe);
-                    }
-                    if ((discoverInfo != null)
-                            && discoverInfo.containsFeature(
-                                    ColibriConferenceIQ.NAMESPACE))
-                    {
-                        return entityID;
-                    }
-                }
-            }
-        }
-
-        return null;
     }
 
     /**

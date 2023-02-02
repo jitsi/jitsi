@@ -542,11 +542,6 @@ public class OperationSetTelephonyConferencingJabberImpl
      *
      * The URI of the returned <tt>ConferenceDescription</tt> is the occupant
      * JID with which we have joined the room.
-     *
-     * If a Videobridge is available for our <tt>ProtocolProviderService</tt>
-     * we use it. TODO: this should be relaxed when we refactor the Videobridge
-     * implementation, so that any Videobridge (on any protocol provider) can
-     * be used.
      */
     @Override
     public ConferenceDescription setupConference(final ChatRoom chatRoom)
