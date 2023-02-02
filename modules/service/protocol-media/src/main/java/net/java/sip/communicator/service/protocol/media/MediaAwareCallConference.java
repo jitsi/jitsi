@@ -116,6 +116,14 @@ public class MediaAwareCallConference
     /**
      * Initializes a new <tt>MediaAwareCallConference</tt> instance.
      */
+    public MediaAwareCallConference()
+    {
+        this(false);
+    }
+
+    /**
+     * Initializes a new <tt>MediaAwareCallConference</tt> instance.
+     */
     public MediaAwareCallConference(boolean translator)
     {
         super();
