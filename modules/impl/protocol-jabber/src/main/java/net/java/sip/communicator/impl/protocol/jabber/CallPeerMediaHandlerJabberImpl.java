@@ -1171,56 +1171,6 @@ public class CallPeerMediaHandlerJabberImpl
     }
 
     /**
-     * Notifies this instance that a specific <tt>ColibriConferenceIQ</tt> has
-     * been received. This <tt>CallPeerMediaHandler</tt> uses the part of the
-     * information provided in the specified <tt>conferenceIQ</tt> which
-     * concerns it only.
-     *
-     * @param conferenceIQ the <tt>ColibriConferenceIQ</tt> which has been
-     * received
-     */
-    void processColibriConferenceIQ(ColibriConferenceIQ conferenceIQ)
-    {
-        /*
-         * This CallPeerMediaHandler stores the media information but it does
-         * not store the colibri Channels (which contain both media and transport
-         * information). The TransportManager associated with this instance
-         * stores the colibri Channels but does not store media information (such
-         * as the remote SSRCs). An design/implementation choice has to be made
-         * though and the present one is to have this CallPeerMediaHandler
-         * transparently (with respect to the TransportManager) store the media
-         * information inside the TransportManager.
-         */
-        TransportManagerJabberImpl transportManager = this.transportManager;
-
-        if (transportManager != null)
-        {
-            long oldAudioRemoteSSRC = getRemoteSSRC(MediaType.AUDIO);
-            long oldVideoRemoteSSRC = getRemoteSSRC(MediaType.VIDEO);
-
-            /*
-             * Do fire new PropertyChangeEvents for the properties
-             * AUDIO_REMOTE_SSRC and VIDEO_REMOTE_SSRC if necessary.
-             */
-            long newAudioRemoteSSRC = getRemoteSSRC(MediaType.AUDIO);
-            long newVideoRemoteSSRC = getRemoteSSRC(MediaType.VIDEO);
-
-            if (oldAudioRemoteSSRC != newAudioRemoteSSRC)
-            {
-                firePropertyChange(
-                        AUDIO_REMOTE_SSRC,
-                        oldAudioRemoteSSRC, newAudioRemoteSSRC);
-            }
-            if (oldVideoRemoteSSRC != newVideoRemoteSSRC)
-            {
-                firePropertyChange(
-                        VIDEO_REMOTE_SSRC,
-                        oldVideoRemoteSSRC, newVideoRemoteSSRC);
-            }
-        }
-    }
-
-    /**
      * Process a <tt>ContentPacketExtension</tt> and initialize its
      * corresponding <tt>MediaStream</tt>.
      *

@@ -462,47 +462,6 @@ public abstract class TransportManagerJabberImpl
     }
 
     /**
-     * Closes a specific <tt>StreamConnector</tt> associated with a specific
-     * <tt>MediaType</tt>. If this <tt>TransportManager</tt> has a reference to
-     * the specified <tt>streamConnector</tt>, it remains.
-     * Also expires the <tt>ColibriConferenceIQ.Channel</tt> associated with
-     * the closed <tt>StreamConnector</tt>.
-     *
-     * @param mediaType the <tt>MediaType</tt> associated with the specified
-     * <tt>streamConnector</tt>
-     * @param streamConnector the <tt>StreamConnector</tt> to be closed
-     */
-    @Override
-    protected void closeStreamConnector(
-            MediaType mediaType,
-            StreamConnector streamConnector)
-        throws OperationFailedException
-    {
-        boolean superCloseStreamConnector = true;
-
-        if (streamConnector instanceof ColibriStreamConnector)
-        {
-            CallPeerJabberImpl peer = getCallPeer();
-
-            if (peer != null)
-            {
-                CallJabberImpl call = peer.getCall();
-
-                if (call != null)
-                {
-                    superCloseStreamConnector = false;
-                    call.closeColibriStreamConnector(
-                        peer,
-                        mediaType,
-                        (ColibriStreamConnector) streamConnector);
-                }
-            }
-        }
-        if (superCloseStreamConnector)
-            super.closeStreamConnector(mediaType, streamConnector);
-    }
-
-    /**
      * {@inheritDoc}
      *
      * @see #doCreateStreamConnector(MediaType)

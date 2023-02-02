@@ -17,7 +17,6 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import java.lang.ref.*;
 import java.util.*;
 
 import org.jitsi.xmpp.extensions.jingle.*;
@@ -54,12 +53,6 @@ public class CallJabberImpl
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CallJabberImpl.class);
 
     /**
-     * Contains one ColibriStreamConnector for each <tt>MediaType</tt>
-     */
-    private final List<WeakReference<ColibriStreamConnector>>
-        colibriStreamConnectors;
-
-    /**
      * Indicates if the <tt>CallPeer</tt> will support <tt>inputevt</tt>
      * extension (i.e. will be able to be remote-controlled).
      */
@@ -76,48 +69,9 @@ public class CallJabberImpl
     {
         super(parentOpSet);
 
-        int mediaTypeValueCount = MediaType.values().length;
-
-        colibriStreamConnectors
-            = new ArrayList<WeakReference<ColibriStreamConnector>>(
-                    mediaTypeValueCount);
-        for (int i = 0; i < mediaTypeValueCount; i++)
-            colibriStreamConnectors.add(null);
-
         //let's add ourselves to the calls repo. we are doing it ourselves just
         //to make sure that no one ever forgets.
         parentOpSet.getActiveCallsRepository().addCall(this);
-    }
-
-    /**
-     * Closes a specific <tt>ColibriStreamConnector</tt> which is associated with
-     * a <tt>MediaStream</tt> of a specific <tt>MediaType</tt> upon request from
-     * a specific <tt>CallPeer</tt>.
-     *
-     * @param peer the <tt>CallPeer</tt> which requests the closing of the
-     * specified <tt>colibriStreamConnector</tt>
-     * @param mediaType the <tt>MediaType</tt> of the <tt>MediaStream</tt> with
-     * which the specified <tt>colibriStreamConnector</tt> is associated
-     * @param colibriStreamConnector the <tt>ColibriStreamConnector</tt> to close on
-     * behalf of the specified <tt>peer</tt>
-     */
-    public void closeColibriStreamConnector(
-            CallPeerJabberImpl peer,
-            MediaType mediaType,
-            ColibriStreamConnector colibriStreamConnector)
-    {
-        colibriStreamConnector.close();
-        synchronized (colibriStreamConnectors)
-        {
-            int index = mediaType.ordinal();
-            WeakReference<ColibriStreamConnector> weakReference
-                    = colibriStreamConnectors.get(index);
-            if (weakReference != null && colibriStreamConnector
-                    .equals(weakReference.get()))
-            {
-                colibriStreamConnectors.set(index, null);
-            }
-        }
     }
 
     /**

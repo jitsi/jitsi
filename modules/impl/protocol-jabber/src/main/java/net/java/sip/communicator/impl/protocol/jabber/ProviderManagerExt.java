@@ -85,11 +85,6 @@ public class ProviderManagerExt
             new ForcefulShutdownIqProvider());
 
         ProviderManager.addIQProvider(
-            ColibriConferenceIQ.ELEMENT,
-            ColibriConferenceIQ.NAMESPACE,
-            new ColibriConferenceIqProvider());
-
-        ProviderManager.addIQProvider(
             JibriIq.ELEMENT,
             JibriIq.NAMESPACE,
             new JibriIqProvider()
