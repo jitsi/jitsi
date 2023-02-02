@@ -1862,20 +1862,6 @@ public class ProtocolProviderServiceJabberImpl
                     OperationSetResourceAwareTelephony.class,
                     new OperationSetResAwareTelephonyJabberImpl(basicTelephony));
 
-                // Only init video bridge if enabled
-                boolean isVideobridgeDisabled
-                    = JabberActivator.getConfigurationService()
-                      .getBoolean(OperationSetVideoBridge.
-                          IS_VIDEO_BRIDGE_DISABLED, false);
-
-                if (!isVideobridgeDisabled)
-                {
-                    // init video bridge
-                    addSupportedOperationSet(
-                        OperationSetVideoBridge.class,
-                        new OperationSetVideoBridgeImpl(this));
-                }
-
                 // init DTMF
                 OperationSetDTMFJabberImpl operationSetDTMF
                     = new OperationSetDTMFJabberImpl(this);
