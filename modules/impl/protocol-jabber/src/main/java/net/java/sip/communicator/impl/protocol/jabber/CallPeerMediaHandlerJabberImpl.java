@@ -791,12 +791,6 @@ public class CallPeerMediaHandlerJabberImpl
 
     /**
      * {@inheritDoc}
-     *
-     * In the case of a telephony conference organized by the local peer/user
-     * via the Jitsi Videobridge server-side technology, returns an SSRC
-     * reported by the server as received on the channel allocated by the local
-     * peer/user for the purposes of communicating with the <tt>CallPeer</tt>
-     * associated with this instance.
      */
     @Override
     public long getRemoteSSRC(MediaType mediaType)
@@ -807,9 +801,7 @@ public class CallPeerMediaHandlerJabberImpl
          * A peer (regardless of whether it is local or remote) may send
          * multiple RTP streams at any time. In such a case, it is not clear
          * which one of their SSRCs is to be returned. Anyway, the super says
-         * that the returned is the last known. We will presume that the last
-         * known in the list reported by the Jitsi Videobridge server is the
-         * last.
+         * that the returned is the last known.
          */
         if (ssrcs.length != 0)
             return 0xFFFFFFFFL & ssrcs[ssrcs.length - 1];
@@ -820,12 +812,6 @@ public class CallPeerMediaHandlerJabberImpl
     /**
      * Gets the SSRCs of RTP streams with a specific <tt>MediaType</tt> known to
      * be received by a <tt>MediaStream</tt> associated with this instance.
-     * <p>
-     * <b>Warning</b>: The method may return only one of the many possible
-     * remote SSRCs in the case of no utilization of the Jitsi Videobridge
-     * server-side technology because the super implementation does not
-     * currently provide support for keeping track of multiple remote SSRCs.
-     * </p>
      *
      * @param mediaType the <tt>MediaType</tt> of the RTP streams the SSRCs of
      * which are to be returned
@@ -835,18 +821,6 @@ public class CallPeerMediaHandlerJabberImpl
      */
     private int[] getRemoteSSRCs(MediaType mediaType)
     {
-        /*
-         * If the Jitsi Videobridge server-side technology is utilized, a single
-         * MediaStream (per MediaType) is shared among the participating
-         * CallPeers and, consequently, the remote SSRCs cannot be associated
-         * with the CallPeers from which they are actually being sent. That's
-         * why the server will report them to the conference focus.
-         */
-        ColibriConferenceIQ.Channel channel = getColibriChannel(mediaType);
-
-        if (channel != null)
-            return channel.getSSRCs();
-
         /*
          * XXX The fallback to the super implementation that follows may lead to
          * unexpected behavior due to the lack of ability to keep track of
@@ -1078,36 +1052,6 @@ public class CallPeerMediaHandlerJabberImpl
         }
 
         setDtlsEncryptionOnTransports(remote, local);
-
-        if (transportManager.startConnectivityEstablishmentWithJitsiVideobridge)
-        {
-            Map<String,IceUdpTransportPacketExtension> map
-                = new LinkedHashMap<String,IceUdpTransportPacketExtension>();
-
-            for (MediaType mediaType : MediaType.values())
-            {
-                ColibriConferenceIQ.Channel channel
-                    = transportManager.getColibriChannel(
-                            mediaType,
-                            true /* local */);
-
-                if (channel != null)
-                {
-                    IceUdpTransportPacketExtension transport
-                        = channel.getTransport();
-
-                    if (transport != null)
-                        map.put(mediaType.toString(), transport);
-                }
-            }
-            if (!map.isEmpty())
-            {
-                transportManager
-                    .startConnectivityEstablishmentWithJitsiVideobridge
-                        = false;
-                transportManager.startConnectivityEstablishment(map);
-            }
-        }
 
         /*
          * TODO Ideally, we wouldn't wrap up that quickly. We need to revisit
@@ -2041,25 +1985,6 @@ public class CallPeerMediaHandlerJabberImpl
                 stream.setTarget(transportManager.getStreamTarget(mediaType));
             }
         }
-    }
-
-
-
-    /**
-     * If Jitsi Videobridge is in use, returns the
-     * <tt>ColibriConferenceIQ.Channel</tt> that this
-     * <tt>CallPeerMediaHandler</tt> uses for media of type <tt>mediaType</tt>.
-     * Otherwise, returns <tt>null</tt>
-     *
-     * @param mediaType the <tt>MediaType</tt> for which to return a
-     * <tt>ColibriConferenceIQ.Channel</tt>
-     * @return the <tt>ColibriConferenceIQ.Channel</tt> that this
-     * <tt>CallPeerMediaHandler</tt> uses for media of type <tt>mediaType</tt>
-     * or <tt>null</tt>.
-     */
-    private ColibriConferenceIQ.Channel getColibriChannel(MediaType mediaType)
-    {
-        return null;
     }
 
     /**
