@@ -461,26 +461,6 @@ public class CallPeerJabberImpl
     }
 
     /**
-     * Notifies this instance that a specific <tt>ColibriConferenceIQ</tt> has
-     * been received. This <tt>CallPeerJabberImpl</tt> uses the part of the
-     * information provided in the specified <tt>conferenceIQ</tt> which
-     * concerns it only.
-     *
-     * @param conferenceIQ the <tt>ColibriConferenceIQ</tt> which has been
-     * received
-     */
-    void processColibriConferenceIQ(ColibriConferenceIQ conferenceIQ)
-    {
-        /*
-         * CallPeerJabberImpl does not itself/directly know the specifics
-         * related to the channels allocated on the Jitsi Videobridge server.
-         * The channels contain transport and media-related information so
-         * forward the notification to CallPeerMediaHandlerJabberImpl.
-         */
-        getMediaHandler().processColibriConferenceIQ(conferenceIQ);
-    }
-
-    /**
      * Processes the content-accept {@link JingleIQ}.
      *
      * @param content The {@link JingleIQ} that contains content that remote

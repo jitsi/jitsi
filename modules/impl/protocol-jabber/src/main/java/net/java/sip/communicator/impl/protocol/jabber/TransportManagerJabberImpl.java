@@ -20,7 +20,6 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.net.*;
 import java.util.*;
 
-import org.jitsi.xmpp.extensions.colibri.*;
 import org.jitsi.xmpp.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.JingleUtils;
 import net.java.sip.communicator.service.protocol.*;
@@ -28,9 +27,7 @@ import net.java.sip.communicator.service.protocol.media.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.utils.*;
-import org.jivesoftware.smack.SmackException.*;
 import org.jivesoftware.smack.packet.*;
-import org.jxmpp.jid.*;
 
 /**
  * <tt>TransportManager</tt>s gather local candidates for incoming and outgoing
@@ -514,37 +511,6 @@ public abstract class TransportManagerJabberImpl
     protected StreamConnector createStreamConnector(final MediaType mediaType)
         throws OperationFailedException
     {
-        ColibriConferenceIQ.Channel channel
-            = getColibriChannel(mediaType, true /* local */);
-
-        if (channel != null)
-        {
-            CallPeerJabberImpl peer = getCallPeer();
-            CallJabberImpl call = peer.getCall();
-            StreamConnector streamConnector
-                = call.createColibriStreamConnector(
-                        peer,
-                        mediaType,
-                        channel,
-                        new StreamConnectorFactory()
-                        {
-                            public StreamConnector createStreamConnector()
-                            {
-                                try
-                                {
-                                    return doCreateStreamConnector(mediaType);
-                                }
-                                catch (OperationFailedException ofe)
-                                {
-                                    return null;
-                                }
-                            }
-                        });
-
-            if (streamConnector != null)
-                return streamConnector;
-        }
-
         return doCreateStreamConnector(mediaType);
     }
 
@@ -583,33 +549,6 @@ public abstract class TransportManagerJabberImpl
         throws OperationFailedException
     {
         return super.createStreamConnector(mediaType);
-    }
-
-    /**
-     * Gets the {@link ColibriConferenceIQ.Channel} which belongs to a content
-     * associated with a specific <tt>MediaType</tt> and is to be either locally
-     * or remotely used.
-     * <p>
-     * <b>Note</b>: Modifications to the <tt>ColibriConferenceIQ.Channel</tt>
-     * instance returned by the method propagate to (the state of) this
-     * instance.
-     * </p>
-     *
-     * @param mediaType the <tt>MediaType</tt> associated with the content which
-     * contains the <tt>ColibriConferenceIQ.Channel</tt> to get
-     * @param local <tt>true</tt> if the <tt>ColibriConferenceIQ.Channel</tt>
-     * which is to be used locally is to be returned or <tt>false</tt> for the
-     * one which is to be used remotely
-     * @return the <tt>ColibriConferenceIQ.Channel</tt> which belongs to a
-     * content associated with the specified <tt>mediaType</tt> and which is to
-     * be used in accord with the specified <tt>local</tt> indicator if such a
-     * channel exists; otherwise, <tt>null</tt>
-     */
-    ColibriConferenceIQ.Channel getColibriChannel(
-            MediaType mediaType,
-            boolean local)
-    {
-        return null;
     }
 
     /**

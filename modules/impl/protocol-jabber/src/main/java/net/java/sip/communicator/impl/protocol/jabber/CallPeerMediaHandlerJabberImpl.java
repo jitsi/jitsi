@@ -17,8 +17,6 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import java.awt.*;
-import java.beans.*;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.List;
@@ -37,7 +35,6 @@ import org.jitsi.service.neomedia.format.*;
 import org.jitsi.utils.*;
 import org.jivesoftware.smack.SmackException.*;
 import org.jivesoftware.smackx.disco.packet.*;
-import org.jxmpp.jid.*;
 
 import ch.imvs.sdes4j.srtp.*;
 
@@ -830,7 +827,7 @@ public class CallPeerMediaHandlerJabberImpl
 
         return
             (ssrc == SSRC_UNKNOWN)
-                ? ColibriConferenceIQ.NO_SSRCS
+                ? new int[0]
                 : new int[] { (int) ssrc };
     }
 
@@ -1200,35 +1197,6 @@ public class CallPeerMediaHandlerJabberImpl
         {
             long oldAudioRemoteSSRC = getRemoteSSRC(MediaType.AUDIO);
             long oldVideoRemoteSSRC = getRemoteSSRC(MediaType.VIDEO);
-
-            for (MediaType mediaType : MediaType.values())
-            {
-                ColibriConferenceIQ.Channel dst
-                    = transportManager.getColibriChannel(
-                            mediaType,
-                            false /* remote */);
-
-                if (dst != null)
-                {
-                    ColibriConferenceIQ.Content content
-                        = conferenceIQ.getContent(mediaType.toString());
-
-                    if (content != null)
-                    {
-                        ColibriConferenceIQ.Channel src
-                            = content.getChannel(dst.getID());
-
-                        if (src != null)
-                        {
-                            int[] ssrcs = src.getSSRCs();
-                            int[] dstSSRCs = dst.getSSRCs();
-
-                            if (!Arrays.equals(dstSSRCs, ssrcs))
-                                dst.setSSRCs(ssrcs);
-                        }
-                    }
-                }
-            }
 
             /*
              * Do fire new PropertyChangeEvents for the properties
