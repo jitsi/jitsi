@@ -72,7 +72,7 @@ public class ShutdownTimeout
 
             if ((s != null) && (s.length() > 0))
             {
-                long l = Long.valueOf(s);
+                long l = Long.parseLong(s);
 
                 // Make sure custom is not 0 to prevent waiting forever.
                 if (l > 0)

@@ -88,15 +88,15 @@ startScripts {
             '--add-opens=java.base/java.lang=ALL-UNNAMED',
             '-Djava.library.path=_JITSI_APP_HOME_native;_JITSI_ALLUSERSPROFILE\\Jitsi\\native',
             '-Djna.library.path=_JITSI_APP_HOME_native;_JITSI_ALLUSERSPROFILE\\Jitsi\\native',
-            '-Dfelix.config.properties=file:config/felix.properties',
             '-Dlogback.configurationFile=config/logback.xml',
     ]
     classpath = files(getLauncherClasspath())
     doLast {
         unixScript.text = unixScript.text
                 .replace('_JITSI_APP_HOME_', '$APP_HOME/')
-                .replace(';_JITSI_ALLUSERSPROFILE\\Jitsi\\native', '')
+                .replace(';_JITSI_ALLUSERSPROFILE\\\\Jitsi\\\\native', '')
                 .replace('lib/config', 'config')
+        println unixScript.text
         windowsScript.text = windowsScript.text
                 .replace('_JITSI_APP_HOME_', '%APP_HOME%\\')
                 .replace('_JITSI_ALLUSERSPROFILE', '%ALLUSERSPROFILE%')

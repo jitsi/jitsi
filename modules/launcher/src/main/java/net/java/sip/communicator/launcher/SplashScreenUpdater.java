@@ -80,7 +80,7 @@ public class SplashScreenUpdater
     /**
      * Unsets the listener that we set when we start this bundle.
      */
-    public void stop()
+    public synchronized void stop()
     {
         bundleContext.removeServiceListener(this);
         bundleContext.removeBundleListener(this);
@@ -123,7 +123,7 @@ public class SplashScreenUpdater
     }
 
     @Override
-    public void bundleChanged(BundleEvent event)
+    public synchronized void bundleChanged(BundleEvent event)
     {
         if (g == null || splash == null || !splash.isVisible())
         {

@@ -18,7 +18,6 @@
 package net.java.sip.communicator.impl.gui.utils;
 
 import java.awt.*;
-import java.awt.event.*;
 import java.awt.image.*;
 import java.io.*;
 import java.util.regex.*;
@@ -187,48 +186,6 @@ public class Constants
                 : font;
     }
 
-    /*
-     * ======================================================================
-     * ------------------------ OTHER CONSTANTS ------------------------------
-     * ======================================================================
-     */
-    /**
-     * The default path, where chat window styles could be found.
-     */
-    public static final String DEFAULT_STYLE_PATH
-        = "resources/styles";
-
-    /*
-     * ======================================================================
-     * ------------------------ SPECIAL CHARS LIST --------------------------
-     * ======================================================================
-     */
-    /**
-     * A list of all special chars that should be escaped for some reasons.
-     */
-    private static final int[] specialChars = new int[]
-    {
-        KeyEvent.VK_PLUS,
-        KeyEvent.VK_MINUS,
-        KeyEvent.VK_SPACE,
-        KeyEvent.VK_ENTER,
-        KeyEvent.VK_LEFT,
-        KeyEvent.VK_RIGHT
-    };
-
-    /**
-     * Checks if the given char is in the list of application special chars.
-     *
-     * @param charCode The char code.
-     */
-    public static boolean isSpecialChar(int charCode) {
-        for (int specialChar : specialChars) {
-            if (specialChar == charCode)
-                return true;
-        }
-        return false;
-    }
-
     /**
      * Returns the image corresponding to the given presence status.
      * @param status The presence status.
@@ -373,15 +330,6 @@ public class Constants
             return ImageLoader
                 .getImage(ImageLoader.CHAT_BUTTON_SMALL_WHITE);
         }
-    }
-
-    /**
-     * Loads a chat window style.
-     */
-    public static void loadAdiumStyle(){
-
-        new File(Constants.class.getClassLoader()
-            .getResource(DEFAULT_STYLE_PATH + "/TotallyClear").toString());
     }
 
     /**

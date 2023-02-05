@@ -108,7 +108,7 @@ class KeybindingsServiceImpl
             LinkedHashMap<KeyStroke, String> defaultBindings;
             try
             {
-                String defaultPath = "/" + category.getResource();
+                String defaultPath = category.getResource();
                 InputStream in = getClass().getResourceAsStream(defaultPath);
                 defaultBindings = format.load(in);
             }
@@ -133,10 +133,8 @@ class KeybindingsServiceImpl
             File customFile;
             try
             {
-                ServiceReference faServiceReference =
-                    bc.getServiceReference(FileAccessService.class.getName());
-                FileAccessService faService =
-                    (FileAccessService) bc.getService(faServiceReference);
+                var faServiceReference = bc.getServiceReference(FileAccessService.class);
+                var faService = bc.getService(faServiceReference);
 
                 // Makes directory for custom bindings if it doesn't exist
                 File customDir =
@@ -153,10 +151,9 @@ class KeybindingsServiceImpl
             }
             catch (Exception exc)
             {
-                String msg =
-                    "unable to secure file for custom bindings (" + customPath
-                        + "), using defaults but won't be able to save changes";
-                logger.error(msg, exc);
+                logger.error(
+                    "unable to secure file for custom bindings {}, using defaults but won't be able to save changes",
+                    customPath, exc);
                 KeybindingSetImpl newSet =
                     new KeybindingSetImpl(defaultBindings, category, null);
                 this.bindings.put(category, newSet);

@@ -115,7 +115,11 @@ public class Jitsi
         Framework fw = new FrameworkImpl(options, Jitsi.class.getClassLoader());
         fw.init();
         var bundleContext = fw.getBundleContext();
-        var reflections = new Reflections(new ConfigurationBuilder().forPackages("org.jitsi", "net.java.sip"));
+        var reflections = new Reflections(new ConfigurationBuilder()
+            .forPackages(
+                "org.jitsi",
+                "net.java.sip"
+            ));
         for (Class<?> activator : reflections.get(SubTypes.of(BundleActivator.class).asClass()))
         {
             if ((activator.getModifiers() & Modifier.ABSTRACT) == Modifier.ABSTRACT)

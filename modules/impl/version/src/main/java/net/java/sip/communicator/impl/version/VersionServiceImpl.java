@@ -48,10 +48,11 @@ public class VersionServiceImpl
         String prerelease = "unknown";
         Properties p = new Properties();
         try (InputStream is = VersionServiceImpl.class
-            .getResourceAsStream("/version.properties"))
+            .getResourceAsStream("version.properties"))
         {
             p.load(is);
-            applicationName = p.getProperty("version.name");
+            applicationName = Objects.requireNonNullElse(
+                p.getProperty("version.name"), applicationName);
             versionMajor = Integer.parseInt(p.getProperty("version.major"));
             versionMinor = Integer.parseInt(p.getProperty("version.minor"));
             versionBuildId = p.getProperty("version.buildId");

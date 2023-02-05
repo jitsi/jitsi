@@ -17,13 +17,7 @@
     </dependency>
     <dependency>
       <groupId>com.github.hypfvieh</groupId>
-      <artifactId>dbus-java-osgi</artifactId>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
+      <artifactId>dbus-java</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jitsi</groupId>

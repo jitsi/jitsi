@@ -82,8 +82,6 @@
       <string>$APP_PACKAGE/Contents/Resources/Java</string>
       <key>Properties</key>
       <dict>
-        <key>felix.config.properties</key>
-        <string>file:config/felix.properties</string>
         <key>logback.configurationFile</key>
         <string>config/logback.xml</string>
         <key>java.library.path</key>

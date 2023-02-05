@@ -241,24 +241,32 @@ public class JabberStatusEnum
      */
     public JabberPresenceStatus getStatus(String statusName)
     {
-        if (statusName.equals(AVAILABLE))
-            return availableStatus;
-        else if (statusName.equals(OFFLINE))
-            return offlineStatus;
-        else if (statusName.equals(FREE_FOR_CHAT))
-            return freeForChatStatus;
-        else if (statusName.equals(DO_NOT_DISTURB))
-            return doNotDisturbStatus;
-        else if (statusName.equals(AWAY))
-            return awayStatus;
-        else if (statusName.equals(ON_THE_PHONE))
-            return onThePhoneStatus;
-        else if(statusName.equals(IN_A_MEETING))
-            return inMeetingStatus;
-        else if (statusName.equals(EXTENDED_AWAY))
-            return extendedAwayStatus;
-        else
+        if (statusName == null)
+        {
             return unknownStatus;
+        }
+
+        switch (statusName)
+        {
+        case AVAILABLE:
+            return availableStatus;
+        case OFFLINE:
+            return offlineStatus;
+        case FREE_FOR_CHAT:
+            return freeForChatStatus;
+        case DO_NOT_DISTURB:
+            return doNotDisturbStatus;
+        case AWAY:
+            return awayStatus;
+        case ON_THE_PHONE:
+            return onThePhoneStatus;
+        case IN_A_MEETING:
+            return inMeetingStatus;
+        case EXTENDED_AWAY:
+            return extendedAwayStatus;
+        default:
+            return unknownStatus;
+        }
     }
 
     /**
@@ -292,56 +300,20 @@ public class JabberStatusEnum
      */
     public static byte[] loadIcon(String imagePath)
     {
-        return loadIcon(imagePath, JabberStatusEnum.class);
-    }
-
-    /**
-     * Loads the icon.
-     *
-     * @param imagePath path of the image
-     * @param clazz class name
-     * @return the image bytes
-     */
-    public static byte[] loadIcon(String imagePath, Class<?> clazz)
-    {
-        InputStream is = getResourceAsStream(imagePath, clazz);
-
-        if(is == null)
-            return null;
-
-        byte[] icon = null;
-        try
+        try (var is = getResourceAsStream(imagePath))
         {
-            icon = new byte[is.available()];
-            is.read(icon);
+            return is.readAllBytes();
         }
         catch (IOException exc)
         {
-            logger.error("Failed to load icon: " + imagePath, exc);
+            logger.error("Failed to load icon: {}", imagePath, exc);
         }
-        finally {
-            try
-            {
-                if(is != null)
-                    is.close();
-            }
-            catch (IOException ex)
-            {
-                /*
-                 * We're closing an InputStream so there shouldn't be data loss
-                 * because of it (in contrast to an OutputStream) and a warning
-                 * in the log should be enough.
-                 */
-                logger.warn("Failed to close the InputStream of icon: "
-                    + imagePath, ex);
-            }
-        }
-        return icon;
+        return null;
     }
 
-    private static InputStream getResourceAsStream(String name, Class<?> clazz)
+    private static InputStream getResourceAsStream(String name)
     {
-        if (name.indexOf("://") != -1)
+        if (name.contains("://"))
         {
             try
             {

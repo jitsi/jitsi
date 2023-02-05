@@ -11,7 +11,6 @@ done
 SCDIR=/usr/share/jitsi
 CONFIGPATH=${SCDIR}/config
 
-FELIX_CONFIG=${CONFIGPATH}/felix.properties
 CLASSPATH_CONFIG=${CONFIGPATH}/classpath
 
 CLASSPATH=""
@@ -28,8 +27,6 @@ COMMAND="$(command -v java) \
   --add-opens=java.base/jdk.internal.loader=ALL-UNNAMED \
   --add-opens=java.base/java.lang=ALL-UNNAMED \
   ${SPLASH_ARG} \
-  -Dfelix.auto.deploy.dir=${SCDIR}/lib \
-  -Dfelix.config.properties=file:${FELIX_CONFIG} \
   ${JITSI_EXTRA_ARGS} \
   net.java.sip.communicator.launcher.Jitsi"
 
