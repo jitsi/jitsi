@@ -37,9 +37,8 @@ public class GoogleTalkAccRegWizzActivator
      * Starts this bundle.
      */
     @Override
-    public void startWithServices(BundleContext context)
+    public void init(BundleContext context)
     {
-        super.startWithServices(context);
         UIService uiService = getService(UIService.class);
 
         GoogleTalkAccountRegistrationWizard wizard =
