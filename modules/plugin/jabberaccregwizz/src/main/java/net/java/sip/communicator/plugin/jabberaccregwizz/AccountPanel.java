@@ -390,80 +390,47 @@ public class AccountPanel
      */
     void setSimpleForm(boolean isSimpleForm)
     {
-        JabberAccountCreationFormService createAccountService
-            = parentForm.getCreateAccountService();
-
         mainPanel.removeAll();
 
         if (isSimpleForm)
         {
-            if (createAccountService != null)
+            JPanel registerPanel = new TransparentPanel();
+
+            registerPanel.setLayout(
+                new BoxLayout(registerPanel, BoxLayout.Y_AXIS));
+
+            String createAccountInfoString
+                = parentForm.getCreateAccountLabel();
+
+            if (createAccountInfoString != null
+                && createAccountInfoString.length() > 0)
             {
-                registrationForm = createAccountService.getForm();
-                registerChoicePanel = createRegisterChoicePanel();
-
-                mainPanel.add(registerChoicePanel, BorderLayout.NORTH);
+                registerPanel.add(
+                    createRegisterArea(createAccountInfoString));
             }
-            else
+
+            String createAccountString
+                = parentForm.getCreateAccountButtonLabel();
+
+            if (createAccountString != null
+                    && createAccountString.length() > 0)
             {
-                JPanel registerPanel = new TransparentPanel();
+                JPanel buttonPanel = new TransparentPanel(
+                        new FlowLayout(FlowLayout.CENTER));
 
-                registerPanel.setLayout(
-                    new BoxLayout(registerPanel, BoxLayout.Y_AXIS));
+                buttonPanel.add(createRegisterButton(createAccountString));
 
-                String createAccountInfoString
-                    = parentForm.getCreateAccountLabel();
-
-                if (createAccountInfoString != null
-                    && createAccountInfoString.length() > 0)
-                {
-                    registerPanel.add(
-                        createRegisterArea(createAccountInfoString));
-                }
-
-                String createAccountString
-                    = parentForm.getCreateAccountButtonLabel();
-
-                if (createAccountString != null
-                        && createAccountString.length() > 0)
-                {
-                    JPanel buttonPanel = new TransparentPanel(
-                            new FlowLayout(FlowLayout.CENTER));
-
-                    buttonPanel.add(createRegisterButton(createAccountString));
-
-                    registerPanel.add(buttonPanel);
-                }
-
-                mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-                mainPanel.add(userIDPassPanel);
-//                mainPanel.add(Box.createVerticalStrut(10));
-//
-//                if (registerPanel.getComponentCount() > 0)
-//                {
-//                    registerPanel.setBorder(
-//                        BorderFactory.createTitledBorder(""));
-//
-//                    mainPanel.add(registerPanel);
-//                }
+                registerPanel.add(buttonPanel);
             }
+
+            mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+            mainPanel.add(userIDPassPanel);
         }
         else
         {
             mainPanel.add(userIDPassPanel, BorderLayout.NORTH);
             mainPanel.add(changePasswordPanel, BorderLayout.SOUTH);
         }
-    }
-
-    /**
-     * Indicates if the account information provided by this form is for new
-     * account or an existing one.
-     * @return <tt>true</tt> if the account information provided by this form
-     * is for new account or <tt>false</tt> if it's for an existing one
-     */
-    boolean isCreateAccount()
-    {
-        return createAccountButton.isSelected();
     }
 
     /**
@@ -485,18 +452,14 @@ public class AccountPanel
         registerArea.putClientProperty(
                 JEditorPane.HONOR_DISPLAY_PROPERTIES,
                 true);
-        registerArea.addHyperlinkListener(new HyperlinkListener()
+        registerArea.addHyperlinkListener(e -> {
+            if (e.getEventType()
+                    .equals(HyperlinkEvent.EventType.ACTIVATED))
             {
-                public void hyperlinkUpdate(HyperlinkEvent e)
-                {
-                    if (e.getEventType()
-                            .equals(HyperlinkEvent.EventType.ACTIVATED))
-                    {
-                        JabberAccRegWizzActivator
-                            .getBrowserLauncher().openURL(e.getURL().toString());
-                    }
-                }
-            });
+                JabberAccRegWizzActivator
+                    .getBrowserLauncher().openURL(e.getURL().toString());
+            }
+        });
 
         return registerArea;
     }
@@ -511,17 +474,13 @@ public class AccountPanel
     {
         JButton registerButton = new JButton(text);
 
-        registerButton.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent evt)
-            {
-                if (logger.isDebugEnabled())
-                    logger.debug("Reg OK");
+        registerButton.addActionListener(evt -> {
+            if (logger.isDebugEnabled())
+                logger.debug("Reg OK");
 
-                if (parentForm.isWebSignupSupported())
-                {
-                    parentForm.webSignup();
-                }
+            if (parentForm.isWebSignupSupported())
+            {
+                parentForm.webSignup();
             }
         });
 
@@ -535,7 +494,6 @@ public class AccountPanel
         if(!show)
         {
             changePasswordPanel.setVisible(false);
-            return;
         }
         else
         {

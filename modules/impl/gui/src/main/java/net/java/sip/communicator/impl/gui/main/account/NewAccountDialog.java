@@ -31,6 +31,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
+import org.apache.commons.lang3.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
@@ -56,7 +57,7 @@ public class NewAccountDialog
     private final TransparentPanel accountPanel
         = new TransparentPanel(new BorderLayout());
 
-    private final JComboBox networkComboBox = new JComboBox();
+    private final JComboBox<AccountRegistrationWizard> networkComboBox = new JComboBox<>();
 
     private final JButton advancedButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.ADVANCED"));
@@ -145,16 +146,9 @@ public class NewAccountDialog
         networkPanel.add(networkComboBox, BorderLayout.CENTER);
 
         this.networkComboBox.setRenderer(new NetworkListCellRenderer());
-        this.networkComboBox.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
-                AccountRegistrationWizard wizard
-                    = (AccountRegistrationWizard)
-                        networkComboBox.getSelectedItem();
-
-                loadSelectedWizard(wizard);
-            }
+        this.networkComboBox.addActionListener(e -> {
+            var wizard= networkComboBox.getItemAt(networkComboBox.getSelectedIndex());
+            loadSelectedWizard(wizard);
         });
 
         mainPanel.add(accountPanel, BorderLayout.CENTER);
@@ -165,7 +159,7 @@ public class NewAccountDialog
             = (AccountRegWizardContainerImpl)
                 GuiActivator.getUIService().getAccountRegWizardContainer();
         /*
-         * XXX The wizardContainer will outlive this instance so it is essential
+         * XXX The wizardContainer will outlive this instance, so it is essential
          * to call removePropertyChangeListener on its model in order to prevent
          * a leak of this instance.
          */
@@ -179,11 +173,9 @@ public class NewAccountDialog
     private void initNetworkList()
     {
         // check for preferred wizard
-        String prefWName
-            = GuiActivator.getResources().getSettingsString(
-                    "impl.gui.PREFERRED_ACCOUNT_WIZARD");
         String preferredWizardName
-            = (prefWName != null && prefWName.length() > 0) ? prefWName : null;
+            = StringUtils.trimToNull(GuiActivator.getResources().getSettingsString(
+                    "impl.gui.PREFERRED_ACCOUNT_WIZARD"));
 
         Collection<ServiceReference<AccountRegistrationWizard>> accountWizardRefs;
         try
@@ -206,20 +198,16 @@ public class NewAccountDialog
         {
             if (logger.isDebugEnabled())
             {
-                logger.debug(
-                        "Found " + accountWizardRefs.size()
-                            + " already installed providers.");
+                logger.debug("Found {} already installed providers", accountWizardRefs.size());
             }
 
             // Create a list to sort the wizards
             ArrayList<AccountRegistrationWizard> networksList
-                = new ArrayList<AccountRegistrationWizard>(
-                        accountWizardRefs.size());
+                = new ArrayList<>(accountWizardRefs.size());
 
             AccountRegistrationWizard prefWiz = null;
 
-            for (ServiceReference<AccountRegistrationWizard> serRef
-                    : accountWizardRefs)
+            for (var serRef : accountWizardRefs)
             {
                 AccountRegistrationWizard wizard
                     = GuiActivator.bundleContext.getService(serRef);
@@ -227,30 +215,20 @@ public class NewAccountDialog
                 networksList.add(wizard);
 
                 // is it the preferred protocol ?
-                if(preferredWizardName != null
-                        && wizard.getClass().getName().equals(
-                                preferredWizardName))
+                if(wizard.getClass().getName().equals(preferredWizardName))
                 {
                     prefWiz = wizard;
                 }
             }
 
             // Sort the list
-            Collections.sort(networksList,
-                            new Comparator<AccountRegistrationWizard>()
-            {
-                public int compare(AccountRegistrationWizard arg0,
-                                   AccountRegistrationWizard arg1)
-                {
-                    return arg0.getProtocolName().compareToIgnoreCase(
-                                    arg1.getProtocolName());
-                }
-            });
+            networksList.sort((arg0, arg1) -> arg0.getProtocolName().compareToIgnoreCase(
+                arg1.getProtocolName()));
 
             // Add the items in the combobox
-            for (int i=0; i<networksList.size(); i++)
+            for (AccountRegistrationWizard accountRegistrationWizard : networksList)
             {
-                networkComboBox.addItem(networksList.get(i));
+                networkComboBox.addItem(accountRegistrationWizard);
             }
 
             //if we have a prefered wizard auto select it
@@ -258,8 +236,9 @@ public class NewAccountDialog
             {
                 networkComboBox.setSelectedItem(prefWiz);
             }
-            else//if we don't we send our empty page and let the wizard choose.
+            else
             {
+                //if we don't, we send our empty page and let the wizard choose.
                 networkComboBox.insertItemAt(emptyWizard, 0);
                 networkComboBox.setSelectedItem(emptyWizard);
 
@@ -302,7 +281,7 @@ public class NewAccountDialog
      */
     private static class NetworkListCellRenderer
         extends JLabel
-        implements ListCellRenderer
+        implements ListCellRenderer<AccountRegistrationWizard>
     {
         private static final long serialVersionUID = 0L;
 
@@ -312,12 +291,9 @@ public class NewAccountDialog
             setOpaque(true);
         }
 
-        public Component getListCellRendererComponent(JList list, Object value,
+        public Component getListCellRendererComponent(JList list, AccountRegistrationWizard value,
             int index, boolean isSelected, boolean cellHasFocus)
         {
-            AccountRegistrationWizard wizard
-                = (AccountRegistrationWizard) value;
-
             if (isSelected)
             {
                 setBackground(list.getSelectionBackground());
@@ -329,9 +305,9 @@ public class NewAccountDialog
                 setForeground(list.getForeground());
             }
 
-            setText(wizard.getProtocolName());
+            setText(value.getProtocolName());
 
-            byte[] icon = wizard.getIcon();
+            byte[] icon = value.getIcon();
 
             setIcon(
                     ((icon != null) && (icon.length > 0))
@@ -409,7 +385,7 @@ public class NewAccountDialog
             //components get cluttered, partially hiding the password text
             // field. I am under the impression that this has something to do
             // with the message pane preferred size being ignored (or being 0)
-            // which is why I am adding it's height to the dialog. It's quite
+            // which is why I am adding its height to the dialog. It's quite
             // ugly so please fix if you have something better in mind.
             this.setSize(getWidth(), getHeight()+errorMessagePane.getHeight());
         }
@@ -427,8 +403,7 @@ public class NewAccountDialog
     public void actionPerformed(ActionEvent event)
     {
         JButton sourceButton = (JButton) event.getSource();
-        AccountRegistrationWizard wizard
-            = (AccountRegistrationWizard) networkComboBox.getSelectedItem();
+        var wizard = networkComboBox.getItemAt(networkComboBox.getSelectedIndex());
 
         if (sourceButton.equals(advancedButton))
         {
@@ -444,7 +419,7 @@ public class NewAccountDialog
         }
         else if (sourceButton.equals(addAccountButton))
         {
-            startConnecting(wizardContainer);
+            startConnecting();
 
             new Thread(new ProtocolSignInThread(wizard)).start();
         }
@@ -512,7 +487,7 @@ public class NewAccountDialog
         super.setVisible(visible);
     }
 
-    private void startConnecting(AccountRegWizardContainerImpl wizardContainer)
+    private void startConnecting()
     {
         isCurrentlySigningIn = true;
 
@@ -526,7 +501,7 @@ public class NewAccountDialog
         setCursor(new Cursor(Cursor.WAIT_CURSOR));
     }
 
-    private void stopConnecting(AccountRegWizardContainerImpl wizardContainer)
+    private void stopConnecting()
     {
         isCurrentlySigningIn = false;
 
@@ -587,33 +562,22 @@ public class NewAccountDialog
                 {
                     wizardContainer.saveAccountWizard(protocolProvider, wizard);
 
-                    SwingUtilities.invokeLater(new Runnable()
-                    {
-                        public void run()
-                        {
-                            stopConnecting(wizardContainer);
-
-                            NewAccountDialog.this.dispose();
-                        }
+                    SwingUtilities.invokeLater(() -> {
+                        stopConnecting();
+                        NewAccountDialog.this.dispose();
                     });
                 }
                 else
                 {
-                    // no provider, maybe an error, stop connecting
+                    // no provider, maybe an error: stop connecting,
                     // so we can proceed with the actions
-                    stopConnecting(wizardContainer);
+                    stopConnecting();
                 }
             }
             catch (OperationFailedException e)
             {
                 // make sure buttons don't stay disabled
-                SwingUtilities.invokeLater(new Runnable()
-                {
-                    public void run()
-                    {
-                        stopConnecting(wizardContainer);
-                    }
-                });
+                SwingUtilities.invokeLater(NewAccountDialog.this::stopConnecting);
 
                 // If the sign in operation has failed we don't want to close
                 // the dialog in order to give the user the possibility to
@@ -650,13 +614,7 @@ public class NewAccountDialog
             {
                 logger.error("Error creating account: "+e.getMessage(), e);
                 // make sure buttons don't stay disabled
-                SwingUtilities.invokeLater(new Runnable()
-                {
-                    public void run()
-                    {
-                        stopConnecting(wizardContainer);
-                    }
-                });
+                SwingUtilities.invokeLater(NewAccountDialog.this::stopConnecting);
 
                 // If the sign in operation has failed we don't want to close
                 // the dialog in order to give the user the possibility to
@@ -675,7 +633,7 @@ public class NewAccountDialog
      * Sets the selected wizard.
      *
      * @param wizard the wizard to select
-     * @param isCreatedForm indicates if the selected wizard should be opened
+     * @param isCreateAccount indicates if the selected wizard should be opened
      * in create account mode
      */
     public void setSelectedWizard(  AccountRegistrationWizard wizard,

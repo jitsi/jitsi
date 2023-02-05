@@ -30,7 +30,7 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Yana Stamcheva
  */
 public class AccountListModel
-    extends DefaultListModel
+    extends DefaultListModel<Account>
 {
     /**
      * Indicates that the data model content has changed.
@@ -52,14 +52,7 @@ public class AccountListModel
     {
         if(!SwingUtilities.isEventDispatchThread())
         {
-            SwingUtilities.invokeLater(
-                    new Runnable()
-                    {
-                        public void run()
-                        {
-                            addAccount(account);
-                        }
-                    });
+            SwingUtilities.invokeLater(() -> addAccount(account));
             return;
         }
 
@@ -95,8 +88,7 @@ public class AccountListModel
             {
                 // If we have the same protocol name, we check the account
                 // name.
-                if (account.getName()
-                        .compareTo(a.getName()) < 0)
+                if (account.getName().compareTo(a.getName()) < 0)
                 {
                     insertElementAt(account, accountIndex);
                     isAccountAdded = true;
@@ -118,14 +110,7 @@ public class AccountListModel
     {
         if(!SwingUtilities.isEventDispatchThread())
         {
-            SwingUtilities.invokeLater(
-                    new Runnable()
-                    {
-                        public void run()
-                        {
-                            removeAccount(account);
-                        }
-                    });
+            SwingUtilities.invokeLater(() -> removeAccount(account));
             return;
         }
 
