@@ -74,12 +74,6 @@ public class ProviderManagerExt
             JingleInfoQueryIQ.NAMESPACE,
             new JingleInfoQueryIQProvider());
 
-        // Jitsi Videobridge IQProvider and ExtensionElementProvider
-        ProviderManager.addIQProvider(
-            ColibriConferenceIQ.ELEMENT,
-            ColibriConferenceIQ.NAMESPACE,
-            new ColibriConferenceIqProvider());
-
         ProviderManager.addIQProvider(
             GracefulShutdownIQ.ELEMENT,
             GracefulShutdownIQ.NAMESPACE,
@@ -89,11 +83,6 @@ public class ProviderManagerExt
             ForcefulShutdownIQ.ELEMENT,
             ForcefulShutdownIQ.NAMESPACE,
             new ForcefulShutdownIqProvider());
-
-        ProviderManager.addIQProvider(
-            ColibriConferenceIQ.ELEMENT,
-            ColibriConferenceIQ.NAMESPACE,
-            new ColibriConferenceIqProvider());
 
         ProviderManager.addIQProvider(
             JibriIq.ELEMENT,

@@ -122,32 +122,11 @@ public class MediaAwareCallConference
     }
 
     /**
-     * Initializes a new <tt>MediaAwareCallConference</tt> instance which is to
-     * optionally utilize the Jitsi Videobridge server-side telephony
-     * conferencing technology.
-     *
-     * @param jitsiVideobridge <tt>true</tt> if the telephony conference
-     * represented by the new instance is to utilize the Jitsi Videobridge
-     * server-side telephony conferencing technology; otherwise, <tt>false</tt>
+     * Initializes a new <tt>MediaAwareCallConference</tt> instance.
      */
-    public MediaAwareCallConference(boolean jitsiVideobridge)
+    public MediaAwareCallConference(boolean translator)
     {
-        this(jitsiVideobridge, false);
-    }
-
-    /**
-     * Initializes a new <tt>MediaAwareCallConference</tt> instance which is to
-     * optionally utilize the Jitsi Videobridge server-side telephony
-     * conferencing technology.
-     *
-     * @param jitsiVideobridge <tt>true</tt> if the telephony conference
-     * represented by the new instance is to utilize the Jitsi Videobridge
-     * server-side telephony conferencing technology; otherwise, <tt>false</tt>
-     */
-    public MediaAwareCallConference(boolean jitsiVideobridge,
-                                    boolean translator)
-    {
-        super(jitsiVideobridge);
+        super();
 
         this.translator = translator;
 

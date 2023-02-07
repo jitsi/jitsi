@@ -234,27 +234,14 @@ public abstract class MediaAwareCallPeer
             {
                 CallPeerMediaHandler<?> mediaHandler = getMediaHandler();
 
-                if (isJitsiVideobridge())
-                {
-                    /*
-                     * When the local user/peer has organized a telephony
-                     * conference utilizing the Jitsi Videobridge server-side
-                     * technology, the server will calculate the audio levels
-                     * and not the client.
-                     */
-                    mediaHandler.setCsrcAudioLevelListener(this);
-                }
-                else
-                {
-                    /*
-                     * If this is the first listener that's being registered
-                     * with us, we also need to register ourselves as an audio
-                     * level listener with the media handler. We do this so that
-                     * audio levels would only be calculated if anyone is
-                     * interested in receiving them.
-                     */
-                    mediaHandler.setStreamAudioLevelListener(this);
-                }
+                /*
+                 * If this is the first listener that's being registered
+                 * with us, we also need to register ourselves as an audio
+                 * level listener with the media handler. We do this so that
+                 * audio levels would only be calculated if anyone is
+                 * interested in receiving them.
+                 */
+                mediaHandler.setStreamAudioLevelListener(this);
             }
 
             /*
@@ -384,29 +371,6 @@ public abstract class MediaAwareCallPeer
      */
     public void audioLevelsReceived(long[] audioLevels)
     {
-        /*
-         * When the local user/peer has organized a telephony conference
-         * utilizing the Jitsi Videobridge server-side technology, the server
-         * will calculate the audio levels and not the client.
-         */
-        if (isJitsiVideobridge())
-        {
-            long audioRemoteSSRC
-                = getMediaHandler().getRemoteSSRC(MediaType.AUDIO);
-
-            if (audioRemoteSSRC != CallPeerMediaHandler.SSRC_UNKNOWN)
-            {
-                for (int i = 0; i < audioLevels.length; i += 2)
-                {
-                    if (audioLevels[i] == audioRemoteSSRC)
-                    {
-                        fireStreamSoundLevelChanged((int) audioLevels[i + 1]);
-                        break;
-                    }
-                }
-            }
-        }
-
         if (getConferenceMemberCount() == 0)
             return;
 
@@ -631,29 +595,6 @@ public abstract class MediaAwareCallPeer
     public V getProtocolProvider()
     {
         return protocolProvider;
-    }
-
-    /**
-     * Determines whether this <tt>CallPeer</tt> is participating in a telephony
-     * conference organized by the local user/peer utilizing the Jitsi
-     * Videobridge server-side technology.
-     *
-     * @return <tt>true</tt> if this <tt>CallPeer</tt> is participating in a
-     * telephony conference organized by the local user/peer utilizing the Jitsi
-     * Videobridge server-side technology; otherwise, <tt>false</tt>
-     */
-    public final boolean isJitsiVideobridge()
-    {
-        Call call = getCall();
-
-        if (call != null)
-        {
-            CallConference conference = call.getConference();
-
-            if (conference != null)
-                return conference.isJitsiVideobridge();
-        }
-        return false;
     }
 
     /**
@@ -1195,10 +1136,6 @@ public abstract class MediaAwareCallPeer
      * that we have with this <tt>CallPeer</tt>. This is the direction of the
      * session negotiated in the signaling protocol, and it may or may not
      * coincide with the direction of the media stream.
-     * For example, if we are the focus of a videobridge conference and another
-     * peer is sending video to us, we have a <tt>RECVONLY</tt> video stream,
-     * but <tt>SENDONLY</tt> or <tt>SENDRECV</tt> (Jingle) sessions with the
-     * rest of the conference members.
      * Should always return non-null.
      *
      * @param mediaType the <tt>MediaType</tt> to use

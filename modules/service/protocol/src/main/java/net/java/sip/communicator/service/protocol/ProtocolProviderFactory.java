@@ -368,14 +368,6 @@ public abstract class ProtocolProviderFactory
 
     /**
      * The name of the boolean account property which indicates whether Jitsi
-     * Videobridge is to be used, if available and supported, for conference
-     * calls.
-     */
-    public static final String USE_JITSI_VIDEO_BRIDGE
-        = "USE_JITSI_VIDEO_BRIDGE";
-
-    /**
-     * The name of the boolean account property which indicates whether Jitsi
      * will use translator for media, instead of mixing, for conference
      * calls.
      * By default if supported mixing is used (audio mixed, video relayed).

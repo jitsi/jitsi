@@ -1106,36 +1106,6 @@ public class CallManager
     }
 
     /**
-     * Asynchronously creates a new video bridge conference <tt>Call</tt> with
-     * a specific list of participants/callees.
-     *
-     * @param callProvider the <tt>ProtocolProviderService</tt> to use for
-     * creating the call
-     * @param callees the list of participants/callees to invite to the
-     * newly-created video bridge conference <tt>Call</tt>
-     */
-    public static void createJitsiVideobridgeConfCall(
-                                        ProtocolProviderService callProvider,
-                                        String[] callees)
-    {
-        new InviteToConferenceBridgeThread(callProvider, callees, null).start();
-    }
-
-    /**
-     * Invites the given list of <tt>callees</tt> to the given conference
-     * <tt>call</tt>.
-     *
-     * @param callees the list of contacts to invite
-     * @param call the protocol provider to which this call belongs
-     */
-    public static void inviteToJitsiVideobridgeConfCall(String[] callees, Call call)
-    {
-        new InviteToConferenceBridgeThread( call.getProtocolProvider(),
-                                            callees,
-                                            call).start();
-    }
-
-    /**
      * Puts on or off hold the given <tt>callPeer</tt>.
      * @param callPeer the peer to put on/off hold
      * @param isOnHold indicates the action (on hold or off hold)
@@ -3160,74 +3130,6 @@ public class CallManager
                             ErrorDialog.ERROR)
                         .showDialog();
                 }
-            }
-        }
-    }
-
-    /**
-     * Invites a list of callees to a specific conference <tt>Call</tt>. If the
-     * specified <tt>Call</tt> is <tt>null</tt>, creates a brand new telephony
-     * conference.
-     */
-    private static class InviteToConferenceBridgeThread
-        extends Thread
-    {
-        private final ProtocolProviderService callProvider;
-
-        private final String[] callees;
-
-        private final Call call;
-
-        public InviteToConferenceBridgeThread(
-                                        ProtocolProviderService callProvider,
-                                        String[] callees,
-                                        Call call)
-        {
-            this.callProvider = callProvider;
-            this.callees = callees;
-            this.call = call;
-        }
-
-        @Override
-        public void run()
-        {
-            OperationSetVideoBridge opSetVideoBridge
-                = callProvider.getOperationSet(
-                    OperationSetVideoBridge.class);
-
-            // Normally if this method is called then this should not happen
-            // but we check in order to be sure to be able to proceed.
-            if (opSetVideoBridge == null || !opSetVideoBridge.isActive())
-                return;
-
-            if (ConfigurationUtils.isNormalizePhoneNumber())
-                normalizePhoneNumbers(callees);
-
-            try
-            {
-                if (call == null)
-                {
-                    opSetVideoBridge.createConfCall(callees);
-                }
-                else
-                {
-                    for (String contact : callees)
-                        opSetVideoBridge.inviteCalleeToCall(contact, call);
-                }
-            }
-            catch(Exception e)
-            {
-                logger.error(
-                        "Failed to invite callees: "
-                            + Arrays.toString(callees),
-                        e);
-                new ErrorDialog(
-                        null,
-                        GuiActivator.getResources().getI18NString(
-                                "service.gui.ERROR"),
-                        e.getMessage(),
-                        e)
-                    .showDialog();
             }
         }
     }

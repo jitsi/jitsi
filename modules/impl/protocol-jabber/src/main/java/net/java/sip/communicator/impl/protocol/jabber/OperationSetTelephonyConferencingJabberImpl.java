@@ -542,19 +542,10 @@ public class OperationSetTelephonyConferencingJabberImpl
      *
      * The URI of the returned <tt>ConferenceDescription</tt> is the occupant
      * JID with which we have joined the room.
-     *
-     * If a Videobridge is available for our <tt>ProtocolProviderService</tt>
-     * we use it. TODO: this should be relaxed when we refactor the Videobridge
-     * implementation, so that any Videobridge (on any protocol provider) can
-     * be used.
      */
     @Override
     public ConferenceDescription setupConference(final ChatRoom chatRoom)
     {
-        OperationSetVideoBridge videoBridge
-            = parentProvider.getOperationSet(OperationSetVideoBridge.class);
-        boolean isVideobridge = (videoBridge != null) && videoBridge.isActive();
-
         CallJabberImpl call = new CallJabberImpl(getBasicTelephony());
         call.setAutoAnswer(true);
 
@@ -583,20 +574,10 @@ public class OperationSetTelephonyConferencingJabberImpl
             {
             }
         });
-        if (isVideobridge)
-        {
-            call.setConference(new MediaAwareCallConference(true));
-
-            //For Jitsi Videobridge we set the transports to RAW-UDP, otherwise
-            //we leave them empty (meaning both RAW-UDP and ICE could be used)
-            cd.addTransport(
-                ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_RAW_UDP_0);
-        }
 
         if (logger.isInfoEnabled())
         {
-            logger.info("Setup a conference with uri=" + uri + " and callid=" +
-                    call.getCallID() + ". Videobridge in use: " + isVideobridge);
+            logger.info("Setup a conference with uri=" + uri + " and callid=" + call.getCallID());
         }
 
         return cd;

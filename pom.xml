@@ -154,7 +154,7 @@
       <dependency>
         <groupId>org.jitsi</groupId>
         <artifactId>jitsi-xmpp-extensions</artifactId>
-        <version>1.0-49-g288c898</version>
+        <version>1.0-63-g441d6d5</version>
           <exclusions>
             <exclusion>
               <groupId>org.jetbrains.kotlin</groupId>
