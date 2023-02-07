@@ -133,8 +133,7 @@ public class ConferenceInviteDialog
                         preselectedProtocolProvider
                             = (ProtocolProviderService) accountSelectorBox
                                 .getSelectedItem();
-                    else
-                        inviteContacts(selectedContacts);
+                    inviteContacts(selectedContacts);
 
                     // Store the last used account in order to pre-select it
                     // next time.
