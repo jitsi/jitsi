@@ -400,10 +400,40 @@ Run_getJavaVMOptionStrings
 
     if (javaLibraryPath)
     {
+        WIN32_FIND_DATA findFileData;
+        size_t jarCount = 0;
+        HANDLE hFind = FindFirstFile("lib\\*.jar", &findFileData);
+        if (hFind != INVALID_HANDLE_VALUE)
+        {
+            do
+            {
+                jarCount++;
+            }
+            while(FindNextFile(hFind, &findFileData));
+            FindClose(hFind);
+        }
+
+        LPTSTR *classpath = calloc(jarCount + 2, MAX_PATH);
+        classpath[0] = malloc(sizeof(TCHAR) * 7);
+        _tcscpy(classpath[0], "config/");
+        classpath[0][6] = '\0';
+        hFind = FindFirstFile("lib\\*.jar", &findFileData);
+        if (hFind != INVALID_HANDLE_VALUE)
+        {
+            size_t pos = 1;
+            do
+            {
+                classpath[pos] = (LPTSTR)malloc(sizeof(TCHAR) * (_tcslen(findFileData.cFileName) + 5));
+                sprintf(classpath[pos], "lib\\%s", findFileData.cFileName);
+                ++pos;
+            }
+            while(FindNextFile(hFind, &findFileData));
+            FindClose(hFind);
+        }
+
         LPCTSTR properties[]
             = {
                 _T("-Dlogback.configurationFile"), _T("config/logback.xml"),
-                _T("-Djava.class.path"), _T("libs/*;config/"),
                 _T("-Djava.library.path"), javaLibraryPath,
                 _T("-Djna.library.path"), javaLibraryPath,
                 _T("--add-opens"), _T("java.base/jdk.internal.loader=ALL-UNNAMED"),
@@ -411,9 +441,20 @@ Run_getJavaVMOptionStrings
                 NULL
             };
 
+        size_t classpathLength = 0;
         size_t propertiesLength = 0;
         BOOL quote = separator;
 
+        {
+            LPCTSTR cp = NULL;
+            size_t i = 0;
+
+            classpathLength = 0;
+            while ((cp = classpath[i++]) && *cp != '\0')
+                classpathLength += (_tcslen(cp) + 1 /* ';' */);
+            if (classpathLength > 0)
+                classpathLength += 18 /* "-Djava.class.path=" */;
+        }
         {
             LPCTSTR property;
             size_t i = 0;
@@ -433,6 +474,7 @@ Run_getJavaVMOptionStrings
         }
 
         size_t optionStringsSize = head
+                                   + classpathLength
                                    + propertiesLength
                                    + 1 /* 0 */
                                    + tail;
@@ -440,6 +482,28 @@ Run_getJavaVMOptionStrings
         if (*optionStrings)
         {
             LPTSTR str = (*optionStrings) + head;
+
+            if (classpathLength > 0)
+            {
+                LPCTSTR cp;
+                size_t i = 0;
+
+                _tcscpy(str, _T("-Djava.class.path="));
+                str += 18;
+                while ((cp = classpath[i++]) && *cp != '\0')
+                {
+                    size_t length = _tcslen(cp);
+
+                    _tcsncpy(str, cp, length);
+                    str += length;
+                    *str = _T(';');
+                    str++;
+                }
+                str--; /* Drop the last ';'. */
+                *str = separator;
+                str++;
+                _optionStringCount++;
+            }
             if (propertiesLength > 0)
             {
                 LPCTSTR property;
@@ -1202,7 +1266,7 @@ Run_runJavaFromRuntimeLib
                     javaVMInitArgs.ignoreUnrecognized = JNI_FALSE;
                     javaVMInitArgs.nOptions = optionStringCount;
                     javaVMInitArgs.options = options;
-                    javaVMInitArgs.version = JNI_VERSION_1_2;
+                    javaVMInitArgs.version = JNI_VERSION_10;
 
                     HMODULE hSplash = NULL;
                     LPTSTR lockFilePath = Run_getLockFilePath();
@@ -1250,11 +1314,10 @@ Run_runJavaFromRuntimeLib
                         }
                     }
 
-                    if (jniCreateJavaVM(
-                            &javaVM,
-                            (void **) &jniEnv,
-                            &javaVMInitArgs))
+                    if (jniCreateJavaVM(&javaVM, (void **) &jniEnv, &javaVMInitArgs) != JNI_OK)
+                    {
                         error = ERROR_FUNCTION_FAILED;
+                    }
                     else
                     {
                         free(options);
@@ -1264,7 +1327,10 @@ Run_runJavaFromRuntimeLib
 
                         error = Run_callStaticVoidMain(jniEnv, searchForJava);
                         if (JNI_TRUE == (*jniEnv)->ExceptionCheck(jniEnv))
+                        {
+                            (*jniEnv)->ExceptionDescribe(jniEnv);
                             (*jniEnv)->ExceptionClear(jniEnv);
+                        }
 
                         (*javaVM)->DestroyJavaVM(javaVM);
                     }

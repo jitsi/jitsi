@@ -227,7 +227,7 @@ jint OutOfProcessServer::JNI_OnLoad(JavaVM *vm)
     {
         ::InitializeCriticalSection(&_criticalSection);
         _vm = vm;
-        version = JNI_VERSION_1_8;
+        version = JNI_VERSION_10;
     }
     else
         version = JNI_ERR;
@@ -428,7 +428,7 @@ unsigned __stdcall OutOfProcessServer::run(void *)
     Log::d(
         _T("OutOfProcessServer::run:")
         _T(" CoInitializeEx=%08X;")
-        _T("\n"), 
+        _T("\n"),
         hr);
     if (SUCCEEDED(hr))
     {
