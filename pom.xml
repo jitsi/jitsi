@@ -24,15 +24,16 @@
   <properties>
     <revision>2.14-SNAPSHOT</revision>
     <versionName>Jitsi Desktop</versionName>
-    <bouncycastleVersion>1.71</bouncycastleVersion>
-    <jnaVersion>5.11.0</jnaVersion>
-    <smackVersion>4.4.5</smackVersion>
+    <bouncycastleVersion>1.72</bouncycastleVersion>
+    <jnaVersion>5.13.0</jnaVersion>
+    <smackVersion>4.4.6</smackVersion>
     <jxmppVersion>1.0.3</jxmppVersion>
-    <minidnsVersion>1.0.3</minidnsVersion>
-    <slf4jVersion>1.7.36</slf4jVersion>
+    <minidnsVersion>1.0.4</minidnsVersion>
+    <slf4jVersion>2.0.6</slf4jVersion>
     <kotlin.version>1.6.21</kotlin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <lombok.version>1.18.24</lombok.version>
+    <lombok.version>1.18.26</lombok.version>
+    <httpcomponents.version>4.5.14</httpcomponents.version>
     <jitsiGeneralGroupId>org.jitsi</jitsiGeneralGroupId>
     <!-- keep this empty default for Linux builds -->
     <jitsi-deps-arch></jitsi-deps-arch>
@@ -45,11 +46,7 @@
       <version>${lombok.version}</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>${slf4jVersion}</version>
-    </dependency>
+    <dependency><groupId>org.slf4j</groupId><artifactId>slf4j-api</artifactId><version>${slf4jVersion}</version></dependency>
   </dependencies>
   <dependencyManagement>
     <dependencies>
@@ -58,18 +55,18 @@
       <dependency><groupId>org.slf4j</groupId><artifactId>log4j-over-slf4j</artifactId><version>${slf4jVersion}</version></dependency>
       <dependency><groupId>org.jitsi</groupId><artifactId>org.otr4j</artifactId><version>0.23</version></dependency>
       <dependency><groupId>org.jetbrains.kotlin</groupId><artifactId>kotlin-stdlib-jdk8</artifactId><version>${kotlin.version}</version></dependency>
-      <dependency><groupId>org.apache.httpcomponents</groupId><artifactId>httpclient</artifactId><version>4.5.14</version></dependency>
-      <dependency><groupId>org.apache.httpcomponents</groupId><artifactId>httpmime</artifactId><version>4.5.14</version></dependency>
-      <dependency><groupId>org.apache.httpcomponents</groupId><artifactId>fluent-hc</artifactId><version>4.5.14</version></dependency>
-      <dependency><groupId>org.apache.httpcomponents</groupId><artifactId>httpcore</artifactId><version>4.4.15</version></dependency>
+      <dependency><groupId>org.apache.httpcomponents</groupId><artifactId>httpclient</artifactId><version>${httpcomponents.version}</version></dependency>
+      <dependency><groupId>org.apache.httpcomponents</groupId><artifactId>httpmime</artifactId><version>${httpcomponents.version}</version></dependency>
+      <dependency><groupId>org.apache.httpcomponents</groupId><artifactId>fluent-hc</artifactId><version>${httpcomponents.version}</version></dependency>
+      <dependency><groupId>org.apache.httpcomponents</groupId><artifactId>httpcore</artifactId><version>4.4.16</version></dependency>
       <dependency><groupId>org.bouncycastle</groupId><artifactId>bcpkix-jdk18on</artifactId><version>${bouncycastleVersion}</version></dependency>
       <dependency><groupId>org.bouncycastle</groupId><artifactId>bcprov-jdk18on</artifactId><version>${bouncycastleVersion}</version></dependency>
       <dependency><groupId>org.apache.commons</groupId><artifactId>commons-lang3</artifactId><version>3.12.0</version></dependency>
-      <dependency><groupId>org.apache.commons</groupId><artifactId>commons-text</artifactId><version>1.9</version></dependency>
-      <dependency><groupId>org.apache.commons</groupId><artifactId>commons-compress</artifactId><version>1.21</version></dependency>
+      <dependency><groupId>org.apache.commons</groupId><artifactId>commons-text</artifactId><version>1.10.0</version></dependency>
+      <dependency><groupId>org.apache.commons</groupId><artifactId>commons-compress</artifactId><version>1.22</version></dependency>
       <dependency><groupId>commons-codec</groupId><artifactId>commons-codec</artifactId><version>1.15</version></dependency>
       <dependency><groupId>com.helger</groupId><artifactId>dhcp4java</artifactId><version>1.1.0</version></dependency>
-      <dependency><groupId>dnsjava</groupId><artifactId>dnsjava</artifactId><version>3.5.1</version></dependency>
+      <dependency><groupId>dnsjava</groupId><artifactId>dnsjava</artifactId><version>3.5.2</version></dependency>
       <dependency><groupId>com.google.gdata</groupId><artifactId>core</artifactId><version>1.47.1</version></dependency>
       <dependency><groupId>com.google.http-client</groupId><artifactId>google-http-client-assembly</artifactId><version>1.42.0</version></dependency>
       <dependency><groupId>com.google.oauth-client</groupId><artifactId>google-oauth-client</artifactId><version>1.33.3</version></dependency>
@@ -101,30 +98,18 @@
           </exclusion>
         </exclusions>
       </dependency>
-      <dependency><groupId>org.hsqldb</groupId><artifactId>hsqldb</artifactId><version>2.5.2</version></dependency>
-      <dependency>
-        <groupId>org.jitsi</groupId>
-        <artifactId>ice4j</artifactId>
-        <version>3.0-60-g28a23e1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jitsi</groupId>
-        <artifactId>jitsi-utils</artifactId>
-        <version>1.0-117-g6291626</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jitsi</groupId>
-        <artifactId>jitsi-xmpp-extensions</artifactId>
-        <version>1.0-54-gbcc3a0b</version>
-      </dependency>
+      <dependency><groupId>org.hsqldb</groupId><artifactId>hsqldb</artifactId><version>2.7.1</version></dependency>
+      <dependency><groupId>org.jitsi</groupId><artifactId>ice4j</artifactId><version>3.0-61-g76e8a19</version></dependency>
+      <dependency><groupId>org.jitsi</groupId><artifactId>jitsi-utils</artifactId><version>1.0-124-ge57838f</version></dependency>
+      <dependency><groupId>org.jitsi</groupId><artifactId>jitsi-xmpp-extensions</artifactId><version>1.0-54-gbcc3a0b</version></dependency>
       <dependency>
         <groupId>org.jitsi</groupId>
         <artifactId>jitsi-lgpl-dependencies</artifactId>
-        <version>1.2-20-gcdff576</version>
+        <version>1.2-23-g7b49874</version>
         <scope>runtime</scope>
         <classifier>${jitsi-deps-arch}</classifier>
       </dependency>
-      <dependency><groupId>org.jmdns</groupId><artifactId>jmdns</artifactId><version>3.5.7</version></dependency>
+      <dependency><groupId>org.jmdns</groupId><artifactId>jmdns</artifactId><version>3.5.8</version></dependency>
       <dependency><groupId>org.jitsi</groupId><artifactId>jmork</artifactId><version>1.0.6</version></dependency>
       <dependency><groupId>net.java.dev.jna</groupId><artifactId>jna</artifactId><version>${jnaVersion}</version></dependency>
       <dependency><groupId>net.java.dev.jna</groupId><artifactId>jna-platform</artifactId><version>${jnaVersion}</version></dependency>
@@ -134,18 +119,10 @@
       <dependency><groupId>org.jitsi</groupId><artifactId>jain-sip-ri-ossonly</artifactId><version>1.2.279-jitsi-oss1</version></dependency>
       <dependency><groupId>org.jxmpp</groupId><artifactId>jxmpp-core</artifactId><version>${jxmppVersion}</version></dependency>
       <dependency><groupId>org.jxmpp</groupId><artifactId>jxmpp-jid</artifactId><version>${jxmppVersion}</version></dependency>
-      <dependency><groupId>com.googlecode.libphonenumber</groupId><artifactId>libphonenumber</artifactId><version>8.12.50</version></dependency>
-      <dependency>
-        <groupId>org.osgi</groupId>
-        <artifactId>osgi.core</artifactId>
-        <version>8.0.0</version>
-      </dependency>
-      <dependency><groupId>org.osgi</groupId><artifactId>org.osgi.service.cm</artifactId><version>1.6.0</version></dependency>
-      <dependency>
-        <groupId>org.igniterealtime.smack</groupId>
-        <artifactId>smack-core</artifactId>
-        <version>${smackVersion}</version>
-      </dependency>
+      <dependency><groupId>com.googlecode.libphonenumber</groupId><artifactId>libphonenumber</artifactId><version>8.13.6</version></dependency>
+      <dependency><groupId>org.osgi</groupId><artifactId>osgi.core</artifactId><version>8.0.0</version></dependency>
+      <dependency><groupId>org.osgi</groupId><artifactId>org.osgi.service.cm</artifactId><version>1.6.1</version></dependency>
+      <dependency><groupId>org.igniterealtime.smack</groupId><artifactId>smack-core</artifactId><version>${smackVersion}</version></dependency>
       <dependency><groupId>org.igniterealtime.smack</groupId><artifactId>smack-java8</artifactId><version>${smackVersion}</version></dependency>
       <dependency><groupId>org.igniterealtime.smack</groupId><artifactId>smack-im</artifactId><version>${smackVersion}</version></dependency>
       <dependency>
@@ -163,18 +140,10 @@
           </exclusion>
         </exclusions>
       </dependency>
-      <dependency>
-        <!-- pin jbosh to avoid requiring maven-metadata.xml in the local repo -->
-        <groupId>org.igniterealtime.jbosh</groupId>
-        <artifactId>jbosh</artifactId>
-        <version>0.9.2</version>
-      </dependency>
-      <dependency>
-        <!-- pin minidns to avoid requiring maven-metadata.xml in the local repo -->
-        <groupId>org.minidns</groupId>
-        <artifactId>minidns-core</artifactId>
-        <version>${minidnsVersion}</version>
-      </dependency>
+      <!-- pin jbosh to avoid requiring maven-metadata.xml in the local repo -->
+      <dependency><groupId>org.igniterealtime.jbosh</groupId><artifactId>jbosh</artifactId><version>0.9.2</version></dependency>
+      <!-- pin minidns to avoid requiring maven-metadata.xml in the local repo -->
+      <dependency><groupId>org.minidns</groupId><artifactId>minidns-core</artifactId><version>${minidnsVersion}</version></dependency>
       <dependency><groupId>org.igniterealtime.smack</groupId><artifactId>smack-tcp</artifactId><version>${smackVersion}</version></dependency>
       <dependency><groupId>org.igniterealtime.smack</groupId><artifactId>smack-debug</artifactId><version>${smackVersion}</version></dependency>
       <dependency><groupId>org.igniterealtime.smack</groupId><artifactId>smack-extensions</artifactId><version>${smackVersion}</version></dependency>
@@ -195,36 +164,12 @@
           </exclusion>
         </exclusions>
       </dependency>
-      <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-        <version>1.2.11</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jitsi</groupId>
-        <artifactId>libjitsi</artifactId>
-        <version>1.1-22-g5c9346c5</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jitsi</groupId>
-        <artifactId>jitsi-android-osgi</artifactId>
-        <version>2.0-2-gc37a6c7</version>
-      </dependency>
-      <dependency>
-        <groupId>org.reflections</groupId>
-        <artifactId>reflections</artifactId>
-        <version>0.10.2</version>
-      </dependency>
-      <dependency>
-        <groupId>com.github.hypfvieh</groupId>
-        <artifactId>dbus-java</artifactId>
-        <version>3.3.2</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jitsi</groupId>
-        <artifactId>irc-api</artifactId>
-        <version>1.0-0015-jitsi-1</version>
-      </dependency>
+      <dependency><groupId>ch.qos.logback</groupId><artifactId>logback-classic</artifactId><version>1.4.5</version></dependency>
+      <dependency><groupId>org.jitsi</groupId><artifactId>libjitsi</artifactId><version>1.1-22-g5c9346c5</version></dependency>
+      <dependency><groupId>org.jitsi</groupId><artifactId>jitsi-android-osgi</artifactId><version>2.0-3-gd59644a</version></dependency>
+      <dependency><groupId>org.reflections</groupId><artifactId>reflections</artifactId><version>0.10.2</version></dependency>
+      <dependency><groupId>com.github.hypfvieh</groupId><artifactId>dbus-java</artifactId><version>3.3.2</version></dependency>
+      <dependency><groupId>org.jitsi</groupId><artifactId>irc-api</artifactId><version>1.0-0015-jitsi-1</version></dependency>
 
       <!--  for (unit) testing only-->
       <dependency>
@@ -236,7 +181,7 @@
       <dependency>
         <groupId>org.easymock</groupId>
         <artifactId>easymock</artifactId>
-        <version>4.3</version>
+        <version>5.1.0</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
@@ -257,17 +202,17 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>3.3.0</version>
+          <version>3.5.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
-          <version>3.2.0</version>
+          <version>3.3.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.2.2</version>
+          <version>3.3.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -277,7 +222,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-deploy-plugin</artifactId>
-          <version>3.0.0</version>
+          <version>3.1.0</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
@@ -291,7 +236,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.2.1</version>
         <executions>
           <execution>
             <id>default-cli</id>
@@ -394,7 +339,7 @@
       <plugin>
         <groupId>com.outbrain.swinfra</groupId>
         <artifactId>ci-friendly-flatten-maven-plugin</artifactId>
-        <version>1.0.14</version>
+        <version>1.0.16</version>
         <configuration>
           <outputDirectory>${project.build.directory}</outputDirectory>
         </configuration>

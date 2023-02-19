@@ -239,7 +239,7 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Verify Gradle Wrapper
-        uses: gradle/wrapper-validation-action@v1.0.4
+        uses: gradle/wrapper-validation-action@v1
 
       - name: Build natives
         env:
@@ -358,7 +358,7 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Verify Gradle Wrapper
-        uses: gradle/wrapper-validation-action@v1.0.4
+        uses: gradle/wrapper-validation-action@v1
 
       - name: Generate dmg
         run: |

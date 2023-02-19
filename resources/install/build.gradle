@@ -6,14 +6,14 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.jsign:jsign-gradle-plugin:3.1'
+        classpath 'net.jsign:jsign-gradle-plugin:4.2'
     }
 }
 
 plugins {
     id 'application'
-    id 'de.undercouch.download' version '4.1.1'
-    id 'nebula.ospackage' version '8.5.6'
+    id 'de.undercouch.download' version '5.3.1'
+    id 'nebula.ospackage' version '9.1.1'
     id 'signing'
 }
 
@@ -27,7 +27,7 @@ ext {
     bundlesDir = file("${projectRootDir}/target/bundles")
 
     if (project.version == '0.0') {
-        def pom = new XmlSlurper(false, true).parse("${projectRootDir}/pom.xml")
+        def pom = new groovy.xml.XmlSlurper(false, true).parse("${projectRootDir}/pom.xml")
         project.version = pom.properties.revision.text()
     }
 
@@ -68,18 +68,6 @@ application {
     executableDir = ''
 }
 
-def getLauncherClasspath() {
-    def cpFile = file("${projectRootDir}/target/launcher-classpath")
-    if (cpFile != null && cpFile.exists()) {
-        cpFile.text.split(System.getProperty("path.separator")).collect { "lib/${file(it).name}" } + [
-                "lib/jitsi-launcher-${project.version}.jar",
-                'config/',
-        ]
-    } else {
-        []
-    }
-}
-
 startScripts {
     applicationName = project.name
     defaultJvmOpts = [
@@ -90,7 +78,7 @@ startScripts {
             '-Djna.library.path=_JITSI_APP_HOME_native;_JITSI_ALLUSERSPROFILE\\Jitsi\\native',
             '-Dlogback.configurationFile=config/logback.xml',
     ]
-    classpath = files(getLauncherClasspath())
+    classpath = files('config/', 'lib/*')
     doLast {
         unixScript.text = unixScript.text
                 .replace('_JITSI_APP_HOME_', '$APP_HOME/')
@@ -103,13 +91,12 @@ startScripts {
                 .replace('lib\\config', 'config')
                 .replace('set JAVA_EXE=java.exe', 'set JAVA_EXE=jre\\bin\\java.exe')
         file("${outputDir}/config").mkdirs()
-        file("${outputDir}/config/classpath").text = getLauncherClasspath().join('\n') + '\n'
     }
 }
 
 def createJreTasks(String os) {
     def arch = project.property('application.target')
-    // adoptium OS and arch notation
+    // temurin OS and arch notation
     def adoptArch
     def adoptOs
     switch (arch) {
@@ -187,8 +174,6 @@ distributions {
                 with distributions.main.contents
                 with nativeCopySpec('darwin')
                 exclude '*.bat'
-                exclude '*dbus*'
-                exclude '*galago*'
             }
 
             into('Jitsi.app/Contents/PlugIns') {
@@ -210,11 +195,7 @@ distributions {
         contents {
             with distributions.main.contents
             with nativeCopySpec('win32')
-            exclude '*dbus*'
-            exclude '*orange*'
-            exclude '*sparkle*'
-            exclude '*mac_widgets*'
-            exclude '*galago*'
+            exclude '*.sh'
 
             into('jre') {
                 def getJreTask = createJreTasks('windows')

@@ -22,8 +22,10 @@ import static org.reflections.scanners.Scanners.SubTypes;
 import java.io.*;
 
 import java.lang.reflect.*;
+import java.net.*;
 import java.util.*;
 import net.java.sip.communicator.launchutils.*;
+import org.jitsi.impl.osgi.framework.*;
 import org.jitsi.impl.osgi.framework.launch.*;
 import org.jitsi.osgi.framework.*;
 import org.osgi.framework.*;
@@ -102,6 +104,15 @@ public class Jitsi
     public static void main(String[] args)
         throws Exception
     {
+        var cl = new BundleClassLoader(Jitsi.class.getClassLoader());
+        var c = cl.loadClass("net.java.sip.communicator.launcher.Jitsi");
+        var m = c.getDeclaredMethod("mainWithCl", String[].class);
+        m.invoke(null, (Object) args);
+    }
+
+    public static void mainWithCl(String[] args)
+        throws Exception
+    {
         init();
         handleArguments(args);
         var fw = startCustomOsgi();
@@ -110,17 +121,17 @@ public class Jitsi
 
     private static Framework startCustomOsgi() throws BundleException
     {
-        var options = new HashMap<String, String>();
-        options.put(Constants.FRAMEWORK_BEGINNING_STARTLEVEL, "3");
+        var options = Map.of(Constants.FRAMEWORK_BEGINNING_STARTLEVEL, "3");
         Framework fw = new FrameworkImpl(options, Jitsi.class.getClassLoader());
         fw.init();
         var bundleContext = fw.getBundleContext();
         var reflections = new Reflections(new ConfigurationBuilder()
+            .setUrls(((URLClassLoader)Jitsi.class.getClassLoader()).getURLs())
             .forPackages(
                 "org.jitsi",
                 "net.java.sip"
             ));
-        for (Class<?> activator : reflections.get(SubTypes.of(BundleActivator.class).asClass()))
+        for (Class<?> activator : reflections.get(SubTypes.of(BundleActivator.class).asClass(Jitsi.class.getClassLoader())))
         {
             if ((activator.getModifiers() & Modifier.ABSTRACT) == Modifier.ABSTRACT)
             {
