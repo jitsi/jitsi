@@ -101,7 +101,7 @@
       <dependency><groupId>org.hsqldb</groupId><artifactId>hsqldb</artifactId><version>2.7.1</version></dependency>
       <dependency><groupId>org.jitsi</groupId><artifactId>ice4j</artifactId><version>3.0-61-g76e8a19</version></dependency>
       <dependency><groupId>org.jitsi</groupId><artifactId>jitsi-utils</artifactId><version>1.0-124-ge57838f</version></dependency>
-      <dependency><groupId>org.jitsi</groupId><artifactId>jitsi-xmpp-extensions</artifactId><version>1.0-54-gbcc3a0b</version></dependency>
+      <dependency><groupId>org.jitsi</groupId><artifactId>jitsi-xmpp-extensions</artifactId><version>1.0-63-g441d6d5</version></dependency>
       <dependency>
         <groupId>org.jitsi</groupId>
         <artifactId>jitsi-lgpl-dependencies</artifactId>

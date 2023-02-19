@@ -354,23 +354,7 @@ public class IceUdpTransportManager
     protected StreamConnector doCreateStreamConnector(MediaType mediaType)
         throws OperationFailedException
     {
-        /*
-         * If this instance is participating in a telephony conference utilizing
-         * the Jitsi Videobridge server-side technology that is organized by the
-         * local peer, then there is a single MediaStream (of the specified
-         * mediaType) shared among multiple TransportManagers and its
-         * StreamConnector may be determined only by the TransportManager which
-         * is establishing the connectivity with the Jitsi Videobridge server
-         * (as opposed to a CallPeer).
-         */
-        TransportManagerJabberImpl delegate
-            = findTransportManagerEstablishingConnectivityWithJitsiVideobridge();
-
-        if ((delegate != null) && (delegate != this))
-            return delegate.doCreateStreamConnector(mediaType);
-
-        DatagramSocket[] streamConnectorSockets
-            = getStreamConnectorSockets(mediaType);
+        DatagramSocket[] streamConnectorSockets = getStreamConnectorSockets(mediaType);
 
         /*
          * XXX If the iceAgent has not completed (yet), go with a default
@@ -532,21 +516,6 @@ public class IceUdpTransportManager
     @Override
     public MediaStreamTarget getStreamTarget(MediaType mediaType)
     {
-        /*
-         * If this instance is participating in a telephony conference utilizing
-         * the Jitsi Videobridge server-side technology that is organized by the
-         * local peer, then there is a single MediaStream (of the specified
-         * mediaType) shared among multiple TransportManagers and its
-         * MediaStreamTarget may be determined only by the TransportManager
-         * which is establishing the connectivity with the Jitsi Videobridge
-         * server (as opposed to a CallPeer).
-         */
-        TransportManagerJabberImpl delegate
-            = findTransportManagerEstablishingConnectivityWithJitsiVideobridge();
-
-        if ((delegate != null) && (delegate != this))
-            return delegate.getStreamTarget(mediaType);
-
         IceMediaStream stream = iceAgent.getStream(mediaType.toString());
         MediaStreamTarget streamTarget = null;
 
@@ -1001,21 +970,7 @@ public class IceUdpTransportManager
             }
         }
 
-        /*
-         * When the local peer is organizing a telephony conference using the
-         * Jitsi Videobridge server-side technology, it is establishing
-         * connectivity by using information from a colibri Channel and not from
-         * the offer/answer of the remote peer.
-         */
-        if (getCallPeer().isJitsiVideobridge())
-        {
-            sendTransportInfoToJitsiVideobridge(map);
-            return false;
-        }
-        else
-        {
-            return startConnectivityEstablishment(map);
-        }
+        return startConnectivityEstablishment(map);
     }
 
     /**
@@ -1202,11 +1157,6 @@ public class IceUdpTransportManager
     public void wrapupConnectivityEstablishment()
         throws OperationFailedException
     {
-        TransportManagerJabberImpl delegate
-            = findTransportManagerEstablishingConnectivityWithJitsiVideobridge();
-
-        if ((delegate == null) || (delegate == this))
-        {
         final Object iceProcessingStateSyncRoot = new Object();
         PropertyChangeListener stateChangeListener
             = new PropertyChangeListener()
@@ -1273,11 +1223,6 @@ public class IceUdpTransportManager
             throw new OperationFailedException(
                     msg,
                     OperationFailedException.GENERAL_ERROR);
-        }
-        }
-        else
-        {
-            delegate.wrapupConnectivityEstablishment();
         }
 
         /*

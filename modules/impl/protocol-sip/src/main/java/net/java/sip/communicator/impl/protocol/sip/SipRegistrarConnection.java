@@ -245,7 +245,7 @@ public class SipRegistrarConnection
     * @throws OperationFailedException with the corresponding error code
     * if registration or construction of the Register request fail.
     */
-    void register()
+    public void register()
         throws OperationFailedException
     {
         // skip REGISTERING event if we are already registered

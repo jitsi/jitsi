@@ -206,7 +206,7 @@ public class CallConference
             {
                 CallConference.this.onCallPeerConferenceEvent(ev);
             }
-            
+
             /**
              * {@inheritDoc}
              *
@@ -255,13 +255,6 @@ public class CallConference
     private List<Call> immutableCalls;
 
     /**
-     * The indicator which determines whether the telephony conference
-     * represented by this instance is utilizing the Jitsi Videobridge
-     * server-side telephony conferencing technology.
-     */
-    private final boolean jitsiVideobridge;
-
-    /**
      * The list of <tt>Call</tt>s participating in this telephony conference as
      * a mutable <tt>List</tt> which should not be exposed out of this instance.
      */
@@ -272,23 +265,7 @@ public class CallConference
      */
     public CallConference()
     {
-        this(false);
-    }
-
-    /**
-     * Initializes a new <tt>CallConference</tt> instance which is to optionally
-     * utilize the Jitsi Videobridge server-side telephony conferencing
-     * technology.
-     *
-     * @param jitsiVideobridge <tt>true</tt> if the telephony conference
-     * represented by the new instance is to utilize the Jitsi Videobridge
-     * server-side telephony conferencing technology; otherwise, <tt>false</tt>
-     */
-    public CallConference(boolean jitsiVideobridge)
-    {
-        this.jitsiVideobridge = jitsiVideobridge;
-
-        mutableCalls = new ArrayList<Call>();
+        mutableCalls = new ArrayList<>();
         immutableCalls = Collections.unmodifiableList(mutableCalls);
     }
 
@@ -679,20 +656,6 @@ public class CallConference
                 return false;
         }
         return true;
-    }
-
-    /**
-     * Determines whether the telephony conference represented by this instance
-     * is utilizing the Jitsi Videobridge server-side telephony conferencing
-     * technology.
-     *
-     * @return <tt>true</tt> if the telephony conference represented by this
-     * instance is utilizing the Jitsi Videobridge server-side telephony
-     * conferencing technology
-     */
-    public boolean isJitsiVideobridge()
-    {
-        return jitsiVideobridge;
     }
 
     /**

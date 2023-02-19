@@ -30,7 +30,6 @@ import javax.net.ssl.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.debugger.*;
 import net.java.sip.communicator.util.osgi.ServiceUtils;
-import org.jitsi.xmpp.extensions.colibri.*;
 import org.jitsi.xmpp.extensions.inputevt.*;
 import org.jitsi.xmpp.extensions.jingle.*;
 import net.java.sip.communicator.service.certificate.*;
@@ -288,7 +287,7 @@ public class ProtocolProviderServiceJabberImpl
      * We can find features corresponding to op set in the xep(s) related
      * to implemented functionality.
      */
-    private final List<String> supportedFeatures = new ArrayList<String>();
+    private final List<String> supportedFeatures = new ArrayList<>();
 
     /**
      * The <tt>ServiceDiscoveryManager</tt> is responsible for advertising
@@ -683,7 +682,10 @@ public class ProtocolProviderServiceJabberImpl
             JabberLoginStrategy loginStrategy = createLoginStrategy();
             userCredentials = loginStrategy.prepareLogin(authority, reasonCode);
             if(!loginStrategy.loginPreparationSuccessful())
+            {
+                logger.warn("Unsuccessful login, skipping.");
                 return;
+            }
 
             DomainBareJid serviceName = JidCreate.domainBareFrom(
                 getAccountID().getUserID());
@@ -1459,6 +1461,19 @@ public class ProtocolProviderServiceJabberImpl
     }
 
     /**
+     * Adds a supported feature to the list and if available to the discovery manager.
+     * @param featureName the new feature to add.
+     */
+    void addSupportedFeature(String featureName)
+    {
+        supportedFeatures.add(featureName);
+        if (discoveryManager != null)
+        {
+            getDiscoveryManager().addFeature(featureName);
+        }
+    }
+
+    /**
      * Used to disconnect current connection and clean it.
      */
     public void disconnectAndCleanConnection()
@@ -1845,20 +1860,6 @@ public class ProtocolProviderServiceJabberImpl
                 addSupportedOperationSet(
                     OperationSetResourceAwareTelephony.class,
                     new OperationSetResAwareTelephonyJabberImpl(basicTelephony));
-
-                // Only init video bridge if enabled
-                boolean isVideobridgeDisabled
-                    = JabberActivator.getConfigurationService()
-                      .getBoolean(OperationSetVideoBridge.
-                          IS_VIDEO_BRIDGE_DISABLED, false);
-
-                if (!isVideobridgeDisabled)
-                {
-                    // init video bridge
-                    addSupportedOperationSet(
-                        OperationSetVideoBridge.class,
-                        new OperationSetVideoBridgeImpl(this));
-                }
 
                 // init DTMF
                 OperationSetDTMFJabberImpl operationSetDTMF
@@ -2910,76 +2911,6 @@ public class ProtocolProviderServiceJabberImpl
                 }
             }
         }
-    }
-
-    /**
-     * Gets the entity ID of the first Jitsi Videobridge associated with
-     * {@link #connection} i.e. provided by the <tt>serviceName</tt> of
-     * <tt>connection</tt>.
-     *
-     * @return the entity ID of the first Jitsi Videobridge associated with
-     * <tt>connection</tt>
-     */
-    public Jid getJitsiVideobridge()
-    {
-        XMPPConnection connection = getConnection();
-
-        if (connection != null)
-        {
-            ScServiceDiscoveryManager discoveryManager = getDiscoveryManager();
-            Jid serviceName = connection.getXMPPServiceDomain();
-            DiscoverItems discoverItems = null;
-
-            try
-            {
-                discoverItems = discoveryManager.discoverItems(serviceName);
-            }
-            catch (XMPPException
-                | InterruptedException
-                | NoResponseException
-                | NotConnectedException xmppe)
-            {
-                if (logger.isDebugEnabled())
-                {
-                    logger.debug(
-                            "Failed to discover the items associated with"
-                                + " Jabber entity: " + serviceName,
-                            xmppe);
-                }
-            }
-
-            if (discoverItems != null)
-            {
-                for (DiscoverItems.Item discoverItem : discoverItems.getItems())
-                {
-                    Jid entityID = discoverItem.getEntityID();
-                    DiscoverInfo discoverInfo = null;
-
-                    try
-                    {
-                        discoverInfo = discoveryManager.discoverInfo(entityID);
-                    }
-                    catch (XMPPException
-                        | InterruptedException
-                        | NoResponseException
-                        | NotConnectedException xmppe)
-                    {
-                        logger.warn(
-                                "Failed to discover information about Jabber"
-                                    + " entity: " + entityID,
-                                xmppe);
-                    }
-                    if ((discoverInfo != null)
-                            && discoverInfo.containsFeature(
-                                    ColibriConferenceIQ.NAMESPACE))
-                    {
-                        return entityID;
-                    }
-                }
-            }
-        }
-
-        return null;
     }
 
     /**

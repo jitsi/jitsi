@@ -173,16 +173,17 @@ public class CallPeerChangeEvent
     /**
      * Returns a String representation of this CallPeerChangeEvent.
      *
-     * @return  A a String representation of this CallPeerChangeEvent.
+     * @return  A String representation of this CallPeerChangeEvent.
      */
     @Override
     public String toString()
     {
-
-        return "CallPeerChangeEvent: type="+getEventType()
-            + " oldV="+getOldValue()
-            + " newV="+getNewValue()
-            + " for peer=" + getSourceCallPeer();
+        return "CallPeerChangeEvent: type=" + getEventType()
+            + " oldV=" + getOldValue()
+            + " newV=" + getNewValue()
+            + " for peer=" + getSourceCallPeer()
+            + " reason=" + getReasonString()
+            + " reasonCode=" + getReasonCode();
     }
 
     /**

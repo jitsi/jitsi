@@ -146,6 +146,11 @@ public class BrowserLauncherImpl
      */
     public void openURL(final String url)
     {
+        if (url == null || !url.startsWith("http"))
+        {
+            logger.warn("Not a valid URL to open:" + url);
+            return;
+        }
         Thread launchBrowserThread
             = new Thread(getClass().getName())
                     {
