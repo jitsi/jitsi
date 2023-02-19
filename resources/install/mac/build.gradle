@@ -9,10 +9,10 @@ task copyInfoPlist(group: 'installer-mac') {
             from "${projectDir}/mac/Info.plist"
             into "${installMacDist.destinationDir}/Jitsi.app/Contents/"
             filter(ReplaceTokens, tokens: [
-                    CLASSPATH_STRINGS         : (getLauncherClasspath().collect {
-                        "<string>\$JAVAROOT/${it}</string>"
-                    }
-                    ).join('\n').toString(),
+                    CLASSPATH_STRINGS         : [
+                        "<string>\$JAVAROOT/libs/*</string>",
+                        "<string>\$JAVAROOT/config/</string>"
+                    ].join('\n').toString(),
                     CFBundleShortVersionString: versionShort,
                     CFBundleVersion           : versionFull,
                     JRE_VERSION               : "${project.property('application.jre.version')}-jre".toString(),

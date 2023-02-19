@@ -90,7 +90,7 @@ Run_prependPath(LPCTSTR path)
 {
     size_t pathLength = _tcslen(path);
     TCHAR envVar[32767];
-    if (GetEnvironmentVariable(_T("PATH"), envVar + pathLength, 32767 - pathLength - 1) == 0)
+    if (GetEnvironmentVariable(_T("PATH"), envVar + pathLength, (DWORD) (32767 - pathLength - 1)) == 0)
     {
         return GetLastError();
     }
@@ -400,43 +400,20 @@ Run_getJavaVMOptionStrings
 
     if (javaLibraryPath)
     {
-#define MAX_LIBS 15
-        TCHAR classpath[MAX_LIBS][MAX_PATH];
-        memset(classpath, 0, sizeof(classpath));
-        FILE *cpfd = NULL;
-        if (fopen_s(&cpfd, _T("config\\classpath"), _T("r")) == 0)
-        {
-            size_t lineCount = 0;
-            while (_fgetts(classpath[lineCount], MAX_PATH, cpfd) != NULL && lineCount < MAX_LIBS)
-            {
-                classpath[lineCount][_tcslen(classpath[lineCount]) - 1] = '\0';
-                lineCount++;
-            }
-            fclose(cpfd);
-        }
-
         LPCTSTR properties[]
             = {
-                _T("logback.configurationFile"), _T("config/logback.xml"),
-                _T("java.library.path"), javaLibraryPath,
-                _T("jna.library.path"), javaLibraryPath,
+                _T("-Dlogback.configurationFile"), _T("config/logback.xml"),
+                _T("-Djava.class.path"), _T("libs/*;config/"),
+                _T("-Djava.library.path"), javaLibraryPath,
+                _T("-Djna.library.path"), javaLibraryPath,
+                _T("--add-opens"), _T("java.base/jdk.internal.loader=ALL-UNNAMED"),
+                _T("--add-opens"), _T("java.base/java.lang=ALL-UNNAMED"),
                 NULL
             };
 
-        size_t classpathLength = 0;
         size_t propertiesLength = 0;
         BOOL quote = separator;
 
-        {
-            LPCTSTR cp = NULL;
-            size_t i = 0;
-
-            classpathLength = 0;
-            while ((cp = classpath[i++]) && *cp != '\0')
-                classpathLength += (_tcslen(cp) + 1 /* ';' */);
-            if (classpathLength > 0)
-                classpathLength += 18 /* "-Djava.class.path=" */;
-        }
         {
             LPCTSTR property;
             size_t i = 0;
@@ -456,7 +433,6 @@ Run_getJavaVMOptionStrings
         }
 
         size_t optionStringsSize = head
-                                   + classpathLength
                                    + propertiesLength
                                    + 1 /* 0 */
                                    + tail;
@@ -464,28 +440,6 @@ Run_getJavaVMOptionStrings
         if (*optionStrings)
         {
             LPTSTR str = (*optionStrings) + head;
-
-            if (classpathLength > 0)
-            {
-                LPCTSTR cp;
-                size_t i = 0;
-
-                _tcscpy(str, _T("-Djava.class.path="));
-                str += 18;
-                while ((cp = classpath[i++]) && *cp != '\0')
-                {
-                    size_t length = _tcslen(cp);
-
-                    _tcsncpy(str, cp, length);
-                    str += length;
-                    *str = _T(';');
-                    str++;
-                }
-                str--; /* Drop the last ';'. */
-                *str = separator;
-                str++;
-                _optionStringCount++;
-            }
             if (propertiesLength > 0)
             {
                 LPCTSTR property;
@@ -498,8 +452,6 @@ Run_getJavaVMOptionStrings
 
                     if (quote)
                         *str++ = _T('"');
-                    _tcscpy(str, _T("-D"));
-                    str += 2;
                     length = _tcslen(property);
                     _tcsncpy(str, property, length);
                     str += length;
