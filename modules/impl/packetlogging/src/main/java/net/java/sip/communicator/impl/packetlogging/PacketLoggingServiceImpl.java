@@ -817,6 +817,8 @@ public class PacketLoggingServiceImpl
                         }
                         catch (InterruptedException iex)
                         {
+                            Thread.currentThread().interrupt();
+                            break;
                         }
                         continue;
                     }

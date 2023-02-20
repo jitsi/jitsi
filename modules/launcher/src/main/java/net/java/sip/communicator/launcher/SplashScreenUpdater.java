@@ -17,7 +17,10 @@
  */
 package net.java.sip.communicator.launcher;
 
+import java.io.*;
+import java.net.*;
 import java.util.*;
+import lombok.extern.slf4j.*;
 import org.osgi.framework.*;
 
 import java.awt.*;
@@ -28,6 +31,7 @@ import java.awt.*;
  *
  * @author Damian Minkov
  */
+@Slf4j
 public class SplashScreenUpdater
     implements ServiceListener, BundleListener
 {
@@ -76,7 +80,7 @@ public class SplashScreenUpdater
     /**
      * Unsets the listener that we set when we start this bundle.
      */
-    public void stop()
+    public synchronized void stop()
     {
         bundleContext.removeServiceListener(this);
         bundleContext.removeBundleListener(this);
@@ -95,10 +99,11 @@ public class SplashScreenUpdater
     @Override
     public void serviceChanged(ServiceEvent serviceEvent)
     {
+        logger.warn(serviceEvent.toString());
         try
         {
             // If the main frame was set visible, the splash screen was/will
-            // be closed by Java automatically. Otherwise we need to do that
+            // be closed by Java automatically. Otherwise, we need to do that
             // manually.
             Object service =
                 bundleContext
@@ -118,25 +123,21 @@ public class SplashScreenUpdater
     }
 
     @Override
-    public void bundleChanged(BundleEvent event)
+    public synchronized void bundleChanged(BundleEvent event)
     {
         if (g == null || splash == null || !splash.isVisible())
         {
             return;
         }
 
-        if (event.getType() != BundleEvent.INSTALLED &&
-            event.getType() != BundleEvent.STARTED)
+        if (event.getType() != BundleEvent.STARTED)
         {
             return;
         }
 
-        double progress1 = Arrays.stream(bundleContext.getBundles())
-            .filter(b -> b.getState() >= Bundle.INSTALLED)
-            .count() * 0.5;
-        double progress2 = Arrays.stream(bundleContext.getBundles())
+        double progress = Arrays.stream(bundleContext.getBundles())
             .filter(b -> b.getState() == Bundle.ACTIVE)
-            .count() * 0.5;
+            .count();
 
         int progressWidth = 233;
         int progressHeight = 14;
@@ -147,9 +148,7 @@ public class SplashScreenUpdater
         int textBaseX = 150;
         int textBaseY = 145 + (50 - textHeight)/2 + textHeight;
 
-        int currentProgressWidth =
-            (int) (((progress1 + progress2) / bundleCount)
-                * progressWidth);
+        int currentProgressWidth = (int) ((progress / bundleCount) * progressWidth);
 
         g.setComposite(AlphaComposite.Clear);
         g.setPaintMode();
@@ -179,20 +178,18 @@ public class SplashScreenUpdater
 
         g.setColor(TEXT_FOREGROUND);
 
-        Object bundleName =
-            event.getBundle().getHeaders().get(Constants.BUNDLE_NAME);
-
-        if(bundleName == null)
+        String bundleName;
+        try
         {
-            bundleName = event.getBundle().getSymbolicName();
+            var f = new File(new URI(event.getBundle().getHeaders().get("Location")));
+            bundleName = f.isFile() ? f.getName() : f.getPath();
+        }
+        catch (URISyntaxException use)
+        {
+            bundleName = Long.toString(event.getBundle().getBundleId());
         }
 
-        if (bundleName == null)
-        {
-            bundleName = event.getBundle().getBundleId();
-        }
-
-        g.drawString(bundleName.toString(), textBaseX, textBaseY);
+        g.drawString(bundleName, textBaseX, textBaseY);
         splash.update();
     }
 }

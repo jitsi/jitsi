@@ -2,7 +2,6 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
-  <packaging>bundle</packaging>
   <parent>
     <groupId>org.jitsi.desktop</groupId>
     <artifactId>service-parent</artifactId>
@@ -21,10 +20,6 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.massisframework</groupId>
-      <artifactId>orange-extensions</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jitsi</groupId>
@@ -48,35 +43,8 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>jitsi-launcher</artifactId>
-      <version>${project.version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>service-ui-service</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <configuration>
-          <instructions>
-            <Bundle-Activator>net.java.sip.communicator.impl.argdelegation.ArgDelegationActivator</Bundle-Activator>
-            <Import-Package>!com.apple.eawt,*,com.apple.eawt;resolution:=optional</Import-Package>
-            <Export-Package>net.java.sip.communicator.service.argdelegation</Export-Package>
-          </instructions>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>

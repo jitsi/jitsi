@@ -2,7 +2,6 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
-  <packaging>bundle</packaging>
   <parent>
     <groupId>org.jitsi.desktop</groupId>
     <artifactId>impl-parent</artifactId>
@@ -103,17 +102,8 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>jitsi-wrap</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.igniterealtime.smack</groupId>
       <artifactId>smack-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.servicemix.bundles</groupId>
-      <artifactId>org.apache.servicemix.bundles.xpp3</artifactId>
     </dependency>
     <dependency>
       <groupId>org.igniterealtime.smack</groupId>
@@ -168,26 +158,26 @@
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>service-protocol</artifactId>
-      <version>${project.version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <configuration>
-          <instructions>
-            <Bundle-Activator>net.java.sip.communicator.impl.protocol.jabber.JabberActivator</Bundle-Activator>
-          </instructions>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+  <profiles>
+    <profile>
+      <id>test-jar-deps</id>
+      <activation>
+        <property>
+          <name>maven.test.skip</name>
+          <value>!true</value>
+        </property>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>${project.groupId}</groupId>
+          <artifactId>service-protocol</artifactId>
+          <version>${project.version}</version>
+          <type>test-jar</type>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
 </project>

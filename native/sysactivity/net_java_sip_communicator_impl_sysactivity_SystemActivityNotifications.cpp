@@ -205,7 +205,7 @@ JNI_OnLoad(JavaVM *vm, void *reserved)
     (void) reserved;
 
     SystemActivityNotifications_vm = vm;
-    return JNI_VERSION_1_4;
+    return JNI_VERSION_10;
 }
 
 JNIEXPORT void JNICALL

@@ -7,7 +7,7 @@
         <option name="TAB_SIZE" value="2" />
       </value>
     </option>
-    <option name="RIGHT_MARGIN" value="80" />
+    <option name="SOFT_MARGINS" value="80,100,120" />
     <AndroidXmlCodeStyleSettings>
       <option name="USE_CUSTOM_SETTINGS" value="true" />
       <option name="LAYOUT_SETTINGS">

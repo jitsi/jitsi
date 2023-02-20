@@ -29,10 +29,10 @@ elseif (UNIX AND NOT APPLE)
         message(FATAL_ERROR "libx11-dev is missing")
     endif ()
     if (NOT X11_Xss_FOUND)
-        if (NOT X11_Xinput_FOUND)
+        if (NOT X11_Xscreensaver_FOUND)
             message(FATAL_ERROR "libxss-dev is missing")
         else ()
-            set(XSS_LIB ${X11_Xinput_LIB})
+            set(XSS_LIB ${X11_Xscreensaver_LIB})
         endif ()
     else ()
         set(XSS_LIB ${X11_Xss_LIB})
@@ -64,7 +64,7 @@ target_link_libraries(${PROJECT_NAME} LINK_PUBLIC
                       )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
-                           ${CMAKE_CURRENT_LIST_DIR}/../../modules/service/sysactivity/target/native/javah
+                           ${CMAKE_CURRENT_LIST_DIR}/../../target/native/javah
                            ${JNI_INCLUDE_DIRS}
                            ${OS_HEADERS}
                            ${CMAKE_BINARY_DIR}/include/

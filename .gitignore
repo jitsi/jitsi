@@ -18,7 +18,6 @@ debian/local-maven-repo/
 debian/maven-repo/
 lib/native/
 test-reports/
-felix-cache/
 .gradle/
 .settings/
 .classpath

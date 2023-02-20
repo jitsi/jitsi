@@ -25,7 +25,7 @@
     <key>NSHighResolutionCapable</key>
     <true/>
     <key>LSMinimumSystemVersion</key>
-    <string>10.10.0</string>
+    <string>10.12.0</string>
     <key>SUCheckAtStartup</key>
     <string>YES</string>
     <key>SUScheduledCheckInterval</key>
@@ -60,12 +60,16 @@
     <string>sc_logo_128x128.icns</string>
     <key>CFBundleIdentifier</key>
     <string>org.jitsi</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Jitsi requires access to the microphone for calls.</string>
+    <key>NSCameraUsageDescription</key>
+    <string>Jitsi requires access to the camera for video calls.</string>
     <key>Javax</key>
     <dict>
       <key>MainClass</key>
-      <string>net.java.sip.communicator.launcher.SIPCommunicator</string>
+      <string>net.java.sip.communicator.launcher.Jitsi</string>
       <key>JVMVersion</key>
-      <string>1.8+</string>
+      <string>11+</string>
       <key>ClassPath</key>
       <array>
         @CLASSPATH_STRINGS@
@@ -78,14 +82,12 @@
       <string>$APP_PACKAGE/Contents/Resources/Java</string>
       <key>Properties</key>
       <dict>
-        <key>felix.config.properties</key>
-        <string>file:config/felix.properties</string>
         <key>logback.configurationFile</key>
         <string>config/logback.xml</string>
         <key>java.library.path</key>
-        <string>$JAVAROOT/native:${system.DYLD_LIBRARY_PATH}</string>
+        <string>$JAVAROOT/native:/Users/Shared/Library/Application Support/Jitsi/native</string>
         <key>jna.library.path</key>
-        <string>$JAVAROOT/native:${system.DYLD_LIBRARY_PATH}</string>
+        <string>$JAVAROOT/native:/Users/Shared/Library/Application Support/Jitsi/native</string>
         <key>apple.laf.useScreenMenuBar</key>
         <string>true</string>
       </dict>

@@ -1882,7 +1882,7 @@ public class MainFrame
             }
             catch (BundleException ex)
             {
-                logger.error("Failed to gently shutdown Felix", ex);
+                logger.error("Failed to gently shutdown", ex);
                 System.exit(0);
             }
             //stopping a bundle doesn't leave the time to the felix thread to

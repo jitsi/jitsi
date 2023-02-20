@@ -68,8 +68,7 @@ public class JabberAccountRegistrationForm
     /**
      * The panels which value needs validation before we continue.
      */
-    private List<ValidatingPanel> validatingPanels =
-            new ArrayList<ValidatingPanel>();
+    private final List<ValidatingPanel> validatingPanels = new ArrayList<>();
 
     /**
      * Creates an instance of <tt>JabberAccountRegistrationForm</tt>.
@@ -102,12 +101,6 @@ public class JabberAccountRegistrationForm
     void init()
     {
         this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        JabberAccountCreationFormService createService =
-            getCreateAccountService();
-        if (createService != null)
-            createService.clear();
-
         if (!JabberAccRegWizzActivator.isAdvancedAccountConfigDisabled())
         {
             // Indicate that this panel is opened in a simple form.
@@ -265,43 +258,18 @@ public class JabberAccountRegistrationForm
         String serverAddress = null;
         String serverPort = null;
 
-        if (accountPanel.isCreateAccount())
-        {
-            NewAccount newAccount
-                = getCreateAccountService().createAccount();
+        userID = accountPanel.getUsername();
 
-            if (newAccount != null)
-            {
-                userID = newAccount.getUserName();
-                password = newAccount.getPassword();
-                serverAddress = newAccount.getServerAddress();
-                serverPort = newAccount.getServerPort();
+        if(userID == null || userID.trim().length() == 0)
+            throw new IllegalStateException("No user ID provided.");
 
-                if (serverAddress == null)
-                    setServerFieldAccordingToUIN(userID);
-            }
-            else
-            {
-                // If we didn't succeed to create our new account, we have
-                // nothing more to do here.
-                return false;
-            }
-        }
-        else
-        {
-            userID = accountPanel.getUsername();
+        if(userID.indexOf('@') < 0
+           && registration.getDefaultUserSufix() != null)
+            userID = userID + '@' + registration.getDefaultUserSufix();
 
-            if(userID == null || userID.trim().length() == 0)
-                throw new IllegalStateException("No user ID provided.");
-
-            if(userID.indexOf('@') < 0
-               && registration.getDefaultUserSufix() != null)
-                userID = userID + '@' + registration.getDefaultUserSufix();
-
-            password = accountPanel.getPassword();
-            serverAddress = connectionPanel.getServerAddress();
-            serverPort = connectionPanel.getServerPort();
-        }
+        password = accountPanel.getPassword();
+        serverAddress = connectionPanel.getServerAddress();
+        serverPort = connectionPanel.getServerPort();
 
         registration.setUserID(userID);
 
@@ -473,12 +441,6 @@ public class JabberAccountRegistrationForm
      */
     public Component getSimpleForm()
     {
-        JabberAccountCreationFormService createAccountService
-            = getCreateAccountService();
-
-        if (createAccountService != null)
-            createAccountService.clear();
-
         // Indicate that this panel is opened in a simple form.
         accountPanel.setSimpleForm(true);
 
@@ -520,17 +482,6 @@ public class JabberAccountRegistrationForm
     public boolean isWebSignupSupported()
     {
         return wizard.isWebSignupSupported();
-    }
-
-    /**
-     * Returns an instance of <tt>CreateAccountService</tt> through which the
-     * user could create an account. This method is meant to be implemented by
-     * specific protocol provider wizards.
-     * @return an instance of <tt>CreateAccountService</tt>
-     */
-    public JabberAccountCreationFormService getCreateAccountService()
-    {
-         return null; //wizard.getCreateAccountService();
     }
 
     /**

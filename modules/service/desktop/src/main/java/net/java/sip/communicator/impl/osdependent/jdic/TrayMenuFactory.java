@@ -59,17 +59,16 @@ public final class TrayMenuFactory
             itemName = menuItem.getName();
         }
 
-        if (itemName.equals("settings"))
+        switch (itemName)
         {
+        case "settings":
             OsDependentActivator.getUIService()
                 .getConfigurationContainer().setVisible(true);
-        }
-        else if (itemName.equals("service.gui.QUIT"))
-        {
+            break;
+        case "service.gui.QUIT":
             OsDependentActivator.getShutdownService().beginShutdown();
-        }
-        else if (itemName.equals("addContact"))
-        {
+            break;
+        case "addContact":
             ExportedWindow dialog =
                 OsDependentActivator.getUIService().getExportedWindow(
                     ExportedWindow.ADD_CONTACT_WINDOW);
@@ -80,21 +79,20 @@ public final class TrayMenuFactory
                 OsDependentActivator.getUIService().getPopupDialog()
                     .showMessagePopupDialog(Resources.getString(
                         "impl.systray.FAILED_TO_OPEN_ADD_CONTACT_DIALOG"));
-        }
-        else if (itemName.equals("service.gui.SHOW"))
-        {
+            break;
+        case "service.gui.SHOW":
             OsDependentActivator.getUIService().setVisible(true);
             OsDependentActivator.getUIService().bringToFront();
 
             changeTrayMenuItem(source, "service.gui.HIDE",
                 "service.gui.HIDE", "service.gui.icons.SEARCH_ICON_16x16");
-        }
-        else if (itemName.equals("service.gui.HIDE"))
-        {
+            break;
+        case "service.gui.HIDE":
             OsDependentActivator.getUIService().setVisible(false);
 
             changeTrayMenuItem(source, "service.gui.SHOW",
                 "service.gui.SHOW", "service.gui.icons.SEARCH_ICON_16x16");
+            break;
         }
     }
 
@@ -138,33 +136,25 @@ public final class TrayMenuFactory
     /**
      * Creates a tray menu for the given system tray.
      *
-     * @param tray the system tray for which we're creating a menu
      * @param swing indicates if we should create a Swing or an AWT menu
      * @return a tray menu for the given system tray (first) and the default
      *         menu item (second)
      */
     public static Pair<Object, Object> createTrayMenu(
-        SystrayServiceJdicImpl tray,
         boolean swing,
         boolean accountMenuSupported
         )
     {
         final Object trayMenu = swing ? new JPopupMenu() : new PopupMenu();
-        ActionListener listener = new ActionListener()
-        {
-            public void actionPerformed(ActionEvent event)
-            {
-                TrayMenuFactory.actionPerformed(event);
-            }
-        };
+        ActionListener listener = TrayMenuFactory::actionPerformed;
 
-        Boolean showOptions
+        var showOptions
             = OsDependentActivator.getConfigurationService().getBoolean(
                 "net.java.sip.communicator.impl.gui.main.configforms."
                 + "SHOW_OPTIONS_WINDOW",
                 true);
 
-        if (showOptions.booleanValue())
+        if (showOptions)
         {
             add(trayMenu, createTrayMenuItem(
                 "settings",
@@ -179,13 +169,13 @@ public final class TrayMenuFactory
             "service.gui.icons.ADD_CONTACT_16x16_ICON", listener, swing));
         addSeparator(trayMenu);
 
-        Boolean chatPresenceDisabled
+        var chatPresenceDisabled
             = OsDependentActivator.getConfigurationService().getBoolean(
                 "net.java.sip.communicator.impl.gui.main.presence."
                 + "CHAT_PRESENCE_DISABLED",
                 false);
 
-        if (!chatPresenceDisabled.booleanValue() && accountMenuSupported)
+        if (!chatPresenceDisabled && accountMenuSupported)
         {
             add(
                 trayMenu,
@@ -201,14 +191,13 @@ public final class TrayMenuFactory
         {
             showHideName = "service.gui.HIDE";
             showHideTextId = "service.gui.HIDE";
-            showHideIconId = "service.gui.icons.SEARCH_ICON_16x16";
         }
         else
         {
             showHideName = "service.gui.SHOW";
             showHideTextId = "service.gui.SHOW";
-            showHideIconId = "service.gui.icons.SEARCH_ICON_16x16";
         }
+        showHideIconId = "service.gui.icons.SEARCH_ICON_16x16";
 
         final Object showHideMenuItem = createTrayMenuItem( showHideName,
                                                             showHideTextId,

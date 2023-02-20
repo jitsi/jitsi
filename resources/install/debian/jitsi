@@ -9,23 +9,17 @@ for arg in "$@"; do
 done
 
 SCDIR=/usr/share/jitsi
-CONFIGPATH=${SCDIR}/config
-
-FELIX_CONFIG=${CONFIGPATH}/felix.properties
-CLASSPATH_CONFIG=${CONFIGPATH}/classpath
-
-CLASSPATH=""
-while IFS= read -r line; do
-  CLASSPATH="${CLASSPATH:+$CLASSPATH:}${SCDIR}/${line}"
-done <"${CLASSPATH_CONFIG}"
 
 if $SHOW_SPLASH; then
   SPLASH_ARG="-splash:${SCDIR}/splash.gif"
 fi
 
-COMMAND="$(command -v java) ${JITSI_EXTRA_ARGS} -cp ${CLASSPATH} -Djna.library.path=/usr/lib/jni -Dfelix.auto.deploy.dir=${SCDIR}/lib -Dfelix.config.properties=file:${FELIX_CONFIG} ${SPLASH_ARG} net.java.sip.communicator.launcher.SIPCommunicator"
+COMMAND="$(command -v java) \
+  -cp 'lib/*:config/' \
+  --add-opens=java.base/jdk.internal.loader=ALL-UNNAMED \
+  --add-opens=java.base/java.lang=ALL-UNNAMED \
+  ${SPLASH_ARG} \
+  ${JITSI_EXTRA_ARGS} \
+  net.java.sip.communicator.launcher.Jitsi"
 
-# add JNI libs to LD_LIBRARY_PATH for any Jitsi natives
-export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}/usr/lib/jni"
-
-exec ${COMMAND} "$@"
+echo exec ${COMMAND} "$@"

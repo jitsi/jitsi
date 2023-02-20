@@ -23,7 +23,7 @@ target_link_libraries(${PROJECT_NAME} LINK_PUBLIC
                       )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
-                           ${CMAKE_CURRENT_LIST_DIR}/../../../modules/plugin/addrbook/target/native/javah
+                           ${CMAKE_CURRENT_LIST_DIR}/../../../target/native/javah
                            ${JNI_INCLUDE_DIRS}
                            ${MAPI_HEADERS_DIR}
                            ${CMAKE_BINARY_DIR}/include/

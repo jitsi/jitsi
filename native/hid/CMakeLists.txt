@@ -21,11 +21,11 @@ elseif (UNIX AND NOT APPLE)
         message(FATAL_ERROR "libx11-dev is missing")
     endif ()
     if (NOT X11_Xtst_FOUND)
-        if (NOT X11_Xinput_FOUND)
+        if (NOT X11_XTest_FOUND)
             message(FATAL_ERROR "libxtst-dev is missing")
         else ()
-            set(XTST_LIB ${X11_Xinput_LIB})
-            set(XSS_HEADERS ${X11_Xinput_INCLUDE_PATH})
+            set(XTST_LIB ${X11_XTest_LIB})
+            set(XSS_HEADERS ${X11_XTest_INCLUDE_PATH})
         endif ()
     else ()
         set(XTST_LIB ${X11_Xtst_LIB})
@@ -54,7 +54,7 @@ target_link_libraries(${PROJECT_NAME} LINK_PUBLIC
                       )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
-                           ${CMAKE_CURRENT_LIST_DIR}/../../modules/impl/hid/target/native/javah
+                           ${CMAKE_CURRENT_LIST_DIR}/../../target/native/javah
                            ${JNI_INCLUDE_DIRS}
                            ${OS_HEADERS}
                            ${CMAKE_BINARY_DIR}/include/

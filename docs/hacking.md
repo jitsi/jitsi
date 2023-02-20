@@ -10,31 +10,17 @@ use [IntelliJ IDEA](https://www.jetbrains.com/idea/download).
 [CLion](https://www.jetbrains.com/clion/) works well on all platforms for the
 JNI libraries, but any other IDE with CMake support should do as well.
 
-- Make sure IntelliJ IDEA has the
-  [OSGi plugin](https://plugins.jetbrains.com/plugin/1816-osgi)
-  installed/enabled.
-- Download the
-  [Apache Felix Framework Distribution](https://felix.apache.org/downloads.cgi)
-  and add it as an OSGi framework (Settings -> Languages & Frameworks -> OSGi)
-- Configure the default bundle output
-  in `Settings -> Languages & Frameworks -> OSGi project defaults`
-  to `<projectdir>/target/bundles`
-
 ## Debugging in IntelliJ
 
 Open the directory containing the Jitsi Desktop source code as a Maven project,
-then create an OSGi launch configuration with the following properties:
+then create a launch configuration with the following options:
 
-- Select Felix as the Framework
-- set the default- and framework start level to 5
-- add all imported modules
-- set the start level of the `jitsi-launcher` bundle to 1
-- set the start level of `libjitsi` to 2
-- pass the following additional options
+- Classpath: `jitsi-launcher` project
+- Main class: `net.java.sip.communicator.launcher.Jitsi`
+- System properties:
   ```
   -Xbootclasspath/a:./lib
   -Dlogback.configurationFile=./lib/logback.xml
-  -Dfelix.config.properties=file:./lib/felix-dev.properties
   -splash:./resources/install/src/main/dist/splash.gif
   -Djava.library.path=./lib/native/windows-x64
   ```
@@ -54,13 +40,12 @@ To debug JNI libraries, set or prepend a custom JNI library path, e.g.
 
 ## Running from the command line
 
-After running `mvn package`, run something along this:
+After running `mvn package -DskipTests`, run something along this:
 
 ```shell
-java -cp `cat target/launcher-classpath`:lib/:modules/launcher/target/classes `
+java -cp "target/bundles/*:$(pwd)/lib/" `
   -Djava.library.path=$(pwd)/lib/native/linux-x64 `
-  -Dfelix.config.properties=file:./lib/felix-dev.properties `
-  net.java.sip.communicator.launcher.SIPCommunicator
+  net.java.sip.communicator.launcher.Jitsi
 ```
 
 To debug, use the standard Java debug arguments,

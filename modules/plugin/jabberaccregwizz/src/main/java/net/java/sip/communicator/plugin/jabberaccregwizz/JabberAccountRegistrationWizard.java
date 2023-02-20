@@ -59,11 +59,6 @@ public class JabberAccountRegistrationWizard
     private ProtocolProviderService protocolProvider;
 
     /**
-     * The create account form.
-     */
-    private JabberAccountCreationForm createAccountService;
-
-    /**
      * Creates an instance of <tt>JabberAccountRegistrationWizard</tt>.
      * @param wizardContainer the wizard container, where this wizard
      * is added
@@ -591,20 +586,6 @@ public class JabberAccountRegistrationWizard
     public String getAccountIconPath()
     {
         return null;
-    }
-
-    /**
-     * Returns an instance of <tt>CreateAccountService</tt> through which the
-     * user could create an account. This method is meant to be implemented by
-     * specific protocol provider wizards.
-     * @return an instance of <tt>CreateAccountService</tt>
-     */
-    protected JabberAccountCreationFormService getCreateAccountService()
-    {
-        if (createAccountService == null)
-            createAccountService = new JabberAccountCreationForm();
-
-        return createAccountService;
     }
 
     /**

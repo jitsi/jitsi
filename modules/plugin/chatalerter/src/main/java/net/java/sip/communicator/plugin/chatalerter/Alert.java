@@ -24,6 +24,7 @@ import com.sun.jna.platform.win32.*;
 import com.sun.jna.platform.win32.WinDef.*;
 import com.sun.jna.platform.win32.WinUser.*;
 import java.awt.*;
+import java.awt.Taskbar.*;
 import java.awt.event.*;
 import org.apache.commons.lang3.*;
 
@@ -41,15 +42,7 @@ public abstract class Alert
     {
         if (SystemUtils.IS_OS_MAC)
         {
-            return new Alert()
-            {
-                @Override
-                public void alert(Frame frame)
-                {
-                    com.apple.eawt.Application.getApplication()
-                        .requestUserAttention(true);
-                }
-            };
+            return new MacAlert();
         }
         else if (SystemUtils.IS_OS_WINDOWS)
         {
@@ -79,6 +72,32 @@ public abstract class Alert
     }
 
     public abstract void alert(Frame frame);
+
+    private static class MacAlert extends Alert
+    {
+        private Taskbar taskbar;
+
+        private MacAlert()
+        {
+            if (Taskbar.isTaskbarSupported())
+            {
+                taskbar = Taskbar.getTaskbar();
+                if (!taskbar.isSupported(Feature.USER_ATTENTION))
+                {
+                    taskbar = null;
+                }
+            }
+        }
+
+        @Override
+        public void alert(Frame frame)
+        {
+            if (taskbar != null)
+            {
+                taskbar.requestWindowUserAttention(frame);
+            }
+        }
+    }
 
     private static class XAlert
         extends Alert

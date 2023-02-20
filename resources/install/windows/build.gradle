@@ -4,7 +4,21 @@ def wixHome = System.env.WIX != null
 def wixRootDir = "${buildDir}/install/wix"
 def wixTempDir = "${wixRootDir}/tmp"
 def wixTargetDir = "${wixRootDir}/target"
-def arch = project.property('application.target')
+def arch
+switch (project.property('application.target')) {
+    case ["x86", "i386"]:
+        arch = 'x86'
+        break
+    case ["x64", "x86-64", "x86_64", "amd64"]:
+        arch = 'x64'
+        break
+    case ["arm64", "aarch64"]:
+        arch = 'arm64'
+        break
+    default:
+        arch = project.property('application.target')
+        break
+}
 
 task copyLauncher(type: Copy, group: 'installer-wix') {
     from nativeSrcDir
@@ -138,12 +152,12 @@ task wixLight(type: Exec, group: 'installer-wix', dependsOn: wixCandle) {
             '-ext', 'WixUtilExtension',
             '-cultures:en-us',
             '-loc', "${projectDir}/windows/wix/en-us.wxl",
-            '-out', "${wixRootDir}/jitsi-${versionShort}-${arch}.msi",
+            '-out', "${wixRootDir}/jitsi-${versionShort}-win-${arch}.msi",
             "${wixTempDir}/*.wixobj"
 }
 
 task signMsi(group: 'installer-wix', dependsOn: wixLight) {
-    inputs.files("${wixRootDir}/jitsi-${versionShort}-${arch}.msi")
+    inputs.files("${wixRootDir}/jitsi-${versionShort}-win-${arch}.msi")
     doLast {
         if (project.hasProperty('application.win.certfile')) {
             signFile inputs.files.singleFile
@@ -154,6 +168,6 @@ task signMsi(group: 'installer-wix', dependsOn: wixLight) {
 task windowsZip(type: Zip, group: 'installer-wix', dependsOn: signWixTarget) {
     archivesBaseName = "jitsi"
     archiveVersion = versionShort
-    archiveClassifier = arch
+    archiveClassifier = "win-${arch}"
     from wixTargetDir
 }

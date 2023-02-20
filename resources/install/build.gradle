@@ -6,14 +6,13 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.jsign:jsign-gradle-plugin:3.1'
+        classpath 'net.jsign:jsign-gradle-plugin:4.2'
     }
 }
 
 plugins {
     id 'application'
-    id 'de.undercouch.download' version '4.1.1'
-    id 'nebula.ospackage' version '8.5.6'
+    id 'de.undercouch.download' version '5.3.1'
     id 'signing'
 }
 
@@ -27,7 +26,7 @@ ext {
     bundlesDir = file("${projectRootDir}/target/bundles")
 
     if (project.version == '0.0') {
-        def pom = new XmlSlurper(false, true).parse("${projectRootDir}/pom.xml")
+        def pom = new groovy.xml.XmlSlurper(false, true).parse("${projectRootDir}/pom.xml")
         project.version = pom.properties.revision.text()
     }
 
@@ -64,62 +63,85 @@ signing {
 }
 
 application {
-    mainClass = 'net.java.sip.communicator.launcher.SIPCommunicator'
+    mainClass = 'net.java.sip.communicator.launcher.Jitsi'
     executableDir = ''
-}
-
-def getLauncherClasspath() {
-    def cpFile = file("${projectRootDir}/target/launcher-classpath")
-    if (cpFile != null && cpFile.exists()) {
-        cpFile.text.split(System.getProperty("path.separator")).collect { "lib/${file(it).name}" } + [
-                "lib/jitsi-launcher-${project.version}.jar",
-                'config/',
-        ]
-    } else {
-        []
-    }
 }
 
 startScripts {
     applicationName = project.name
     defaultJvmOpts = [
             '-splash:splash.gif',
-            '-Djava.library.path=_JITSI_APP_HOME_native',
-            '-Djna.library.path=_JITSI_APP_HOME_native',
-            '-Dfelix.config.properties=file:config/felix.properties',
+            '--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED',
+            '--add-opens=java.base/java.lang=ALL-UNNAMED',
+            '-Djava.library.path=_JITSI_APP_HOME_native;_JITSI_ALLUSERSPROFILE\\Jitsi\\native',
+            '-Djna.library.path=_JITSI_APP_HOME_native;_JITSI_ALLUSERSPROFILE\\Jitsi\\native',
             '-Dlogback.configurationFile=config/logback.xml',
     ]
-    classpath = files(getLauncherClasspath())
+    classpath = files('config/', 'lib/*')
     doLast {
         unixScript.text = unixScript.text
                 .replace('_JITSI_APP_HOME_', '$APP_HOME/')
+                .replace(';_JITSI_ALLUSERSPROFILE\\\\Jitsi\\\\native', '')
                 .replace('lib/config', 'config')
+        println unixScript.text
         windowsScript.text = windowsScript.text
                 .replace('_JITSI_APP_HOME_', '%APP_HOME%\\')
+                .replace('_JITSI_ALLUSERSPROFILE', '%ALLUSERSPROFILE%')
                 .replace('lib\\config', 'config')
+                .replace('set JAVA_EXE=java.exe', 'set JAVA_EXE=jre\\bin\\java.exe')
         file("${outputDir}/config").mkdirs()
-        file("${outputDir}/config/classpath").text = getLauncherClasspath().join('\n') + '\n'
     }
 }
 
 def createJreTasks(String os) {
     def arch = project.property('application.target')
-    // adoptium arch notation
-    def adoptArch = arch == 'arm64' ? 'aarch64' : arch
+    // temurin OS and arch notation
+    def adoptArch
+    def adoptOs
+    switch (arch) {
+        case ["x86", "i386"]:
+            adoptArch = 'x86'
+            break
+        case ["x64", "x86-64", "x86_64", "amd64"]:
+            adoptArch = 'x64'
+            break
+        case ["arm64", "aarch64"]:
+            adoptArch = 'aarch64'
+            break
+        case ["ppc64el", "ppc64le"]:
+            adoptArch = 'ppc64el'
+            break
+        default:
+            adoptArch = arch
+            break
+    }
+
+    switch (os) {
+        case ["windows", "win", "win32"]:
+            adoptOs = "windows"
+            break
+        case ["mac", "darwin", "osx", "macos", "macosx"]:
+            adoptOs = "mac"
+            break
+        default:
+            adoptOs = os
+            break
+    }
+
     def getTask = tasks.create("get${os}Jre", Download) {
         def jreVersion = project.property('application.jre.version')
         onlyIfModified true
         overwrite true
-        src "https://api.adoptium.net/v3/binary/version/${jreVersion}/${os}/${adoptArch}/jre/hotspot/normal/eclipse?project=jdk"
-        dest file("${project.buildDir}/jre-${jreVersion}-${os}-${arch}.${os == 'windows' ? 'zip' : 'tar.gz'}")
+        src "https://api.adoptium.net/v3/binary/version/${jreVersion}/${adoptOs}/${adoptArch}/jre/hotspot/normal/eclipse?project=jdk"
+        dest file("${project.buildDir}/jre-${jreVersion}-${os}-${arch}.${adoptOs == 'windows' ? 'zip' : 'tar.gz'}")
     }
 
-    def hashProperty = "application.jre.${os}.${arch}-hash"
+    def hashProperty = "application.jre.${adoptOs}.${adoptArch}-hash"
     if (project.hasProperty(hashProperty)) {
         def verifyTask = tasks.create("verify${os}Jre", Verify) {
             src getTask.dest
             algorithm 'SHA-256'
-            checksum project.property("application.jre.${os}.${arch}-hash")
+            checksum project.property("application.jre.${adoptOs}.${adoptArch}-hash")
         }
         verifyTask.dependsOn += getTask
         tasks.find { it.name.equalsIgnoreCase("install${os}Dist") }.dependsOn += verifyTask
@@ -145,25 +167,12 @@ distributions {
         }
     }
 
-    linux {
-        contents {
-            with distributions.main.contents
-            with nativeCopySpec('linux')
-            exclude '*.bat'
-            exclude '*orange*'
-            exclude '*sparkle*'
-            exclude '*mac_widgets*'
-        }
-    }
-
     mac {
         contents {
             into('Jitsi.app/Contents/Resources/Java') {
                 with distributions.main.contents
-                with nativeCopySpec('mac')
+                with nativeCopySpec('darwin')
                 exclude '*.bat'
-                exclude '*dbus*'
-                exclude '*galago*'
             }
 
             into('Jitsi.app/Contents/PlugIns') {
@@ -184,12 +193,8 @@ distributions {
     windows {
         contents {
             with distributions.main.contents
-            with nativeCopySpec('windows')
-            exclude '*dbus*'
-            exclude '*orange*'
-            exclude '*sparkle*'
-            exclude '*mac_widgets*'
-            exclude '*galago*'
+            with nativeCopySpec('win32')
+            exclude '*.sh'
 
             into('jre') {
                 def getJreTask = createJreTasks('windows')
@@ -208,6 +213,5 @@ distributions {
     }
 }
 
-apply from: 'debian/build.gradle'
 apply from: 'windows/build.gradle'
 apply from: 'mac/build.gradle'

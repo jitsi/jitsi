@@ -66,7 +66,7 @@ target_link_libraries(${PROJECT_NAME} LINK_PUBLIC
 
 target_include_directories(${PROJECT_NAME} PUBLIC
                            ${OS_INCLUDE}
-                           ${CMAKE_CURRENT_LIST_DIR}/../../modules/service/globalshortcut/target/native/javah
+                           ${CMAKE_CURRENT_LIST_DIR}/../../target/native/javah
                            ${JNI_INCLUDE_DIRS}
                            ${CMAKE_BINARY_DIR}/include/
                            )

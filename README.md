@@ -1,6 +1,5 @@
 [![Java Version Builds](https://github.com/jitsi/jitsi/actions/workflows/java.yml/badge.svg?branch=new-build)](https://github.com/jitsi/jitsi/actions/workflows/java.yml)
 [![Installers](https://github.com/jitsi/jitsi/actions/workflows/installers.yml/badge.svg?branch=new-build)](https://github.com/jitsi/jitsi/actions/workflows/installers.yml)
-[![Hosted By: Cloudsmith](https://img.shields.io/badge/Debian%20package%20hosting%20by-cloudsmith-blue?logo=cloudsmith)](https://cloudsmith.com)
 
 Jitsi Desktop
 =============
@@ -30,36 +29,13 @@ on community contributions.
 Download the installers
 from [GitHub releases](https://github.com/jitsi/jitsi/releases/latest/).
 
-#### Ubuntu
-
-Ubuntu users can add
-the [PPA](https://launchpad.net/~jitsi/+archive/ubuntu/jitsi-desktop)
-
+#### Debian/Ubuntu
+An APT repository is available at https://nexus.ingo.ch/jitsi-desktop/.
+Note the trailing slash at the end of the distro-name.
+This is required since the repository has no components.
+```deb
+deb https://nexus.ingo.ch/jitsi-desktop-unstable/ <distro>/
 ```
-sudo add-apt-repository ppa:jitsi/jitsi-desktop
-sudo apt-get update
-sudo apt-get install jitsi
-```
-
-#### Debian
-
-Lacking an infrastructure like Ubuntu's PPA, Debian package repository hosting
-is graciously provided by [Cloudsmith](https://cloudsmith.com).
-
-```
-curl -1sLf 'https://dl.cloudsmith.io/public/jitsi/jitsi-desktop/gpg.1BB13FEC36C8131E.key' | sudo apt-key add -
-sudo add-apt-repository https://dl.cloudsmith.io/public/jitsi/jitsi-desktop/deb/debian
-sudo apt-get update
-sudo apt-get install jitsi
-```
-
-Or manually add the
-line `deb https://dl.cloudsmith.io/public/jitsi/jitsi-desktop/deb/debian <distro> main`
-to `/etc/apt/sources.list` if you don't have the
-package `software-properties-common` that provides the
-command `add-apt-repository`.
-
-![Cloudsmith Logo](https://cloudsmith.com/img/cloudsmith-logo-dark.svg)
 
 #### RPM Distros
 
@@ -70,8 +46,7 @@ Sorry, there are currently no rpm packages available.
 Snapshot or pre-release builds are also available in additional repositories.
 
 - Windows and macOS: See https://github.com/jitsi/jitsi/releases
-- Ubuntu: Use the snapshots ppa `ppa:jitsi/jitsi-desktop-snapshots`
-- Debian: https://cloudsmith.io/~jitsi/repos/jitsi-desktop-snapshots
+- Debian/Ubuntu: https://nexus.ingo.ch/jitsi-desktop-unstable/
 
 ## Helpful Resources
 

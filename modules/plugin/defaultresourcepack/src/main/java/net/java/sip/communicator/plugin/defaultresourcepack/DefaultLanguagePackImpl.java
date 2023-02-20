@@ -17,7 +17,6 @@
  */
 package net.java.sip.communicator.plugin.defaultresourcepack;
 
-import java.lang.reflect.*;
 import java.net.*;
 import java.util.*;
 import net.java.sip.communicator.service.resources.*;
@@ -47,6 +46,8 @@ public class DefaultLanguagePackImpl
      * All language resource locales.
      */
     private final Vector<Locale> availableLocales = new Vector<>();
+
+    private final Utf8ResourceBundleControl control = new Utf8ResourceBundleControl();
 
     /**
      * Constructor.
@@ -100,18 +101,14 @@ public class DefaultLanguagePackImpl
      */
     public Map<String, String> getResources(Locale locale)
     {
-        // check if we didn't computed it at the previous call
+        // check if we didn't compute it at the previous call
         if (locale.equals(localeInBuffer) && lastResourcesAsked != null)
         {
             return lastResourcesAsked;
         }
 
-        ResourceBundle resourceBundle
-            = ResourceBundle.getBundle(DEFAULT_RESOURCE_PATH, locale,
-            new Utf8ResourceBundleControl());
-
-        Map<String, String> resources = new Hashtable<String, String>();
-
+        var resourceBundle = ResourceBundle.getBundle(DEFAULT_RESOURCE_PATH, locale, control);
+        Map<String, String> resources = new Hashtable<>();
         this.initResources(resourceBundle, resources);
 
         // keep it just in case of...
@@ -129,22 +126,13 @@ public class DefaultLanguagePackImpl
      * @return a Set of the keys contained only in the ResourceBundle for locale
      */
     @Override
-    @SuppressWarnings("unchecked")
     public Set<String> getResourceKeys(Locale locale)
     {
-        try
-        {
-            Method handleKeySet = ResourceBundle.class
-                .getDeclaredMethod("handleKeySet");
-            handleKeySet.setAccessible(true);
-            return (Set<String>) handleKeySet.invoke(
-                ResourceBundle.getBundle(DEFAULT_RESOURCE_PATH, locale).keySet());
-        }
-        catch (Exception e)
-        {
-        }
-
-        return Collections.emptySet();
+        return ((Utf8ResourceBundleControl.JitsiResourceBundle) ResourceBundle.getBundle(
+            DEFAULT_RESOURCE_PATH,
+            locale,
+            control
+        )).handleKeySet();
     }
 
     /**

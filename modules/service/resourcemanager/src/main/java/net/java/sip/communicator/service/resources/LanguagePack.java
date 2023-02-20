@@ -25,31 +25,28 @@ import java.util.*;
 public interface LanguagePack
     extends ResourcePack
 {
-    public static final String RESOURCE_NAME_DEFAULT_VALUE
-        = "DefaultLanguagePack";
+    String RESOURCE_NAME_DEFAULT_VALUE = "DefaultLanguagePack";
 
     /**
-     * Returns a <tt>Map</tt>, containing all [key, value] pairs for the given
-     * locale.
+     * Returns a <tt>Map</tt>, containing all [key, value] pairs for the given locale.
      *
      * @param locale The <tt>Locale</tt> we're looking for.
-     * @return a <tt>Map</tt>, containing all [key, value] pairs for the given
-     * locale.
+     * @return a <tt>Map</tt>, containing all [key, value] pairs for the given locale.
      */
-    public Map<String, String> getResources(Locale locale);
+    Map<String, String> getResources(Locale locale);
 
     /**
-     * Returns a Set of the keys contained only in the ResourceBundle for
-     * locale.
+     * Returns a Set of the keys contained only in the ResourceBundle for locale.
+     *
      * @param locale the locale for which the keys are requested
-     * @return a Set of the keys contained only in the ResourceBundle for
-     * locale
+     * @return a Set of the keys contained only in the ResourceBundle for locale
      */
-    public Set<String> getResourceKeys(Locale locale);
+    Set<String> getResourceKeys(Locale locale);
 
     /**
      * All the locales in the language pack.
+     *
      * @return all the locales this Language pack contains.
      */
-    public Iterator<Locale> getAvailableLocales();
+    Iterator<Locale> getAvailableLocales();
 }

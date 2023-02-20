@@ -8,26 +8,22 @@ Vcs-Git: https://github.com/jitsi/jitsi.git
 Vcs-Browser: https://github.com/jitsi/jitsi
 Standards-Version: 4.5.0
 Build-Depends:
- debhelper (>= 11),
- javahelper,
+ debhelper-compat (= 13),
  dpkg-dev (>= 1.16.1),
  default-jdk,
- maven-debian-helper,
- libbuild-helper-maven-plugin-java,
- libmaven-dependency-plugin-java,
- libmaven-bundle-plugin-java,
- libmaven-jar-plugin-java,
- libwagon-ssh-java,
- rsync,
+Build-Depends-Indep:
+ maven,
+Build-Depends-Arch:
  cmake (>= 3.10),
- pkg-config,
  libdbus-1-dev,
- libxss-dev,
- libxtst-dev,
  libgtk2.0-dev,
  libx11-dev,
  libxext-dev,
+ libxml2-utils,
+ libxss-dev,
  libxtst-dev,
+ lsb-release,
+ pkg-config,
 
 Package: jitsi
 Architecture: all
@@ -36,8 +32,11 @@ Depends:
  default-jre (>= 2:1.11) | openjdk-11-jre,
  libjitsi-jni (>= ${source:Version}),
  libjitsi-jni (<< ${source:Version}.1),
+ liblibjitsi-jni (>= ${libjitsi}),
+ liblibjitsi-jni (<< ${libjitsi}.1),
 Recommends:
  libjitsi-lgpl-dependencies-java,
+ libayatana-appindicator1,
 Description: VoIP and Instant Messaging client
  Jitsi is an application that allows you to do audio/video conversations
  over the Internet through the SIP and XMPP/Jabber protocol, as well as
@@ -47,12 +46,10 @@ Description: VoIP and Instant Messaging client
  Java-only part of the package.
 
 Package: libjitsi-jni
-Architecture: i386 amd64
+Architecture: any
 Depends:
  ${shlibs:Depends},
  ${misc:Depends}
-Recommends:
- libappindicator1,
 Description: VoIP and Instant Messaging client
  Jitsi is an application that allows you to do audio/video conversations
  over the Internet through the SIP and XMPP/Jabber protocol, as well as

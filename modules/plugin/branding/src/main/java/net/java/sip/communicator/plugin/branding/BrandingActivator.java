@@ -17,14 +17,16 @@
  */
 package net.java.sip.communicator.plugin.branding;
 
+import java.awt.*;
+import java.awt.Desktop.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.gui.*;
 
+import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.resources.*;
-import org.jitsi.util.*;
 import org.osgi.framework.*;
 
 /**
@@ -56,22 +58,28 @@ public class BrandingActivator
         browserLauncherService = getService(BrowserLauncherService.class);
 
         // register the about dialog menu entry
-        if (!OSUtils.IS_MAC || !registerMenuEntryMacOSX())
+        if (!registerAboutHandler())
         {
             registerMenuEntryNonMacOSX(bundleContext);
         }
     }
 
-    private boolean registerMenuEntryMacOSX()
+    private boolean registerAboutHandler()
     {
         try
         {
-            return MacOSXAboutRegistration.run();
+            if (Desktop.isDesktopSupported())
+            {
+                var desktop = Desktop.getDesktop();
+                if (desktop != null && desktop.isSupported(Action.APP_ABOUT))
+                {
+                    desktop.setAboutHandler(e -> AboutWindow.showAboutWindow());
+                }
+            }
         }
         catch (Exception ex)
         {
-            logger.error("Failed to register Mac OS X-specific About handling.",
-                ex);
+            logger.error("Failed to register About handling", ex);
         }
 
         return false;

@@ -11,7 +11,7 @@ add_library(${PROJECT_NAME} SHARED
 
 target_include_directories(${PROJECT_NAME} PUBLIC
                            ${JNI_INCLUDE_DIRS}
-                           ${CMAKE_CURRENT_LIST_DIR}/../../../modules/impl/sparkle/target/native/javah
+                           ${CMAKE_CURRENT_LIST_DIR}/../../../target/native/javah
                            ${SPARKLE_INCLUDE_DIR}
                            )
 
@@ -20,3 +20,13 @@ target_link_libraries(${PROJECT_NAME}
                       "-framework Foundation"
                       ${SPARKLE_LIBRARY}
                       )
+
+add_custom_command(TARGET ${PROJECT_NAME}
+                   POST_BUILD COMMAND
+                   ${CMAKE_INSTALL_NAME_TOOL} -change "@loader_path/../Frameworks/Sparkle.framework/Versions/A/Sparkle" "@executable_path/../Frameworks/Sparkle.framework/Versions/A/Sparkle"
+                   $<TARGET_FILE:${PROJECT_NAME}>
+                   )
+
+install(TARGETS ${PROJECT_NAME}
+        RUNTIME DESTINATION "."
+        LIBRARY DESTINATION ".")

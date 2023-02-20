@@ -1,5 +1,7 @@
 import org.apache.tools.ant.filters.ReplaceTokens
 
+def arch = project.property('application.target')
+
 task copyInfoPlist(group: 'installer-mac') {
     doLast {
         // cannot be a copy task itself (the classpath must be evaluated on exec, not config)
@@ -7,10 +9,11 @@ task copyInfoPlist(group: 'installer-mac') {
             from "${projectDir}/mac/Info.plist"
             into "${installMacDist.destinationDir}/Jitsi.app/Contents/"
             filter(ReplaceTokens, tokens: [
-                    CLASSPATH_STRINGS         : (getLauncherClasspath().collect {
+                    CLASSPATH_STRINGS         : (["config/"] + fileTree(dir: "${installMacDist.destinationDir}/Jitsi.app/Contents/Resources/Java/lib", include: '*.jar').collect(){
+                        "lib/${it.name}"
+                    }).collect( {
                         "<string>\$JAVAROOT/${it}</string>"
-                    }
-                    ).join('\n').toString(),
+                    }).join('\n').toString(),
                     CFBundleShortVersionString: versionShort,
                     CFBundleVersion           : versionFull,
                     JRE_VERSION               : "${project.property('application.jre.version')}-jre".toString(),
@@ -22,7 +25,7 @@ task copyInfoPlist(group: 'installer-mac') {
 task copyMacLauncher(type: Copy, group: 'installer-mac') {
     from nativeSrcDir
     into "${installMacDist.destinationDir}/Jitsi.app/Contents/MacOS/"
-    include '**/cmake-build/launcher/**/MacOS/Jitsi'
+    include '**/cmake-build/macosx/launcher/**/MacOS/Jitsi'
     includeEmptyDirs = false
     eachFile {
         path = name
@@ -40,5 +43,5 @@ task createDmg(type: Exec, group: 'installer-mac', dependsOn: [
     // TODO: sign
     workingDir installMacDist.destinationDir.parent
     commandLine "${projectDir}/mac/build-dmg.sh"
-    args installMacDist.destinationDir.name
+    args installMacDist.destinationDir.name, versionShort, arch
 }

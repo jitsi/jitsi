@@ -37,16 +37,30 @@ class Utf8ResourceBundleControl
         {
             if (is != null)
             {
-                try (InputStreamReader isr = new InputStreamReader(is,
-                    StandardCharsets.UTF_8))
+                try (var isr = new InputStreamReader(is, StandardCharsets.UTF_8))
                 {
-                    return new PropertyResourceBundle(isr);
+                    return new JitsiResourceBundle(isr);
                 }
             }
             else
             {
                 return null;
             }
+        }
+    }
+
+    public static class JitsiResourceBundle
+        extends PropertyResourceBundle
+    {
+        public JitsiResourceBundle(Reader reader) throws IOException
+        {
+            super(reader);
+        }
+
+        @Override
+        public Set<String> handleKeySet()
+        {
+            return super.handleKeySet();
         }
     }
 

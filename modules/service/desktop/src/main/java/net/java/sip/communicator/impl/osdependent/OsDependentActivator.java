@@ -17,8 +17,10 @@
  */
 package net.java.sip.communicator.impl.osdependent;
 
+import java.awt.Desktop;
+import java.awt.Desktop.*;
+import java.awt.desktop.*;
 import net.java.sip.communicator.impl.osdependent.jdic.*;
-import net.java.sip.communicator.impl.osdependent.macosx.*;
 import net.java.sip.communicator.service.desktop.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
@@ -27,7 +29,6 @@ import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.osgi.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
-import org.jitsi.util.*;
 import org.osgi.framework.*;
 
 /**
@@ -113,13 +114,6 @@ public class OsDependentActivator
      */
     public static ResourceManagementService getResources()
     {
-        if (resourcesService == null)
-        {
-            resourcesService
-                = ServiceUtils.getService(
-                bundleContext,
-                ResourceManagementService.class);
-        }
         return resourcesService;
     }
 
@@ -160,11 +154,26 @@ public class OsDependentActivator
     public void startWithServices(BundleContext bc)
     {
         bundleContext = bc;
+        resourcesService = getService(ResourceManagementService.class);
+        globalStatusService = getService(GlobalStatusService.class);
 
-        // Adds a MacOSX specific dock icon listener in order to show main
-        // contact list window on dock icon click.
-        if (OSUtils.IS_MAC)
-            MacOSXDockIcon.addDockIconListener();
+        // Adds a listener to show the window on dock/app icon click
+        if (java.awt.Desktop.isDesktopSupported())
+        {
+            var desktop = Desktop.getDesktop();
+            if (desktop != null && Desktop.getDesktop().isSupported(Action.APP_EVENT_REOPENED))
+            {
+                desktop.addAppEventListener(
+                    (AppReopenedListener) appReOpenedEvent ->
+                    {
+                        UIService uiService = getUIService();
+                        if (uiService != null && !uiService.isVisible())
+                        {
+                            uiService.setVisible(true);
+                        }
+                    });
+            }
+        }
 
         // Create the notification service implementation
         SystrayService systrayService = new SystrayServiceJdicImpl(bc,

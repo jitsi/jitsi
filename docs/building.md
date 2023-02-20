@@ -28,7 +28,7 @@ Build the Java packages with `mvn package` in the project root directory.
 ### JNI libraries
 
 Build the JNI libraries with CMake in the native directory, or, copy them from a
-compatible downloaded Jitsi Desktop build into `lib/native/<platform>`.
+compatible downloaded Jitsi Desktop build into `lib/native/<platform>-<arch>`.
 
 #### Windows
 
@@ -72,16 +72,32 @@ cmake --build cmake-build --target install
 ### MacOS
 
 ```shell
-cmake -B cmake-build
-cmake --build cmake-build --target install
+./resources/mac-cmake.sh $JAVA_HOME x86-64
 ```
 
-## Installers
+## Installers (Windows, Mac)
 
-Create the .msi/.dmg/.deb binaries by invoking the respective Gradle targets
+Create the .msi/.dmg binaries by invoking the respective Gradle targets
 in `resources/install`. These commands assume that the Java and JNI libraries
 have been built.
 
-- Windows: `gradlew windowsZip signMsi -Papplication.target=x64`
+- Windows: `gradlew windowsZip signMsi`
 - MacOS: `./gradlew createDmg`
-- Linux: `./gradlew buildDeb -Papplication.target=x64`
+
+Change or set the property `application.target` if not building for `x86-64`.
+Valid values are:
+
+- `x86` (Windows)
+- `x86-64` (Windows, Mac)
+
+## Packages (Debian/Ubuntu)
+
+- Install the required tools (see `resources/deb-prepare.sh`)
+- Set a static version with
+  `mvn -B versions:set -DnewVersion="2.14.123-gcaffee" -DgenerateBackupPoms=false`
+- Generate the source package with `resources/deb-gen-source.sh`
+- Build the package using your preferred tool (e.g. `sbuild` or `pbuilder`).
+  Note that the packaging requires network access to download Maven packages.
+
+  See `resources/deb-build.sh` for guidance, this script is used by GitHub
+  Actions to generate the packages.

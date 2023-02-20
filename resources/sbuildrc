@@ -2,8 +2,13 @@ $verbose = 1;
 $batch_mode = 1;
 $build_dir = $ENV{'BUILD_DIR'};
 $run_lintian = 0;
-$apt_update = 0;
-$apt_distupgrade = 0;
+$apt_update = 1;
+$apt_distupgrade = 1;
+$build_dep_resolver = 'aptitude';
+$build_environment = {
+  # avoid issues with debugedit on Ubuntu before jammy
+  'DEB_BUILD_OPTIONS' => 'nostrip'
+};
 
 # don't remove this, Perl needs it:
 1;

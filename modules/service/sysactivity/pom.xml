@@ -2,7 +2,6 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
-  <packaging>bundle</packaging>
   <parent>
     <groupId>org.jitsi.desktop</groupId>
     <artifactId>service-parent</artifactId>
@@ -18,13 +17,7 @@
     </dependency>
     <dependency>
       <groupId>com.github.hypfvieh</groupId>
-      <artifactId>dbus-java-osgi</artifactId>
-      <exclusions>
-        <exclusion>
-          <artifactId>*</artifactId>
-          <groupId>*</groupId>
-        </exclusion>
-      </exclusions>
+      <artifactId>dbus-java</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jitsi</groupId>
@@ -51,37 +44,4 @@
       <version>${project.version}</version>
     </dependency>
   </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <compilerArgs>
-            <arg>-h</arg>
-            <arg>${project.build.directory}/native/javah/</arg>
-          </compilerArgs>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <configuration>
-          <instructions>
-            <Bundle-Activator>net.java.sip.communicator.impl.sysactivity.SysActivityActivator</Bundle-Activator>
-            <Import-Package>
-              org.freedesktop;resolution:=optional,
-              org.freedesktop.*;resolution:=optional,
-              *
-            </Import-Package>
-            <Export-Package>
-              net.java.sip.communicator.service.sysactivity,
-              net.java.sip.communicator.service.sysactivity.*
-            </Export-Package>
-          </instructions>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>

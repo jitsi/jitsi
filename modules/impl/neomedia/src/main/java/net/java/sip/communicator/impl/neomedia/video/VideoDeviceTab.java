@@ -150,7 +150,7 @@ public class VideoDeviceTab
                 device))
             {
                 Dimension videoContainerSize
-                    = previewContainer.getPreferredSize();
+                    = previewContainer.getSize();
                 Component preview
                     = (Component)
                     mediaService.getVideoPreviewComponent(

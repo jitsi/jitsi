@@ -20,9 +20,9 @@ package net.java.sip.communicator.launchutils;
 import ch.qos.logback.classic.*;
 import ch.qos.logback.classic.Logger;
 import java.io.*;
-import java.util.*;
 
 import lombok.extern.slf4j.Slf4j;
+import net.java.sip.communicator.impl.version.*;
 import org.slf4j.*;
 
 /**
@@ -113,28 +113,6 @@ public class LaunchArgHandler
     public static final int ERROR_CODE_CREATE_DIR_FAILED = 3;
 
     /**
-     * The property name containing the name of the application
-     * (e.g. SIP Communicator)
-     */
-    private  static final String PNAME_APPLICATION_NAME = "APPLICATION_NAME";
-
-    /**
-     * The package name of the applications (e.g. jitsi).
-     */
-    private  static final String PNAME_PACKAGE_NAME = "PACKAGE_NAME";
-
-    /**
-     * The property name containing the current version.
-     */
-    private static final String PNAME_VERSION = "APPLICATION_VERSION";
-
-    /**
-     * The name of the file containing version properties for use with the
-     * argument handler.
-     */
-    private static final String VERSION_PROPERTIES = "version.properties";
-
-    /**
      * The errorCode identifying the error that occurred last time
      * <tt>handleArgs</tt> was called.
      */
@@ -151,42 +129,10 @@ public class LaunchArgHandler
     private static LaunchArgHandler argHandler = null;
 
     /**
-     * The properties where we load version info from our update location.
-     */
-    private final Properties versionProperties = new Properties();
-
-    /**
      * Creates the sole instance of this class;
      */
     private LaunchArgHandler()
     {
-        InputStream versionPropertiesStream =
-            getClass().getResourceAsStream(VERSION_PROPERTIES);
-        boolean versionPropertiesAreLoaded = false;
-        if (versionPropertiesStream != null)
-        {
-            try
-            {
-                try
-                {
-                    versionProperties.load(versionPropertiesStream);
-                    versionPropertiesAreLoaded = true;
-                }
-                finally
-                {
-                    versionPropertiesStream.close();
-                }
-            }
-            catch (IOException exc)
-            {
-                // no need to worry the user, so only print if we're in FINEST
-            }
-        }
-        if (!versionPropertiesAreLoaded)
-        {
-            if (logger.isTraceEnabled())
-                logger.trace("Couldn't open version.properties");
-        }
     }
 
     /**
@@ -285,7 +231,7 @@ public class LaunchArgHandler
                 // do nothing already handled by startup script/binary
                 continue;
             }
-            else if (args[i].startsWith("--notray"))
+            else if (args[i].startsWith("--notray") || args[i].equals("-n"))
             {
                 System.setProperty("disable-tray", "true");
                 continue;
@@ -383,10 +329,6 @@ public class LaunchArgHandler
         System.setProperty(PNAME_SC_LOG_DIR_LOCATION, configDir.getParent());
         System.setProperty(PNAME_SC_HOME_DIR_NAME, configDir.getName());
 
-        //we instantiated our class logger before we had a chance to change
-        //the dir so we need to reset it now.
-//        logger.reset();
-
         return ACTION_CONTINUE;
     }
 
@@ -398,67 +340,9 @@ public class LaunchArgHandler
      */
     private void handleVersionArg()
     {
-        String name = getApplicationName();
-        String version = getVersion();
+        var v = new VersionServiceImpl().getCurrentVersion();
+        System.out.println(v.getApplicationName() + " " + v);
 
-        if (name == null || name.trim().length() == 0)
-        {
-            name = "Jitsi";
-        }
-
-        if (version == null || version.trim().length() == 0)
-        {
-            version = "build.by.SVN";
-        }
-        System.out.println(name + " " + version);
-
-    }
-
-    /**
-     * Returns the version of the SIP Communicator instance that we are
-     * currently running.
-     *
-     * @return a String containing the version of the SC instance we are
-     * currently running.
-     */
-    private String getVersion()
-    {
-        String version = versionProperties.getProperty(PNAME_VERSION);
-
-        return  version == null
-            ? "build.by.SVN"
-            : version;
-    }
-
-    /**
-     * Returns the name of the application. That should be Jitsi
-     * most of the time but who knows ..
-     *
-     * @return the name of the application (i.e. SIP Communicator until we
-     * change our name some day.)
-     */
-    private String getApplicationName()
-    {
-        String name = versionProperties.getProperty(PNAME_APPLICATION_NAME);
-
-        return  name == null
-            ? "Jitsi"
-            : name;
-    }
-
-    /**
-     * Returns the package name of the application. That should be jitsi
-     * most of the time but who knows ..
-     *
-     * @return the package name of the application.
-     */
-    private String getPackageName()
-    {
-        String name = versionProperties.getProperty(PNAME_PACKAGE_NAME);
-
-        return  name == null
-            ? "jitsi"
-            : name;
     }
 
     /**
@@ -480,8 +364,8 @@ public class LaunchArgHandler
     {
         handleVersionArg();
 
-        System.out.println("Usage: " + getPackageName() + " [OPTIONS] [uri-to-call]");
-        System.out.println("");
+        System.out.println("Usage: jitsi [OPTIONS] [uri-to-call]");
+        System.out.println();
         System.out.println("  -c, --config=DIR  use DIR for config files");
         System.out.println("  -d, --debug       print debugging messages to stdout");
         System.out.println("  -h, --help        display this help message and exit");

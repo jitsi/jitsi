@@ -58,8 +58,6 @@ public class JabberAccRegWizzActivator
 
     private static WizardContainer wizardContainer;
 
-    private static JabberAccountRegistrationWizard jabberWizard;
-
     private static UIService uiService;
 
     private static ResourceManagementService resourcesService;
@@ -80,7 +78,7 @@ public class JabberAccRegWizzActivator
      * Starts this bundle.
      */
     @Override
-    public void startWithServices(BundleContext context)
+    public final void startWithServices(BundleContext context)
     {
         bundleContext = context;
         Resources.bundleContext = context;
@@ -88,18 +86,19 @@ public class JabberAccRegWizzActivator
         resourcesService = getService(ResourceManagementService.class);
 
         wizardContainer = uiService.getAccountRegWizardContainer();
+        init(context);
+    }
 
-        jabberWizard = new JabberAccountRegistrationWizard(wizardContainer);
-
-        Hashtable<String, String> containerFilter
-            = new Hashtable<String, String>();
-
+    protected void init(BundleContext context)
+    {
+        var containerFilter = new Hashtable<String, String>();
         containerFilter.put(
-                ProtocolProviderFactory.PROTOCOL,
-                ProtocolNames.JABBER);
+            ProtocolProviderFactory.PROTOCOL,
+            ProtocolNames.JABBER);
 
+        var jabberWizard = new JabberAccountRegistrationWizard(wizardContainer);
         context.registerService(
-            AccountRegistrationWizard.class.getName(),
+            AccountRegistrationWizard.class,
             jabberWizard,
             containerFilter);
     }

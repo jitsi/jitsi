@@ -17,6 +17,7 @@
  */
 package net.java.sip.communicator.plugin.desktoputil;
 
+import lombok.extern.slf4j.*;
 import net.java.sip.communicator.service.httputil.*;
 
 import javax.swing.*;
@@ -29,6 +30,7 @@ import java.net.*;
  *
  * @author Damian Minkov
  */
+@Slf4j
 public class FileUtils
 {
     /**
@@ -52,11 +54,9 @@ public class FileUtils
         throws IOException
     {
         final File[] tempFile = new File[1];
-        FileOutputStream tempFileOutputStream = null;
         boolean deleteTempFile = true;
 
-        tempFileOutputStream
-            = createTempFileOutputStream(
+        var tempFileOutputStream = createTempFileOutputStream(
             new URL(url),
             /*
              * The default extension, possibly derived from url, is
@@ -85,43 +85,31 @@ public class FileUtils
                  * Set the maximum value of the ProgressMonitor to the size of
                  * the file to download.
                  */
-                input.getProgressMonitor().setMaximum(
-                    (int) res.getContentLength());
 
-                try
+                try (input)
                 {
-                    final BufferedOutputStream output
-                        = new BufferedOutputStream(tempFileOutputStream);
+                    input.getProgressMonitor().setMaximum(
+                        (int) res.getContentLength());
 
-                    try
+                    try (BufferedOutputStream output = new BufferedOutputStream(
+                        tempFileOutputStream))
                     {
                         int read = -1;
                         byte[] buff = new byte[1024];
 
-                        while((read = input.read(buff)) != -1)
+                        while ((read = input.read(buff)) != -1)
                             output.write(buff, 0, read);
                     }
                     finally
                     {
-                        output.close();
                         tempFileOutputStream = null;
                     }
                     deleteTempFile = false;
                 }
-                finally
-                {
-                    try
-                    {
-                        input.close();
-                    }
-                    catch (IOException ioe)
-                    {
-                        /*
-                         * Ignore it because we've already downloaded the setup
-                         * and that's what matters most.
-                         */
-                    }
-                }
+                /*
+                 * Ignore it because we've already downloaded the setup
+                 * and that's what matters most.
+                 */
             }
         }
         finally
@@ -233,13 +221,10 @@ public class FileUtils
                             tfos = new FileOutputStream(tf);
                     }
                 }
-                catch (FileNotFoundException fnfe)
+                catch (FileNotFoundException | SecurityException e)
                 {
                     // Ignore it because we'll try File#createTempFile().
-                }
-                catch (SecurityException se)
-                {
-                    // Ignore it because we'll try File#createTempFile().
+                    logger.debug("Could not open output stream on {}", tf, e);
                 }
             }
         }

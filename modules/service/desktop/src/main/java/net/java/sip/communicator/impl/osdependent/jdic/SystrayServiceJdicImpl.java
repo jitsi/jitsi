@@ -18,6 +18,7 @@
 package net.java.sip.communicator.impl.osdependent.jdic;
 
 import java.awt.*;
+import java.awt.Taskbar.*;
 import java.awt.image.*;
 import java.net.*;
 import java.util.HashMap;
@@ -30,7 +31,6 @@ import lombok.extern.slf4j.*;
 import net.java.sip.communicator.impl.osdependent.*;
 import net.java.sip.communicator.impl.osdependent.systemtray.SystemTray;
 import net.java.sip.communicator.impl.osdependent.systemtray.TrayIcon;
-import net.java.sip.communicator.impl.osdependent.windows.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.systray.*;
@@ -39,8 +39,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.jitsi.service.configuration.*;
 import org.jitsi.util.*;
 import org.osgi.framework.*;
-
-import com.apple.eawt.*;
 
 /**
  * The <tt>Systray</tt> provides a Icon and the associated <tt>TrayMenu</tt>
@@ -145,7 +143,7 @@ public class SystrayServiceJdicImpl
     @Override
     public Map<String, String> getSystrayModes()
     {
-        return new HashMap<String, String>()
+        return new HashMap<>()
         {{
             put("disabled", "service.systray.mode.DISABLED");
             if (java.awt.SystemTray.isSupported())
@@ -204,7 +202,6 @@ public class SystrayServiceJdicImpl
         }
 
         Pair<Object, Object> createdMenu = TrayMenuFactory.createTrayMenu(
-            this,
             systray.useSwingPopupMenu(),
             systray.supportsDynamicMenu());
         menu = createdMenu.getLeft();
@@ -410,27 +407,35 @@ public class SystrayServiceJdicImpl
                 dockIconURLToSet = null;
                 break;
             }
+
             try
             {
-                Application application = Application.getApplication();
-
-                if (originalDockImage == null)
-                    originalDockImage = application.getDockIconImage();
-
-                if (dockIconURLToSet != null)
+                if (Taskbar.isTaskbarSupported())
                 {
-                    application.setDockIconImage(
-                            Toolkit.getDefaultToolkit().getImage(
-                                    dockIconURLToSet));
-                }
-                else if (originalDockImage != null)
-                {
-                    application.setDockIconImage(originalDockImage);
+                    var taskbar = Taskbar.getTaskbar();
+                    if (taskbar != null && taskbar.isSupported(Feature.ICON_IMAGE))
+                    {
+                        if (originalDockImage == null)
+                        {
+                            originalDockImage = taskbar.getIconImage();
+                        }
+
+                        if (dockIconURLToSet != null)
+                        {
+                            taskbar.setIconImage(
+                                    Toolkit.getDefaultToolkit().getImage(
+                                            dockIconURLToSet));
+                        }
+                        else if (originalDockImage != null)
+                        {
+                            taskbar.setIconImage(originalDockImage);
+                        }
+                    }
                 }
             }
             catch (Exception e)
             {
-                logger.error("failed to change dock icon", e);
+                logger.error("Failed to change taskbar icon", e);
             }
         }
     }
@@ -448,48 +453,30 @@ public class SystrayServiceJdicImpl
     @Override
     public void setNotificationCount(int count)
     {
-        if (OSUtils.IS_MAC)
+        if (Taskbar.isTaskbarSupported())
         {
-            Application application = Application.getApplication();
-            if (count > 0)
+            var taskbar = Taskbar.getTaskbar();
+            if (taskbar != null && taskbar.isSupported(Feature.ICON_BADGE_NUMBER))
             {
-                application.setDockIconBadge(Integer.toString(count));
+                if (count == 0)
+                {
+                    taskbar.setIconBadge(null);
+                }
+                else
+                {
+                    taskbar.setIconBadge(Integer.toString(count));
+                }
             }
-            else
+            else if (taskbar != null && taskbar.isSupported(Feature.ICON_BADGE_IMAGE_WINDOW))
             {
-                application.setDockIconBadge(null);
-            }
-        }
-        else if (OSUtils.IS_WINDOWS)
-        {
-            UIService uiService = OsDependentActivator.getUIService();
-            if (uiService == null)
-            {
-                return;
-            }
-
-            ExportedWindow mainWindow =
-                uiService.getExportedWindow(ExportedWindow.MAIN_WINDOW);
-            if (mainWindow == null
-                || !(mainWindow.getSource() instanceof Component))
-            {
-                return;
-            }
-
-            BufferedImage img = null;
-            if (count > 0)
-            {
-                img = createOverlayImage(Integer.toString(count));
-            }
-
-            try
-            {
-                TaskBarList3.getInstance().SetOverlayIcon(
-                    (Component) mainWindow.getSource(), img, null);
-            }
-            catch (Exception ex)
-            {
-                logger.error("Could not set the notification count.", ex);
+                if (count == 0)
+                {
+                    taskbar.setIconImage(null);
+                }
+                else
+                {
+                    taskbar.setIconImage(createOverlayImage(Integer.toString(count)));
+                }
             }
         }
     }

@@ -110,7 +110,7 @@ public class SystemActivityNotifications
      */
     private static boolean linuxLoaded = false;
 
-    /**
+    /*
      * Init native library.
      */
     static
@@ -120,8 +120,7 @@ public class SystemActivityNotifications
             // Don't load native library on Android to prevent the exception
             if(!org.jitsi.util.OSUtils.IS_ANDROID)
             {
-                JNIUtils.loadLibrary("sysactivitynotifications",
-                    SystemActivityNotifications.class);
+                System.loadLibrary("sysactivitynotifications");
 
                 ptr = allocAndInit();
                 if (ptr == -1)
@@ -141,8 +140,6 @@ public class SystemActivityNotifications
 
     /**
      * Allocate native resources and gets a pointer.
-     *
-     * @return
      */
     private static native long allocAndInit();
 
