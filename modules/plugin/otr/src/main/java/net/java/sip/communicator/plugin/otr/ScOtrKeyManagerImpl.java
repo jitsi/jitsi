@@ -290,7 +290,7 @@ public class ScOtrKeyManagerImpl
         try
         {
             KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA");
-            keyGen.initialize(1024);
+            keyGen.initialize(2048);
             keyPair = keyGen.generateKeyPair();
         }
         catch (NoSuchAlgorithmException e)
