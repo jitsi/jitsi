@@ -586,12 +586,10 @@ public class ConferenceChatManager
                     new String[]{sourceChatRoom.getName()})
                     + evt.getReason());
         }
-        else if (LocalUserChatRoomPresenceChangeEvent
-                        .LOCAL_USER_LEFT.equals(eventType)
-                    || LocalUserChatRoomPresenceChangeEvent
-                            .LOCAL_USER_KICKED.equals(eventType)
-                    || LocalUserChatRoomPresenceChangeEvent
-                            .LOCAL_USER_DROPPED.equals(eventType))
+        else if (LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT.equals(eventType)
+                    || LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_KICKED.equals(eventType)
+                    || LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_ROOM_DESTROYED.equals(eventType)
+                    || LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_DROPPED.equals(eventType))
         {
             if(chatRoomWrapper != null)
             {
@@ -623,8 +621,7 @@ public class ConferenceChatManager
                             null);
 
                         // print and the alternate address
-                        if(StringUtils.isNotEmpty(
-                                evt.getAlternateAddress()))
+                        if(StringUtils.isNotEmpty(evt.getAlternateAddress()))
                         {
                             chatPanel.addMessage(
                                 sourceChatRoom.getName(),

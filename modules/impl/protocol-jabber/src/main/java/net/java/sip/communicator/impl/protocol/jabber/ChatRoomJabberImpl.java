@@ -982,14 +982,6 @@ public class ChatRoomJabberImpl
      */
     public void leave()
     {
-        this.leave(null, null);
-    }
-
-    /**
-     * Leave this chat room.
-     */
-    private void leave(String reason, EntityBareJid alternateAddress)
-    {
         OperationSetBasicTelephonyJabberImpl basicTelephony
             = (OperationSetBasicTelephonyJabberImpl) provider
                 .getOperationSet(OperationSetBasicTelephony.class);
@@ -1118,11 +1110,7 @@ public class ChatRoomJabberImpl
             connection.removeAsyncStanzaListener(presenceListener);
         }
 
-        opSetMuc.fireLocalUserPresenceEvent(
-            this,
-            LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT,
-            reason,
-            alternateAddress != null ? alternateAddress.toString() : null);
+        opSetMuc.fireLocalUserPresenceEvent(this, LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT, null);
     }
 
     /**
@@ -3431,7 +3419,7 @@ public class ChatRoomJabberImpl
                         }
                         else
                         {
-                            leave(destroy.getReason(), destroy.getJid());
+                            // do nothing as the room destroyed event will be fired in UserListener.roomDestroyed
                         }
                     }
                 }
