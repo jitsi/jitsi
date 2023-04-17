@@ -1356,8 +1356,6 @@ public class MetaContactRightButtonMenu
 
         UIGroup sourceGroup = evt.getSourceGroup();
 
-        // TODO: may be show a warning message to tell the user that she should
-        // select another group.
         if (!(sourceGroup instanceof MetaUIGroup))
             return;
 
