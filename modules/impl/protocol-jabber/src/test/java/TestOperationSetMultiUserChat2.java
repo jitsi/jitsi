@@ -428,22 +428,6 @@ public class TestOperationSetMultiUserChat2
             opSetMUC1.createChatRoom(testRoomName, null);
 
         assertNotNull("createChatRoom returned null", opSet1Room);
-
-        /*
-        Room listing has been disabled on testing server,
-        so skip checks
-        // and check if it exists on the server
-        List<String> existingRooms = opSetMUC1.getExistingChatRooms();
-
-        for (String roomName : existingRooms)
-        {
-            if (roomName.equals(opSet1Room.getName()))
-            {
-                return; // ok the created room is listed on server
-            }
-        }
-        fail("the new created room is not listed on server");
-        */
     }
 
     /**
