@@ -562,7 +562,6 @@ public abstract class EventPackageNotifier
                     return false;
                 }
 
-                // add the expire header
                 try
                 {
                     expHeader = protocolProvider.getHeaderFactory()
