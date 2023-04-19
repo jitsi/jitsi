@@ -1577,7 +1577,7 @@ public class TestOperationSetMultiUserChat2
         MUCEventCollector roomUser2Col = new MUCEventCollector(
             roomUser2, MUCEventCollector.EVENT_ROLE);
 
-        // User2 (moderator role) revokes voice right to user2 (guest):
+        // User2 (moderator role) revokes voice right to user3 (guest):
         roomUser2.revokeVoice(fixture.userID3);
 
         roomUser1Col.waitForEvent(10000);
