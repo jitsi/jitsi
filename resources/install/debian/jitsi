@@ -15,7 +15,7 @@ if $SHOW_SPLASH; then
 fi
 
 COMMAND="$(command -v java) \
-  -cp 'lib/*:config/' \
+  -cp ${SCDIR}/lib/*:${SCDIR}/config/ \
   --add-opens=java.base/jdk.internal.loader=ALL-UNNAMED \
   --add-opens=java.base/java.lang=ALL-UNNAMED \
   ${SPLASH_ARG} \
