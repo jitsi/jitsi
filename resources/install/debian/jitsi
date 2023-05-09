@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 SHOW_SPLASH=true
 SPLASH_ARG=""
@@ -14,12 +14,11 @@ if $SHOW_SPLASH; then
   SPLASH_ARG="-splash:${SCDIR}/splash.gif"
 fi
 
-COMMAND="$(command -v java) \
-  -cp ${SCDIR}/lib/*:${SCDIR}/config/ \
+java \
+  -cp "${SCDIR}/lib/*:${SCDIR}/config/" \
   --add-opens=java.base/jdk.internal.loader=ALL-UNNAMED \
   --add-opens=java.base/java.lang=ALL-UNNAMED \
   ${SPLASH_ARG} \
   ${JITSI_EXTRA_ARGS} \
-  net.java.sip.communicator.launcher.Jitsi"
-
-echo exec ${COMMAND} "$@"
+  net.java.sip.communicator.launcher.Jitsi
+  "$@"
