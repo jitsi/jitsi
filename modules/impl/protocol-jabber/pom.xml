@@ -30,6 +30,12 @@
     <dependency>
       <groupId>org.jitsi</groupId>
       <artifactId>jitsi-xmpp-extensions</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.igniterealtime.smack</groupId>
+          <artifactId>smack-resolver-javax</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -107,7 +113,11 @@
     </dependency>
     <dependency>
       <groupId>org.igniterealtime.smack</groupId>
-      <artifactId>smack-java8</artifactId>
+      <artifactId>smack-sasl-javax</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.igniterealtime.smack</groupId>
+      <artifactId>smack-resolver-dnsjava</artifactId>
     </dependency>
     <dependency>
       <groupId>org.igniterealtime.smack</groupId>

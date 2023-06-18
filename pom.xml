@@ -123,7 +123,6 @@
       <dependency><groupId>org.osgi</groupId><artifactId>osgi.core</artifactId><version>8.0.0</version></dependency>
       <dependency><groupId>org.osgi</groupId><artifactId>org.osgi.service.cm</artifactId><version>1.6.1</version></dependency>
       <dependency><groupId>org.igniterealtime.smack</groupId><artifactId>smack-core</artifactId><version>${smackVersion}</version></dependency>
-      <dependency><groupId>org.igniterealtime.smack</groupId><artifactId>smack-java8</artifactId><version>${smackVersion}</version></dependency>
       <dependency><groupId>org.igniterealtime.smack</groupId><artifactId>smack-im</artifactId><version>${smackVersion}</version></dependency>
       <dependency>
         <groupId>org.igniterealtime.smack</groupId>
@@ -151,6 +150,17 @@
       <dependency><groupId>org.igniterealtime.smack</groupId><artifactId>smack-legacy</artifactId><version>${smackVersion}</version></dependency>
       <dependency><groupId>org.igniterealtime.smack</groupId><artifactId>smack-xmlparser-stax</artifactId><version>${smackVersion}</version></dependency>
       <dependency><groupId>org.igniterealtime.smack</groupId><artifactId>smack-sasl-javax</artifactId><version>${smackVersion}</version></dependency>
+      <dependency>
+        <groupId>org.igniterealtime.smack</groupId>
+        <artifactId>smack-resolver-dnsjava</artifactId>
+        <version>${smackVersion}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>dnsjava</groupId>
+            <artifactId>dnsjava</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
       <dependency><groupId>org.jitsi</groupId><artifactId>jnsapi</artifactId><version>0.0.3-jitsi-smack4.4-2</version></dependency>
       <dependency><groupId>org.jitsi</groupId><artifactId>jmyspell-core</artifactId><version>1.0-jitsi-1</version></dependency>
       <dependency>

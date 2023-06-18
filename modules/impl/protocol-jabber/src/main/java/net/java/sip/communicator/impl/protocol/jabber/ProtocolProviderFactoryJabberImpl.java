@@ -22,6 +22,7 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 
 import net.java.sip.communicator.service.protocol.jabber.*;
+import org.apache.commons.lang3.*;
 import org.jxmpp.jid.*;
 import org.jxmpp.jid.impl.*;
 import org.jxmpp.jid.parts.*;
@@ -51,6 +52,14 @@ public class ProtocolProviderFactoryJabberImpl
 
         // Initializes smack iq and extension providers common for all protocol
         // provider instances.
+        Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+        var disabledClassesProperty = "smack.disabledClasses";
+        var disabledClasses = System.getProperty(disabledClassesProperty);
+        if (StringUtils.isNotBlank(disabledClasses)){
+            disabledClasses += ",";
+        }
+        disabledClasses += "org.jivesoftware.smack.util.dns.javax.JavaxResolver";
+        System.setProperty(disabledClasses, disabledClasses);
         ProviderManagerExt.load();
     }
 

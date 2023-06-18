@@ -1229,45 +1229,36 @@ public class ProtocolProviderServiceJabberImpl
                 CertificateService cvs = getCertificateVerificationService();
                 if (cvs != null)
                 {
-                    SSLContext sslContext = loginStrategy.createSslContext(cvs,
-                        getTrustManager(cvs, serviceName.toString()));
+                    var tm = getTrustManager(cvs, serviceName.toString());
+                    var km = loginStrategy.getKeyManager(cvs);
+                    var sslContext = loginStrategy.createSslContext(cvs, tm);
 
                     // log SSL/TLS algorithms and protocols
                     if (logger.isDebugEnabled())
                     {
-                        final StringBuilder buff = new StringBuilder();
-                        buff.append("Available TLS protocols and algorithms:\n");
-                        buff.append("Default protocols: ");
-                        buff.append(Arrays.toString(sslContext.getDefaultSSLParameters().getProtocols()));
-                        buff.append("\n");
-                        buff.append("Supported protocols: ");
-                        buff.append(Arrays.toString(sslContext.getSupportedSSLParameters().getProtocols()));
-                        buff.append("\n");
-                        buff.append("Default cipher suites: ");
-                        buff.append(Arrays.toString(sslContext.getDefaultSSLParameters().getCipherSuites()));
-                        buff.append("\n");
-                        buff.append("Supported cipher suites: ");
-                        buff.append(Arrays.toString(sslContext.getSupportedSSLParameters().getCipherSuites()));
-                        logger.debug(buff.toString());
+                        logger.debug(
+                            "Available TLS protocols and algorithms:\nDefault protocols: {}\nSupported protocols: {}\nDefault cipher suites: {}\nSupported cipher suites: {}",
+                            Arrays.toString(sslContext.getDefaultSSLParameters().getProtocols()),
+                            Arrays.toString(sslContext.getSupportedSSLParameters().getProtocols()),
+                            Arrays.toString(sslContext.getDefaultSSLParameters().getCipherSuites()),
+                            Arrays.toString(sslContext.getSupportedSSLParameters().getCipherSuites()));
                     }
 
                     confConn.setSslContextFactory(() -> sslContext);
+                    confConn.setCustomX509TrustManager(tm);
+                    confConn.setKeyManagers(km);
+
+                    // this is safe because our trust manager already verifies the hostname!
+                    confConn.setHostnameVerifier((hostname, session) -> true);
                 }
                 else if (loginStrategy.isTlsRequired())
                     throw new JitsiXmppException("Certificate verification service is unavailable and TLS is required");
             }
-            catch(GeneralSecurityException e)
+            catch (GeneralSecurityException e)
             {
-                logger.error("Error creating custom trust manager", e);
                 throw new JitsiXmppException("Error creating custom trust manager", e);
             }
         }
-
-        confConn.setHostnameVerifier((hostname, session) -> {
-            // this is safe because our ssl context already
-            // verified the hostname!
-            return true;
-        });
 
         if (isBosh)
         {
@@ -1428,10 +1419,7 @@ public class ProtocolProviderServiceJabberImpl
     {
         return new HostTrustManager(
             cvs.getTrustManager(
-                Arrays.asList(new String[]{
-                        serviceName,
-                        "_xmpp-client." + serviceName
-                })
+                Arrays.asList(serviceName, "_xmpp-client." + serviceName)
             )
         );
     }
@@ -2598,24 +2586,17 @@ public class ProtocolProviderServiceJabberImpl
                 // notify in a separate thread to avoid a deadlock when a
                 // reg state listener accesses a synchronized XMPPConnection
                 // method (like getRoster)
-                new Thread(new Runnable()
-                {
-                    public void run()
-                    {
-                        fireRegistrationStateChanged(getRegistrationState(),
-                            RegistrationState.UNREGISTERED,
-                            RegistrationStateChangeEvent.REASON_USER_REQUEST,
-                            "Not trusted certificate");
-                    }
-                }).start();
+                new Thread(() -> fireRegistrationStateChanged(getRegistrationState(),
+                    RegistrationState.UNREGISTERED,
+                    RegistrationStateChangeEvent.REASON_USER_REQUEST,
+                    "Not trusted certificate")).start();
                 throw e;
             }
 
-            if(abortConnecting)
+            if (abortConnecting)
             {
                 // connect hasn't finished we will continue normally
                 abortConnecting = false;
-                return;
             }
             else
             {
@@ -2625,14 +2606,7 @@ public class ProtocolProviderServiceJabberImpl
                 // register.connect in new thread so we can release the
                 // current connecting thread, otherwise this blocks
                 // jabber
-                new Thread(new Runnable()
-                {
-                    public void run()
-                    {
-                        reregister(SecurityAuthority.CONNECTION_FAILED);
-                    }
-                }).start();
-                return;
+                new Thread(() -> reregister(SecurityAuthority.CONNECTION_FAILED)).start();
             }
         }
     }

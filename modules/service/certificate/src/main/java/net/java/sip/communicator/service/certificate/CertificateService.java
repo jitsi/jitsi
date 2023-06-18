@@ -202,6 +202,16 @@ public interface CertificateService
         throws GeneralSecurityException;
 
     /**
+     * Gets the KeyManagers for the specified client certificate configuraiton.
+     *
+     * @param clientCertConfig The ID of a client certificate configuration
+     *                         entry that is to be used when the server
+     *                         asks for a client TLS certificate
+     */
+    KeyManager[] getKeyManagers(String clientCertConfig)
+        throws GeneralSecurityException;
+
+    /**
      * Creates a trustmanager that validates the certificate based on the JRE
      * default check and asks the user when the JRE check fails. When
      * <tt>null</tt> is passed as the <tt>identityToTest</tt> then no check is

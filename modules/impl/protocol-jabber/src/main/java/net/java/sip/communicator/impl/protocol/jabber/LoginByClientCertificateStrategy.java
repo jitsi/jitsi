@@ -18,6 +18,7 @@
 
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import lombok.extern.slf4j.*;
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -35,18 +36,17 @@ import java.security.*;
  *
  * @author Stefan Sieber
  */
+@Slf4j
 class LoginByClientCertificateStrategy
     implements JabberLoginStrategy
 {
-    private final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LoginByClientCertificateStrategy.class);
-    private AccountID accountID;
-    private ConnectionConfiguration.Builder ccBuilder;
+    private final AccountID accountID;
+    private final ConnectionConfiguration.Builder ccBuilder;
 
     /**
      * Creates a new instance of this class.
      *
      * @param accountID The account to use for the strategy.
-     * @param ccBuilder
      */
     public LoginByClientCertificateStrategy(AccountID accountID,
         ConnectionConfiguration.Builder ccBuilder)
@@ -102,7 +102,6 @@ class LoginByClientCertificateStrategy
      *                            SSL context
      * @param trustManager Trust manager to use for the context
      * @return Configured and initialized SSL Context
-     * @throws GeneralSecurityException
      */
     public SSLContext createSslContext(CertificateService cs,
         X509ExtendedTrustManager trustManager)
@@ -113,6 +112,14 @@ class LoginByClientCertificateStrategy
         return cs.getSSLContext(certConfigName, trustManager);
     }
 
+    public KeyManager[] getKeyManager(CertificateService cs)
+        throws GeneralSecurityException
+    {
+        String certConfigName = accountID.getAccountPropertyString(
+            ProtocolProviderFactory.CLIENT_TLS_CERTIFICATE);
+        return cs.getKeyManagers(certConfigName);
+    }
+
     /**
      * Performs the login on the XMPP connection using the SASL EXTERNAL
      * mechanism.
@@ -121,7 +128,6 @@ class LoginByClientCertificateStrategy
      * @param jid the full JID to use
      * @return true when the login succeeded, false when the certificate wasn't
      * accepted.
-     * @throws XMPPException
      */
     @Override
     public boolean login(AbstractXMPPConnection connection, EntityFullJid jid)

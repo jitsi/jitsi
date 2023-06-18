@@ -83,6 +83,18 @@ public interface JabberLoginStrategy
             throws GeneralSecurityException;
 
     /**
+     * Gets the KeyManagers to use for the login strategy.
+     * @param cs  certificate service to retrieve the key managers
+     * @return {@code null} if not implemented, or an array of KeyManagers
+     * @throws GeneralSecurityException
+     */
+    default KeyManager[] getKeyManager(CertificateService cs)
+        throws GeneralSecurityException
+    {
+        return null;
+    }
+
+    /**
      * Gets the connection configuration builder.
      * @return The connection configuration builder configured for this login
      *  strategy.

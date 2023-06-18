@@ -469,34 +469,37 @@ public class CertificateServiceImpl
         try
         {
             if(clientCertConfig == null)
-                return getSSLContext(trustManager);
-
-            CertificateConfigEntry entry = null;
-            for (CertificateConfigEntry e : getClientAuthCertificateConfigs())
             {
-                if (e.getId().equals(clientCertConfig))
-                {
-                    entry = e;
-                    break;
-                }
+                return getSSLContext(trustManager);
             }
-            if (entry == null)
-                throw new GeneralSecurityException(
-                    "Client certificate config with id <"
-                    + clientCertConfig
-                    + "> not found."
-                );
 
-            final KeyManagerFactory kmf =
-                KeyManagerFactory.getInstance("NewSunX509");
-            kmf.init(new KeyStoreBuilderParameters(loadKeyStore(entry)));
-
-            return getSSLContext(kmf.getKeyManagers(), trustManager);
+            return getSSLContext(getKeyManagers(clientCertConfig), trustManager);
         }
         catch (Exception e)
         {
             throw new GeneralSecurityException("Cannot init SSLContext", e);
         }
+    }
+
+    public KeyManager[] getKeyManagers(String clientCertConfig)
+        throws GeneralSecurityException
+    {
+        Objects.requireNonNull(clientCertConfig);
+
+        var entry =
+            getClientAuthCertificateConfigs()
+                .stream()
+                .filter(e -> e.getId().equals(clientCertConfig))
+                .findFirst()
+                .orElseThrow(() -> new GeneralSecurityException(
+                    "Client certificate config with id <"
+                        + clientCertConfig
+                        + "> not found."
+                ));
+
+        var kmf = KeyManagerFactory.getInstance("NewSunX509");
+        kmf.init(new KeyStoreBuilderParameters(loadKeyStore(entry)));
+        return kmf.getKeyManagers();
     }
 
     /*
