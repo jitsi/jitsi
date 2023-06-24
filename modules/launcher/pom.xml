@@ -292,6 +292,11 @@
     </dependency>
     <dependency>
       <groupId>org.jitsi.desktop</groupId>
+      <artifactId>jitsi-protocol-jabber</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jitsi.desktop</groupId>
       <artifactId>jitsi-provdisc-dhcp</artifactId>
       <version>${project.version}</version>
     </dependency>
