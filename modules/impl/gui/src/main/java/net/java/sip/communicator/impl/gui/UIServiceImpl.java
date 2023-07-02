@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Timer;
 
 import javax.swing.*;
-import javax.swing.UIManager.LookAndFeelInfo;
 
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
@@ -895,8 +894,7 @@ public class UIServiceImpl
                 if ((kdeFullSession != null)
                         && (kdeFullSession.length() != 0))
                 {
-                    for (LookAndFeelInfo lafi
-                            : UIManager.getInstalledLookAndFeels())
+                    for (final var lafi : UIManager.getInstalledLookAndFeels())
                     {
                         if (gtkLookAndFeel.equals(lafi.getClassName()))
                         {

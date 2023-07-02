@@ -75,7 +75,7 @@ public class KnownFingerprintsTableModel
             return;
 
         // Populate contacts.
-        for (final ServiceReference<?> protocolProviderRef : protocolProviderRefs)
+        for (final var protocolProviderRef : protocolProviderRefs)
         {
             ProtocolProviderService provider
                 = (ProtocolProviderService) OtrActivator
