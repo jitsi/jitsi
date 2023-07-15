@@ -17,6 +17,7 @@
  */
 package net.java.sip.communicator.argdelegation;
 
+import java.net.*;
 import java.util.*;
 
 import lombok.extern.slf4j.*;
@@ -25,6 +26,7 @@ import net.java.sip.communicator.service.argdelegation.*;
 import net.java.sip.communicator.service.gui.*;
 
 import net.java.sip.communicator.util.osgi.ServiceUtils;
+import org.apache.commons.lang3.*;
 import org.osgi.framework.*;
 
 /**
@@ -36,13 +38,18 @@ import org.osgi.framework.*;
  */
 @Slf4j
 public class ArgDelegationPeerImpl
-    implements ArgDelegationPeer,
-               ServiceListener
+    implements ArgDelegationPeer, ServiceListener
 {
     /**
      * The list of uriHandlers that we are currently aware of.
      */
     private final Map<String, UriHandler> uriHandlers = new Hashtable<>();
+
+    private final List<URI> recordedArgs = new ArrayList<>();
+
+    private final UIService uiService;
+
+    private final BundleContext bundleContext;
 
     /**
      * Creates an instance of this peer and scans <tt>bundleContext</tt> for all
@@ -51,27 +58,18 @@ public class ArgDelegationPeerImpl
      * @param bundleContext a reference to a currently valid instance of a
      * bundle context.
      */
-    public ArgDelegationPeerImpl(BundleContext bundleContext)
+    public ArgDelegationPeerImpl(UIService uiService, BundleContext bundleContext)
     {
-        Collection<ServiceReference<UriHandler>> uriHandlerRefs
-            = ServiceUtils.getServiceReferences(
-                    bundleContext,
-                    UriHandler.class);
-
-        if (!uriHandlerRefs.isEmpty())
+        this.uiService = uiService;
+        this.bundleContext = bundleContext;
+        var uriHandlerRefs = ServiceUtils.getServiceReferences(bundleContext, UriHandler.class);
         {
-            synchronized (uriHandlers)
+            for (var uriHandlerRef : uriHandlerRefs)
             {
-                for (ServiceReference<UriHandler> uriHandlerRef
-                        : uriHandlerRefs)
+                var uriHandler = bundleContext.getService(uriHandlerRef);
+                for (var protocol : uriHandler.getProtocols())
                 {
-                    UriHandler uriHandler
-                        = bundleContext.getService(uriHandlerRef);
-
-                    for (String protocol : uriHandler.getProtocol())
-                    {
-                        uriHandlers.put(protocol, uriHandler);
-                    }
+                    uriHandlers.put(protocol, uriHandler);
                 }
             }
         }
@@ -86,43 +84,42 @@ public class ArgDelegationPeerImpl
      */
     public void serviceChanged(ServiceEvent event)
     {
-        BundleContext bc
-            = event.getServiceReference().getBundle().getBundleContext();
-
-        /*
-         * TODO When the Update button of the plug-in manager is invoked for the
-         * IRC protocol provider plug-in, bc is of value null and thus causes a
-         * NullPointerException. Determine whether it is a problem (in general)
-         * to not process ServiceEvent.UNREGISTERING in such a case.
-         */
+        var bc = event.getServiceReference().getBundle().getBundleContext();
         if (bc == null)
+        {
             return;
+        }
 
-        Object service = bc.getService(event.getServiceReference());
-
+        var service = bc.getService(event.getServiceReference());
         //we are only interested in UriHandler-s
         if (!(service instanceof UriHandler))
+        {
             return;
+        }
 
         UriHandler uriHandler = (UriHandler) service;
-
         synchronized (uriHandlers)
         {
             switch (event.getType())
             {
             case ServiceEvent.MODIFIED:
             case ServiceEvent.REGISTERED:
-                for (String protocol : uriHandler.getProtocol())
+                for (String protocol : uriHandler.getProtocols())
                 {
                     uriHandlers.put(protocol, uriHandler);
+                }
+
+                // Dispatch any arguments that were held back
+                for (var uri : new ArrayList<>(recordedArgs))
+                {
+                    handleUri(uri);
                 }
                 break;
 
             case ServiceEvent.UNREGISTERING:
-                for (String protocol : uriHandler.getProtocol())
+                for (String protocol : uriHandler.getProtocols())
                 {
-                    if(uriHandlers.get(protocol) == uriHandler)
-                        uriHandlers.remove(protocol);
+                    uriHandlers.remove(protocol);
                 }
 
                 break;
@@ -138,19 +135,16 @@ public class ArgDelegationPeerImpl
      * @param uriArg the uri that we've been passed and that we'd like to
      * delegate to the corresponding provider.
      */
-    public void handleUri(String uriArg)
+    @Override
+    public void handleUri(URI uriArg)
     {
-        if (logger.isTraceEnabled())
-            logger.trace("Handling URI: " + uriArg);
-        //first parse the uri and determine the scheme/protocol
-        //the parsing is currently a bit oversimplified so we'd probably need
-        //to revisit it at some point.
-        int colonIndex = uriArg.indexOf(":");
+        logger.trace("Handling URI: {}", uriArg);
 
-        if( colonIndex == -1)
+        //first parse the uri and determine the scheme/protocol
+        if (uriArg == null || StringUtils.isEmpty(uriArg.getScheme()))
         {
             //no scheme, we don't know how to handle the URI
-            ArgDelegationActivator.getUIService().getPopupDialog()
+            uiService.getPopupDialog()
                 .showMessagePopupDialog(
                         "Could not determine how to handle: " + uriArg
                             + ".\nNo protocol scheme found.",
@@ -159,24 +153,31 @@ public class ArgDelegationPeerImpl
             return;
         }
 
-        String scheme = uriArg.substring(0, colonIndex);
-
+        var scheme = uriArg.getScheme();
         UriHandler handler;
-        synchronized (uriHandlers) {
+        synchronized (uriHandlers)
+        {
             handler = uriHandlers.get(scheme);
         }
 
         //if handler is null we need to tell the user.
-        if(handler == null)
+        if (handler == null)
         {
-            if (logger.isTraceEnabled())
-                logger.trace("Couldn't open " + uriArg
-                         + "No handler found for protocol"+ scheme);
-            ArgDelegationActivator.getUIService().getPopupDialog()
-                .showMessagePopupDialog(
-                        "\"" + scheme + "\" URIs are currently not supported.",
-                        "Error handling URI",
-                        PopupDialog.ERROR_MESSAGE);
+            recordedArgs.remove(uriArg);
+            if (Arrays.stream(bundleContext.getBundles()).allMatch(b -> b.getState() == Bundle.INSTALLED))
+            {
+                logger.warn("Couldn't open {}. No handler found for protocol {}", uriArg, scheme);
+                uiService.getPopupDialog()
+                    .showMessagePopupDialog(
+                            "\"" + scheme + "\" URIs are currently not supported.",
+                            "Error handling URI",
+                            PopupDialog.ERROR_MESSAGE);
+            }
+            else
+            {
+                recordedArgs.add(uriArg);
+            }
+
             return;
         }
 
@@ -185,19 +186,14 @@ public class ArgDelegationPeerImpl
         {
             handler.handleUri(uriArg);
         }
-        //catch every possible exception
-        catch(Throwable thr)
+        catch (Exception ex)
         {
-            // ThreadDeath should always be re-thrown.
-            if (thr instanceof ThreadDeath)
-                throw (ThreadDeath) thr;
-
-            ArgDelegationActivator.getUIService().getPopupDialog()
+            uiService.getPopupDialog()
                 .showMessagePopupDialog(
                         "Error handling " + uriArg,
                         "Error handling URI",
                         PopupDialog.ERROR_MESSAGE);
-            logger.error("Failed to handle \""+ uriArg +"\"", thr);
+            logger.error("Failed to handle {}", uriArg, ex);
         }
     }
 
@@ -210,7 +206,7 @@ public class ArgDelegationPeerImpl
      */
     public void handleConcurrentInvocationRequest()
     {
-        ArgDelegationActivator.getUIService().setVisible(true);
+        uiService.setVisible(true);
     }
 }
 

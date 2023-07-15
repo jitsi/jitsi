@@ -18,6 +18,7 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.beans.*;
+import java.net.*;
 import java.util.*;
 import java.util.regex.*;
 
@@ -26,6 +27,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
+import org.apache.commons.lang3.*;
 import org.osgi.framework.*;
 
 /**
@@ -84,7 +86,7 @@ public class UriHandlerJabberImpl
      * stored accounts of the {@link #protoFactory} have been loaded. They will
      * be handled as soon as the mentioned loading completes.
      */
-    private List<String> uris;
+    private List<URI> uris;
 
     /**
      * Marks network fails in order to avoid endless loops.
@@ -187,7 +189,7 @@ public class UriHandlerJabberImpl
         if ((AccountManagerEvent.STORED_ACCOUNTS_LOADED == event.getType())
             && (protoFactory == event.getFactory()))
         {
-            List<String> uris = null;
+            List<URI> uris = null;
 
             synchronized (storedAccountsAreLoaded)
             {
@@ -204,10 +206,9 @@ public class UriHandlerJabberImpl
 
             if (uris != null)
             {
-                for (Iterator<String> uriIter = uris.iterator(); uriIter
-                    .hasNext();)
+                for (var uri : uris)
                 {
-                    handleUri(uriIter.next());
+                    handleUri(uri);
                 }
             }
         }
@@ -231,7 +232,7 @@ public class UriHandlerJabberImpl
             Hashtable<String, String> registrationProperties =
                 new Hashtable<String, String>();
 
-            for (String protocol : getProtocol())
+            for (String protocol : getProtocols())
             {
                 registrationProperties.put(UriHandler.PROTOCOL_PROPERTY,
                     protocol);
@@ -263,7 +264,7 @@ public class UriHandlerJabberImpl
      * {@inheritDoc}
      */
     @Override
-    public String[] getProtocol()
+    public String[] getProtocols()
     {
         return new String[]
         { "xmpp" };
@@ -275,7 +276,7 @@ public class UriHandlerJabberImpl
      *
      * @param uri the xmpp URI that we have to handle.
      */
-    public void handleUri(String uri)
+    public void handleUri(URI uri)
     {
         /*
          * TODO If the requirement to register the factory service after
@@ -287,7 +288,7 @@ public class UriHandlerJabberImpl
             {
                 if (uris == null)
                 {
-                    uris = new LinkedList<String>();
+                    uris = new LinkedList<>();
                 }
                 uris.add(uri);
                 return;
@@ -317,13 +318,10 @@ public class UriHandlerJabberImpl
             return;
         }
 
-        if(!uri.contains("?"))
+        if (StringUtils.isEmpty(uri.getQuery()))
         {
-            OperationSetPersistentPresence presenceOpSet
-                = provider
-                    .getOperationSet(OperationSetPersistentPresence.class);
-
-            String contactId = uri.substring(uri.indexOf(':') + 1);
+            var presenceOpSet = provider .getOperationSet(OperationSetPersistentPresence.class);
+            String contactId = uri.toString().substring(uri.getScheme().length() + 1);
 
             //todo check url!!
             //Set the email pattern string
@@ -362,12 +360,11 @@ public class UriHandlerJabberImpl
         }
         else
         {
-            String croom = uri.replaceFirst(getProtocol() + ":", "");
-            int ix = croom.indexOf("?");
-            String param = croom.substring(ix + 1, croom.length());
-            croom = croom.substring(0, ix);
+            String croom = uri.toString().substring(uri.getScheme().length() + 1);
+            String param = uri.getQuery();
+            croom = croom.substring(0, croom.indexOf("?"));
 
-            if(param.equalsIgnoreCase("join"))
+            if (param.equalsIgnoreCase("join"))
             {
                 OperationSetMultiUserChat mchatOpSet
                     = provider
@@ -398,7 +395,7 @@ public class UriHandlerJabberImpl
                                 new ProviderStatusListener(uri, presenceOpSet));
                     }
                     else
-                        showErrorMessage("Error joining to  " + croom, exc);
+                        showErrorMessage("Error joining to " + croom, exc);
                 }
                 catch (OperationNotSupportedException exc)
                 {
@@ -409,7 +406,7 @@ public class UriHandlerJabberImpl
             }
             else
                 showErrorMessage(
-                "Unknown param : " + param, null);
+                "Unknown param: " + param, null);
         }
     }
 
@@ -477,7 +474,7 @@ public class UriHandlerJabberImpl
      * @throws OperationFailedException with code <tt>OPERATION_CANCELED</tt> if
      *             the users.
      */
-    public ProtocolProviderService selectHandlingProvider(String uri)
+    public ProtocolProviderService selectHandlingProvider(URI uri)
         throws OperationFailedException
     {
         ArrayList<AccountID> registeredAccounts =
@@ -495,11 +492,8 @@ public class UriHandlerJabberImpl
             ServiceReference<?> providerReference =
                 protoFactory.getProviderForAccount(registeredAccounts.get(0));
 
-            ProtocolProviderService provider =
-                (ProtocolProviderService) JabberActivator.bundleContext
-                    .getService(providerReference);
-
-            return provider;
+            return (ProtocolProviderService) JabberActivator.bundleContext
+                .getService(providerReference);
         }
 
         // otherwise - ask the user.
@@ -568,11 +562,11 @@ public class UriHandlerJabberImpl
     private class ProviderStatusListener
         implements ProviderPresenceStatusListener
     {
-        private final String uri;
+        private final URI uri;
         private final OperationSetPresence parentOpSet;
 
         public ProviderStatusListener(
-                String uri,
+                URI uri,
                 OperationSetPresence parentOpSet)
         {
             this.uri = uri;

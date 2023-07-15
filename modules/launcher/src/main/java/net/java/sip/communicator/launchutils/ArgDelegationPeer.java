@@ -17,6 +17,8 @@
  */
 package net.java.sip.communicator.launchutils;
 
+import java.net.*;
+
 /**
  * The <tt>UriDelegationPeer</tt> is used as a mechanism to pass arguments from
  * the UriArgManager which resides in "launcher space" to our argument
@@ -33,7 +35,7 @@ public interface ArgDelegationPeer
      *
      * @param uriArg the uri argument that this delegate has to handle.
      */
-    void handleUri(String uriArg);
+    void handleUri(URI uriArg);
 
     /**
      * Called when the user has tried to launch a second instance of

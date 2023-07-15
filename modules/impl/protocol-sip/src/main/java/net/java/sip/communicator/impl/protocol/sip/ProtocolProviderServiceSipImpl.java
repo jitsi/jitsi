@@ -2510,9 +2510,7 @@ public class ProtocolProviderServiceSipImpl
             uriStr = "sip:" + uriStr;
         }
 
-        Address toAddress = getAddressFactory().createAddress(uriStr);
-
-        return toAddress;
+        return getAddressFactory().createAddress(uriStr);
     }
 
     /**

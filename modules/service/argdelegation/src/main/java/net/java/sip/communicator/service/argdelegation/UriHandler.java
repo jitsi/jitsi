@@ -18,6 +18,8 @@
 
 package net.java.sip.communicator.service.argdelegation;
 
+import java.net.*;
+
 /**
  * This interface is meant to be implemented by all bundles that wish to handle
  * URIs passed as invocation arguments.
@@ -30,19 +32,19 @@ public interface UriHandler
      * The name of the property that we use in the service registration
      * properties to store a protocol name when registering <tt>UriHandler</tt>s
      */
-    public static final String PROTOCOL_PROPERTY = "ProtocolName";
+    String PROTOCOL_PROPERTY = "ProtocolName";
 
     /**
      * Returns the protocols that this handler is responsible for.
      *
      * @return protocols that this handler is responsible for
      */
-    public String[] getProtocol();
+    String[] getProtocols();
 
     /**
      * Handles/opens the URI.
      *
      * @param uri the URI that the handler has to open.
      */
-    public void handleUri(String uri);
+    void handleUri(URI uri);
 }

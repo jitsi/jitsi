@@ -21,6 +21,8 @@ import ch.qos.logback.classic.*;
 import ch.qos.logback.classic.Logger;
 import java.io.*;
 
+import java.net.*;
+import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import net.java.sip.communicator.impl.version.*;
 import org.slf4j.*;
@@ -119,9 +121,17 @@ public class LaunchArgHandler
     private int errorCode = 0;
 
     /**
-     * A reference to the instance of the
+     * The delegation peer that we pass arguments to. This peer is going to
+     * get set only after Felix starts and all its services have been properly
+     * loaded.
      */
-    private final ArgDelegator argDelegator = new ArgDelegator();
+    private ArgDelegationPeer uriDelegationPeer = null;
+
+    /**
+     * We use this list to store arguments that we have been asked to handle
+     * before we had a registered delegation peer.
+     */
+    private final List<URI> recordedArgs = new LinkedList<>();
 
     /**
      * The singleton instance of this handler.
@@ -278,13 +288,29 @@ public class LaunchArgHandler
     /**
      * Passes <tt>uriArg</tt> to our uri manager for handling.
      *
-     * @param uri the uri that we'd like to pass to
+     * @param launchArg the uri that we'd like to pass to a handler
      */
-    private void handleUri(String uri)
+    private void handleUri(String launchArg)
     {
-        if (logger.isTraceEnabled())
-            logger.trace("Handling uri "+ uri);
-        argDelegator.handleUri(uri);
+        logger.trace("Handling uri {}", launchArg);
+        try
+        {
+            var uri = new URI(launchArg);
+            synchronized (recordedArgs)
+            {
+                if (uriDelegationPeer == null)
+                {
+                    recordedArgs.add(uri);
+                    return;
+                }
+            }
+
+            uriDelegationPeer.handleUri(uri);
+        }
+        catch (URISyntaxException e)
+        {
+            logger.error("Cannot parse URI {}", launchArg);
+        }
     }
 
     /**
@@ -397,7 +423,18 @@ public class LaunchArgHandler
      */
     public void setDelegationPeer(ArgDelegationPeer delegationPeer)
     {
-        this.argDelegator.setDelegationPeer(delegationPeer);
+        synchronized (recordedArgs)
+        {
+            logger.trace("Someone set a delegationPeer. Will dispatch {} args", recordedArgs.size());
+            this.uriDelegationPeer = delegationPeer;
+            for (var arg : recordedArgs)
+            {
+                logger.trace("Dispatching arg: {}", arg);
+                uriDelegationPeer.handleUri(arg);
+            }
+
+            recordedArgs.clear();
+        }
     }
 
     /**
@@ -415,16 +452,21 @@ public class LaunchArgHandler
         //the only interinstance arg we currently know how to handle are URIs.
         //Change this if one day we implement fun stuff like inter instance
         //command execution.
-        if(args.length >=1
-             && !args[args.length -1].startsWith("-"))
+        if(args.length >= 1 && !args[args.length -1].startsWith("-"))
         {
-            this.argDelegator.handleUri(args[args.length -1]);
+            handleUri(args[args.length -1]);
         }
         //otherwise, we simply notify SC of the request so that it could do
         //stuff like showing the contact list for example.
         else
         {
-            this.argDelegator.handleConcurrentInvocationRequest();
+            synchronized (recordedArgs)
+            {
+                if (uriDelegationPeer != null)
+                {
+                    uriDelegationPeer.handleConcurrentInvocationRequest();
+                }
+            }
         }
     }
 }
