@@ -119,7 +119,7 @@
       <dependency><groupId>org.jitsi</groupId><artifactId>jain-sip-ri-ossonly</artifactId><version>1.2.279-jitsi-oss1</version></dependency>
       <dependency><groupId>org.jxmpp</groupId><artifactId>jxmpp-core</artifactId><version>${jxmppVersion}</version></dependency>
       <dependency><groupId>org.jxmpp</groupId><artifactId>jxmpp-jid</artifactId><version>${jxmppVersion}</version></dependency>
-      <dependency><groupId>com.googlecode.libphonenumber</groupId><artifactId>libphonenumber</artifactId><version>8.13.16</version></dependency>
+      <dependency><groupId>com.googlecode.libphonenumber</groupId><artifactId>libphonenumber</artifactId><version>8.13.17</version></dependency>
       <dependency><groupId>org.osgi</groupId><artifactId>osgi.core</artifactId><version>8.0.0</version></dependency>
       <dependency><groupId>org.osgi</groupId><artifactId>org.osgi.service.cm</artifactId><version>1.6.1</version></dependency>
       <dependency><groupId>org.igniterealtime.smack</groupId><artifactId>smack-core</artifactId><version>${smackVersion}</version></dependency>
@@ -175,7 +175,7 @@
         </exclusions>
       </dependency>
       <dependency><groupId>ch.qos.logback</groupId><artifactId>logback-classic</artifactId><version>1.4.8</version></dependency>
-      <dependency><groupId>org.jitsi</groupId><artifactId>libjitsi</artifactId><version>1.1-29-g00e62769</version></dependency>
+      <dependency><groupId>org.jitsi</groupId><artifactId>libjitsi</artifactId><version>1.1-31-g532ecd55</version></dependency>
       <dependency><groupId>org.jitsi</groupId><artifactId>jitsi-android-osgi</artifactId><version>2.0-3-gd59644a</version></dependency>
       <dependency><groupId>org.reflections</groupId><artifactId>reflections</artifactId><version>0.10.2</version></dependency>
       <dependency><groupId>com.github.hypfvieh</groupId><artifactId>dbus-java</artifactId><version>3.3.2</version></dependency>
@@ -212,12 +212,12 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>3.5.0</version>
+          <version>3.6.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
-          <version>3.3.0</version>
+          <version>3.3.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -227,12 +227,12 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-install-plugin</artifactId>
-          <version>3.1.0</version>
+          <version>3.1.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-deploy-plugin</artifactId>
-          <version>3.1.0</version>
+          <version>3.1.1</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
@@ -312,7 +312,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.10.1</version>
+        <version>3.11.0</version>
         <configuration>
           <release>11</release>
           <compilerArgs>
@@ -332,7 +332,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.0.0-M8</version>
+        <version>3.1.2</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -364,7 +364,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.4.1</version>
+        <version>3.5.0</version>
         <configuration>
           <doclint>-missing</doclint>
           <source>11</source>
@@ -373,7 +373,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
-        <version>3.2.1</version>
+        <version>3.3.0</version>
       </plugin>
       <plugin>
         <groupId>com.outbrain.swinfra</groupId>
