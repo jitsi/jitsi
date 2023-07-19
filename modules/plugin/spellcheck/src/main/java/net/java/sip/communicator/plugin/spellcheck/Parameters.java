@@ -51,14 +51,13 @@ class Parameters
     {
         try
         {
-            URL url =
-                SpellCheckActivator.bundleContext.getBundle().getResource(
-                    RESOURCE_LOC);
-
-            InputStream stream = url.openStream();
+            final InputStream stream = Parameters.class.getClassLoader()
+                .getResourceAsStream(RESOURCE_LOC);
 
             if (stream == null)
-                throw new IOException();
+            {
+                throw new IOException("Failed to load resource parameters.xml");
+            }
 
             // strict parsing options
             DocumentBuilderFactory factory =
@@ -104,11 +103,7 @@ class Parameters
         {
             logger.error("Unable to load spell checker parameters", exc);
         }
-        catch (SAXException exc)
-        {
-            logger.error("Unable to parse spell checker parameters", exc);
-        }
-        catch (ParserConfigurationException exc)
+        catch (SAXException | ParserConfigurationException exc)
         {
             logger.error("Unable to parse spell checker parameters", exc);
         }

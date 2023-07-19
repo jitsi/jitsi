@@ -31,7 +31,6 @@ import net.java.sip.communicator.plugin.otr.OtrContactManager.OtrContact;
  * @author George Politis
  * @author Marin Dzhigarov
  */
-@SuppressWarnings("serial")
 public class FingerprintAuthenticationPanel
     extends TransparentPanel
     implements DocumentListener
@@ -57,19 +56,19 @@ public class FingerprintAuthenticationPanel
     /**
      * The "I have" / "I have not" combo box.
      */
-    private JComboBox cbAction;
+    private JComboBox<ActionComboBoxItem> cbAction;
 
-    private ActionComboBoxItem actionIHave =
+    private final ActionComboBoxItem actionIHave =
         new ActionComboBoxItem(ActionComboBoxItemIndex.I_HAVE);
 
-    private ActionComboBoxItem actionIHaveNot =
+    private final ActionComboBoxItem actionIHaveNot =
         new ActionComboBoxItem(ActionComboBoxItemIndex.I_HAVE_NOT);
 
     private JTextArea txtAction;
 
     /**
      * Creates an instance FingerprintAuthenticationPanel
-     * 
+     *
      * @param contact The contact that this panel refers to.
      */
     FingerprintAuthenticationPanel(OtrContact contact)
@@ -77,7 +76,7 @@ public class FingerprintAuthenticationPanel
         this.otrContact = contact;
         initComponents();
         loadContact();
-        
+
     }
 
     /**
@@ -116,7 +115,7 @@ public class FingerprintAuthenticationPanel
         c.insets = new Insets(5, 5, 5, 5);
         c.weightx = 0.0;
 
-        cbAction = new JComboBox();
+        cbAction = new JComboBox<ActionComboBoxItem>();
         cbAction.addItem(actionIHave);
         cbAction.addItem(actionIHaveNot);
 
@@ -150,14 +149,14 @@ public class FingerprintAuthenticationPanel
         c.gridy = 0;
     }
 
-    public JComboBox getCbAction()
+    public JComboBox<ActionComboBoxItem> getCbAction()
     {
         return cbAction;
     }
 
     /**
      * Sets up the {@link OtrBuddyAuthenticationDialog} components so that they
-     * reflect the {@link OtrBuddyAuthenticationDialog#otrContact}
+     * reflect the {@link OtrBuddyAuthenticationDialog#contact}
      */
     private void loadContact()
     {
@@ -241,11 +240,11 @@ public class FingerprintAuthenticationPanel
 
     /**
      * A special {@link JComboBox} that is hosted in
-     * {@link OtrBuddyAuthenticationDialog#cbAction}.
+     * {@link OtrBuddyAuthenticationDialog}.
      *
      * @author George Politis
      */
-    class ActionComboBoxItem
+    static final class ActionComboBoxItem
     {
         public ActionComboBoxItemIndex action;
 

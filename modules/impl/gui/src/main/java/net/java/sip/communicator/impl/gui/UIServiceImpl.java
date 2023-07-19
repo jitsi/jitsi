@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Timer;
 
 import javax.swing.*;
-import javax.swing.UIManager.LookAndFeelInfo;
 
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
@@ -877,82 +876,70 @@ public class UIServiceImpl
          * removed from the if statement bellow and thus the cross-platform L&F
          * is preferred over SIPCommLookAndFeel.
          */
-        if (laf != null)
+        /*
+         * Swing does not have a LookAndFeel which integrates with KDE and
+         * the cross-platform LookAndFeel is plain ugly. KDE integrates with
+         * GTK+ so try to use the GTKLookAndFeel when running in KDE.
+         */
+        String gtkLookAndFeel
+            = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
+
+        if ((OSUtils.IS_FREEBSD || OSUtils.IS_LINUX)
+                && laf.equals(UIManager.getCrossPlatformLookAndFeelClassName()))
         {
-            /*
-             * Swing does not have a LookAndFeel which integrates with KDE and
-             * the cross-platform LookAndFeel is plain ugly. KDE integrates with
-             * GTK+ so try to use the GTKLookAndFeel when running in KDE.
-             */
-            String gtkLookAndFeel
-                = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
-
-            if ((OSUtils.IS_FREEBSD || OSUtils.IS_LINUX)
-                    && laf.equals(
-                            UIManager.getCrossPlatformLookAndFeelClassName()))
+            try
             {
-                try
-                {
-                    String kdeFullSession = System.getenv("KDE_FULL_SESSION");
+                String kdeFullSession = System.getenv("KDE_FULL_SESSION");
 
-                    if ((kdeFullSession != null)
-                            && (kdeFullSession.length() != 0))
+                if ((kdeFullSession != null)
+                        && (kdeFullSession.length() != 0))
+                {
+                    for (final var lafi : UIManager.getInstalledLookAndFeels())
                     {
-                        for (LookAndFeelInfo lafi
-                                : UIManager.getInstalledLookAndFeels())
+                        if (gtkLookAndFeel.equals(lafi.getClassName()))
                         {
-                            if (gtkLookAndFeel.equals(lafi.getClassName()))
-                            {
-                                laf = gtkLookAndFeel;
-                                break;
-                            }
+                            laf = gtkLookAndFeel;
+                            break;
                         }
                     }
                 }
-                catch (Throwable t)
-                {
-                    if (t instanceof ThreadDeath)
-                        throw (ThreadDeath) t;
-                }
             }
+            catch (Throwable t)
+            {
+                if (t instanceof ThreadDeath)
+                    throw (ThreadDeath) t;
+            }
+        }
 
-            try
-            {
-                UIManager.setLookAndFeel(laf);
-                lafIsSet = true;
+        try
+        {
+            UIManager.setLookAndFeel(laf);
+            lafIsSet = true;
 
-                UIDefaults uiDefaults = UIManager.getDefaults();
-                if (OSUtils.IS_WINDOWS)
-                    fixWindowsUIDefaults(uiDefaults);
+            UIDefaults uiDefaults = UIManager.getDefaults();
+            if (OSUtils.IS_WINDOWS)
+                fixWindowsUIDefaults(uiDefaults);
 
-                // Workaround for SC issue #516
-                // "GNOME SCScrollPane has rounded and rectangular borders"
-                if (laf.equals(gtkLookAndFeel)
-                        || laf.equals("com.sun.java.swing.plaf.motif.MotifLookAndFeel"))
-                {
-                    uiDefaults.put(
-                        "ScrollPaneUI",
-                        new javax.swing.plaf.metal.MetalLookAndFeel()
-                            .getDefaults().get("ScrollPaneUI"));
-                }
-            }
-            catch (ClassNotFoundException ex)
+            // Workaround for SC issue #516
+            // "GNOME SCScrollPane has rounded and rectangular borders"
+            if (laf.equals(gtkLookAndFeel)
+                    || laf.equals("com.sun.java.swing.plaf.motif.MotifLookAndFeel"))
             {
-                /*
-                 * Ignore the exceptions because we're only trying to set the
-                 * native LookAndFeel and, if it fails, we'll use
-                 * SIPCommLookAndFeel.
-                 */
+                uiDefaults.put(
+                    "ScrollPaneUI",
+                    new javax.swing.plaf.metal.MetalLookAndFeel()
+                        .getDefaults().get("ScrollPaneUI"));
             }
-            catch (InstantiationException ex)
-            {
-            }
-            catch (IllegalAccessException ex)
-            {
-            }
-            catch (UnsupportedLookAndFeelException ex)
-            {
-            }
+        }
+        catch (final ClassNotFoundException | InstantiationException
+                     | IllegalAccessException | UnsupportedLookAndFeelException ex)
+        {
+            /*
+             * Ignore the exceptions because we're only trying to set the
+             * native LookAndFeel and, if it fails, we'll use
+             * SIPCommLookAndFeel.
+             */
+            logger.trace("Failed setting look-and-feel. Will try to set SIPCommLookAndFeel as fallback.", ex);
         }
 
         if (!lafIsSet)

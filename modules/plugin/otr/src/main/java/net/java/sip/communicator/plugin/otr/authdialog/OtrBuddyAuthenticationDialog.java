@@ -81,8 +81,8 @@ public class OtrBuddyAuthenticationDialog
                 "plugin.otr.authbuddydialog.AUTHENTICATION_METHOD_SECRET"),
             OtrActivator.resourceService.getI18NString(
                 "plugin.otr.authbuddydialog.AUTHENTICATION_METHOD_FINGERPRINT")};
-        final JComboBox authenticationMethodComboBox =
-            new JComboBox(am);
+        final JComboBox<String> authenticationMethodComboBox =
+            new JComboBox<String>(am);
         JTextArea authMethodLabel = new CustomTextArea();
         authMethodLabel.setText(
                 OtrActivator.resourceService.getI18NString(
@@ -92,7 +92,7 @@ public class OtrBuddyAuthenticationDialog
         mainPanel.add(Box.createVerticalStrut(10));
 
         // Add authentication panels in a card layout so that the user can
-        // use the combo box to switch between authentication methods. 
+        // use the combo box to switch between authentication methods.
         final JPanel authenticationPanel =
             new TransparentPanel(new CardLayout());
         final FingerprintAuthenticationPanel fingerprintPanel =

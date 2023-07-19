@@ -1022,7 +1022,7 @@ public class ScOtrEngineImpl
     @Override
     public void launchHelp()
     {
-        ServiceReference ref =
+        ServiceReference<?> ref =
             OtrActivator.bundleContext
                 .getServiceReference(BrowserLauncherService.class.getName());
 

@@ -53,6 +53,12 @@
     </dependency>
 
     <!-- service -->
+    <!-- cobratbq: was missing, not sure if needed. Leaving here commented out for completeness. -->
+<!--    <dependency>-->
+<!--      <groupId>org.jitsi.desktop</groupId>-->
+<!--      <artifactId>service-argdelegation</artifactId>-->
+<!--      <version>${project.version}</version>-->
+<!--    </dependency>-->
     <dependency>
       <groupId>org.jitsi.desktop</groupId>
       <artifactId>service-browserlauncher</artifactId>
@@ -96,6 +102,11 @@
     <dependency>
       <groupId>org.jitsi.desktop</groupId>
       <artifactId>service-customavatar</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jitsi.desktop</groupId>
+      <artifactId>service-customcontactactions</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -303,6 +314,11 @@
     <dependency>
       <groupId>org.jitsi.desktop</groupId>
       <artifactId>jitsi-replacement</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jitsi.desktop</groupId>
+      <artifactId>jitsi-swingnotification</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

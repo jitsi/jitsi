@@ -57,7 +57,7 @@ public class KnownFingerprintsTableModel
     public KnownFingerprintsTableModel()
     {
         // Get the protocolproviders
-        ServiceReference[] protocolProviderRefs = null;
+        final ServiceReference<?>[] protocolProviderRefs;
         try
         {
             protocolProviderRefs =
@@ -75,12 +75,12 @@ public class KnownFingerprintsTableModel
             return;
 
         // Populate contacts.
-        for (int i = 0; i < protocolProviderRefs.length; i++)
+        for (final var protocolProviderRef : protocolProviderRefs)
         {
             ProtocolProviderService provider
                 = (ProtocolProviderService) OtrActivator
-                    .bundleContext
-                        .getService(protocolProviderRefs[i]);
+                .bundleContext
+                .getService(protocolProviderRef);
 
             Iterator<MetaContact> metaContacts =
                 OtrActivator.getContactListService()
