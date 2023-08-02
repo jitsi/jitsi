@@ -53,12 +53,11 @@
     </dependency>
 
     <!-- service -->
-    <!-- cobratbq: was missing, not sure if needed. Leaving here commented out for completeness. -->
-<!--    <dependency>-->
-<!--      <groupId>org.jitsi.desktop</groupId>-->
-<!--      <artifactId>service-argdelegation</artifactId>-->
-<!--      <version>${project.version}</version>-->
-<!--    </dependency>-->
+    <dependency>
+      <groupId>org.jitsi.desktop</groupId>
+      <artifactId>service-argdelegation</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.jitsi.desktop</groupId>
       <artifactId>service-browserlauncher</artifactId>
