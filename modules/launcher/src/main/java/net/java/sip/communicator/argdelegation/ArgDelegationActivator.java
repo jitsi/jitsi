@@ -21,7 +21,6 @@ import java.awt.*;
 import java.awt.Desktop.*;
 import net.java.sip.communicator.launchutils.*;
 import net.java.sip.communicator.service.gui.*;
-
 import net.java.sip.communicator.util.osgi.*;
 import org.osgi.framework.*;
 
@@ -41,12 +40,6 @@ public class ArgDelegationActivator
      */
     private ArgDelegationPeerImpl delegationPeer = null;
 
-    /**
-     * A reference to the <tt>UIService</tt> currently in use in
-     * SIP Communicator.
-     */
-    private static UIService uiService = null;
-
     public ArgDelegationActivator()
     {
         super(UIService.class);
@@ -56,10 +49,10 @@ public class ArgDelegationActivator
      * Starts the arg delegation bundle and registers the delegationPeer with
      * the util package URI manager.
      */
+    @Override
     public void startWithServices(BundleContext bundleContext)
     {
-        uiService = getService(UIService.class);
-        delegationPeer = new ArgDelegationPeerImpl(bundleContext);
+        delegationPeer = new ArgDelegationPeerImpl(getService(UIService.class), bundleContext);
         bundleContext.addServiceListener(delegationPeer);
 
         //register our instance of delegation peer.
@@ -73,7 +66,7 @@ public class ArgDelegationActivator
                 try
                 {
                     desktop.setOpenURIHandler(evt ->
-                        delegationPeer.handleUri(evt.getURI().toString()));
+                        delegationPeer.handleUri(evt.getURI()));
                 }
                 catch (Exception ex)
                 {
@@ -88,12 +81,10 @@ public class ArgDelegationActivator
      * bundle.
      *
      * @param bc an instance of the currently valid bundle context.
-     * @throws Exception if unsetting the delegation peer instance that we set
-     * when we start this bundle fails
      */
-    public void stop(BundleContext bc) throws Exception
+    @Override
+    public void stop(BundleContext bc)
     {
-        uiService = null;
         if (delegationPeer != null)
         {
             bc.removeServiceListener(delegationPeer);
@@ -101,17 +92,5 @@ public class ArgDelegationActivator
         }
 
         LaunchArgHandler.getInstance().setDelegationPeer(null);
-    }
-
-    /**
-     * Returns a reference to an UIService implementation currently registered
-     * in the bundle context or null if no such implementation was found.
-     *
-     * @return a reference to an UIService implementation currently registered
-     * in the bundle context or null if no such implementation was found.
-     */
-    public static UIService getUIService()
-    {
-        return uiService;
     }
 }

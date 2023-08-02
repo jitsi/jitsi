@@ -17,6 +17,7 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import java.net.*;
 import java.text.*;
 import java.util.*;
 
@@ -25,6 +26,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
+import org.apache.commons.lang3.*;
 import org.osgi.framework.*;
 
 /**
@@ -98,7 +100,7 @@ public class UriHandlerSipImpl
      * stored accounts of the {@link #protoFactory} have been loaded. They will
      * be handled as soon as the mentioned loading completes.
      */
-    private List<String> uris;
+    private List<URI> uris;
 
     /**
      * Creates an instance of this uri handler, so that it would start handling
@@ -196,7 +198,7 @@ public class UriHandlerSipImpl
         if ((AccountManagerEvent.STORED_ACCOUNTS_LOADED == event.getType())
             && (protoFactory == event.getFactory()))
         {
-            List<String> uris = null;
+            List<URI> uris = null;
 
             synchronized (storedAccountsAreLoaded)
             {
@@ -213,10 +215,9 @@ public class UriHandlerSipImpl
 
             if (uris != null)
             {
-                for (Iterator<String> uriIter = uris.iterator(); uriIter
-                    .hasNext();)
+                for (var uri : uris)
                 {
-                    handleUri(uriIter.next());
+                    handleUri(uri);
                 }
             }
         }
@@ -240,7 +241,7 @@ public class UriHandlerSipImpl
             Hashtable<String, String> registrationProperties =
                 new Hashtable<String, String>();
 
-            for (String protocol : getProtocol())
+            for (String protocol : getProtocols())
             {
                 registrationProperties.put(UriHandler.PROTOCOL_PROPERTY,
                     protocol);
@@ -272,7 +273,7 @@ public class UriHandlerSipImpl
      * {@inheritDoc}
      */
     @Override
-    public String[] getProtocol()
+    public String[] getProtocols()
     {
         return new String[]
         { "sip", "tel", "callto" };
@@ -283,7 +284,8 @@ public class UriHandlerSipImpl
      *
      * @param uri the SIP URI that we have to call.
      */
-    public void handleUri(final String uri)
+    @Override
+    public void handleUri(final URI uri)
     {
         /*
          * TODO If the requirement to register the factory service after
@@ -295,7 +297,7 @@ public class UriHandlerSipImpl
             {
                 if (uris == null)
                 {
-                    uris = new LinkedList<String>();
+                    uris = new LinkedList<>();
                 }
                 uris.add(uri);
                 return;
@@ -366,11 +368,11 @@ public class UriHandlerSipImpl
     private class DelayRegistrationStateChangeListener
         implements RegistrationStateChangeListener
     {
-        private String uri;
-        private ProtocolProviderService provider;
+        private final URI uri;
+        private final ProtocolProviderService provider;
         private boolean handled = false;
 
-        public DelayRegistrationStateChangeListener(String uri,
+        public DelayRegistrationStateChangeListener(URI uri,
             ProtocolProviderService provider)
         {
             this.uri = uri;
@@ -394,12 +396,8 @@ public class UriHandlerSipImpl
      *
      * @param uri the SIP URI that we have to call.
      */
-    protected void handleUri(String uri, ProtocolProviderService provider)
+    protected void handleUri(URI uri, ProtocolProviderService provider)
     {
-        //handle "sip://" URIs as "sip:"
-        if(uri != null)
-            uri = uri.replace("sip://", "sip:");
-
         OperationSetBasicTelephony<?> telephonyOpSet
             = provider.getOperationSet(OperationSetBasicTelephony.class);
 
@@ -407,12 +405,9 @@ public class UriHandlerSipImpl
             = provider.getOperationSet(OperationSetVideoTelephony.class);
 
         boolean videoCall = false;
-        if(videoTelephonyOpSet != null
-            && uri.contains("?"))
+        if(videoTelephonyOpSet != null && StringUtils.isNotEmpty(uri.getQuery()))
         {
-            String params = uri.substring(uri.indexOf('?') + 1);
-            uri = uri.substring(0, uri.indexOf('?'));
-
+            String params = uri.getQuery();
             StringTokenizer paramTokens = new StringTokenizer(params, "&");
             while(paramTokens.hasMoreTokens())
             {
@@ -428,9 +423,9 @@ public class UriHandlerSipImpl
         try
         {
             if(videoCall)
-                videoTelephonyOpSet.createVideoCall(uri);
+                videoTelephonyOpSet.createVideoCall(uri.toString());
             else
-                telephonyOpSet.createCall(uri);
+                telephonyOpSet.createCall(uri.toString());
         }
         catch (OperationFailedException exc)
         {
@@ -461,7 +456,7 @@ public class UriHandlerSipImpl
      * @param provider the provider that we may have to reregister.
      * @return true if user tried to start registration
      */
-    private boolean promptForRegistration(String uri,
+    private boolean promptForRegistration(URI uri,
         ProtocolProviderService provider)
     {
         int answer =
@@ -546,7 +541,7 @@ public class UriHandlerSipImpl
         /**
          * The URI that we'd need to re-call.
          */
-        private String uri = null;
+        private URI uri = null;
 
         /**
          * Configures this thread register our parent provider and re-attempt
@@ -557,7 +552,7 @@ public class UriHandlerSipImpl
          *            register and that we are going to use to handle the
          *            <tt>uri</tt>.
          */
-        public ProtocolRegistrationThread(String uri,
+        public ProtocolRegistrationThread(URI uri,
             ProtocolProviderService handlerProvider)
         {
             super("UriHandlerProviderRegistrationThread:uri=" + uri);
@@ -602,14 +597,7 @@ public class UriHandlerSipImpl
         {
             if (evt.getNewState() == RegistrationState.REGISTERED)
             {
-                Thread uriRehandleThread = new Thread()
-                {
-                    @Override
-                    public void run()
-                    {
-                        handleUri(uri);
-                    }
-                };
+                Thread uriRehandleThread = new Thread(() -> handleUri(uri));
 
                 uriRehandleThread.setName("UriRehandleThread:uri=" + uri);
                 uriRehandleThread.start();
@@ -638,7 +626,7 @@ public class UriHandlerSipImpl
      * @throws OperationFailedException with code <tt>OPERATION_CANCELED</tt> if
      *             the users.
      */
-    public ProtocolProviderService selectHandlingProvider(String uri)
+    public ProtocolProviderService selectHandlingProvider(URI uri)
         throws OperationFailedException
     {
         ArrayList<AccountID> registeredAccounts =
@@ -653,14 +641,8 @@ public class UriHandlerSipImpl
         // if we only have one provider - select it
         if (registeredAccounts.size() == 1)
         {
-            ServiceReference providerReference =
-                protoFactory.getProviderForAccount(registeredAccounts.get(0));
-
-            ProtocolProviderService provider =
-                (ProtocolProviderService) SipActivator.getBundleContext()
-                    .getService(providerReference);
-
-            return provider;
+            var providerReference = protoFactory.getProviderForAccount(registeredAccounts.get(0));
+            return SipActivator.getBundleContext().getService(providerReference);
         }
 
         // otherwise - ask the user.
@@ -668,11 +650,8 @@ public class UriHandlerSipImpl
             new ArrayList<ProviderComboBoxEntry>();
         for (AccountID accountID : registeredAccounts)
         {
-            ServiceReference providerReference =
-                protoFactory.getProviderForAccount(accountID);
-
-            ProtocolProviderService provider =
-                (ProtocolProviderService) SipActivator.getBundleContext()
+            var providerReference = protoFactory.getProviderForAccount(accountID);
+            var provider = (ProtocolProviderService) SipActivator.getBundleContext()
                     .getService(providerReference);
 
             providers.add(new ProviderComboBoxEntry(provider));

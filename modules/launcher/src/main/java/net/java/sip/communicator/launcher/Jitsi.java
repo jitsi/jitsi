@@ -41,7 +41,6 @@ import org.slf4j.bridge.*;
  */
 public class Jitsi
 {
-
     /**
      * Legacy home directory names that we can use if current dir name is the
      * currently active name (overridableDirName).

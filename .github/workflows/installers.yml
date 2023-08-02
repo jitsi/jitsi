@@ -91,20 +91,18 @@ jobs:
       fail-fast: false
       matrix:
         dist:
-          - { vendor: ubuntu, dist: bionic }
           - { vendor: ubuntu, dist: focal }
           - { vendor: ubuntu, dist: jammy }
-          - { vendor: debian, dist: buster }
+          - { vendor: ubuntu, dist: lunar }
           - { vendor: debian, dist: bullseye }
+          - { vendor: debian, dist: bookworm }
         arch:
           - amd64
           - arm64
           - ppc64el
         include: [
-          # crossbuild-essential-i386 is missing on bionic, failing sbuild
-          #{ dist: { vendor: ubuntu, dist: bionic }, arch: i386 },
-          { dist: { vendor: debian, dist: buster }, arch: i386 },
           { dist: { vendor: debian, dist: bullseye }, arch: i386 },
+          { dist: { vendor: debian, dist: bookworm }, arch: i386 },
         ]
 
     env:
