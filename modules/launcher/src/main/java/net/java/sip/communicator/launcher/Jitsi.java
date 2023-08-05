@@ -125,7 +125,7 @@ public class Jitsi
             .addClassLoaders(Jitsi.class.getClassLoader())
             .forPackages("org.jitsi", "net.java.sip"));
 
-        for (var activator : reflections.getSubTypesOf(BundleActivator.class))
+        for (final var activator : reflections.getSubTypesOf(BundleActivator.class))
         {
             if ((activator.getModifiers() & Modifier.ABSTRACT) == Modifier.ABSTRACT)
             {
