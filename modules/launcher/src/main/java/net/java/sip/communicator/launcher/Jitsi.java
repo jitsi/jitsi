@@ -21,6 +21,7 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
 import net.java.sip.communicator.launchutils.*;
+import org.jitsi.impl.osgi.framework.*;
 import org.jitsi.impl.osgi.framework.launch.*;
 import org.jitsi.osgi.framework.*;
 import org.osgi.framework.*;
@@ -94,7 +95,19 @@ public class Jitsi
      * @param args command line args if any
      * @throws Exception whenever it makes sense.
      */
-    public static void main(String[] args) throws Exception
+    public static void main(String[] args)
+        throws Exception
+    {
+        try (var cl = new BundleClassLoader(Jitsi.class.getClassLoader()))
+        {
+            var c = cl.loadClass(Jitsi.class.getName());
+            var m = c.getDeclaredMethod("mainWithCl", String[].class);
+            m.invoke(null, (Object) args);
+        }
+    }
+
+    public static void mainWithCl(String[] args)
+        throws Exception
     {
         init();
         handleArguments(args);
