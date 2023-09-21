@@ -75,6 +75,16 @@ public class OperationSetJitsiMeetToolsSipImpl
         = "JITSI_MEET_ROOM_HEADER_NAME";
 
     /**
+     * Property name to enable answering SIP Info messages that has no content type.
+     */
+    private static final String JITSI_MEET_ANSWER_EMPTY_INFO_PROPERTY = "JITSI_MEET_ANSWER_EMPTY_INFO";
+
+    /**
+     * Whether to answer SIP Info messages that has no content type.
+     */
+    private final boolean enableAnswerEmptySIPInfo;
+
+    /**
      * The logger used by this class.
      */
     private final static org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OperationSetJitsiMeetToolsSipImpl.class);
@@ -96,6 +106,8 @@ public class OperationSetJitsiMeetToolsSipImpl
         // Specify custom header names
         JITSI_MEET_ROOM_HEADER = account.getAccountPropertyString(
             JITSI_MEET_ROOM_HEADER_PROPERTY, JITSI_MEET_ROOM_HEADER);
+        enableAnswerEmptySIPInfo = account.getAccountPropertyBoolean(
+            JITSI_MEET_ANSWER_EMPTY_INFO_PROPERTY, false);
 
         this.parentProvider = parentProvider;
         this.parentProvider.registerMethodProcessor(Request.INFO, this);
@@ -326,38 +338,14 @@ public class OperationSetJitsiMeetToolsSipImpl
                             "Unhandled onJSONReceived Jitsi Meet Request!");
                     }
 
-                    // Handle response
-                    ServerTransaction serverTransaction
-                        = requestEvent.getServerTransaction();
-
-                    if (serverTransaction == null)
-                    {
-                        serverTransaction
-                            = SipStackSharing
-                                .getOrCreateServerTransaction(requestEvent);
-
-                        if (serverTransaction == null)
-                        {
-                            logger.warn("No valid server transaction " +
-                                            "to send response!");
-                            return true;
-                        }
-                    }
-
-                    // If no call peer send 481/Transaction does not exist?
-                    Response response = this.parentProvider
-                        .getMessageFactory()
-                        .createResponse(Response.OK,
-                                        serverTransaction.getRequest());
-
-                    serverTransaction.sendResponse(response);
-
-                    if (logger.isTraceEnabled())
-                    {
-                        logger.trace("Response " +
-                                response.toString() + " sent.");
-                    }
+                    sendSipInfoResponse(requestEvent);
                 }
+            }
+            else if (enableAnswerEmptySIPInfo)
+            {
+                requestHandled = true;
+
+                sendSipInfoResponse(requestEvent);
             }
         }
         catch(Exception exception)
@@ -366,5 +354,33 @@ public class OperationSetJitsiMeetToolsSipImpl
         }
 
         return requestHandled;
+    }
+
+    private void sendSipInfoResponse(RequestEvent requestEvent)
+        throws Exception
+    {
+        // Handle response
+        ServerTransaction serverTransaction = requestEvent.getServerTransaction();
+
+        if (serverTransaction == null)
+        {
+            serverTransaction = SipStackSharing.getOrCreateServerTransaction(requestEvent);
+
+            if (serverTransaction == null)
+            {
+                logger.warn("No valid server transaction to send response!");
+                return;
+            }
+        }
+
+        Response response = this.parentProvider.getMessageFactory()
+                .createResponse(Response.OK, serverTransaction.getRequest());
+
+        serverTransaction.sendResponse(response);
+
+        if (logger.isTraceEnabled())
+        {
+            logger.trace("Response " + response.toString() + " sent.");
+        }
     }
 }

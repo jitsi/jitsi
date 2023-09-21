@@ -1279,6 +1279,17 @@ public class CallPeerSipImpl
         {
             ok = messageFactory.createResponse(Response.OK, invite);
 
+            //add to the allows header all methods that we support
+            ProtocolProviderServiceSipImpl provider = getProtocolProvider();
+            for (String method : provider.getSupportedMethods())
+            {
+                //don't support REGISTERs
+                if(!method.equals(Request.REGISTER))
+                {
+                    ok.addHeader(provider.getHeaderFactory().createAllowHeader(method));
+                }
+            }
+
             processExtraHeaders(ok);
         }
         catch (ParseException ex)
