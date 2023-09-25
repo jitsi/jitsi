@@ -1221,6 +1221,8 @@ public class ProtocolProviderServiceJabberImpl
         {
             // install all trust manager
             confConn.setCustomX509TrustManager(new TrustAllX509TrustManager());
+            // install all hosts verified
+            confConn.setHostnameVerifier((hostname, session) -> true);
         }
         else
         {
