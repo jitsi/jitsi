@@ -3,8 +3,8 @@ We would love to have your help. Before you start working however, please read
 and follow this short guide.
 
 # Reporting Issues
-Before you open an issue on GitHub, please discuss it on one of our
-[mailing lists](https://jitsi.org/Development/MailingLists) and wait for a 
+Before you open an issue on GitHub, please discuss it on the
+[community forum](https://community.jitsi.org) and wait for a 
 confirmation from one of the committers. Once you have that confirmation, 
 please proceed to reporting the issue on GitHub, while providing as much 
 information as possible. Mention the version of Jitsi you are using, your 
@@ -16,26 +16,6 @@ discover however that the issue also exists in an older version, this is
 useful information. Even more useful is to know if it worked in a specific 
 version and stopped working in a subsequent version. This will help 
 developers pinpoint the issue. Also useful is to test the nightly build.
-
-# Translation
-Please go to our [translation website](http://translate.jitsi.org), which is a
-[Pootle](http://pootle.translatehouse.org/) instance that allows for easy
-online translation. Many languages are already there and waiting for completion.
-
-If your preferred language is not yet created, please drop us an
-[e-mail](mailto:dev@jitsi.org). Be aware though that completing a new language
-will be quite some effort, so be sure you actually want to take on that
-work and translate more than a few words.
-
-Please do not create any pull requests for the resources_XX.properties files,
-as they will be overwritten with what comes from
-[Pootle](http://translate.jitsi.org). The only exception is if you find
-mistakes in the language file for
-[English](https://github.com/jitsi/jitsi/blob/master/resources/languages/resources.properties).
-
-For more information, e.g. how to translate offline visit the
-[How To Translate Jitsi](https://jitsi.org/Documentation/HowToTranslateSIPCommunicator)
-on our website.
 
 # Code contributions
 Found a bug and know how to fix it? Great! Please read on.
