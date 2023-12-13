@@ -93,7 +93,7 @@ jobs:
         dist:
           - { vendor: ubuntu, dist: focal }
           - { vendor: ubuntu, dist: jammy }
-          - { vendor: ubuntu, dist: lunar }
+          - { vendor: ubuntu, dist: mantic }
           - { vendor: debian, dist: bullseye }
           - { vendor: debian, dist: bookworm }
         arch:
