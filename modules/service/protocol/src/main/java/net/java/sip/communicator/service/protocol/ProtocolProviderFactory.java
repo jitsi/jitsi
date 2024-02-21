@@ -962,7 +962,8 @@ public abstract class ProtocolProviderFactory
     /**
      * Initializes and creates an account corresponding to the specified
      * accountProperties and registers the resulting ProtocolProvider in the
-     * <tt>context</tt> BundleContext parameter. This method has a persistent
+     * <tt>context</tt> BundleContext parameter via an osgi event (which needs to acces the
+     * configuration service and check for a stored password). This method has a persistent
      * effect. Once created the resulting account will remain installed until
      * removed through the uninstallAccount method.
      *
