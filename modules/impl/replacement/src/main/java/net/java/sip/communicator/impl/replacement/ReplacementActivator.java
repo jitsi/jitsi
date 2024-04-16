@@ -60,7 +60,6 @@ public class ReplacementActivator
         registerService(context, new Metacafe());
         registerService(context, new Twitpic());
         registerService(context, new Vbox7());
-        registerService(context, new Viddler());
         registerService(context, new Vimeo());
         registerService(context, new Youtube());
         registerService(context, new ReplacementServiceSmileyImpl());
