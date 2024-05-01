@@ -598,6 +598,11 @@ public class CallPeerMediaHandlerJabberImpl
                direction = MediaDirection.SENDRECV;
                ourContent.setSenders(ContentPacketExtension.SendersEnum.both);
             }
+            else if (MediaType.AUDIO.equals(type) && !isLocalAudioTransmissionEnabled())
+            {
+                // there are cases where jigasi would want to not advertise sources and will not be sending anything
+                direction = MediaDirection.RECVONLY;
+            }
 
             //let's now see what was the format we announced as first and
             //configure the stream with it.
