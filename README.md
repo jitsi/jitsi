@@ -5,11 +5,11 @@ Jitsi Desktop
 =============
 
 Jitsi Desktop is a free open-source audio/video and chat communicator that
-supports protocols such as SIP, XMPP/Jabber, IRC and many other useful features.
+supports protocols such as SIP, XMPP/Jabber, IRC, and many other useful features.
 
 Please do not confuse this project
 with [Jitsi Meet](https://github.com/jitsi/jitsi-meet), the online video
-conferencing solution with a free instance at https://meet.jit.si.
+conferencing solution with a free instance at <https://meet.jit.si>.
 
 <img align=right src="docs/jitsi-main-window.png" alt="Jitsi Desktop" width=210>
 
@@ -17,7 +17,7 @@ conferencing solution with a free instance at https://meet.jit.si.
 
 Jitsi Desktop is the heritage of Jitsi Meet. While some components are still
 used in e.g. [Jigasi](https://github.com/jitsi/jigasi), the project is not
-actively developed anymore. Improvements, bugfixes and builds are entirely based
+actively developed anymore. Improvements, bugfixes, and builds are entirely based
 on community contributions.
 
 ## Installation
@@ -31,7 +31,7 @@ from [GitHub releases](https://github.com/jitsi/jitsi/releases/latest/).
 
 #### Debian/Ubuntu
 An APT repository is available at https://nexus.ingo.ch/jitsi-desktop/.
-Note the trailing slash at the end of the distro-name.
+Note the trailing slash at the end of the distro name.
 This is required since the repository has no components.
 ```deb
 deb https://nexus.ingo.ch/jitsi-desktop-unstable/ <distro>/
@@ -39,7 +39,7 @@ deb https://nexus.ingo.ch/jitsi-desktop-unstable/ <distro>/
 
 #### RPM Distros
 
-Sorry, there are currently no rpm packages available.
+Sorry, there are currently no RPM packages available.
 
 ### Snapshots
 
