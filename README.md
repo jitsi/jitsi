@@ -30,11 +30,11 @@ Download the installers
 from [GitHub releases](https://github.com/jitsi/jitsi/releases/latest/).
 
 #### Debian/Ubuntu
-An APT repository is available at https://nexus.ingo.ch/jitsi-desktop/.
+An APT repository is available at https://nexus.ingo.ch/jitsi-desktop-unstable/.
 Note the trailing slash at the end of the distro-name.
 This is required since the repository has no components.
 ```deb
-deb https://nexus.ingo.ch/jitsi-desktop-unstable/ <distro>/
+deb https://nexus.ingo.ch/jitsi-desktop-unstable/ <distro-name>/
 ```
 
 #### RPM Distros
