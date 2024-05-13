@@ -9,7 +9,7 @@ supports protocols such as SIP, XMPP/Jabber, IRC and many other useful features.
 
 Please do not confuse this project
 with [Jitsi Meet](https://github.com/jitsi/jitsi-meet), the online video
-conferencing solution with a free instance at https://meet.jit.si.
+conferencing solution with a free instance at <https://meet.jit.si>.
 
 <img align=right src="docs/jitsi-main-window.png" alt="Jitsi Desktop" width=210>
 
@@ -30,7 +30,7 @@ Download the installers
 from [GitHub releases](https://github.com/jitsi/jitsi/releases/latest/).
 
 #### Debian/Ubuntu
-An APT repository is available at https://nexus.ingo.ch/jitsi-desktop/.
+An APT repository is available at <https://nexus.ingo.ch/jitsi-desktop/>.
 Note the trailing slash at the end of the distro-name.
 This is required since the repository has no components.
 ```deb
@@ -45,8 +45,8 @@ Sorry, there are currently no rpm packages available.
 
 Snapshot or pre-release builds are also available in additional repositories.
 
-- Windows and macOS: See https://github.com/jitsi/jitsi/releases
-- Debian/Ubuntu: https://nexus.ingo.ch/jitsi-desktop-unstable/
+- Windows and macOS: See <https://github.com/jitsi/jitsi/releases>
+- Debian/Ubuntu: <https://nexus.ingo.ch/jitsi-desktop-unstable/>
 
 ## Helpful Resources
 
