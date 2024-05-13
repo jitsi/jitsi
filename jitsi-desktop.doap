@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns="http://usefulinc.com/ns/doap#"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:schema="https://schema.org/"
+  xmlns:xmpp="https://linkmauve.fr/ns/xmpp-doap#">
+  <Project>
+
+    <name>Jitsi Desktop</name>
+    <short-name>jitsidesktop</short-name>
+
+    <shortdesc xml:lang="en">An audio/video and chat communicator</shortdesc>
+    <description xml:lang="en">
+      Jitsi Desktop is a free open-source audio/video and chat communicator that supports protocols such as SIP, XMPP/Jabber, IRC and many other useful features.
+    </description>
+
+    <homepage rdf:resource="https://desktop.jitsi.org/"/>
+    <schema:logo rdf:resource="https://upload.wikimedia.org/wikipedia/commons/5/5d/Logo_Jitsi.svg"/>
+
+    <download-page rdf:resource="https://desktop.jitsi.org/Main/Download.html"/>
+    <support-forum rdf:resource="https://community.jitsi.org/"/>
+
+    <bug-database rdf:resource="https://github.com/jitsi/jitsi/issues"/>
+    <category rdf:resource="https://linkmauve.fr/ns/xmpp-doap#category-xmpp"/>
+    <category rdf:resource="https://linkmauve.fr/ns/xmpp-doap#category-jabber"/>
+    <category rdf:resource="https://linkmauve.fr/ns/xmpp-doap#category-client"/>
+    <license rdf:resource="http://usefulinc.com/doap/licenses/asl20"/>
+
+    <programming-language>Java</programming-language>
+    <os>Linux</os>
+    <os>Windows</os>
+    <os>MacOS</os>
+
+    <repository>
+      <GitRepository>
+        <location rdf:resource="https://github.com/jitsi/jitsi.git"/>
+        <browse rdf:resource="https://github.com/jitsi/jitsi"/>
+      </GitRepository>
+    </repository>
+
+  </Project>
+</rdf:RDF>
