@@ -70,8 +70,8 @@ public class DnsJavaLogger
                     String prefix, byte[] data)
     {
         if(packetLoggingService == null
-            || !(local instanceof InetSocketAddress
-                && remote instanceof InetSocketAddress))
+            || !(local instanceof InetSocketAddress && remote instanceof InetSocketAddress)
+            || !packetLoggingService.isLoggingEnabled(PacketLoggingService.ProtocolName.DNS))
         {
             return;
         }
