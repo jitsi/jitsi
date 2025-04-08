@@ -32,12 +32,12 @@ jobs:
       jitsi_version_deb: ${{ steps.parse.outputs.jitsi_version_deb }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Set up Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: ${{ env.INSTALLER_JAVA_VERSION }}
           distribution: temurin
@@ -45,7 +45,7 @@ jobs:
       # don't use the setup-java cache option as this only caches what is
       # necessary for the version, not the other jobs
       - name: Cache local Maven repository
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-version-${{ hashFiles('**/pom.xml') }}
@@ -63,10 +63,10 @@ jobs:
       - version
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: ${{ env.INSTALLER_JAVA_VERSION }}
           distribution: temurin
@@ -76,7 +76,7 @@ jobs:
         run: mvn -B compile
 
       - name: Upload JNI headers
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: javah
           path: target/native
@@ -113,19 +113,19 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           #for gbp dch
           fetch-depth: 0
 
       - name: Get JNI headers
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: javah
           path: target/native
 
       - name: Set up Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: ${{ env.INSTALLER_JAVA_VERSION }}
           distribution: temurin
@@ -144,7 +144,7 @@ jobs:
           gpg --list-secret-keys --keyid-format LONG
 
       - name: Cache sbuild chroot stanza
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: chroot_cache
         with:
           path: target/chroot
@@ -181,7 +181,7 @@ jobs:
 
       - name: Upload packages and/or build logs as artifact
         if: ${{ always() }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.dist.vendor }}-${{ matrix.dist.dist }}-${{ matrix.arch }}
           path: target/debian/${{ matrix.dist.dist }}/*
@@ -204,10 +204,10 @@ jobs:
           - { actions: x64, cmake: x64, cmake_opposite_arch: Win32, java: "x86-64" }
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Private SDK Download
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: jitsi/jitsi-3rdparty-nonredist
           ssh-key: ${{ secrets.PRIVATE_SDK_KEY }}
@@ -215,7 +215,7 @@ jobs:
 
       - name: Set up Java
         id: install_java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: ${{ env.INSTALLER_JAVA_VERSION }}
@@ -227,7 +227,7 @@ jobs:
         run: mvn -B -DskipTests -Drevision=${{ needs.version.outputs.jitsi_version_full }} package
 
       - name: Cache Gradle dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.gradle/caches
@@ -237,7 +237,7 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Verify Gradle Wrapper
-        uses: gradle/wrapper-validation-action@v1
+        uses: gradle/actions/wrapper-validation@v4
 
       - name: Build natives
         env:
@@ -274,14 +274,14 @@ jobs:
 
       - name: Upload Debug logs
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: win-${{ matrix.arch.actions }}-debug
           path: debug*
 
       - name: Set up Java
         id: install_java_x64
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: ${{ env.INSTALLER_JAVA_VERSION }}
           architecture: x64
@@ -296,7 +296,7 @@ jobs:
           ./gradlew --no-daemon --stacktrace windowsZip signMsi -Papplication.target=${{ matrix.arch.java }} -Pversion=${{ needs.version.outputs.jitsi_version_full }} -PgitVersion=${{ needs.version.outputs.jitsi_version_git }}
 
       - name: Upload msi
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jitsi-win-${{ matrix.arch.actions }}
           path: |
@@ -316,17 +316,17 @@ jobs:
           #- aarch64
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Get JNI headers
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: javah
           path: target/native
 
       - name: Set up Java (${{ matrix.arch }})
         id: install_java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: ${{ env.INSTALLER_JAVA_VERSION }}
           distribution: temurin
@@ -336,7 +336,7 @@ jobs:
         run: resources/mac-cmake.sh ${{ steps.install_java.outputs.path }} ${{ matrix.arch }}
 
       - name: Set up Java (Host)
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: ${{ env.INSTALLER_JAVA_VERSION }}
           distribution: temurin
@@ -346,7 +346,7 @@ jobs:
         run: mvn -B -DskipTests -Drevision=${{ needs.version.outputs.jitsi_version_full }} package
 
       - name: Cache Gradle dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.gradle/caches
@@ -356,7 +356,7 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Verify Gradle Wrapper
-        uses: gradle/wrapper-validation-action@v1
+        uses: gradle/actions/wrapper-validation@v4
 
       - name: Generate dmg
         run: |
@@ -364,7 +364,7 @@ jobs:
           ./gradlew --no-daemon createDmg -Pversion=${{ needs.version.outputs.jitsi_version_full }} -PgitVersion=${{ needs.version.outputs.jitsi_version_git }}
 
       - name: Upload dmg
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jitsi-mac-${{ matrix.arch }}
           path: resources/install/build/install/jitsi-*-mac-*.dmg
@@ -379,10 +379,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download binaries
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: target
 
