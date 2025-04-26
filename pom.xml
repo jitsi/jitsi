@@ -24,15 +24,15 @@
   <properties>
     <revision>2.14-SNAPSHOT</revision>
     <versionName>Jitsi Desktop</versionName>
-    <bouncycastleVersion>1.75</bouncycastleVersion>
-    <jnaVersion>5.13.0</jnaVersion>
-    <smackVersion>4.4.6</smackVersion>
-    <jxmppVersion>1.0.3</jxmppVersion>
-    <minidnsVersion>1.0.4</minidnsVersion>
-    <slf4jVersion>2.0.7</slf4jVersion>
-    <kotlin.version>1.6.21</kotlin.version>
+    <bouncycastleVersion>1.80</bouncycastleVersion>
+    <jnaVersion>5.17.0</jnaVersion>
+    <smackVersion>4.4.8</smackVersion>
+    <jxmppVersion>1.1.0</jxmppVersion>
+    <minidnsVersion>1.1.1</minidnsVersion>
+    <slf4jVersion>2.0.17</slf4jVersion>
+    <kotlin.version>2.1.20</kotlin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <lombok.version>1.18.28</lombok.version>
+    <lombok.version>1.18.38</lombok.version>
     <httpcomponents.version>4.5.14</httpcomponents.version>
     <jitsiGeneralGroupId>org.jitsi</jitsiGeneralGroupId>
     <!-- keep this empty default for Linux builds -->
@@ -61,20 +61,20 @@
       <dependency><groupId>org.apache.httpcomponents</groupId><artifactId>httpcore</artifactId><version>4.4.16</version></dependency>
       <dependency><groupId>org.bouncycastle</groupId><artifactId>bcpkix-jdk18on</artifactId><version>${bouncycastleVersion}</version></dependency>
       <dependency><groupId>org.bouncycastle</groupId><artifactId>bcprov-jdk18on</artifactId><version>${bouncycastleVersion}</version></dependency>
-      <dependency><groupId>org.apache.commons</groupId><artifactId>commons-lang3</artifactId><version>3.12.0</version></dependency>
-      <dependency><groupId>org.apache.commons</groupId><artifactId>commons-text</artifactId><version>1.10.0</version></dependency>
-      <dependency><groupId>org.apache.commons</groupId><artifactId>commons-compress</artifactId><version>1.26.0</version></dependency>
-      <dependency><groupId>commons-codec</groupId><artifactId>commons-codec</artifactId><version>1.16.0</version></dependency>
+      <dependency><groupId>org.apache.commons</groupId><artifactId>commons-lang3</artifactId><version>3.17.0</version></dependency>
+      <dependency><groupId>org.apache.commons</groupId><artifactId>commons-text</artifactId><version>1.13.1</version></dependency>
+      <dependency><groupId>org.apache.commons</groupId><artifactId>commons-compress</artifactId><version>1.27.1</version></dependency>
+      <dependency><groupId>commons-codec</groupId><artifactId>commons-codec</artifactId><version>1.18.0</version></dependency>
       <dependency><groupId>com.helger</groupId><artifactId>dhcp4java</artifactId><version>1.1.0</version></dependency>
-      <dependency><groupId>dnsjava</groupId><artifactId>dnsjava</artifactId><version>3.5.2</version></dependency>
+      <dependency><groupId>dnsjava</groupId><artifactId>dnsjava</artifactId><version>3.6.3</version></dependency>
       <dependency><groupId>com.google.gdata</groupId><artifactId>core</artifactId><version>1.47.1</version></dependency>
-      <dependency><groupId>com.google.http-client</groupId><artifactId>google-http-client-assembly</artifactId><version>1.43.3</version></dependency>
-      <dependency><groupId>com.google.oauth-client</groupId><artifactId>google-oauth-client</artifactId><version>1.34.1</version></dependency>
-      <dependency><groupId>com.google.code.gson</groupId><artifactId>gson</artifactId><version>2.10.1</version></dependency>
+      <dependency><groupId>com.google.http-client</groupId><artifactId>google-http-client-assembly</artifactId><version>1.46.3</version></dependency>
+      <dependency><groupId>com.google.oauth-client</groupId><artifactId>google-oauth-client</artifactId><version>1.39.0</version></dependency>
+      <dependency><groupId>com.google.code.gson</groupId><artifactId>gson</artifactId><version>2.13.1</version></dependency>
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
-        <version>32.1.1-jre</version>
+        <version>33.4.8-jre</version>
         <exclusions>
           <exclusion>
             <groupId>com.google.guava</groupId>
@@ -98,10 +98,10 @@
           </exclusion>
         </exclusions>
       </dependency>
-      <dependency><groupId>org.hsqldb</groupId><artifactId>hsqldb</artifactId><version>2.7.2</version></dependency>
-      <dependency><groupId>org.jitsi</groupId><artifactId>ice4j</artifactId><version>3.0-62-ga947919</version></dependency>
-      <dependency><groupId>org.jitsi</groupId><artifactId>jitsi-utils</artifactId><version>1.0-126-g02b0c86</version></dependency>
-      <dependency><groupId>org.jitsi</groupId><artifactId>jitsi-xmpp-extensions</artifactId><version>1.0-72-gc9dde6c</version></dependency>
+      <dependency><groupId>org.hsqldb</groupId><artifactId>hsqldb</artifactId><version>2.7.4</version></dependency>
+      <dependency><groupId>org.jitsi</groupId><artifactId>ice4j</artifactId><version>3.2-8-gfa5f931</version></dependency>
+      <dependency><groupId>org.jitsi</groupId><artifactId>jitsi-utils</artifactId><version>1.0-135-g56f462d</version></dependency>
+      <dependency><groupId>org.jitsi</groupId><artifactId>jitsi-xmpp-extensions</artifactId><version>1.0-91-gda443d7</version></dependency>
       <dependency>
         <groupId>org.jitsi</groupId>
         <artifactId>jitsi-lgpl-dependencies</artifactId>
@@ -109,7 +109,7 @@
         <scope>runtime</scope>
         <classifier>${jitsi-deps-arch}</classifier>
       </dependency>
-      <dependency><groupId>org.jmdns</groupId><artifactId>jmdns</artifactId><version>3.5.8</version></dependency>
+      <dependency><groupId>org.jmdns</groupId><artifactId>jmdns</artifactId><version>3.6.1</version></dependency>
       <dependency><groupId>org.jitsi</groupId><artifactId>jmork</artifactId><version>1.0.6</version></dependency>
       <dependency><groupId>net.java.dev.jna</groupId><artifactId>jna</artifactId><version>${jnaVersion}</version></dependency>
       <dependency><groupId>net.java.dev.jna</groupId><artifactId>jna-platform</artifactId><version>${jnaVersion}</version></dependency>
@@ -119,7 +119,7 @@
       <dependency><groupId>org.jitsi</groupId><artifactId>jain-sip-ri-ossonly</artifactId><version>1.2.279-jitsi-oss1</version></dependency>
       <dependency><groupId>org.jxmpp</groupId><artifactId>jxmpp-core</artifactId><version>${jxmppVersion}</version></dependency>
       <dependency><groupId>org.jxmpp</groupId><artifactId>jxmpp-jid</artifactId><version>${jxmppVersion}</version></dependency>
-      <dependency><groupId>com.googlecode.libphonenumber</groupId><artifactId>libphonenumber</artifactId><version>8.13.17</version></dependency>
+      <dependency><groupId>com.googlecode.libphonenumber</groupId><artifactId>libphonenumber</artifactId><version>9.0.4</version></dependency>
       <dependency><groupId>org.osgi</groupId><artifactId>osgi.core</artifactId><version>8.0.0</version></dependency>
       <dependency><groupId>org.osgi</groupId><artifactId>org.osgi.service.cm</artifactId><version>1.6.1</version></dependency>
       <dependency><groupId>org.igniterealtime.smack</groupId><artifactId>smack-core</artifactId><version>${smackVersion}</version></dependency>
@@ -174,9 +174,9 @@
           </exclusion>
         </exclusions>
       </dependency>
-      <dependency><groupId>ch.qos.logback</groupId><artifactId>logback-classic</artifactId><version>1.4.12</version></dependency>
-      <dependency><groupId>org.jitsi</groupId><artifactId>libjitsi</artifactId><version>1.1-32-g2a5a8171</version></dependency>
-      <dependency><groupId>org.jitsi</groupId><artifactId>jitsi-android-osgi</artifactId><version>2.0-3-gd59644a</version></dependency>
+      <dependency><groupId>ch.qos.logback</groupId><artifactId>logback-classic</artifactId><version>1.5.18</version></dependency>
+      <dependency><groupId>org.jitsi</groupId><artifactId>libjitsi</artifactId><version>1.1-34-gb93ce2ee</version></dependency>
+      <dependency><groupId>org.jitsi</groupId><artifactId>jitsi-android-osgi</artifactId><version>2.0-4-g4078a18</version></dependency>
       <dependency><groupId>org.reflections</groupId><artifactId>reflections</artifactId><version>0.10.2</version></dependency>
       <dependency><groupId>com.github.hypfvieh</groupId><artifactId>dbus-java</artifactId><version>3.3.2</version></dependency>
       <dependency><groupId>org.jitsi</groupId><artifactId>irc-api</artifactId><version>1.0-0015-jitsi-1</version></dependency>
@@ -191,7 +191,7 @@
       <dependency>
         <groupId>org.easymock</groupId>
         <artifactId>easymock</artifactId>
-        <version>5.1.0</version>
+        <version>5.5.0</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
@@ -212,7 +212,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>3.6.0</version>
+          <version>3.8.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -222,22 +222,37 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.3.0</version>
+          <version>3.4.2</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-install-plugin</artifactId>
-          <version>3.1.1</version>
+          <version>3.1.4</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-deploy-plugin</artifactId>
+          <version>3.1.4</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
           <version>3.1.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.4.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.21.0</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>build-helper-maven-plugin</artifactId>
-          <version>3.4.0</version>
+          <version>3.6.0</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -246,7 +261,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.3.0</version>
+        <version>3.5.0</version>
         <executions>
           <execution>
             <id>default-cli</id>
@@ -273,15 +288,19 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>versions-maven-plugin</artifactId>
-        <version>2.16.0</version>
+        <version>2.18.0</version>
         <configuration>
+          <ignoredVersions>
+            <!-- Ignore Alpha's, Beta's, release candidates and milestones -->
+            <ignoreVersion type="regex">(?i).*Alpha(?:-?\d+)?</ignoreVersion>
+            <ignoreVersion type="regex">(?i).*a(?:-?\d+)?</ignoreVersion>
+            <ignoreVersion type="regex">(?i).*Beta(?:-?\d+)?</ignoreVersion>
+            <ignoreVersion type="regex">(?i).*-B(?:-?\d+)?</ignoreVersion>
+            <ignoreVersion type="regex">(?i).*RC(?:-?\d+)?</ignoreVersion>
+            <ignoreVersion type="regex">(?i).*CR(?:-?\d+)?</ignoreVersion>
+            <ignoreVersion type="regex">(?i).*M(?:-?\d+)?</ignoreVersion>
+          </ignoredVersions>
           <ruleSet>
-            <ignoreVersions>
-              <ignoreVersion>
-                <type>regex</type>
-                <version>.+-(alpha|beta).*</version>
-              </ignoreVersion>
-            </ignoreVersions>
             <rules>
               <rule>
                 <groupId>org.jitsi.desktop</groupId>
@@ -289,6 +308,33 @@
                   <ignoreVersion>
                     <type>regex</type>
                     <version>.*</version>
+                  </ignoreVersion>
+                </ignoreVersions>
+              </rule>
+              <rule>
+                <groupId>commons-codec</groupId>
+                <ignoreVersions>
+                  <ignoreVersion>
+                    <type>regex</type>
+                    <version>2004.*</version>
+                  </ignoreVersion>
+                </ignoreVersions>
+              </rule>
+              <rule>
+                <groupId>commons-io</groupId>
+                <ignoreVersions>
+                  <ignoreVersion>
+                    <type>regex</type>
+                    <version>2003.*</version>
+                  </ignoreVersion>
+                </ignoreVersions>
+              </rule>
+              <rule>
+                <groupId>commons-net</groupId>
+                <ignoreVersions>
+                  <ignoreVersion>
+                    <type>regex</type>
+                    <version>2003.*</version>
                   </ignoreVersion>
                 </ignoreVersions>
               </rule>
@@ -312,7 +358,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.11.0</version>
+        <version>3.14.0</version>
         <configuration>
           <release>11</release>
           <compilerArgs>
@@ -332,7 +378,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.1.2</version>
+        <version>3.5.3</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -364,7 +410,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.5.0</version>
+        <version>3.11.2</version>
         <configuration>
           <doclint>-missing</doclint>
           <source>11</source>
@@ -373,12 +419,12 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
-        <version>3.3.0</version>
+        <version>3.3.1</version>
       </plugin>
       <plugin>
         <groupId>com.outbrain.swinfra</groupId>
         <artifactId>ci-friendly-flatten-maven-plugin</artifactId>
-        <version>1.0.17</version>
+        <version>1.0.28</version>
         <configuration>
           <outputDirectory>${project.build.directory}</outputDirectory>
         </configuration>
