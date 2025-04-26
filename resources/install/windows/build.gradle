@@ -76,7 +76,7 @@ task signWixTarget(group: 'installer-wix', dependsOn: prepareWixTarget) {
         include '*.exe'
     })
     doLast {
-        if (project.hasProperty('application.win.certfile')) {
+        if (hasProperty('application.win.certfile')) {
             inputs.files.each { signFile it }
         }
     }
@@ -166,7 +166,7 @@ task signMsi(group: 'installer-wix', dependsOn: wixLight) {
 }
 
 task windowsZip(type: Zip, group: 'installer-wix', dependsOn: signWixTarget) {
-    archivesBaseName = "jitsi"
+    base.archivesName = "jitsi"
     archiveVersion = versionShort
     archiveClassifier = "win-${arch}"
     from wixTargetDir
