@@ -33,4 +33,6 @@ sudo apt-get install -y \
   debian-archive-keyring \
   git-buildpackage \
   rename
-sudo adduser $USER sbuild
+
+sudo gpasswd -r sbuild
+sudo usermod -a -G sbuild "$(whoami)"
