@@ -20,9 +20,6 @@ cd "${PROJECT_DIR}" || exit
 export BUILD_DIR=${PROJECT_DIR}/target/debian/${DIST}
 mkdir -p "${BUILD_DIR}"
 
-# https://bugs.launchpad.net/ubuntu/+source/ubuntu-dev-tools/+bug/1964670
-sudo sed -i s/pkg-config-\$target_tuple//g /usr/bin/mk-sbuild
-
 # use tmpfs for sbuild
 sudo tee -a /etc/fstab < "${PROJECT_DIR}/resources/sbuild-tmpfs"
 sudo tee -a /etc/schroot/sbuild/fstab <<END
@@ -36,13 +33,14 @@ SBUILD_ARGS=(\
   "--extra-repository-key=${PROJECT_DIR}/resources/jitsi-desktop-key.asc"
   )
 
-# --skip-security because: https://bugs.launchpad.net/ubuntu/+source/ubuntu-dev-tools/+bug/1955116
-# -debootstrap-include=default-jdk because: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=994152
 if [[ "${ARCH}" != "amd64" ]]; then
   SBUILD_ARGS+=(--host="${ARCH}")
   if [ ! -f /var/lib/schroot/tarballs/"${DIST}"-amd64-"${ARCH}".tgz ]; then
-    mk-sbuild "${DIST}" --target "${ARCH}" --skip-security --debootstrap-include=default-jdk --type=file || true
+    mk-sbuild "${DIST}" --target "${ARCH}" --type=file || true
   fi
+
+  # union-type= is not valid for type=file, remove to prevent warnings
+  sudo sed -i s/union-type=.*//g "/etc/schroot/chroot.d/sbuild-${DIST}-amd64-${ARCH}"
   sudo sbuild-update -ud "${DIST}"-amd64-"${ARCH}"
   if debian-distro-info --all | grep -Fqxi "${DIST}"; then
     SBUILD_ARGS+=(--extra-repository='deb http://ftp.debian.org/debian/ '"${DIST}"'-backports main')
@@ -65,11 +63,13 @@ else
   fi
 
   if [ ! -f /var/lib/schroot/tarballs/"${DIST}"-amd64.tgz ]; then
-    mk-sbuild "${DIST}" --skip-security --debootstrap-include=default-jdk --type=file || true
+    mk-sbuild "${DIST}" --type=file || true
   fi
-  sudo sbuild-update -ud "${DIST}"-amd64
-fi
 
+  # union-type= is not valid for type=file, remove to prevent warnings
+  sudo sed -i s/union-type=.*//g "/etc/schroot/chroot.d/sbuild-${DIST}-amd64"
+  sudo sbuild-update -v -ud "${DIST}"-amd64
+fi
 
 mvn -B versions:set -DnewVersion="${VERSION}" -DgenerateBackupPoms=false
 "${PROJECT_DIR}/resources/deb-gen-source.sh" "${VERSION}" "${DIST}"
