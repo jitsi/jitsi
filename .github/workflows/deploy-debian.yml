@@ -30,7 +30,7 @@ jobs:
     concurrency: ${{ github.event.inputs.release_type || inputs.release_type }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
 
       # v1.12
       - uses: robinraju/release-downloader@daf26c55d821e836577a15f77d86ddc078948b05
