@@ -38,6 +38,7 @@ public class OtrBuddyAuthenticationDialog
     extends SIPCommDialog
 {
     private final OtrContact contact;
+    private final String storedFingerprint;
 
     /**
      * The {@link OtrBuddyAuthenticationDialog} ctor.
@@ -49,6 +50,9 @@ public class OtrBuddyAuthenticationDialog
     {
         super(false);
         this.contact = contact;
+        this.storedFingerprint =
+            OtrActivator.scOtrKeyManager.getFingerprintFromPublicKey(
+                OtrActivator.scOtrEngine.getRemotePublicKey(contact));
 
         initComponents();
     }
@@ -191,20 +195,15 @@ public class OtrBuddyAuthenticationDialog
                     ActionComboBoxItem actionItem =
                         (ActionComboBoxItem) fingerprintPanel.
                             getCbAction().getSelectedItem();
-                    PublicKey pubKey =
-                        OtrActivator.scOtrEngine.getRemotePublicKey(contact);
-                    String fingerprint =
-                        OtrActivator.scOtrKeyManager.
-                            getFingerprintFromPublicKey(pubKey);
                     switch (actionItem.action)
                     {
                     case I_HAVE:
                         OtrActivator.scOtrKeyManager.verify(
-                            contact, fingerprint);
+                            contact, storedFingerprint);
                         break;
                     case I_HAVE_NOT:
                         OtrActivator.scOtrKeyManager.unverify(
-                            contact, fingerprint);
+                            contact, storedFingerprint);
                         break;
                     }
                     dispose();
