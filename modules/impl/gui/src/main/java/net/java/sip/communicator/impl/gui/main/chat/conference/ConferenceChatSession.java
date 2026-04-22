@@ -435,8 +435,10 @@ public class ConferenceChatSession
             synchronized (chatParticipants)
             {
                 if (!chatParticipants.contains(chatContact))
+                {
                     chatParticipants.add(chatContact);
                     sessionRenderer.addChatContact(chatContact);
+                }
             }
             
             ChatRoom room = chatRoomWrapper.getChatRoom();
