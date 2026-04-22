@@ -45,12 +45,6 @@ public class AESCrypto
     private static final String CIPHER_ALGORITHM = "AES/ECB/PKCS5PADDING";
 
     /**
-     * Salt used when creating the key.
-     */
-    private static byte[] SALT =
-    { 0x0C, 0x0A, 0x0F, 0x0E, 0x0B, 0x0E, 0x0E, 0x0F };
-
-    /**
      * Possible length of the keys in bits.
      */
     private static int[] KEY_LENGTHS = new int[]{256, 128};
@@ -58,7 +52,7 @@ public class AESCrypto
     /**
      * Number of iterations to use when creating the key.
      */
-    private static int ITERATION_COUNT = 1024;
+    private static int ITERATION_COUNT = 600000;
 
     /**
      * Key derived from the master password to use for encryption/decryption.
@@ -75,6 +69,9 @@ public class AESCrypto
      */
     private Cipher encryptCipher;
 
+    private String masterPassword;
+    private int keyLength;
+
     /**
      * Creates the encryption and decryption objects and the key.
      *
@@ -82,6 +79,7 @@ public class AESCrypto
      */
     public AESCrypto(String masterPassword)
     {
+        this.masterPassword = masterPassword;
         try
         {
             // we try init of key with suupplied lengths
@@ -93,7 +91,8 @@ public class AESCrypto
 
                 try
                 {
-                    initKey(masterPassword, KEY_LENGTHS[i]);
+                    initKey(masterPassword, KEY_LENGTHS[i], new byte[16]);
+                    this.keyLength = KEY_LENGTHS[i];
 
                     // its ok stop trying
                     break;
@@ -128,12 +127,13 @@ public class AESCrypto
      *
      * @param masterPassword used to derive the key. Can be null.
      * @param keyLength Length of the key in bits.
+     * @param salt Salt used for key derivation.
      * @throws InvalidKeyException if the key is invalid (bad encoding,
      * wrong length, uninitialized, etc).
      * @throws NoSuchAlgorithmException if the algorithm chosen does not exist
      * @throws InvalidKeySpecException if the key specifications are invalid
      */
-    private void initKey(String masterPassword, int keyLength)
+    private void initKey(String masterPassword, int keyLength, byte[] salt)
         throws  InvalidKeyException,
                 NoSuchAlgorithmException,
                 InvalidKeySpecException
@@ -152,7 +152,7 @@ public class AESCrypto
             SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
         // Make a key from the master password
         KeySpec spec =
-            new PBEKeySpec(masterPassword.toCharArray(), SALT,
+            new PBEKeySpec(masterPassword.toCharArray(), salt,
                 ITERATION_COUNT, keyLength);
         SecretKey tmp = factory.generateSecret(spec);
         // Make an algorithm specific key
@@ -175,8 +175,14 @@ public class AESCrypto
     {
         try
         {
+            byte[] decoded = Base64.decode(ciphertext);
+            byte[] salt = new byte[16];
+            System.arraycopy(decoded, 0, salt, 0, 16);
+            byte[] actualCiphertext = new byte[decoded.length - 16];
+            System.arraycopy(decoded, 16, actualCiphertext, 0, actualCiphertext.length);
+            initKey(masterPassword, keyLength, salt);
             decryptCipher.init(Cipher.DECRYPT_MODE, key);
-            return new String(decryptCipher.doFinal(Base64.decode(ciphertext)),
+            return new String(decryptCipher.doFinal(actualCiphertext),
                 "UTF-8");
         }
         catch (BadPaddingException e)
@@ -200,9 +206,16 @@ public class AESCrypto
     {
         try
         {
+            SecureRandom random = new SecureRandom();
+            byte[] salt = new byte[16];
+            random.nextBytes(salt);
+            initKey(masterPassword, keyLength, salt);
             encryptCipher.init(Cipher.ENCRYPT_MODE, key);
-            return new String(Base64.encode(encryptCipher.doFinal(plaintext
-                .getBytes("UTF-8"))));
+            byte[] cipherText = encryptCipher.doFinal(plaintext.getBytes("UTF-8"));
+            byte[] out = new byte[salt.length + cipherText.length];
+            System.arraycopy(salt, 0, out, 0, salt.length);
+            System.arraycopy(cipherText, 0, out, salt.length, cipherText.length);
+            return new String(Base64.encode(out));
         }
         catch (Exception e)
         {
