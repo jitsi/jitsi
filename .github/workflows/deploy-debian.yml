@@ -22,6 +22,9 @@ on:
         type: string
         required: true
 
+permissions:
+  contents: read
+
 jobs:
   deploy:
     name: to ${{ github.event.inputs.release_type || inputs.release_type }}

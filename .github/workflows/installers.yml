@@ -16,6 +16,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   version:
     name: Versioning
@@ -236,7 +239,7 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Verify Gradle Wrapper
-        uses: gradle/actions/wrapper-validation@v4
+        uses: gradle/actions/wrapper-validation@0b6dd653ba04f4f93bf581ec31e66cbd7dcb644d # v4
 
       - name: Build natives
         env:
@@ -355,7 +358,7 @@ jobs:
             ${{ runner.os }}-gradle-
 
       - name: Verify Gradle Wrapper
-        uses: gradle/actions/wrapper-validation@v4
+        uses: gradle/actions/wrapper-validation@0b6dd653ba04f4f93bf581ec31e66cbd7dcb644d # v4
 
       - name: Generate dmg
         run: |
@@ -376,6 +379,8 @@ jobs:
       - wix
       - mac
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
