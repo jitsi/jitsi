@@ -18,6 +18,8 @@
 package net.java.sip.communicator.impl.gui.main.configforms;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.*;
 
 import javax.swing.*;
@@ -28,7 +30,11 @@ import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.diagnostics.DiagnosticReportGenerator;
+import net.java.sip.communicator.util.diagnostics.DiagnosticReportOptions;
 import org.osgi.framework.*;
+import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
+import net.java.sip.communicator.service.protocol.AccountID;
 
 /**
  * The <tt>ConfigurationFrame</tt> is the dialog opened when the "Options" menu
@@ -166,6 +172,238 @@ public class ConfigurationFrame
         JComponent topComponent = new TransparentPanel(new BorderLayout());
         topComponent.setBorder(
             new EmptyBorder(BORDER_SIZE / 2, BORDER_SIZE, 0, 0));
+        // Add a small panel on the right to host auxiliary actions
+        JPanel rightPanel = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
+
+        JButton diagBtn = new JButton(GuiActivator.getResources()
+            .getI18NString("plugin.diagnostics.GENERATE_DIAGNOSTIC_REPORT"));
+        diagBtn.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                // Ask user for options
+                JCheckBox includeLogs = new JCheckBox(GuiActivator.getResources().getI18NString("plugin.diagnostics.INCLUDE_LOGS"), true);
+                JCheckBox includeConfig = new JCheckBox(GuiActivator.getResources().getI18NString("plugin.diagnostics.INCLUDE_CONFIG"), true);
+                JCheckBox includeThreads = new JCheckBox(GuiActivator.getResources().getI18NString("plugin.diagnostics.INCLUDE_THREAD_DUMP"), true);
+                JCheckBox includeScreen = new JCheckBox(GuiActivator.getResources().getI18NString("plugin.diagnostics.INCLUDE_SCREENSHOT"), false);
+                JCheckBox redact = new JCheckBox(GuiActivator.getResources().getI18NString("plugin.diagnostics.REDACT_SENSITIVE"), true);
+
+                JPanel panel = new JPanel(new GridLayout(0, 1));
+                panel.add(includeLogs);
+                panel.add(includeConfig);
+                panel.add(includeThreads);
+                panel.add(includeScreen);
+                panel.add(redact);
+
+                int res = JOptionPane.showConfirmDialog(ConfigurationFrame.this,
+                    panel,
+                    GuiActivator.getResources().getI18NString("plugin.diagnostics.DIAGNOSTIC_OPTIONS_TITLE"),
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.PLAIN_MESSAGE);
+
+                if (res != JOptionPane.OK_OPTION)
+                    return;
+
+                // Ask for destination
+                JFileChooser chooser = new JFileChooser();
+                chooser.setDialogTitle(GuiActivator.getResources().getI18NString("plugin.diagnostics.SELECT_DESTINATION"));
+                chooser.setDialogType(JFileChooser.SAVE_DIALOG);
+                chooser.setSelectedFile(new java.io.File("jitsi-diagnostic-" +
+                    new java.text.SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date()) + ".zip"));
+
+                int fc = chooser.showSaveDialog(ConfigurationFrame.this);
+                if (fc != JFileChooser.APPROVE_OPTION)
+                    return;
+
+                final java.io.File dest = chooser.getSelectedFile();
+
+                // Prepare options
+                final DiagnosticReportOptions options = new DiagnosticReportOptions();
+                options.setIncludeLogs(includeLogs.isSelected());
+                options.setIncludeConfig(includeConfig.isSelected());
+                options.setIncludeThreadDump(includeThreads.isSelected());
+                options.setIncludeScreenshot(includeScreen.isSelected());
+                options.setRedactSensitive(redact.isSelected());
+
+                // Collect a user-friendly environment summary
+                StringBuilder bundlesInfo = new StringBuilder();
+                try
+                {
+                    Bundle[] bundles = GuiActivator.bundleContext.getBundles();
+                    if (bundles == null || bundles.length == 0)
+                    {
+                        bundlesInfo.append("No se detectaron módulos (bundles) cargados.\n");
+                    }
+                    else
+                    {
+                        int total = bundles.length;
+                        int active = 0;
+                        for (Bundle b : bundles)
+                        {
+                            if (b.getState() == Bundle.ACTIVE) active++;
+                        }
+                        bundlesInfo.append("Módulos instalados: ").append(total).append(" (activos: ").append(active).append(")\n");
+                        bundlesInfo.append("Lista (hasta 20):\n");
+                        int shown = 0;
+                        for (Bundle b : bundles)
+                        {
+                            bundlesInfo.append(" - ");
+                            String name = b.getSymbolicName();
+                            if (name == null || name.length() == 0)
+                                name = b.getLocation();
+                            bundlesInfo.append(name == null ? "<sin-nombre>" : name);
+                            bundlesInfo.append(" (estado=").append(b.getState()).append(")\n");
+                            if (++shown >= 20) break;
+                        }
+                    }
+
+                    // Account summary: number of configured accounts per protocol
+                    try {
+                        java.util.Map<Object, ProtocolProviderFactory> pf = GuiActivator.getProtocolProviderFactories();
+                        int accountCount = 0;
+                        Map<String, Integer> perProtocol = new HashMap<>();
+                        if (pf != null)
+                        {
+                            for (ProtocolProviderFactory factory : pf.values())
+                            {
+                                try
+                                {
+                                    java.util.List<AccountID> regs = factory.getRegisteredAccounts();
+                                    int cnt = (regs == null) ? 0 : regs.size();
+                                    accountCount += cnt;
+                                    String proto = (String)factory.getClass().getSimpleName();
+                                    perProtocol.put(proto, perProtocol.getOrDefault(proto, 0) + cnt);
+                                }
+                                catch (Throwable ignore) { /* ignore per-factory errors */ }
+                            }
+                        }
+                        bundlesInfo.append("Cuentas configuradas: ").append(accountCount).append("\n");
+                        if (!perProtocol.isEmpty())
+                        {
+                            bundlesInfo.append("Por proveedor/protocolo:\n");
+                            for (Map.Entry<String,Integer> entry : perProtocol.entrySet())
+                                bundlesInfo.append("  - ").append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
+                        }
+                    } catch (Throwable ignore) {}
+                }
+                catch (Throwable t)
+                {
+                    bundlesInfo.append("<bundles-info-unavailable>\n");
+                }
+
+                // Run generation in background
+                JDialog progressDlg = new JDialog(ConfigurationFrame.this,
+                    GuiActivator.getResources().getI18NString("plugin.diagnostics.GENERATING"), true);
+                JProgressBar bar = new JProgressBar();
+                bar.setIndeterminate(true);
+                progressDlg.getContentPane().add(bar);
+                progressDlg.setSize(300, 80);
+                progressDlg.setLocationRelativeTo(ConfigurationFrame.this);
+
+                javax.swing.SwingWorker<Void, Void> worker = new javax.swing.SwingWorker<Void, Void>() {
+                    @Override
+                    protected Void doInBackground() throws Exception {
+                            DiagnosticReportGenerator gen = new DiagnosticReportGenerator();
+                            gen.addTextEntry("report/environment.txt", bundlesInfo.toString());
+
+                        // capture only the Jitsi main window if available
+                        try
+                        {
+                            java.awt.Window mainWindow = null;
+                            try {
+                                Object ui = net.java.sip.communicator.impl.gui.GuiActivator.getUIService();
+                                if (ui != null) {
+                                    // UIServiceImpl exposes main frame via getMainFrame
+                                    try {
+                                        java.lang.reflect.Method m = ui.getClass().getMethod("getMainFrame");
+                                        Object mf = m.invoke(ui);
+                                        if (mf instanceof java.awt.Window)
+                                            mainWindow = (java.awt.Window) mf;
+                                    } catch (NoSuchMethodException ignore) {
+                                        // ignore if method not present
+                                    }
+                                }
+                            } catch (Throwable ignore) {
+                                // ignore
+                            }
+
+                            if (mainWindow != null && mainWindow.isVisible())
+                            {
+                                try {
+                                    // Try to bring application window to front briefly so the capture contains it
+                                    if (mainWindow instanceof java.awt.Frame) {
+                                        java.awt.Frame f = (java.awt.Frame) mainWindow;
+                                        f.toFront();
+                                        f.requestFocus();
+                                    } else {
+                                        mainWindow.toFront();
+                                        mainWindow.requestFocus();
+                                    }
+                                    // small pause to let the OS bring the window forward
+                                    try { Thread.sleep(200); } catch (InterruptedException ie) { /* ignore */ }
+                                } catch (Throwable t) {
+                                    // ignore focus/bring-to-front failures
+                                }
+
+                                java.awt.Rectangle r = mainWindow.getBounds();
+                                java.awt.Robot robot = new java.awt.Robot();
+                                java.awt.image.BufferedImage img = robot.createScreenCapture(r);
+                                java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+                                javax.imageio.ImageIO.write(img, "png", baos);
+                                gen.addBinaryEntry("screenshot/jitsi-window.png", baos.toByteArray());
+                            }
+                            else
+                            {
+                                // fallback: full screen capture
+                                try {
+                                    java.awt.Robot r = new java.awt.Robot();
+                                    java.awt.Rectangle screen = new java.awt.Rectangle(java.awt.Toolkit.getDefaultToolkit().getScreenSize());
+                                    java.awt.image.BufferedImage img = r.createScreenCapture(screen);
+                                    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+                                    javax.imageio.ImageIO.write(img, "png", baos);
+                                    gen.addBinaryEntry("screenshot/jitsi-window.png", baos.toByteArray());
+                                } catch (Throwable ignore) {
+                                    // ignore screenshot failures
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            // proceed without screenshot
+                        }
+
+                        gen.generate(dest, options);
+                        return null;
+                    }
+
+                    @Override
+                    protected void done()
+                    {
+                        progressDlg.dispose();
+                        try
+                        {
+                            get();
+                            JOptionPane.showMessageDialog(ConfigurationFrame.this,
+                                GuiActivator.getResources().getI18NString("plugin.diagnostics.SUCCESS") + "\n" + dest.getAbsolutePath());
+                        }
+                        catch (Exception ex)
+                        {
+                            JOptionPane.showMessageDialog(ConfigurationFrame.this,
+                                GuiActivator.getResources().getI18NString("plugin.diagnostics.FAILED") + "\n" + ex.getMessage(),
+                                GuiActivator.getResources().getI18NString("plugin.diagnostics.ERROR"),
+                                JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                };
+
+                worker.execute();
+                progressDlg.setVisible(true);
+            }
+        });
+
+        rightPanel.add(diagBtn);
+        topComponent.add(rightPanel, BorderLayout.EAST);
+
         return topComponent;
     }
 
