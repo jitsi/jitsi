@@ -360,7 +360,7 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.14.0</version>
         <configuration>
-          <release>11</release>
+          <release>17</release>
           <compilerArgs>
             <arg>-Xlint:all,-serial</arg>
             <arg>-h</arg>
