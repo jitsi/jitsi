@@ -32,7 +32,7 @@
     <slf4jVersion>2.0.17</slf4jVersion>
     <kotlin.version>2.1.20</kotlin.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <lombok.version>1.18.38</lombok.version>
+    <lombok.version>1.18.48</lombok.version>
     <httpcomponents.version>4.5.14</httpcomponents.version>
     <jitsiGeneralGroupId>org.jitsi</jitsiGeneralGroupId>
     <!-- keep this empty default for Linux builds -->
@@ -191,7 +191,7 @@
       <dependency>
         <groupId>org.easymock</groupId>
         <artifactId>easymock</artifactId>
-        <version>5.5.0</version>
+        <version>5.7.0</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
