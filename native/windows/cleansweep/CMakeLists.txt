@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.5)
 project(cleansweep C)
 
 add_executable(${PROJECT_NAME} WIN32
