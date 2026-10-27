@@ -2,6 +2,7 @@
 Name=Jitsi
 GenericName=jitsi
 Comment=VoIP and Instant Messaging client
+Comment[ru]=Клиент для интернет-телефонии и мгновенного обмена сообщениями
 Keywords=chat;messaging;im;voip;video;call;conference;
 Icon=jitsi
 Type=Application
