@@ -320,61 +320,57 @@ public class ConfigurableDnssecResolver
         /**
          * Creates the UI controls
          */
-        private void initComponents()
-        {
+        private void initComponents() {
             setLayout(new BorderLayout(15, 15));
             setTitle(R.getI18NString("util.dns.INSECURE_ANSWER_TITLE"));
 
-            // warning text
-            JLabel imgWarning =
-                new JLabel(R.getImage("service.gui.icons.WARNING_ICON"));
-            imgWarning.setBorder(BorderFactory
-                .createEmptyBorder(10, 10, 10, 10));
-            add(imgWarning, BorderLayout.WEST);
-            JLabel lblWarning = new JLabel(
-                R.getI18NString("util.dns.DNSSEC_WARNING", new String[]{
-                    R.getSettingsString("service.gui.APPLICATION_NAME"),
-                    domain
-                })
-            );
-            add(lblWarning, BorderLayout.CENTER);
+            add(buildWarningSection(), BorderLayout.CENTER);
+            add(buildStandardPanel(), BorderLayout.SOUTH);
+            pnlAdvanced = buildAdvancedPanel(); // se añade al mostrar detalles
+        }
 
-            //standard panel (deny option)
+        private JComponent buildWarningSection() {
+            JPanel panel = new TransparentPanel(new BorderLayout());
+            JLabel img = new JLabel(R.getImage("service.gui.icons.WARNING_ICON"));
+            img.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            panel.add(img, BorderLayout.WEST);
+
+            JLabel text = new JLabel(R.getI18NString("util.dns.DNSSEC_WARNING",
+                new String[]{ R.getSettingsString("service.gui.APPLICATION_NAME"), domain }));
+            panel.add(text, BorderLayout.CENTER);
+            return panel;
+        }
+
+        private JComponent buildStandardPanel() {
             cmdAck = new JButton(R.getI18NString("service.gui.OK"));
             cmdAck.addActionListener(this);
-
-            cmdShowDetails = new JButton(
-                R.getI18NString("util.dns.DNSSEC_ADVANCED_OPTIONS"));
+            cmdShowDetails = new JButton(R.getI18NString("util.dns.DNSSEC_ADVANCED_OPTIONS"));
             cmdShowDetails.addActionListener(this);
 
             pnlStandard = new TransparentPanel(new BorderLayout());
-            pnlStandard.setBorder(BorderFactory
-                .createEmptyBorder(10, 10, 10, 10));
+            pnlStandard.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
             pnlStandard.add(cmdShowDetails, BorderLayout.WEST);
             pnlStandard.add(cmdAck, BorderLayout.EAST);
-            add(pnlStandard, BorderLayout.SOUTH);
+            return pnlStandard;
+        }
 
-            //advanced panel
-            pnlAdvanced = new TransparentPanel(new BorderLayout());
-            JPanel pnlAdvancedButtons = new TransparentPanel(
-                new FlowLayout(FlowLayout.RIGHT));
-            pnlAdvancedButtons.setBorder(BorderFactory
-                .createEmptyBorder(10, 10, 10, 10));
-            pnlAdvanced.add(pnlAdvancedButtons, BorderLayout.EAST);
-            for(DnssecDialogResult r : DnssecDialogResult.values())
-            {
+        private TransparentPanel buildAdvancedPanel() {
+            TransparentPanel advanced = new TransparentPanel(new BorderLayout());
+            JPanel buttons = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
+            buttons.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            for (DnssecDialogResult r : DnssecDialogResult.values()) {
                 JButton cmd = new JButton(R.getI18NString(
                     "net.java.sip.communicator.util.dns."
-                    + "ConfigurableDnssecResolver$DnssecDialogResult."
-                    + r.name()));
+                    + "ConfigurableDnssecResolver$DnssecDialogResult." + r.name()));
                 cmd.setActionCommand(r.name());
                 cmd.addActionListener(this);
-                pnlAdvancedButtons.add(cmd);
+                buttons.add(cmd);
             }
-            JLabel lblReason = new JLabel(reason);
-            lblReason.setBorder(BorderFactory
-                .createEmptyBorder(10, 10, 10, 10));
-            pnlAdvanced.add(lblReason, BorderLayout.NORTH);
+            JLabel lbl = new JLabel(reason);
+            lbl.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            advanced.add(buttons, BorderLayout.EAST);
+            advanced.add(lbl, BorderLayout.NORTH);
+            return advanced;
         }
 
         /**
