@@ -190,20 +190,28 @@ public class MediaAwareCallConference
      * {@inheritDoc}
      *
      * If this telephony conference switches from being a conference focus to
-     * not being such, disposes of the mixers used by this instance when it was
-     * a conference focus
+     * not being such, disposes of the mixers which are used by this instance
+     * only while it is a conference focus
      */
     @Override
     protected void conferenceFocusChanged(boolean oldValue, boolean newValue)
     {
         /*
          * If this telephony conference switches from being a conference
-         * focus to not being one, dispose of the mixers used when it was a
-         * conference focus.
+         * focus to not being one, dispose of the mixers used only when it is
+         * a conference focus. Outside of Android the audio mixer is used
+         * without a conference focus as well, so keep it: the MediaStreams
+         * which are still running stay on it, and a new audio mixer would
+         * not mix them with the MediaStreams started after the conference
+         * becomes a conference focus again.
          */
         if (oldValue && !newValue)
         {
-            Arrays.fill(mixers, null);
+            for (MediaType mediaType : MediaType.values())
+            {
+                if (mediaType != MediaType.AUDIO || OSUtils.IS_ANDROID)
+                    mixers[mediaType.ordinal()] = null;
+            }
 
             /* Disposing the video translator is not needed when the conference
                changes as we have video and we will want to continue with
