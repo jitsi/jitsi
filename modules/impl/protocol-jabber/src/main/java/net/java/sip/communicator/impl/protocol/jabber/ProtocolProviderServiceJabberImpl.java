@@ -2065,6 +2065,18 @@ public class ProtocolProviderServiceJabberImpl
         return accountID;
     }
 
+    // Char class XMPP node (RFC 6122 §3.3, como estaba codificada en el bucle original)
+    private static final String XMPP_NODE_CHAR_CLASS =
+        "\\u0021\\u0023-\\u0025\\u0028-\\u002E\\u0030-\\u0039\\u003B\\u003D\\u003F\\u0041-\\u007E\\u0080-\\uD7FF\\uE000-\\uFFFD";
+
+    // Patrón para validar completamente el "user" (antes del '@')
+    private static final java.util.regex.Pattern XMPP_NODE_ALLOWED =
+        java.util.regex.Pattern.compile("^[" + XMPP_NODE_CHAR_CLASS + "]+$");
+
+    // Patrón para filtrar lo no permitido y construir la sugerencia
+    private static final java.util.regex.Pattern XMPP_NODE_FILTER =
+        java.util.regex.Pattern.compile("[^" + XMPP_NODE_CHAR_CLASS + "]");
+
     /**
      * Validates the node part of a JID and returns an error message if
      * applicable and a suggested correction.
@@ -2083,73 +2095,47 @@ public class ProtocolProviderServiceJabberImpl
     public boolean validateContactAddress(String contactId, List<String> result)
     {
         if (result == null)
-        {
             throw new IllegalArgumentException("result must be an empty list");
-        }
 
         result.clear();
-        try
-        {
-            contactId = contactId.trim();
-            if (contactId.length() == 0)
-            {
-                result.add(JabberActivator.getResources().getI18NString(
-                    "impl.protocol.jabber.INVALID_ADDRESS", new String[]
-                { contactId }));
-                // no suggestion for an empty id
-                return false;
-            }
 
-            String user = contactId;
-            String remainder = "";
-            int at = contactId.indexOf('@');
-            if (at > -1)
-            {
-                user = contactId.substring(0, at);
-                remainder = contactId.substring(at);
-            }
-
-            // <conforming-char> ::= #x21 | [#x23-#x25] | [#x28-#x2E] |
-            // [#x30-#x39] | #x3B | #x3D | #x3F |
-            // [#x41-#x7E] | [#x80-#xD7FF] |
-            // [#xE000-#xFFFD] | [#x10000-#x10FFFF]
-            boolean valid = true;
-            String suggestion = "";
-            for (char c : user.toCharArray())
-            {
-                if (!(c == 0x21 || (c >= 0x23 && c <= 0x25)
-                    || (c >= 0x28 && c <= 0x2e) || (c >= 0x30 && c <= 0x39)
-                    || c == 0x3b || c == 0x3d || c == 0x3f
-                    || (c >= 0x41 && c <= 0x7e) || (c >= 0x80 && c <= 0xd7ff)
-                    || (c >= 0xe000 && c <= 0xfffd)))
-                {
-                    valid = false;
-                }
-                else
-                {
-                    suggestion += c;
-                }
-            }
-
-            if (!valid)
-            {
-                result.add(JabberActivator.getResources().getI18NString(
-                    "impl.protocol.jabber.INVALID_ADDRESS", new String[]
-                { contactId }));
-                result.add(suggestion + remainder);
-                return false;
-            }
-
-            return true;
-        }
-        catch (Exception ex)
+        // --- Guard Clauses (Replace Nested Conditional with Guard Clauses)
+        if (contactId == null)
         {
             result.add(JabberActivator.getResources().getI18NString(
-                "impl.protocol.jabber.INVALID_ADDRESS", new String[]
-            { contactId }));
+                "impl.protocol.jabber.INVALID_ADDRESS", new String[] { "null" }));
+            return false;
         }
 
-        return false;
+        final String trimmed = contactId.trim();
+        if (trimmed.isEmpty())
+        {
+            result.add(JabberActivator.getResources().getI18NString(
+                "impl.protocol.jabber.INVALID_ADDRESS", new String[] { trimmed }));
+            return false;
+        }
+
+        // --- Introduce Explaining Variable
+        final int atIndex = trimmed.indexOf('@');
+        final String user = (atIndex > -1) ? trimmed.substring(0, atIndex) : trimmed;
+        final String remainder = (atIndex > -1) ? trimmed.substring(atIndex) : "";
+
+        // --- Substitute Algorithm (regex en lugar del bucle manual)
+        final boolean valid = XMPP_NODE_ALLOWED.matcher(user).matches();
+
+        if (!valid)
+        {
+            // Construimos sugerencia filtrando lo inválido (sin concatenar strings en bucle)
+            final String suggestion =
+                XMPP_NODE_FILTER.matcher(user).replaceAll("") + remainder;
+
+            result.add(JabberActivator.getResources().getI18NString(
+                "impl.protocol.jabber.INVALID_ADDRESS", new String[] { trimmed }));
+            result.add(suggestion);
+            return false;
+        }
+
+        return true;
     }
 
     /**

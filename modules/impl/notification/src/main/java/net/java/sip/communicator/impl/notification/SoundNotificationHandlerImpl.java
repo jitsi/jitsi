@@ -83,87 +83,68 @@ public class SoundNotificationHandlerImpl
      * @param data Additional data for the event.
      * @param device
      */
-    private void play(
-            SoundNotificationAction action,
-            NotificationData data,
-            SCAudioClipDevice device)
-    {
-        AudioNotifierService audioNotifService
-            = NotificationActivator.getAudioNotifier();
+    private void play(SoundNotificationAction action, NotificationData data, SCAudioClipDevice device) {
+    AudioNotifierService audioNotifService = NotificationActivator.getAudioNotifier();
+    
+    if (audioNotifService == null || StringUtils.isBlank(action.getDescriptor())) return;
+    
+    // this is hack, seen on some os (particularly seen on macosx with external devices).
+    // when playing notification in the call, can break the call and
+    // no further communicating can be done after the notification.
+    // So we skip playing notification if we have a call running
+    ConfigurationService cfg = NotificationActivator.getConfigurationService();
+    if (cfg != null && cfg.getBoolean(PROP_DISABLE_NOTIFICATION_DURING_CALL, false) 
+            && SCAudioClipDevice.PLAYBACK.equals(device)) {
+        UIService uiService = NotificationActivator.getUIService();
+        if (!uiService.getInProgressCalls().isEmpty()) return;
+    }
 
-        if((audioNotifService == null)
-                || StringUtils.isBlank(action.getDescriptor()))
-            return;
+    SCAudioClip audio = createAudioClipForDevice(device, audioNotifService, action);
+    if (audio == null) return;
 
-        // this is hack, seen on some os (particularly seen on macosx with
-        // external devices).
-        // when playing notification in the call, can break the call and
-        // no further communicating can be done after the notification.
-        // So we skip playing notification if we have a call running
-        ConfigurationService cfg
-            = NotificationActivator.getConfigurationService();
-        if(cfg != null
-                && cfg.getBoolean(
-                    PROP_DISABLE_NOTIFICATION_DURING_CALL,
-                    false)
-                && SCAudioClipDevice.PLAYBACK.equals(device))
-        {
-            UIService uiService = NotificationActivator.getUIService();
+    PlaybackExecution execution = new PlaybackExecution(audio, data);
+    execution.execute(action.getLoopInterval());
+}
 
-            if(!uiService.getInProgressCalls().isEmpty())
-                return;
-        }
+private SCAudioClip createAudioClipForDevice(SCAudioClipDevice device, AudioNotifierService audioNotifService, SoundNotificationAction action) {
+    if (device == SCAudioClipDevice.PC_SPEAKER) {
+        return OSUtils.IS_ANDROID ? null : new PCSpeakerClip();
+    }
+    if (device == SCAudioClipDevice.NOTIFICATION || device == SCAudioClipDevice.PLAYBACK) {
+        return audioNotifService.createAudio(action.getDescriptor(), SCAudioClipDevice.PLAYBACK.equals(device));
+    }
+    return null;
+}
 
-        SCAudioClip audio = null;
-
-        switch (device)
-        {
-        case NOTIFICATION:
-        case PLAYBACK:
-            audio
-                = audioNotifService.createAudio(
-                        action.getDescriptor(),
-                        SCAudioClipDevice.PLAYBACK.equals(device));
-            break;
-
-        case PC_SPEAKER:
-            if(!OSUtils.IS_ANDROID)
-                audio = new PCSpeakerClip();
-            break;
-        }
-
-        // it is possible that audio cannot be created
-        if(audio == null)
-            return;
-
-        synchronized(playedClips)
-        {
+private class PlaybackExecution {
+    private final SCAudioClip audio;
+    private final NotificationData data;
+    
+    PlaybackExecution(SCAudioClip audio, NotificationData data) {
+        this.audio = audio;
+        this.data = data;
+    }
+    
+    void execute(int loopInterval) {
+        synchronized(playedClips) {
             playedClips.put(audio, data);
         }
-
+        
         boolean played = false;
-
-        try
-        {
+        try {
             @SuppressWarnings("unchecked")
-            Callable<Boolean> loopCondition
-                = (Callable<Boolean>)
-                    data.getExtra(
-                            NotificationData
-                                .SOUND_NOTIFICATION_HANDLER_LOOP_CONDITION_EXTRA);
-
-            audio.play(action.getLoopInterval(), loopCondition);
+            Callable<Boolean> loopCondition = (Callable<Boolean>) data.getExtra(
+                NotificationData.SOUND_NOTIFICATION_HANDLER_LOOP_CONDITION_EXTRA);
+            audio.play(loopInterval, loopCondition);
             played = true;
         }
-        finally
-        {
-            synchronized(playedClips)
-            {
-                if (!played)
-                    playedClips.remove(audio);
+        finally {
+            synchronized(playedClips) {
+                if (!played) playedClips.remove(audio);
             }
         }
     }
+}
 
     /**
      * Stops/Restores all currently playing sounds.
