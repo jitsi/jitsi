@@ -38,9 +38,25 @@ public abstract class DependentActivator
     private final Map<Class<?>, ServiceTracker<?, ?>>
         dependentServices = new HashMap<>();
 
-    private final Set<Object> runningServices = new HashSet<>();
+    /**
+     * The services received from the trackers. Guarded by {@link #syncRoot}.
+     */
+    private final Set<Object> runningServices = new LinkedHashSet<>();
 
-    private BundleContext bundleContext;
+    /**
+     * Whether {@link #startWithServices(BundleContext)} has been called.
+     * Guarded by {@link #syncRoot}.
+     */
+    private boolean started;
+
+    /**
+     * The lock for {@link #runningServices} and {@link #started}. The service
+     * trackers of a framework can call {@link #addingService} on several
+     * threads at the same time.
+     */
+    private final Object syncRoot = new Object();
+
+    private volatile BundleContext bundleContext;
 
     protected DependentActivator(Iterable<Class<?>> dependentServices)
     {
@@ -91,8 +107,32 @@ public abstract class DependentActivator
     public Object addingService(ServiceReference<Object> reference)
     {
         Object service = bundleContext.getService(reference);
-        runningServices.add(service);
-        if (runningServices.size() == dependentServices.size())
+        if (service == null)
+        {
+            logger.warn("Service for {} is no longer available", reference);
+            return null;
+        }
+
+        // Several services of one dependency type (e.g. more than one
+        // protocol provider factory) can be added at the same time on
+        // different threads. Check per dependency type, and decide to start
+        // under the lock, so that the activator starts exactly once.
+        boolean startNow;
+        boolean alreadyStarted;
+        Set<Class<?>> missingServices;
+        synchronized (syncRoot)
+        {
+            runningServices.add(service);
+            alreadyStarted = started;
+            missingServices = getMissingServices();
+            startNow = !started && missingServices.isEmpty();
+            if (startNow)
+            {
+                started = true;
+            }
+        }
+
+        if (startNow)
         {
             openTrackers.remove(this);
             logger.debug("Got service {}, starting now",
@@ -107,12 +147,8 @@ public abstract class DependentActivator
                 logger.error("Failed to start bundle with services", e);
             }
         }
-        else if (logger.isTraceEnabled())
+        else if (!alreadyStarted && logger.isTraceEnabled())
         {
-            Set<Class<?>> missingServices =
-                new HashSet<>(dependentServices.keySet());
-            missingServices.removeIf(s -> runningServices.stream()
-                .anyMatch(rs -> s.isAssignableFrom(rs.getClass())));
             openTrackers.put(this, missingServices);
             logger.trace(
                 "Got service {}, still waiting for {} services: \n\t{}",
@@ -144,14 +180,30 @@ public abstract class DependentActivator
         return service;
     }
 
+    /**
+     * Gets the dependency types that do not have a service yet. Must be called
+     * with {@link #syncRoot} held.
+     */
+    private Set<Class<?>> getMissingServices()
+    {
+        Set<Class<?>> missingServices =
+            new HashSet<>(dependentServices.keySet());
+        missingServices.removeIf(s -> runningServices.stream()
+            .anyMatch(s::isInstance));
+        return missingServices;
+    }
+
     @SuppressWarnings("unchecked")
     protected <T> T getService(Class<T> serviceClass)
     {
-        for (Object instance : runningServices)
+        synchronized (syncRoot)
         {
-            if (serviceClass.isAssignableFrom(instance.getClass()))
+            for (Object instance : runningServices)
             {
-                return (T) instance;
+                if (serviceClass.isAssignableFrom(instance.getClass()))
+                {
+                    return (T) instance;
+                }
             }
         }
 
